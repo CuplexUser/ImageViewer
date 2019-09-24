@@ -1135,7 +1135,7 @@ namespace ImageViewer
                 try
                 {
                     string fileName = openFileDialog1.FileName;
-                    var imgRefElement = _imageLoaderService.ImportSingleImage(fileName, _imageReferenceCollection);
+                    var imgRefElement = _imageLoaderService.ImportSingleImage(fileName, ref  _imageReferenceCollection);
                     LoadNewImageFile(imgRefElement);
                     if (pictureBox1.Image != null)
                     {

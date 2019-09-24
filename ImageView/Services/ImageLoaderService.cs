@@ -366,7 +366,7 @@ namespace ImageViewer.Services
             GC.SuppressFinalize(this);
         }
 
-        public ImageReferenceElement ImportSingleImage(string fileName, ImageReferenceCollection imgReferenceCollection)
+        public ImageReferenceElement ImportSingleImage(string fileName, ref ImageReferenceCollection imgReferenceCollection)
         {
             var fileInfo = new FileInfo(fileName);
 
@@ -380,16 +380,22 @@ namespace ImageViewer.Services
                 LastAccessTime = fileInfo.LastWriteTime,
                 Size = fileInfo.Length
             };
-
+            
             lock (_threadLock)
             {
+                bool createdNewImgRefList = false;
                 if (_imageReferenceList == null)
                 {
                     _imageReferenceList= new List<ImageReferenceElement>();
+                    createdNewImgRefList = true;
                 }
 
                 _imageReferenceList.Add(imgRefElement);
                 _totalNumberOfFiles = _imageReferenceList.Count;
+                if (createdNewImgRefList)
+                {
+                    imgReferenceCollection = new ImageReferenceCollection(GetRandomImagePositionList(), this);
+                }
             }
 
             imgReferenceCollection.SingleImageLoadedSetAsCurrent();

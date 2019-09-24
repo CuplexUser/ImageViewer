@@ -89,6 +89,11 @@ namespace ImageViewer.Collections
 
         public void SingleImageLoadedSetAsCurrent()
         {
+            if (_randomImagePosList == null)
+            {
+                Log.Error("ImageReference Collection:SingleImageLoadedSetAsCurrent() Assert error _randomImagePosList==null");
+                return;
+            }
             while (_randomImagePosList.Count < _imageLoaderService.ImageReferenceList.Count)
             {
                 int maxValue = _randomImagePosList.Max();
