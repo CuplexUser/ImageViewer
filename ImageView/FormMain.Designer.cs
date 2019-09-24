@@ -92,6 +92,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolTipSlideshowState = new System.Windows.Forms.ToolTip(this.components);
+            this.deleteImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -159,6 +160,9 @@
             // 
             this.autoLoadPreviousFolderToolStripMenuItem.Enabled = false;
             this.autoLoadPreviousFolderToolStripMenuItem.Name = "autoLoadPreviousFolderToolStripMenuItem";
+            this.autoLoadPreviousFolderToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.A)));
+            this.autoLoadPreviousFolderToolStripMenuItem.ShowShortcutKeys = false;
             this.autoLoadPreviousFolderToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.autoLoadPreviousFolderToolStripMenuItem.Text = "&Auto Load Previous folder";
             this.autoLoadPreviousFolderToolStripMenuItem.Click += new System.EventHandler(this.autoLoadPreviousFolderToolStripMenuItem_Click);
@@ -181,7 +185,8 @@
             this.copyFilepathToolStripMenuItem,
             this.copyFileToolStripMenuItem,
             this.toolStripMenuItem1,
-            this.openInDefaultApplicationToolStripMenuItem1});
+            this.openInDefaultApplicationToolStripMenuItem1,
+            this.deleteImageToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "&Edit";
@@ -189,26 +194,29 @@
             // copyFilepathToolStripMenuItem
             // 
             this.copyFilepathToolStripMenuItem.Name = "copyFilepathToolStripMenuItem";
-            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.copyFilepathToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
             this.copyFilepathToolStripMenuItem.Text = "Copy Filepath";
             this.copyFilepathToolStripMenuItem.Click += new System.EventHandler(this.copyFilepathToolStripMenuItem_Click);
             // 
             // copyFileToolStripMenuItem
             // 
             this.copyFileToolStripMenuItem.Name = "copyFileToolStripMenuItem";
-            this.copyFileToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.copyFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this.copyFileToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
             this.copyFileToolStripMenuItem.Text = "Copy File";
             this.copyFileToolStripMenuItem.Click += new System.EventHandler(this.copyFileToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(218, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(223, 6);
             // 
             // openInDefaultApplicationToolStripMenuItem1
             // 
             this.openInDefaultApplicationToolStripMenuItem1.Name = "openInDefaultApplicationToolStripMenuItem1";
-            this.openInDefaultApplicationToolStripMenuItem1.Size = new System.Drawing.Size(221, 22);
+            this.openInDefaultApplicationToolStripMenuItem1.Size = new System.Drawing.Size(226, 22);
             this.openInDefaultApplicationToolStripMenuItem1.Text = "Open In Default Application";
             this.openInDefaultApplicationToolStripMenuItem1.Click += new System.EventHandler(this.openInDefaultApplicationToolStripMenuItem1_Click);
             // 
@@ -270,26 +278,26 @@
             // 
             this.zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
             this.zoomInToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Up)));
-            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.zoomInToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
             this.zoomInToolStripMenuItem.Text = "Zoom In";
             // 
             // zoomOutToolStripMenuItem
             // 
             this.zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
             this.zoomOutToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Down)));
-            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.zoomOutToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
             this.zoomOutToolStripMenuItem.Text = "Zoom out";
             // 
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(231, 6);
+            this.toolStripSeparator8.Size = new System.Drawing.Size(230, 6);
             // 
             // resetZoomToolStripMenuItem
             // 
             this.resetZoomToolStripMenuItem.Name = "resetZoomToolStripMenuItem";
             this.resetZoomToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D0)));
-            this.resetZoomToolStripMenuItem.Size = new System.Drawing.Size(234, 22);
+            this.resetZoomToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
             this.resetZoomToolStripMenuItem.Text = "Reset Zoom To Default";
             // 
             // toolStripSeparator10
@@ -363,7 +371,7 @@
             this.toolStripSeparator6,
             this.openSettingsToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.settingsToolStripMenuItem.Text = "&Tools";
             // 
             // randomizeCollectionToolStripMenuItem
@@ -424,26 +432,26 @@
             this.toolStripSeparator13,
             this.thumbnailDBSettingsToolStripMenuItem});
             this.thumbnailsToolStripMenuItem.Name = "thumbnailsToolStripMenuItem";
-            this.thumbnailsToolStripMenuItem.Size = new System.Drawing.Size(82, 20);
+            this.thumbnailsToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.thumbnailsToolStripMenuItem.Text = "&Thumbnails";
             // 
             // openThumbnailsToolStripMenuItem1
             // 
             this.openThumbnailsToolStripMenuItem1.Name = "openThumbnailsToolStripMenuItem1";
             this.openThumbnailsToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
-            this.openThumbnailsToolStripMenuItem1.Size = new System.Drawing.Size(213, 22);
+            this.openThumbnailsToolStripMenuItem1.Size = new System.Drawing.Size(212, 22);
             this.openThumbnailsToolStripMenuItem1.Text = "Open Thumbnails";
             this.openThumbnailsToolStripMenuItem1.Click += new System.EventHandler(this.openThumbnailsToolStripMenuItem1_Click);
             // 
             // toolStripSeparator13
             // 
             this.toolStripSeparator13.Name = "toolStripSeparator13";
-            this.toolStripSeparator13.Size = new System.Drawing.Size(210, 6);
+            this.toolStripSeparator13.Size = new System.Drawing.Size(209, 6);
             // 
             // thumbnailDBSettingsToolStripMenuItem
             // 
             this.thumbnailDBSettingsToolStripMenuItem.Name = "thumbnailDBSettingsToolStripMenuItem";
-            this.thumbnailDBSettingsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.thumbnailDBSettingsToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.thumbnailDBSettingsToolStripMenuItem.Text = "Thumbnail Cache Settings";
             this.thumbnailDBSettingsToolStripMenuItem.Click += new System.EventHandler(this.thumbnailDBSettingsToolStripMenuItem_Click);
             // 
@@ -575,6 +583,15 @@
             this.toolTipSlideshowState.InitialDelay = 100;
             this.toolTipSlideshowState.ReshowDelay = 500;
             // 
+            // deleteImageToolStripMenuItem
+            // 
+            this.deleteImageToolStripMenuItem.Name = "deleteImageToolStripMenuItem";
+            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.Delete)));
+            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.deleteImageToolStripMenuItem.Text = "Delete Image";
+            this.deleteImageToolStripMenuItem.Click += new System.EventHandler(this.DeleteImageToolStripMenuItem_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -665,6 +682,7 @@
         private System.Windows.Forms.ToolStripMenuItem openInDefaultApplicationToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem menuItemLoadBookmarkedImages;
         private System.Windows.Forms.ToolTip toolTipSlideshowState;
+        private System.Windows.Forms.ToolStripMenuItem deleteImageToolStripMenuItem;
     }
 }
 

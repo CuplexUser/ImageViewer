@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using GeneralToolkitLib.Converters;
+using System.Linq;
+using ImageViewer.Library.EventHandlers;
+using ImageViewer.Models;
 using ImageViewer.Services;
+using Serilog;
 
-namespace ImageViewer.Models
+namespace ImageViewer.Collections
 {
     public class ImageReferenceCollection
     {
@@ -15,6 +17,28 @@ namespace ImageViewer.Models
         {
             _randomImagePosList = randomImagePosList;
             _imageLoaderService = imageLoaderService;
+
+            imageLoaderService.OnImportComplete += ImageLoaderService_OnImportComplete;
+            imageLoaderService.OnImageWasDeleted += ImageLoaderService_OnImageWasDeleted;
+        }
+
+        private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
+        {
+            // Remove highest imgRefIndex
+            int index = e.ImgRefIndexToRemove;
+            _randomImagePosList.Remove(index);
+            Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
+
+            if (CurrentImage != null && CurrentImage == (ImageReferenceElement)e.ImageReference)
+            {
+                GetNextImage();
+            }
+        }
+
+        private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
+        {
+            // Create new randomImagePosList based on new import
+            _randomImagePosList.Clear();
         }
 
         public ImageReferenceElement CurrentImage { get; private set; }
@@ -37,8 +61,11 @@ namespace ImageViewer.Models
 
         public ImageReferenceElement GetNextImage()
         {
+            if (_randomImagePosList.Count == 0 || _imageLoaderService.ImageReferenceList.Count == 0)
+                return null;
+
             ImageListPointer = ImageListPointer + 1;
-            CurrentImage =_imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
+            CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
             return CurrentImage;
         }
 
@@ -56,28 +83,19 @@ namespace ImageViewer.Models
         public ImageReferenceElement GetPreviousImage()
         {
             ImageListPointer = ImageListPointer - 1;
-            CurrentImage =_imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
+            CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
             return CurrentImage;
         }
 
-        public ImageReferenceElement SetCurrentImage(string fileName)
+        public void SingleImageLoadedSetAsCurrent()
         {
-            ImageReferenceElement imageReferenceElement = new ImageReferenceElement();
-            FileInfo fi = new FileInfo(fileName);
-            imageReferenceElement.Size = fi.Length;
-            imageReferenceElement.CompletePath = fileName;
-            imageReferenceElement.CreationTime = fi.CreationTime;
-            imageReferenceElement.Directory = GeneralConverters.GetDirectoryNameFromPath(fileName);
-            imageReferenceElement.LastAccessTime = fi.LastAccessTime;
-            imageReferenceElement.LastWriteTime = fi.LastWriteTime;
-            imageReferenceElement.FileName = GeneralConverters.GetFileNameFromPath(fileName);
-
-            CurrentImage = imageReferenceElement;
-
-            if (_randomImagePosList.Count == 0)
-                _randomImagePosList.Add(0);
-
-            return imageReferenceElement;
+            while (_randomImagePosList.Count < _imageLoaderService.ImageReferenceList.Count)
+            {
+                int maxValue = _randomImagePosList.Max();
+                _randomImagePosList.Add(maxValue + 1);
+            }
+            ImageListPointer = _imageLoaderService.ImageReferenceList.Count - 1;
+            CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
         }
     }
 }

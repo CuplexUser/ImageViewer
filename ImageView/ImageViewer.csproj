@@ -87,13 +87,14 @@
     <ManifestCertificateThumbprint>EC190E9F8470CCC2FF252F9724DE2EB9FDA35C86</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ImageViewer_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>false</SignManifests>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>ImageViewer.Program</StartupObject>
@@ -121,12 +122,14 @@
   <PropertyGroup>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.Entity" />
-    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -159,6 +162,7 @@
     <Compile Include="DataContracts\RectangleDataModel.cs" />
     <Compile Include="DataContracts\SizeDataModel.cs" />
     <Compile Include="Library\AutomapperProfile\ImageViewMapperProfile.cs" />
+    <Compile Include="Library\EventHandlers\ImageRemovedEventHandler.cs" />
     <Compile Include="Managers\ImageManager.cs" />
     <Compile Include="Models\Interface\IAppSettingsRepository.cs" />
     <Compile Include="Models\ThumbnailDatabase.cs" />
@@ -564,6 +568,7 @@
   <ItemGroup>
     <Content Include="defaultIcon.ico" />
     <Content Include="FodyWeavers.xml" />
+    <None Include="Resources\No-Camera-icon.png" />
     <None Include="Resources\imageViewBackImg.jpg" />
     <None Include="Resources\Arrow-Next-icon.png" />
     <None Include="Resources\Arrow-Back-icon.png" />
@@ -576,36 +581,25 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac">
-      <Version>4.9.2</Version>
+      <Version>4.9.4</Version>
     </PackageReference>
     <PackageReference Include="AutofacSerilogIntegration">
       <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="AutoMapper">
-      <Version>8.1.1</Version>
+      <Version>9.0.0</Version>
     </PackageReference>
     <PackageReference Include="Castle.Core">
       <Version>4.4.0</Version>
-    </PackageReference>
-    <PackageReference Include="Destructurama.Attributed">
-      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="ImageProcessor">
       <Version>2.7.0.100</Version>
     </PackageReference>
     <PackageReference Include="JetBrains.Annotations">
-      <Version>2019.1.1</Version>
+      <Version>2019.1.3</Version>
     </PackageReference>
     <PackageReference Include="MoreLinq">
-      <Version>3.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="MoreLinq.Source.MoreEnumerable.DistinctBy">
-      <Version>1.0.2</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="protobuf-net">
-      <Version>2.4.0</Version>
+      <Version>3.2.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog">
       <Version>2.8.0</Version>
@@ -634,17 +628,6 @@
     <PackageReference Include="Serilog.Sinks.Trace">
       <Version>2.1.0</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="stdole">
-      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
-      <VersionMajor>2</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>primary</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GeneralToolkitLib\GeneralToolkitLib\GeneralToolkitLib.csproj">

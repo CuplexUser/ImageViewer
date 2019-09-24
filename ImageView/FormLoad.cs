@@ -63,7 +63,7 @@ namespace ImageViewer
                 progressBar1.Value = progressBar1.Maximum;
                 btnStart.Enabled = true;
                 btnCancel.Enabled = false;
-                MessageBox.Show(this, $@"Successfuly loaded {imagesLoaded} images", "Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, $@"Successfully loaded {imagesLoaded} images", "Completed", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Close();
             }
             else

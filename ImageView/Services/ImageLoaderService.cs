@@ -7,9 +7,14 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AutoMapper;
+using ImageViewer.Collections;
+using ImageViewer.DataContracts;
+using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
+using Serilog.Core;
 
 namespace ImageViewer.Services
 {
@@ -30,6 +35,8 @@ namespace ImageViewer.Services
         private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$))";
         private readonly Regex _fileNameRegExp;
         private readonly RandomNumberGenerator _randomNumberGenerator;
+        private readonly BookmarkService _bookmarkService;
+        private readonly IMapper _mapper;
         private readonly object _threadLock;
         private readonly WindowsIdentity _winId;
         private int _filesLoaded;
@@ -39,11 +46,12 @@ namespace ImageViewer.Services
         private bool _runWorkerThread;
         private int _tickCount;
         private int _totalNumberOfFiles;
-        private readonly BookmarkService _bookmarkService;
 
-        public ImageLoaderService(BookmarkService bookmarkService)
+
+        public ImageLoaderService(BookmarkService bookmarkService, IMapper mapper)
         {
             _bookmarkService = bookmarkService;
+            _mapper = mapper;
             _fileNameRegExp = new Regex(ImageSearchPattern, RegexOptions.IgnoreCase);
             _threadLock = new object();
             _progressInterval = 100;
@@ -77,8 +85,9 @@ namespace ImageViewer.Services
 
         public event ProgressUpdateEventHandler OnProgressUpdate;
         public event ProgressUpdateEventHandler OnImportComplete;
-        public event EventHandler OnImageWasDeleted;
+        public event ImageRemovedEventHandler OnImageWasDeleted;
 
+    #region Image Import
         private void DoImageImport()
         {
             try
@@ -115,19 +124,19 @@ namespace ImageViewer.Services
                     var bookmarks = _bookmarkService.BookmarkManager.GetAllBookmarksRecursive(_bookmarkService.BookmarkManager.RootFolder);
 
                     var query = from b in bookmarks
-                        orderby b.LastWriteTime
-                        select new ImageReferenceElement
-                        {
-                            FileName = b.FileName,
-                            Directory = b.Directory,
-                            CompletePath = b.CompletePath,
-                            Size = b.Size,
-                            CreationTime = b.CreationTime,
-                            LastWriteTime = b.LastWriteTime,
-                            LastAccessTime = b.LastAccessTime
-                        };
+                                orderby b.LastWriteTime
+                                select new ImageReferenceElement
+                                {
+                                    FileName = b.FileName,
+                                    Directory = b.Directory,
+                                    CompletePath = b.CompletePath,
+                                    Size = b.Size,
+                                    CreationTime = b.CreationTime,
+                                    LastWriteTime = b.LastWriteTime,
+                                    LastAccessTime = b.LastAccessTime
+                                };
 
-                     imgReferenceList = query.ToList();
+                    imgReferenceList = query.ToList();
                 });
 
                 // Use thread lock when updating the image refference datasource
@@ -175,7 +184,7 @@ namespace ImageViewer.Services
             DirectorySecurity dSecurity = directoryInfo.GetAccessControl();
             AuthorizationRuleCollection authorizationRuleCollection = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
-            foreach (FileSystemAccessRule fsAccessRules  in authorizationRuleCollection)
+            foreach (FileSystemAccessRule fsAccessRules in authorizationRuleCollection)
             {
                 if (_winId.UserClaims.Any(c => c.Value == fsAccessRules.IdentityReference.Value) &&
                     fsAccessRules.FileSystemRights.HasFlag(FileSystemRights.ListDirectory) &&
@@ -226,7 +235,7 @@ namespace ImageViewer.Services
             return imageReferenceList;
         }
 
-        public async Task<bool>  RunBookmarkImageImport()
+        public async Task<bool> RunBookmarkImageImport()
         {
             if (!IsRunningImport)
             {
@@ -239,6 +248,7 @@ namespace ImageViewer.Services
         {
             if (!IsRunningImport)
             {
+                _imageReferenceList = null;
                 _imageBaseDir = path;
                 IsRunningImport = true;
                 _filesLoaded = 0;
@@ -248,7 +258,7 @@ namespace ImageViewer.Services
                     _runWorkerThread = true;
                     DoImageImport();
                 });
-             
+
                 return true;
             }
             return false;
@@ -259,14 +269,26 @@ namespace ImageViewer.Services
             _runWorkerThread = false;
         }
 
+    #endregion
+
         internal bool PermanentlyRemoveFile(ImageReferenceElement imgRefElement)
         {
             int removedItems = 0;
             try
             {
-                File.Delete(imgRefElement.CompletePath);
+                bool exists = File.Exists(imgRefElement.CompletePath);
+
+                Log.Information("Attempting to delete file: {CompletePath}. File Exists {exists}", imgRefElement.CompletePath, exists);
+                if (exists)
+                {
+                    File.Delete(imgRefElement.CompletePath);
+                }
                 removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
-                OnImageWasDeleted?.Invoke(this, new EventArgs());
+                ImageReference imgReference = _mapper.Map<ImageReference>(imgRefElement);
+                imgRefElement = null;
+
+                // Delete from cache
+                OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count-1));
             }
             catch (Exception ex)
             {
@@ -278,7 +300,7 @@ namespace ImageViewer.Services
         private List<int> GetRandomImagePositionList()
         {
             var randomImagePosList = new List<int>();
-            var randomData = new byte[ImageReferenceList.Count*4];
+            var randomData = new byte[ImageReferenceList.Count * 4];
             _randomNumberGenerator.GetBytes(randomData);
             int randomDataPointer = 0;
             var candidates = new List<int>();
@@ -288,7 +310,7 @@ namespace ImageViewer.Services
 
             while (candidates.Count > 0)
             {
-                int index = Math.Abs(BitConverter.ToInt32(randomData, randomDataPointer))%candidates.Count;
+                int index = Math.Abs(BitConverter.ToInt32(randomData, randomDataPointer)) % candidates.Count;
                 randomDataPointer += 4;
 
                 randomImagePosList.Add(candidates[index]);
@@ -310,7 +332,7 @@ namespace ImageViewer.Services
                     randomImagePosList.Add(i);
             }
 
-            var imageReferenceCollection = new ImageReferenceCollection(randomImagePosList,this);
+            var imageReferenceCollection = new ImageReferenceCollection(randomImagePosList, this);
             return imageReferenceCollection;
         }
 
@@ -320,7 +342,7 @@ namespace ImageViewer.Services
             if (randomOrder)
             {
                 var randomImagePosList = GetRandomImagePositionList();
-                while (randomImagePosList.Count>0)
+                while (randomImagePosList.Count > 0)
                 {
                     int position = randomImagePosList[0];
                     randomImagePosList.RemoveAt(0);
@@ -336,17 +358,42 @@ namespace ImageViewer.Services
             }
             return imgRefList;
         }
-     
-        public void CreateFromOpenSingleImage(ImageReferenceElement currentImage)
-        {
-            _imageReferenceList = new List<ImageReferenceElement> {currentImage};
-        }
 
         public void Dispose()
         {
             _randomNumberGenerator?.Dispose();
             _winId?.Dispose();
             GC.SuppressFinalize(this);
+        }
+
+        public ImageReferenceElement ImportSingleImage(string fileName, ImageReferenceCollection imgReferenceCollection)
+        {
+            var fileInfo = new FileInfo(fileName);
+
+            var imgRefElement = new ImageReferenceElement
+            {
+                FileName = fileInfo.Name,
+                Directory = fileInfo.DirectoryName,
+                CompletePath = fileInfo.FullName,
+                CreationTime = fileInfo.CreationTime,
+                LastWriteTime = fileInfo.LastWriteTime,
+                LastAccessTime = fileInfo.LastWriteTime,
+                Size = fileInfo.Length
+            };
+
+            lock (_threadLock)
+            {
+                if (_imageReferenceList == null)
+                {
+                    _imageReferenceList= new List<ImageReferenceElement>();
+                }
+
+                _imageReferenceList.Add(imgRefElement);
+                _totalNumberOfFiles = _imageReferenceList.Count;
+            }
+
+            imgReferenceCollection.SingleImageLoadedSetAsCurrent();
+            return imgReferenceCollection.CurrentImage;
         }
     }
 
@@ -358,7 +405,7 @@ namespace ImageViewer.Services
             ImagesLoaded = imagesLoaded;
 
             if (totalNumberOfFiles > 0)
-                CompletionRate = imagesLoaded/(double) totalNumberOfFiles;
+                CompletionRate = imagesLoaded / (double)totalNumberOfFiles;
         }
 
         public ProgressStatusEnum ProgressStatus { get; private set; }

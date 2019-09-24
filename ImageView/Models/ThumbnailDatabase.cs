@@ -29,19 +29,18 @@ namespace ImageViewer.Models
         public static void CreateMapping(IProfileExpression expression)
         {
             expression.CreateMap<ThumbnailEntry, ThumbnailEntryModel>().ReverseMap();
-            expression.CreateMap<ThumbnailDatabase, ThumbnailDatabaseModel>().ForMember(s => s.ThumbnailEntries, o => o.MapFrom(d => ConvertFromEditableList(d.ThumbnailEntries))).ReverseMap()
-                .ForMember(s => s.ThumbnailEntries, o => o.MapFrom(d => ConvertFromListModel(d.ThumbnailEntries)));
+            //expression.CreateMap<ThumbnailDatabase, ThumbnailDatabaseModel>().ForMember(s => s.ThumbnailEntries, o => o.MapFrom(d => ConvertFromEditableList(d.ThumbnailEntries))).ReverseMap()
+            //    .ForMember(s => s.ThumbnailEntries, o => o.MapFrom(d => ConvertFromListModel(d.ThumbnailEntries)));
+
+            expression.CreateMap<ThumbnailDatabase, ThumbnailDatabaseModel>()
+                .ForMember(d => d.DatabaseId, o => o.MapFrom(s => s.DatabaseId))
+                .ForMember(d => d.DataStoragePath, o => o.MapFrom(s => s.DataStoragePath))
+                .ForMember(d => d.LastUpdated, o => o.MapFrom(s => s.LastUpdated))
+                .ForMember(d => d.ThumbnailEntries, o => o.MapFrom(s=>s.ThumbnailEntries))
+                .ReverseMap();
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="models"></param>
-        /// <returns></returns>
-        public static Func<EditableList<ThumbnailEntry>> ConvertFromListModel(List<ThumbnailEntryModel> models) => () => ModelConverters.ConvertToEditableList(models);
-        public static Func<List<ThumbnailEntryModel>> ConvertFromEditableList(EditableList<ThumbnailEntry> models) => () => ModelConverters.ConvertToList(models);
+        
 
 
 

@@ -10,9 +10,11 @@ using System.Windows.Forms;
 using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
+using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
+using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Models.UserInteraction;
 using ImageViewer.Properties;
@@ -73,7 +75,7 @@ namespace ImageViewer
 
         private void DisplaySlideshowStatus()
         {
-            string tooltipText = timerSlideShow.Enabled ? $"Slideshow started with a delay of {_applicationSettingsService.Settings.SlideshowInterval / 1000} seconds per image." : "Slideshow stoped";
+            string tooltipText = timerSlideShow.Enabled ? $"Slideshow started with a delay of {_applicationSettingsService.Settings.SlideshowInterval / 1000} seconds per image." : "Slideshow stopped";
 
             toolTipSlideshowState.Active = true;
             toolTipSlideshowState.InitialDelay = 150;
@@ -156,7 +158,7 @@ namespace ImageViewer
                 var formState = settings.ExtendedAppSettings.FormStateDictionary[this.GetType().Name];
                 RestoreFormState.SetFormSizeAndPosition(this, formState);
             }
-            
+
         }
 
         private void ChangeImage(bool next)
@@ -192,11 +194,11 @@ namespace ImageViewer
                 imgRef = _imageReferenceCollection.GetPreviousImage();
             }
 
-            LoadNewImageFile(imgRef.CompletePath);
+            LoadNewImageFile(imgRef);
             AddNextImageToCache(_imageReferenceCollection.PeekNextImage().CompletePath);
         }
 
-        private void LoadNewImageFile(string imagePath)
+        private void LoadNewImageFile(ImageReferenceElement imgRefElement)
         {
             try
             {
@@ -212,20 +214,20 @@ namespace ImageViewer
 
                 if (pictureBox1.Image != null && _changeImageAnimation != ImageViewApplicationSettings.ChangeImageAnimation.None)
                 {
-                    _pictureBoxAnimation.Image = _imageCacheService.GetImageFromCache(imagePath);
+                    _pictureBoxAnimation.Image = _imageCacheService.GetImageFromCache(imgRefElement.CompletePath);
                     _pictureBoxAnimation.Refresh();
                 }
                 else
                 {
-                    pictureBox1.Image = _imageCacheService.GetImageFromCache(imagePath);
+                    pictureBox1.Image = _imageCacheService.GetImageFromCache(imgRefElement.CompletePath);
                     pictureBox1.Refresh();
                 }
 
-                Text = _windowTitle + @" | " + GeneralConverters.GetFileNameFromPath(imagePath);
+                Text = _windowTitle + @" | " + GeneralConverters.GetFileNameFromPath(imgRefElement.CompletePath);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {imagePath} : {Message}", imagePath, ex.Message);
+                Log.Error(ex, "FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {CompletePath} : {Message}", imgRefElement.CompletePath, ex.Message);
             }
         }
 
@@ -322,7 +324,7 @@ namespace ImageViewer
 
                 stopwatch.Stop();
                 Log.Verbose("Image transition finished after " + stopwatch.ElapsedMilliseconds + " ms");
-                Invoke(new EventHandler(OnImageLoadComplete), this, new EventArgs());
+                Invoke(new EventHandler(ImageLoadComplete), this, new EventArgs());
             });
 
             pictureBox1.Image = nextImage.Clone() as Image;
@@ -446,11 +448,11 @@ namespace ImageViewer
             }
         }
 
-        private delegate void NativeThreadFunctin();
+        private delegate void NativeThreadFunction();
 
-        private delegate void NativeThreadFunctinUserInfo(object sender, UserInformationEventArgs e);
+        private delegate void NativeThreadFunctionUserInfo(object sender, UserInformationEventArgs e);
 
-        private delegate void NativeThreadFunctinUserQuestion(object sender, UserQuestionEventArgs e);
+        private delegate void NativeThreadFunctionUserQuestion(object sender, UserQuestionEventArgs e);
 
         #region Form Events
 
@@ -465,7 +467,7 @@ namespace ImageViewer
             _applicationSettingsService.OnSettingsSaved += Instance_OnSettingsSaved;
             _applicationSettingsService.OnRegistryAccessDenied += Instance_OnRegistryAccessDenied;
             _imageLoaderService.OnImportComplete += Instance_OnImportComplete;
-            _imageLoaderService.OnImageWasDeleted += Instance_OnImageWasDeleted;
+            _imageLoaderService.OnImageWasDeleted += _imageLoaderService_OnImageWasDeleted;
 
             _pictureBoxAnimation.LoadCompleted += pictureBoxAnimation_LoadCompleted;
             bool settingsLoaded = _applicationSettingsService.LoadSettings();
@@ -494,7 +496,7 @@ namespace ImageViewer
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception);
-                
+
                 }
 
                 _changeImageAnimation = _applicationSettingsService.Settings.NextImageAnimation;
@@ -505,18 +507,6 @@ namespace ImageViewer
                 ToggleSlideshowMenuState();
             }
 
-            
-            //    MessageBox.Show(Resources.Unable_To_Access_application_settings_in_registry,
-            //        Resources.Faild_to_load_settings, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    _formRestartWithAdminPrivileges = new FormRestartWithAdminPrivileges();
-            //    if (_formRestartWithAdminPrivileges.ShowDialog(this) == DialogResult.OK)
-            //    {
-            //        return;
-            //    }
-            
-
-            
-    
 
             //Notification Service
             _interactionService.Initialize(this);
@@ -535,14 +525,14 @@ namespace ImageViewer
             GC.Collect();
         }
 
-        private void Instance_OnImageWasDeleted(object sender, EventArgs e)
-        {
-            Invoke(new NativeThreadFunctin(SetImageReferenceCollection));
-        }
-
         private void Instance_OnImportComplete(object sender, ProgressEventArgs e)
         {
-            Invoke(new NativeThreadFunctin(HandleImportDataComplete));
+            Invoke(new NativeThreadFunction(HandleImportDataComplete));
+        }
+
+        private void _imageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
+        {
+
         }
 
         private void Instance_OnRegistryAccessDenied(object sender, EventArgs e)
@@ -557,12 +547,12 @@ namespace ImageViewer
 
         private void InteractionServiceUserQuestionReceived(object sender, UserQuestionEventArgs e)
         {
-            Invoke(new NativeThreadFunctinUserQuestion(ShowQuestionOnNativeThread), this, e);
+            Invoke(new NativeThreadFunctionUserQuestion(ShowQuestionOnNativeThread), this, e);
         }
 
         private void InteractionServiceUserInformationReceived(object sender, UserInformationEventArgs e)
         {
-            Invoke(new NativeThreadFunctinUserInfo(ShowInfoMessageOnNativeThread), this, e);
+            Invoke(new NativeThreadFunctionUserInfo(ShowInfoMessageOnNativeThread), this, e);
         }
 
 
@@ -705,6 +695,58 @@ namespace ImageViewer
         {
             OpenImageInDefaultApp();
         }
+        private void DeleteImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!ImageSourceDataAvailable)
+            {
+                return;
+            }
+
+            bool slideshowEnabled = timerSlideShow.Enabled;
+            if (slideshowEnabled)
+            {
+                timerSlideShow.Stop();
+                timerSlideShow.Enabled = false;
+            }
+            string currentFilePath = _imageReferenceCollection.CurrentImage.CompletePath;
+
+            var result = MessageBox.Show($"Are you sure you want to delete the current image? \nImage path: { currentFilePath } ", "Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                ImageReferenceElement imgRefElement = _imageReferenceCollection.CurrentImage;
+                bool imgRemoved = _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
+                if (!imgRemoved)
+                {
+
+                    MessageBox.Show($"Unable to delete file {imgRefElement.CompletePath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    timerSlideShow.Enabled = slideshowEnabled;
+                    return;
+                }
+
+                // A cached copy of the image remains independent of file deletion. so we can delete the file while still displaying it. 
+                // The image cache service will be notified of the deletion and remove it from cache
+                // It will also be removed from the image collection set so moving forwards and backwards will not create any problems.
+                // Same with FormImageView instances.
+
+                _pictureBoxAnimation.SizeMode = PictureBoxSizeMode.CenterImage;
+                _pictureBoxAnimation.Image = Resources.No_Camera_icon;
+
+                if (slideshowEnabled)
+                {
+                    timerSlideShow.Start();
+                }
+                else
+                {
+                    DelayOperation.DelayAction(SkipToNextImageImage, 500);
+                }
+            }
+        }
+
+        private void SkipToNextImageImage()
+        {
+            ChangeImage(true);
+        }
 
         private void imageDetailsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -752,7 +794,7 @@ namespace ImageViewer
             }
 
             timerSlideShow.Interval = _applicationSettingsService.Settings.SlideshowInterval;
-            LoadNewImageFile(_imageReferenceCollection.GetNextImage().CompletePath);
+            LoadNewImageFile(_imageReferenceCollection.GetNextImage());
         }
 
         private void formSetSlideshowInterval_OnIntervalChanged(object sender, IntervalEventArgs e)
@@ -783,7 +825,7 @@ namespace ImageViewer
 
             if (result)
             {
-                MessageBox.Show("Successfuly loaded all bookmarks as source images", "Import complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Loaded all bookmarks as source images", "Import complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
@@ -854,7 +896,7 @@ namespace ImageViewer
             timerSlideShow.Start();
             ToggleSlideshowMenuState();
 
-            //Disable screensaver
+            //Disable screen saver
             ScreenSaver.Disable();
         }
 
@@ -869,7 +911,7 @@ namespace ImageViewer
             timerSlideShow.Enabled = false;
             ToggleSlideshowMenuState();
 
-            //Enable screensaver
+            //Enable screen saver
             ScreenSaver.Enable();
         }
 
@@ -1067,7 +1109,7 @@ namespace ImageViewer
             }
         }
 
-        private void OnImageLoadComplete(object sender, EventArgs e)
+        private void ImageLoadComplete(object sender, EventArgs e)
         {
             if (!timerSlideShow.Enabled)
             {
@@ -1085,27 +1127,26 @@ namespace ImageViewer
 
         private void menuItemOpenImage_Click(object sender, EventArgs e)
         {
+            // TODO fix bad code when opening a single image
             openFileDialog1.Filter = Resources.ImageFormatFilter;
             openFileDialog1.FileName = "";
             if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
-                LoadNewImageFile(openFileDialog1.FileName);
-                if (pictureBox1.Image != null)
+                try
                 {
-                    addBookmarkToolStripMenuItem.Enabled = true;
-                }
+                    string fileName = openFileDialog1.FileName;
+                    var imgRefElement = _imageLoaderService.ImportSingleImage(fileName, _imageReferenceCollection);
+                    LoadNewImageFile(imgRefElement);
+                    if (pictureBox1.Image != null)
+                    {
+                        addBookmarkToolStripMenuItem.Enabled = true;
+                    }
 
-                if (_imageReferenceCollection != null)
-                {
-                    return;
+                    _dataReady = true;
                 }
-
-                _imageReferenceCollection = new ImageReferenceCollection(new List<int>(), _imageLoaderService);
-                var currentImage = _imageReferenceCollection.SetCurrentImage(openFileDialog1.FileName);
-                _dataReady = true;
-                if (_imageLoaderService.ImageReferenceList == null)
+                catch (Exception ex)
                 {
-                    _imageLoaderService.CreateFromOpenSingleImage(currentImage);
+                    Log.Error(ex, "Open Single Image failed");
                 }
             }
         }
@@ -1127,11 +1168,12 @@ namespace ImageViewer
 
         private void thumbnailDBSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var thumbnailservice = _scope.Resolve<ThumbnailService>();
-            var form = new FormThumbnailSettings(thumbnailservice);
+            var thumbnailService = _scope.Resolve<ThumbnailService>();
+            var form = new FormThumbnailSettings(thumbnailService);
             form.ShowDialog(this);
         }
 
         #endregion
+
     }
 }

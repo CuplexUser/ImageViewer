@@ -6,8 +6,10 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using GeneralToolkitLib.Events;
 using GeneralToolkitLib.WindowsApi;
+using ImageViewer.Collections;
 using ImageViewer.Events;
 using ImageViewer.Interfaces;
+using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
@@ -38,12 +40,12 @@ namespace ImageViewer
         private Point _mouseDown;
         private bool _mouseHover;
         private MouseHoverInfo _mouseHoverInfo;
-        private bool _mousepressed; // true as long as left mousebutton is pressed
+        private bool _mousePressed; // true as long as left mousebutton is pressed
         private bool _requireFocusNotification = true;
         private bool _showSwitchImgOnMouseOverWindow;
         private bool _showSwitchImgPanel;
-        private int _startx; // offset of image when mouse was pressed
-        private int _starty;
+        private int _startX; // offset of image when mouse was pressed
+        private int _startY;
         private bool _switchImgButtonsEnabled;
         private float _zoom = -1;
 
@@ -61,7 +63,27 @@ namespace ImageViewer
             _imageLoaderService = imageLoaderService;
             _lastFormState = WindowState;
 
+            imageLoaderService.OnImportComplete += ImageLoaderService_OnImportComplete;
+            imageLoaderService.OnImageWasDeleted += ImageLoaderService_OnImageWasDeleted;
+
             ReloadSettings();
+        }
+        
+
+        private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
+        {
+            SetImageReferenceCollection();
+            if (!ImageSourceDataAvailable) return;
+
+            _imgRef = _imageReferenceCollection.GetNextImage();
+            LoadNewImageFile(_imgRef);
+        }
+
+        private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
+        {
+
+
+
         }
 
         private int FormId { get; }
@@ -94,6 +116,11 @@ namespace ImageViewer
                 observer.OnNext(_imageViewFormInfo);
             }
 
+
+            _imageLoaderService.OnImportComplete -= ImageLoaderService_OnImportComplete;
+            _imageLoaderService.OnImageWasDeleted -= ImageLoaderService_OnImageWasDeleted;
+
+
             return new Unsubscriber<ImageViewFormInfoBase>(_observers, observer);
         }
 
@@ -102,11 +129,11 @@ namespace ImageViewer
             if (WindowState != _lastFormState)
             {
                 _lastFormState = WindowState;
-                OnWindowStateChanged(e);
+                WindowStateChanged(e);
             }
         }
 
-        protected void OnWindowStateChanged(EventArgs e)
+        protected void WindowStateChanged(EventArgs e)
         {
             ResetZoomAndRepaint();
         }
@@ -179,11 +206,11 @@ namespace ImageViewer
             MouseEventArgs mouse = e;
             if (mouse.Button == MouseButtons.Left)
             {
-                if (_mousepressed) return;
-                _mousepressed = true;
+                if (_mousePressed) return;
+                _mousePressed = true;
                 _mouseDown = mouse.Location;
-                _startx = _imgx;
-                _starty = _imgy;
+                _startX = _imgx;
+                _startY = _imgy;
             }
         }
 
@@ -191,7 +218,7 @@ namespace ImageViewer
         {
             MouseEventArgs mouse = e;
 
-            if (mouse.Button == MouseButtons.Left )
+            if (mouse.Button == MouseButtons.Left)
             {
                 Point mousePosNow = mouse.Location;
 
@@ -199,9 +226,9 @@ namespace ImageViewer
                 // the distance the mouse has been moved since mouse was pressed
                 int deltaY = mousePosNow.Y - _mouseDown.Y;
 
-                _imgx = (int)(_startx + deltaX / _zoom);
+                _imgx = (int)(_startX + deltaX / _zoom);
                 // calculate new offset of image based on the current zoom factor
-                _imgy = (int)(_starty + deltaY / _zoom);
+                _imgy = (int)(_startY + deltaY / _zoom);
 
                 pictureBox.Refresh();
             }
@@ -241,7 +268,7 @@ namespace ImageViewer
 
         private void pictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            _mousepressed = false;
+            _mousePressed = false;
         }
 
         protected override void OnResize(EventArgs e)

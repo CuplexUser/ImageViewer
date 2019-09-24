@@ -83,7 +83,11 @@ namespace ImageViewer
         {
             //if (_imageLoaderService.ImageReferenceList == null)
             //    return;
-
+            if (_imageLoaderService.ImageReferenceList == null)
+            {
+                MessageBox.Show("Cant generate thumbnails without any image source loaded.", "No Images loaded!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
 
             HideMaximizedView();

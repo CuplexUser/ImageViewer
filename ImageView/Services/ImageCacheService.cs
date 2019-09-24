@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Repositories;
-using ImageViewer.Utility;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -14,21 +14,39 @@ namespace ImageViewer.Services
     public class ImageCacheService : ServiceBase, IDisposable
     {
         private readonly ImageCacheRepository _imageCacheRepository;
+        private readonly ImageLoaderService _imageLoaderService;
         private static readonly object CacheLock = new object();
         public const long DefaultCacheSize = 16777216;
         public const long MinCacheSize = 5242880;
         public const long MaxCacheSize = 268435456;
 
-        public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository)
+        public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService)
         {
             _imageCacheRepository = imageCacheRepository;
+            _imageLoaderService = imageLoaderService;
             if (_imageCacheRepository.CacheSize < MinCacheSize)
             {
                 _imageCacheRepository.SetCacheSize(MinCacheSize, CacheTruncatePriority.RemoveLargest);
                 applicationSettingsService.SaveSettings();
             }
+
             applicationSettingsService.OnSettingsSaved += _applicationSettingsService_OnSettingsChanged;
             applicationSettingsService.OnSettingsLoaded += ApplicationSettingsService_OnSettingsLoaded;
+
+            imageLoaderService.OnImageWasDeleted += ImageLoaderService_OnImageWasDeleted;
+            imageLoaderService.OnImportComplete += ImageLoaderService_OnImportComplete;
+        }
+
+        private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
+        {
+            
+        }
+
+        private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
+        {
+            // Delete from cache
+            _imageCacheRepository.RemoveImageFromCache(e.ImageReference.FileName);
+            
         }
 
         private void ApplicationSettingsService_OnSettingsLoaded(object sender, EventArgs e)

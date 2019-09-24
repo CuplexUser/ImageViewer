@@ -27,9 +27,8 @@ namespace ImageViewer
 
         public void OnNext(ImageViewFormInfoBase value)
         {
-            if (value is ImageViewFormImageInfo)
+            if (value is ImageViewFormImageInfo frmImageInfo)
             {
-                var frmImageInfo = value as ImageViewFormImageInfo;
                 if (!_imageWindowListItems.ContainsKey(frmImageInfo.FormReference))
                     _imageWindowListItems.Add(frmImageInfo.FormReference,
                         new ImageWindowListItem
@@ -52,7 +51,7 @@ namespace ImageViewer
                 imageWindowListItem.WindowRef = frmImageInfo.FormReference;
 
                 RenderWindowList();
-                _lastActiveImageViewForm = value.FormReference;
+                _lastActiveImageViewForm = frmImageInfo.FormReference;
             }
             else
             {
@@ -157,14 +156,14 @@ namespace ImageViewer
             const int maxWindowsHorizontal = 3;
             const int maxWindowsVertical = 2;
             int screenWidthOffset = _applicationSettingsService.Settings.ScreenWidthOffset;
-            var windowPosision = new Point(myScreen.WorkingArea.Left - 5, myScreen.WorkingArea.Top);
+            var windowPosition = new Point(myScreen.WorkingArea.Left - 5, myScreen.WorkingArea.Top);
 
             foreach (object form in listBoxActiveWindows.SelectedItems)
             {
                 if (form is ImageWindowListItem imageWindowListItem)
                 {
                     imageWindowListItem.WindowRef.DesktopBounds = GetWindowSizeFromScreen(myScreen, maxWindowsHorizontal,
-                        maxWindowsVertical, screenWidthOffset, windowPosision);
+                        maxWindowsVertical, screenWidthOffset, windowPosition);
                     imageWindowListItem.WindowRef.StartPosition = FormStartPosition.Manual;
 
                     var imageViewWindow = imageWindowListItem.WindowRef as IMageViewFormWindow;
@@ -172,22 +171,22 @@ namespace ImageViewer
                     imageWindowListItem.WindowRef.Focus();
 
 
-                    windowPosision.X += imageWindowListItem.WindowRef.DesktopBounds.Width - 10;
-                    if (windowPosision.X + imageWindowListItem.WindowRef.DesktopBounds.Width - 2 >
+                    windowPosition.X += imageWindowListItem.WindowRef.DesktopBounds.Width - 10;
+                    if (windowPosition.X + imageWindowListItem.WindowRef.DesktopBounds.Width - 2 >
                         myScreen.WorkingArea.Right)
                     {
-                        windowPosision.X = myScreen.WorkingArea.Left - 5;
-                        windowPosision.Y += imageWindowListItem.WindowRef.DesktopBounds.Height - 5;
+                        windowPosition.X = myScreen.WorkingArea.Left - 5;
+                        windowPosition.Y += imageWindowListItem.WindowRef.DesktopBounds.Height - 5;
                     }
 
-                    if (windowPosision.Y > myScreen.WorkingArea.Height)
+                    if (windowPosition.Y > myScreen.WorkingArea.Height)
                     {
                         screenList.Remove(myScreen);
                         myScreen = screenList.FirstOrDefault();
                         if (myScreen == null)
                             break;
 
-                        windowPosision = new Point(myScreen.WorkingArea.Left - 5, myScreen.WorkingArea.Top);
+                        windowPosition = new Point(myScreen.WorkingArea.Left - 5, myScreen.WorkingArea.Top);
                     }
                 }
             }
@@ -195,9 +194,9 @@ namespace ImageViewer
         }
 
         private Rectangle GetWindowSizeFromScreen(Screen screen, int maxWindowsHorizontal, int maxWindowsVertical,
-            int screenWidthOffset, Point windowPosision)
+            int screenWidthOffset, Point windowPosition)
         {
-            return new Rectangle(windowPosision,
+            return new Rectangle(windowPosition,
                 new Size((screen.WorkingArea.Width + screenWidthOffset)/maxWindowsHorizontal,
                     screen.WorkingArea.Height/maxWindowsVertical + 5));
         }
