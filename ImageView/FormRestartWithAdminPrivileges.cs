@@ -23,7 +23,7 @@ namespace ImageViewer
             Icon = _formIcon;
             _uacElevation.UacButton = btnRestartWithAdminAccess;
             _uacElevation.Initialize();
-            _uacElevation.DisplayMessagBoxes = true;
+            _uacElevation.DisplayMessageBoxes = true;
             SyncControlStateWithCoreObjectState();
             DialogResult = DialogResult.None;
         }
@@ -42,7 +42,7 @@ namespace ImageViewer
 
         private void SyncControlStateWithCoreObjectState()
         {
-            lblApplicationRunningAsAdmin.Text = _uacElevation.IsApplicationRuningnWithAdminAccess.ToString();
+            lblApplicationRunningAsAdmin.Text = _uacElevation.IsApplicationRunningWithAdminAccess.ToString();
             lblCurrenUserInAdminGrp.Text = _uacElevation.CurrentUserInAdminGroup.ToString();
             lblProcessElevated.Text = _uacElevation.IsElevated.ToString();
             lblIntegrityLevel.Text = _uacElevation.IntegrityLevel.Trim();

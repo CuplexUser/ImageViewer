@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.IO;
 using Autofac;
 using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageViewer.Configuration;
-using ImageViewer.Managers;
-using ImageViewer.Repositories;
 using ImageViewer.Services;
 using ImageViewer.UnitTests.Properties;
 using ImageViewer.UnitTests.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.IO;
+using ImageViewer.Models;
 
 namespace ImageViewer.UnitTests
 {
@@ -30,12 +28,8 @@ namespace ImageViewer.UnitTests
 
         private static IContainer Container { get; set; }
         private IMapper _mapper;
-        
+
         private ILifetimeScope _lifetimeScope;
-
-    
-        
-
 
         [ClassInitialize]
         public static void TestClassInit(TestContext testContext)
@@ -45,15 +39,9 @@ namespace ImageViewer.UnitTests
             // Create test directory if it does not exist
 
             if (!Directory.Exists(TestDirectory))
-            {
                 Directory.CreateDirectory(TestDirectory);
-            }
             else
-            {
                 ClearTestDirectory();
-            }
-
-           
 
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDirectory);
 
@@ -112,7 +100,7 @@ namespace ImageViewer.UnitTests
 
                 var thumbnailService = scope.Resolve<ThumbnailService>();
 
-                thumbnailService.ScanDirectory(TestDirectory, false);
+                bool result = thumbnailService.ThumbnailDirectoryScan(TestDirectory, new Progress<ThumbnailScanProgress>(), false).Result;
 
                 var thumbNailImage = thumbnailService.GetThumbnail(TestDirectory + TestImages[0]);
                 Assert.IsNotNull(thumbNailImage, "Thumbnail image 1 was null");
@@ -122,8 +110,6 @@ namespace ImageViewer.UnitTests
 
                 thumbNailImage = thumbnailService.GetThumbnail(TestDirectory + TestImages[2]);
                 Assert.IsNotNull(thumbNailImage, "Thumbnail image 3 was null");
-
-
             }
         }
 
@@ -137,16 +123,10 @@ namespace ImageViewer.UnitTests
             thumbnailService.ClearDatabase();
             thumbnailService.SaveThumbnailDatabase();
 
-
-
             bool result = thumbnailService.LoadThumbnailDatabase();
             Assert.IsTrue(result, "Load thumbnail database failed");
             Assert.AreEqual(thumbnailService.GetNumberOfCachedThumbnails(), 3, "Database did not contain 3 items");
-
-
         }
-
-
 
         [TestMethod]
         public async void ThumbnailOptimizeDatabaseAfterFileRemoval()
@@ -192,15 +172,11 @@ namespace ImageViewer.UnitTests
                 // Verify that one thumbnail was removed
                 Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length - 1, "The thumbnail service did not remove a cached item");
             }
-
-
         }
 
         private ThumbnailService GetThumbnailService()
         {
             return _lifetimeScope.Resolve<ThumbnailService>();
         }
-
-
     }
 }

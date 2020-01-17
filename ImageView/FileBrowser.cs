@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Autofac;
+using ImageViewer.Collections;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;

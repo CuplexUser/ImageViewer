@@ -1,15 +1,26 @@
 ﻿using System;
-using System.Drawing;
 
 namespace ImageViewer.Events
 {
-    public delegate void TransitionImageUpdateEventHandler(object sender, TransitionImageUpdateEventArgs e);
-
-    public class TransitionImageUpdateEventArgs : EventArgs
+    public class WorkParameters
     {
-        public Image TransitionImage { get; set; }
+        public long MaxSize { get; }
+
+        public static WorkParameters Empty { get; } = new WorkParameters();
+
+        public WorkParameters()
+        {
+
+        }
+
+        public WorkParameters(long maxSize)
+        {
+            MaxSize = maxSize;
+        }
     }
 
+    public delegate bool MaintinenceDelegate(Func<WorkParameters, bool> parameters);
+    public delegate void TransitionImageUpdateEventHandler(object sender, TransitionImageUpdateEventArgs e);
     public delegate void IntervalChangedDeligate(object sender, IntervalEventArgs e);
 
     public class IntervalEventArgs : EventArgs

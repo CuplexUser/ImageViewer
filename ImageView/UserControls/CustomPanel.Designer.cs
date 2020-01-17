@@ -34,10 +34,9 @@ namespace ImageViewer.UserControls
             // 
             // CustomPanel
             // 
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Name = "CustomPanel";
-            this.BackgroundImageLayout=ImageLayout.Stretch;
-            //this.BorderWidthOuter = 1;
-            //this.BorderWidthInner = 1;
+            this.Size = new System.Drawing.Size(400, 250);
             this.ResumeLayout(false);
 
         }

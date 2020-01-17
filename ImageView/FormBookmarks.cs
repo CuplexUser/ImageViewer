@@ -598,7 +598,7 @@ namespace ImageViewer
             bool result = _bookmarkService.SaveBookmarks();
             if (!result)
             {
-                MessageBox.Show("Unable to save bookmarks", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Unable to save bookmarks", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.Error("Unable to save bookmarks");
             }
         }
@@ -626,7 +626,7 @@ namespace ImageViewer
                 {
                     string filename = saveFileDialog1.FileName;
                     _bookmarkManager.SaveToFile(filename, password);
-                    MessageBox.Show("Save was sussessful", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(@"Save was sussessful", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
@@ -656,13 +656,13 @@ namespace ImageViewer
             if (_bookmarkManager.LoadFromFileAndAppendBookmarks(filename, password))
             {
                 _bookmarkManager.BookmarkDatasourceUpdated();
-                MessageBox.Show("Bookmarksfile was loaded and appended to current bookmarks", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"Bookmarksfile was loaded and appended to current bookmarks", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ReLoadBookmarks();
                 InitBookmarksDataSource();
             }
             else
             {
-                MessageBox.Show("Unable to load file, incorrect password?", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(@"Unable to load file, incorrect password?", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -686,11 +686,11 @@ namespace ImageViewer
                 _bookmarkManager.BookmarkDatasourceUpdated();
                 ReLoadBookmarks();
                 InitBookmarksDataSource();
-                MessageBox.Show("Bookmarksfile was loaded succesfully", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"Bookmarksfile was loaded succesfully", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("Unable to load file, incorrect password?", "Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(@"Unable to load file, incorrect password?", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -768,7 +768,7 @@ namespace ImageViewer
                 }
 
 
-                MessageBox.Show($"Corrected {linkesFixed} incorrect file paths", "Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($@"Corrected {linkesFixed} incorrect file paths", @"Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

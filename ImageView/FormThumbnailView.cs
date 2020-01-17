@@ -1,4 +1,11 @@
-﻿using System;
+﻿using ImageViewer.DataContracts;
+using ImageViewer.Models;
+using ImageViewer.Properties;
+using ImageViewer.Services;
+using ImageViewer.UserControls;
+using ImageViewer.Utility;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -6,14 +13,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using ImageViewer.DataContracts;
-using ImageViewer.Events;
-using ImageViewer.Models;
-using ImageViewer.Properties;
-using ImageViewer.Services;
-using ImageViewer.UserControls;
-using ImageViewer.Utility;
-using Serilog;
 
 namespace ImageViewer
 {
@@ -81,14 +80,11 @@ namespace ImageViewer
 
         private async void btnGenerate_Click(object sender, EventArgs e)
         {
-            //if (_imageLoaderService.ImageReferenceList == null)
-            //    return;
             if (_imageLoaderService.ImageReferenceList == null)
             {
-                MessageBox.Show("Cant generate thumbnails without any image source loaded.", "No Images loaded!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Cant generate thumbnails without any image source loaded.", @"No Images loaded!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
 
             HideMaximizedView();
             SetUpdateDatabaseEnabledState(false);
@@ -249,7 +245,7 @@ namespace ImageViewer
 
         private void btnScanDirectory_Click(object sender, EventArgs e)
         {
-            _thumbnailService.SaveThumbnailDatabase();
+            
             _thumbnailScan = new ThumbnailScanDirectory(_thumbnailService);
             Form frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
             frmDirectoryScan.FormClosed += FrmDirectoryScan_FormClosed;
@@ -257,7 +253,6 @@ namespace ImageViewer
             frmDirectoryScan.ShowDialog(this);
             _thumbnailScan = null;
             GC.Collect();
-            _thumbnailService.LoadThumbnailDatabase();
         }
 
         private void FrmDirectoryScan_FormClosed(object sender, FormClosedEventArgs e)

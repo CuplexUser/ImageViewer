@@ -1,7 +1,6 @@
 ﻿using System;
 using AutoMapper;
 using ImageViewer.DataContracts;
-using Guid = System.Guid;
 
 namespace ImageViewer.Models
 {
@@ -10,13 +9,7 @@ namespace ImageViewer.Models
     /// </summary>
     public class ThumbnailEntry
     {
-        public ThumbnailEntry()
-        {
-            if (UniqueId == Guid.Empty)
-            {
-                UniqueId = Guid.NewGuid();
-            }
-        }
+        private Guid _uniqueId = Guid.Empty;
 
         /// <summary>
         /// Gets or sets the name of the file.
@@ -95,7 +88,21 @@ namespace ImageViewer.Models
         /// <value>
         /// The unique identifier.
         /// </value>
-        public Guid UniqueId { get; protected set; }
+        public Guid UniqueId
+        {
+            get
+            {
+
+                if (_uniqueId == Guid.Empty)
+                {
+                    UniqueId = Guid.NewGuid();
+                }
+
+                return _uniqueId;
+
+            }
+            private set => _uniqueId = value;
+        }
 
         /// <summary>
         /// Creates the mapping.
@@ -103,7 +110,16 @@ namespace ImageViewer.Models
         /// <param name="expression">The expression.</param>
         public static void CreateMapping(IProfileExpression expression)
         {
-            expression.CreateMap<ThumbnailEntry, ThumbnailEntryModel>().ReverseMap();
+            expression.CreateMap<ThumbnailEntry, ThumbnailEntryModel>()
+                .ForMember(d => d.FullPath, o => o.MapFrom(s => s.FullPath))
+                .ForMember(d => d.FileName, o => o.MapFrom(s => s.FileName))
+                .ForMember(d => d.Directory, o => o.MapFrom(s => s.Directory))
+                .ForMember(d => d.FilePosition, o => o.MapFrom(s => s.FilePosition))
+                .ForMember(d => d.Length, o => o.MapFrom(s => s.Length))
+                .ForMember(d => d.Date, o => o.MapFrom(s => s.Date))
+                .ForMember(d => d.SourceImageDate, o => o.MapFrom(s => s.SourceImageDate))
+                .ForMember(d => d.SourceImageLength, o => o.MapFrom(s => s.SourceImageLength))
+                .ForMember(d => d.UniqueId, o => o.MapFrom(s => s.UniqueId)).ReverseMap();
         }
     }
 }

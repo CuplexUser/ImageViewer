@@ -11,7 +11,7 @@ using Serilog;
 namespace ImageViewer.Services
 {
     [UsedImplicitly]
-    public class ImageCacheService : ServiceBase, IDisposable
+    public class ImageCacheService : ServiceBase
     {
         private readonly ImageCacheRepository _imageCacheRepository;
         private readonly ImageLoaderService _imageLoaderService;
@@ -90,7 +90,7 @@ namespace ImageViewer.Services
         {
             lock (CacheLock)
             {
-                var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(ImageManager.GetImageFromByteArray);
+                var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(FileManager.GetImageFromByteArray);
 
                 // Exception was thrown and handled
                 if (image == null)
@@ -114,11 +114,6 @@ namespace ImageViewer.Services
 
                 return image;
             }
-        }
-
-        public void Dispose()
-        {
-            _imageCacheRepository?.Dispose();
         }
 
         public enum CacheTruncatePriority

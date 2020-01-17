@@ -1,149 +1,176 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using GeneralToolkitLib.Configuration;
+﻿using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Converters;
 using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
+using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using ImageProcessor;
+using ImageProcessor.Imaging.Formats;
 
 namespace ImageViewer.Managers
 {
-    public sealed class FileManager : ManagerBase, IDisposable
+    /// <summary>
+    /// File Manager has all the low level responsibility in allowing asynchronous read from disk but exclusively locked writes. 
+    /// </summary>
+    /// <seealso cref="ImageViewer.Managers.ManagerBase" />
+    /// <seealso cref="System.IDisposable" />
+    [UsedImplicitly]
+    public class FileManager : ManagerBase, IDisposable
     {
-        private readonly Dictionary<string, bool> _directoryAccessDictionary;
-        private readonly string _fileName;
-        private FileStream _fileStream;
-        private const string TemporaryDatabaseFilename = "temp.ibd";
-        private const string DatabaseImgDataFilename = "thumbs.ibd";
-        private readonly object _fileOperationLock = new object();
-        private readonly ImageManager _imageManager;
-        
 
-        [UsedImplicitly]
-        public FileManager(ImageManager imageManager)
+        /// <summary>
+        /// The file name
+        /// </summary>
+        private readonly string _fileName;
+        /// <summary>
+        /// The file stream
+        /// </summary>
+        private FileStream _fileStream;
+        private readonly ImageFactory _imageFactory;
+
+        private readonly object _fileOperationLock = new object();
+
+        /// <summary>
+        /// The temporary database filename
+        /// </summary>
+        private const string TemporaryDatabaseFilename = "temp.ibd";
+        /// <summary>
+        /// The database img data filename
+        /// </summary>
+        private const string DatabaseImgDataFilename = "thumbs.ibd";
+        /// <summary>
+        /// The image manager
+        /// </summary>
+
+        private Dictionary<string, bool> _directoryAccessDictionary;
+
+        private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileManager"/> class.
+        /// </summary>
+        /// <param name="imageManager">The image manager.</param>
+
+        public FileManager()
         {
-            _imageManager = imageManager;
+            _imageFactory = new ImageFactory(MetaDataMode.All);
             _fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, DatabaseImgDataFilename);
-            _directoryAccessDictionary = new Dictionary<string, bool>();
         }
 
-        public FileManager(string fileName, ImageManager imageManager)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileManager"/> class.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="imageManager">The image manager.</param>
+        public FileManager(string fileName)
         {
             _fileName = fileName;
-            _imageManager = imageManager;
             _directoryAccessDictionary = new Dictionary<string, bool>();
         }
 
-        public bool IsLocked { get; private set; }
 
-        public RawImage ReadRawImageFromDatabase(ThumbnailEntryModel thumbnail)
+
+
+
+
+
+        public enum AddOrUpdateStatus
         {
-            lock (_fileOperationLock)
-            {
-                if (_fileStream == null)
-                    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            Added,
+            Updated,
+            Unchanged
+        };
 
 
-                _fileStream.Lock(thumbnail.FilePosition, thumbnail.Length);
-                _fileStream.Position = thumbnail.FilePosition;
 
-                var ms = new MemoryStream();
-                _fileStream.CopyTo(ms, thumbnail.Length);
-
-                ms.Flush();
-                byte[] imageData = ms.ToArray();
-                ms.Close();
-                ms.Dispose();
-
-                _fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
-
-                return new RawImage(imageData);
-            }
-
-        }
-
-        public Image ReadImageFromDatabase(ThumbnailEntry thumbnail)
+        /// <summary>
+        /// Reads the image from database.
+        /// </summary>
+        /// <param name="thumbnail">The thumbnail.</param>
+        /// <returns></returns>
+        public Image ReadImage(ThumbnailEntry thumbnail)
         {
             if (thumbnail.Length == 0)
             {
-                
+                Log.Warning($"ReadImageFromDatabase for thumbnail '{thumbnail.FullPath}' was not possible because of 0 lengath");
                 return null;
             }
-            lock (_fileOperationLock)
-            {
-                if (_fileStream == null)
-                    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
 
-                _fileStream.Lock(thumbnail.FilePosition, thumbnail.Length);
-                _fileStream.Position = thumbnail.FilePosition;
+            if (_fileStream == null)
+                _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-                var sr = new BinaryReader(_fileStream);
+            _fileStream.Lock(thumbnail.FilePosition, thumbnail.Length);
+            _fileStream.Position = thumbnail.FilePosition;
 
-                Image img= _imageManager.LoadFromByteArray(sr.ReadBytes(thumbnail.Length));
-                
-                _fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
+            var sr = new BinaryReader(_fileStream);
 
-                return img;
-            }
+            var img = LoadFromByteArray(sr.ReadBytes(thumbnail.Length));
+
+            _fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
+
+            return img;
         }
 
+        /// <summary>
+        /// Writes the image.
+        /// </summary>
+        /// <param name="img">The img.</param>
+        /// <returns></returns>
         public FileEntry WriteImage(RawImage img)
         {
-            lock (_fileOperationLock)
+            if (_fileStream == null)
+                _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+            _fileStream.Position = Math.Max(_fileStream.Length - 1, 0);
+            var position = _fileStream.Position;
+
+            try
             {
-                if (_fileStream == null)
-                    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                _fileStream.Lock(0, _fileStream.Length + img.ImageData.Length);
+                _fileStream.Flush();
+                _fileStream.Seek(0, SeekOrigin.End);
+                _fileStream.Write(img.ImageData, 0, img.ImageData.Length);
+                _fileStream.Flush(true);
+                _fileStream.Unlock(0, _fileStream.Length);
 
-                _fileStream.Position = Math.Max(_fileStream.Length - 1, 0);
-                long position = _fileStream.Position;
-
-                try
+                var fileEntry = new FileEntry
                 {
+                    Position = position,
+                    Length = Convert.ToInt32(_fileStream.Position - position)
+                };
 
-                    _fileStream.Lock(0, _fileStream.Length + img.ImageData.Length);
-                    _fileStream.Flush();
-                    _fileStream.Seek(0, SeekOrigin.End);
-                    _fileStream.Write(img.ImageData, 0, img.ImageData.Length);
-                    _fileStream.Flush(true);
-                    _fileStream.Unlock(0, _fileStream.Length);
-
-                    var fileEntry = new FileEntry
-                    {
-                        Position = position,
-                        Length = Convert.ToInt32(_fileStream.Position - position)
-                    };
-
-                    return fileEntry;
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "WriteImage Exception: {Message}", ex.Message);
-                }
-
-                return null;
+                return fileEntry;
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "WriteImage Exception: {Message}", ex.Message);
+            }
+
+            return null;
         }
 
-        public void RecreateDatabase(List<ThumbnailEntry> thumbnailEntries)
+        /// <summary>
+        /// Recreates the database.
+        /// </summary>
+        /// <param name="thumbnailEntries">The thumbnail entries.</param>
+        public async Task RecreateDatabaseAsync(List<ThumbnailEntry> thumbnailEntries)
         {
-            if (_fileStream == null)
-            {
-                lock (_fileOperationLock)
-                {
-                    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                }
-            }
-            else
-            {
-                SaveToDisk();
-            }
+            //if (_fileStream == null)
+            //    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            //else
+            //    SaveToDisk();
 
-            string tempFileName = GeneralConverters.GetDirectoryNameFromPath(_fileName) + TemporaryDatabaseFilename;
+            var tempFileName = GeneralConverters.GetDirectoryNameFromPath(_fileName) + TemporaryDatabaseFilename;
 
             FileStream temporaryDatabaseFile = null;
             try
@@ -156,20 +183,15 @@ namespace ImageViewer.Managers
                 foreach (var thumbnailEntry in thumbnailEntries)
                 {
                     if (thumbnailEntry.Length <= 0 || !File.Exists(Path.Combine(thumbnailEntry.Directory, thumbnailEntry.FileName)))
-                    {
                         deleteQueue.Enqueue(thumbnailEntry);
-                    }
                 }
 
                 while (deleteQueue.Count > 0)
-                {
                     thumbnailEntries.Remove(deleteQueue.Dequeue());
-                }
 
                 temporaryDatabaseFile = File.OpenWrite(tempFileName);
-                foreach (ThumbnailEntry entry in thumbnailEntries)
+                foreach (var entry in thumbnailEntries)
                 {
-
                     var buffer = new byte[entry.Length];
                     lock (_fileOperationLock)
                     {
@@ -181,7 +203,7 @@ namespace ImageViewer.Managers
                     temporaryDatabaseFile.Write(buffer, 0, entry.Length);
                 }
 
-                CloseStream();
+
                 temporaryDatabaseFile.Flush(true);
                 temporaryDatabaseFile.Close();
                 temporaryDatabaseFile = null;
@@ -200,75 +222,50 @@ namespace ImageViewer.Managers
                     _fileStream?.Close();
                     _fileStream = null;
                 }
-                
             }
         }
 
-        private void SaveToDisk()
-        {
-            lock (_fileOperationLock)
-            {
-                _fileStream?.Flush(true);
-            }
-        }
 
-        public bool WriteToDisk()
-        {
-            bool result = false;
-            if (_fileStream != null)
-            {
-                lock (_fileOperationLock)
-                {
-                    if (_fileStream.CanWrite)
-                    {
-                        _fileStream.Flush(true);
-                        result = true;
-                    }
-                }
-
-                lock (_fileOperationLock)
-                {
-                    _fileStream.Close();
-                    _fileStream = null;
-                }
-            }
-
-            return result;
-        }
-
-        private void CloseStream()
-        {
-            WriteToDisk();
-        }
 
         /// <summary>
-        ///     Verifies that the file does excist and that the physical file has not been written to after the thumbnail was
-        ///     created.
-        ///     Assumes access to the directory
+        /// Verifies that the file does excist and that the physical file has not been written to after the thumbnail was
+        /// created.
+        /// Assumes access to the directory
         /// </summary>
-        /// <param name="thumbnailEntry"></param>
-        /// <returns>True if the thumbnail is up to date and the original file exists</returns>
+        /// <param name="thumbnailEntry">The thumbnail entry.</param>
+        /// <returns>
+        /// True if the thumbnail is up to date and the original file exists
+        /// </returns>
         public static bool IsUpToDate(ThumbnailEntry thumbnailEntry)
         {
             var fileInfo = new FileInfo(thumbnailEntry.Directory + thumbnailEntry.FileName);
             return fileInfo.Exists && fileInfo.LastWriteTime == thumbnailEntry.SourceImageDate;
         }
 
+        /// <summary>
+        /// Clears the directory access cache.
+        /// </summary>
         public void ClearDirectoryAccessCache()
         {
             _directoryAccessDictionary.Clear();
         }
 
+        /// <summary>
+        /// Determines whether [has access to directory] [the specified directory].
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        /// <returns>
+        ///   <c>true</c> if [has access to directory] [the specified directory]; otherwise, <c>false</c>.
+        /// </returns>
         public bool HasAccessToDirectory(string directory)
         {
             if (_directoryAccessDictionary.ContainsKey(directory))
                 return _directoryAccessDictionary[directory];
 
-            string volume = GeneralConverters.GetVolumeLabelFromPath(directory);
+            var volume = GeneralConverters.GetVolumeLabelFromPath(directory);
             var drives = DriveInfo.GetDrives().ToList();
 
             if (drives.Any(d => d.IsReady && d.Name.Equals(volume, StringComparison.CurrentCultureIgnoreCase)))
-            {
                 try
                 {
                     var directoryInfo = new DirectoryInfo(directory);
@@ -280,61 +277,149 @@ namespace ImageViewer.Managers
                 {
                     // ignored
                 }
-            }
 
             _directoryAccessDictionary.Add(directory, false);
             return false;
         }
 
-        public bool LockDatabase()
-        {
-            if (IsLocked)
-                return false;
 
-            IsLocked = true;
-            return true;
-        }
-
-        public void UnlockDatabase()
-        {
-            IsLocked = false;
-        }
-
+        /// <summary>
+        /// Gets the size of the database.
+        /// </summary>
+        /// <returns></returns>
         public long GetDbSize()
         {
-            if (!File.Exists(_fileName))
-                return 0;
-
-            FileInfo fileInfo = new FileInfo(_fileName);
-            return fileInfo.Length;
+            return 0;
         }
 
-        // Deletes the current file-container and recreates an empty file-container.
-        public void DeleteBinaryContainer()
+        /// <summary>
+        /// Creates the raw image.
+        /// </summary>
+        /// <param name="image">The image.</param>
+        /// <returns></returns>
+        public RawImage CreateRawImage(Image image)
         {
-            lock (_fileOperationLock)
-            {
-                CloseStream();
-                File.Delete(_fileName);
+            var rawImage = CreateRawImageFromImage(image);
 
-                var fsStream = File.Create(_fileName);
-                fsStream.Flush(true);
-                fsStream.Close();
+            return rawImage;
+        }
+
+
+
+
+
+        public Image CreateThumbnail(string fullPath, Size size)
+        {
+            FileStream fs = null;
+
+            try
+            {
+                fs = File.OpenRead(fullPath);
+
+                _imageFactory.Load(fs);
+                _imageFactory.Resize(size);
+                return _imageFactory.Image;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Create Thumbnail exception for file {fullPath}");
+            }
+            finally
+            {
+                fs?.Close();
             }
 
+            return null;
+        }
+
+        public Image LoadFromByteArray(byte[] readBytes)
+        {
+            _imageFactory.Load(readBytes);
+            return _imageFactory.Image;
+        }
+
+
+        public RawImage CreateRawImageFromImage(Image image)
+        {
+            if (image == null)
+                return null;
+
+            RawImage rawImage;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                image.Save(ms, ImageFormat.Jpeg);
+                ms.Flush();
+                rawImage = new RawImage(ms.ToArray());
+            }
+
+            return rawImage;
+        }
+
+        public byte[] GetImageByteArray(string fileName, ISupportedImageFormat imageFormat)
+        {
+            try
+            {
+                byte[] imgBytes;
+                _imageFactory.Load(fileName);
+                if (!Equals(_imageFactory.CurrentImageFormat, imageFormat))
+                {
+                    _imageFactory.Format(imageFormat);
+                }
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    _imageFactory.Save(ms);
+                    ms.Flush();
+                    imgBytes = ms.ToArray();
+                }
+
+                return imgBytes;
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, $"GetImageByteArray Failed using filename: {fileName} and image format: {imageFormat}");
+                return null;
+            }
+        }
+
+        public static Image GetImageFromByteArray(byte[] imgBytes)
+        {
+            try
+            {
+                ImageFactory imgImageFactory = new ImageFactory();
+                imgImageFactory.Load(imgBytes);
+                return imgImageFactory.Image;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "GetImageFromByteArray failed");
+                return null;
+            }
+        }
+
+        private void Dispose(bool finalize)
+        {
+            _imageFactory?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void Dispose()
         {
-            CloseStream();
-            _fileStream?.Dispose();
+            Dispose(true);
         }
 
-        public RawImage CreateRawImage(Image image)
-        {
-            RawImage rawImage= _imageManager.CreateRawImageFromImage(image);
 
-            return rawImage;
-        }
+        //protected virtual void Dispose(bool finalize)
+        //{
+        //    _fileStream?.Dispose();
+
+        //    cacheLock?.Dispose();
+        //    GC.SuppressFinalize(this);
+        //}
+
+        //public void Dispose()
+        //{
+        //    Dispose(true);
+        //}
     }
 }

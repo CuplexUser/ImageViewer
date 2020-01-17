@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GeneralToolkitLib.Events;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing;
@@ -12,12 +13,20 @@ namespace ImageViewer.UserControls
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.AutoDispatch)]
     [Docking(DockingBehavior.Ask)]
-    public partial class CustomPanel : Panel
+    public partial class CustomPanel : UserControl
     {
         private readonly Size _defaultSize;
+        private Pen _pen;
+        private Color outerBorderColor;
+        private Color innerBorderColor;
+        private int borderWidthOuter;
+        private int borderWidthInner;
 
+        public event EventHandler<BorderChangedEventArgs> InnerBorderColorChanged;
+        public event EventHandler<BorderChangedEventArgs> OuterBorderColorChanged;
 
-        private readonly Pen _pen;
+        public event EventHandler<BorderChangedEventArgs> InnerBorderWithChanged;
+        public event EventHandler<BorderChangedEventArgs> OuterBorderWithChanged;
 
         public CustomPanel()
         {
@@ -28,155 +37,209 @@ namespace ImageViewer.UserControls
 
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
-            _pen = new Pen(InnerBorderColor) {Width = BorderWidthInner};
+            _pen = new Pen(InnerBorderColor) { Width = BorderWidthInner };
 
+            InnerBorderColorChanged += OnInnerBorderColorChanged;
+            OuterBorderColorChanged += OnOuterBorderColorChanged;
+
+            InnerBorderWithChanged += OnInnerBorderWithChanged;
+            OuterBorderWithChanged += OnOuterBorderWithChanged;
+
+            EnableDoubleBuffering();
             InitializeComponent();
         }
+
+
 
         [DispId(1)]
         [Browsable(true)]
         [DefaultValue(typeof(Color), "0x333333")]
         [AttributeProvider(typeof(Color))]
         [Description("The outmost border color"), Category("Appearance")]
-        public Color OuterBorderColor { get; set; }
+        public Color OuterBorderColor
+        {
+            get => outerBorderColor;
+            set
+            {
+                if (outerBorderColor != value)
+                {
+                    outerBorderColor = value;
+                    OuterBorderColorChanged?.Invoke(this, new BorderChangedEventArgs(BorderChangedEventArgs.TypeOfBorderUpdate.OuterBorderColorChanged));
 
-        [Description("The inset border color"), Category("Appearance")]
+                }
+            }
+        }
+
         [DispId(2)]
         [Browsable(true)]
-        [AttributeProvider(typeof(Color))]
         [DefaultValue(typeof(Color), "0xCCCCCC")]
-        public Color InnerBorderColor { get; set; }
+        [AttributeProvider(typeof(Color))]
+
+        [Description("The inner border color"), Category("Appearance")]
+        public Color InnerBorderColor
+        {
+            get => innerBorderColor;
+            set
+            {
+                if (innerBorderColor != value)
+                {
+                    innerBorderColor = value;
+                    InnerBorderColorChanged?.Invoke(this, new BorderChangedEventArgs(BorderChangedEventArgs.TypeOfBorderUpdate.InnerBorderColorChanged));
+                }
+            }
+        }
 
         [Description("The outer most border with inside the control"), Category("Appearance")]
         [DispId(3)]
         [Browsable(true)]
         [AttributeProvider(typeof(int))]
-        [DefaultValue(typeof(int), "0x1")]
-        public int BorderWidthOuter { get; set; }
+        [DefaultValue(typeof(int), "0")]
+        public int BorderWidthOuter
+        {
+            get => borderWidthOuter;
+            set
+            {
+                if (BorderWidthOuter != value)
+                {
+                    borderWidthOuter = value;
+                    OuterBorderWithChanged?.Invoke(this, new BorderChangedEventArgs(BorderChangedEventArgs.TypeOfBorderUpdate.OuterBorderWithChanged));
+                }
+            }
+        }
 
         [Description("The Inner border with after the outer border is painted"), Category("Appearance")]
         [DispId(4)]
-        [DefaultValue(typeof(int), "1")]
+        [DefaultValue(typeof(int), "0")]
         [Browsable(true)]
-        public int BorderWidthInner { get; set; }
+        public int BorderWidthInner
+        {
+            get { return borderWidthInner; }
+            set
+            {
+                if (borderWidthInner != value)
+                {
+                    borderWidthInner = value;
+                    InnerBorderWithChanged?.Invoke(this, new BorderChangedEventArgs(BorderChangedEventArgs.TypeOfBorderUpdate.InnerBorderWithChanged));
+                }
+            }
+        }
 
         [Description("The Inner border with after the outer border is painted"), Category("Design")]
         [DispId(5)]
-        [DefaultValue(typeof(int), "0x1")]
+        [DefaultValue(typeof(int), "0")]
         [Browsable(true)]
         protected new BorderStyle BorderStyle { get; set; }
 
 
         protected override Size DefaultSize => _defaultSize;
 
-
-        //protected override void OnNotifyMessage(Message m)
-        //{
-        //    base.OnNotifyMessage(m);
-
-        //}
-
-
-        protected override void OnPaintBackground(PaintEventArgs e)
+        protected override void OnSystemColorsChanged(EventArgs e)
         {
-            if (BackgroundImage == null)
-            {
-                base.OnPaintBackground(e);
-                return;
-            }
-
-
-            var bufferedGraphicsContext = new BufferedGraphicsContext();
-            BufferedGraphics bufferedGraphics = bufferedGraphicsContext.Allocate(e.Graphics, e.ClipRectangle);
-            using (Graphics g = bufferedGraphics.Graphics)
-            {
-                g.CompositingQuality = CompositingQuality.HighQuality;
-                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                //IntPtr graphicsBufferHfc;
-                //IntPtr hdcIntPtr;
-                switch (BackgroundImageLayout)
-                {
-                    case ImageLayout.None:
-                        break;
-                    case ImageLayout.Tile:
-
-                        break;
-                    case ImageLayout.Center:
-
-                        break;
-                    case ImageLayout.Stretch:
-                        float scaleX = BackgroundImage.Width/(float) Width;
-                        float scaleY = BackgroundImage.Height/(float) Height;
-
-
-                        //if (y > 0)
-                        //{
-                        //    y = y * (BackgroundImage.Width / e.ClipRectangle.Width);
-                        //}
-                        var srcRect = new Rectangle(Convert.ToInt32(scaleX*e.ClipRectangle.X),
-                            Convert.ToInt32(scaleY*e.ClipRectangle.Y), Convert.ToInt32(e.ClipRectangle.Width*scaleX),
-                            Convert.ToInt32(e.ClipRectangle.Height*scaleY));
-                        g.DrawImage(BackgroundImage, e.ClipRectangle, srcRect, GraphicsUnit.Pixel);
-
-                        break;
-                    case ImageLayout.Zoom:
-                        var renderImage = (Image) BackgroundImage.Clone();
-                        g.Clear(Color.White);
-                        g.DrawImageUnscaled(renderImage, 0, 0, renderImage.Width, renderImage.Height);
-                        g.ScaleTransform(BackgroundImage.Width/(float) Width, renderImage.Height/(float) Height,
-                            MatrixOrder.Prepend);
-
-
-                        //hdcIntPtr = e.Graphics.GetHdc();
-                        bufferedGraphics.Render(e.Graphics);
-                        //e.Graphics.ReleaseHdc(hdcIntPtr);
-
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-                bufferedGraphics.Render();
-                bufferedGraphics.Dispose();
-            }
-
-            //bufferedGraphics.Graphics.ReleaseHdc(graphicsBufferHfc);
-            //bufferedGraphics.Graphics.Dispose();
-            bufferedGraphicsContext.Dispose();
-            //bufferedGraphicsContext.Invalidate();
-            //base.OnPaintBackground(e);
+            base.OnSystemColorsChanged(e);
         }
 
 
+        protected virtual void OnInnerBorderColorChanged(object sender, BorderChangedEventArgs e)
+        {
+            Invalidate();
+        }
+
+        protected virtual void OnOuterBorderColorChanged(object sender, BorderChangedEventArgs e)
+        {
+            Invalidate();
+        }
+
+        protected virtual void OnInnerBorderWithChanged(object sender, BorderChangedEventArgs e)
+        {
+            Invalidate();
+        }
+
+        protected virtual void OnOuterBorderWithChanged(object sender, BorderChangedEventArgs e)
+        {
+            Invalidate();
+        }
         private void EnableDoubleBuffering()
         {
             // Set the value of the double-buffering style bits to true.
-            SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            UpdateStyles();
+            //SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
+            //UpdateStyles();
         }
 
-        //protected override void OnPaint(PaintEventArgs e)
-        //{            
-        //    Rectangle drawRectangle = Rectangle.Inflate(e.ClipRectangle, -1, -1);
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {          
 
-        //    _pen.DashStyle = DashStyle.Solid;
-        //    _pen.DashCap = DashCap.Round;
-        //    _pen.DashOffset = 25;
+            Rectangle drawRectangle = new Rectangle(-2, -2, this.Width+2, this.Height+2);
+            //if (e.ClipRectangle.Width >= drawRectangle.Width && e.ClipRectangle.Height>= drawRectangle.Height)
+            
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                _pen.Color = BackColor;                
+                g.Clear(_pen.Color);
 
-        //    using (Graphics g = e.Graphics)
-        //    {
-        //        _pen.Color = OuterBorderColor;
-        //        _pen.Width = BorderWidthOuter;
 
-        //        g.DrawRectangle(_pen, drawRectangle);
+                if (BorderWidthOuter > 0)
+                {
+                    _pen.Color = outerBorderColor;
+                    _pen.Width = borderWidthOuter;
+                    _pen.Brush = new SolidBrush(OuterBorderColor);
+                    drawRectangle.Inflate(borderWidthInner * -1, borderWidthOuter * -1);
+                    drawRectangle.Height = Height;
+                    g.FillRectangle(_pen.Brush, drawRectangle);
+                }
 
-        //        drawRectangle.Inflate(-1 * BorderWidthOuter, -1 * BorderWidthOuter);
-        //        _pen.Color = OuterBorderColor;
-        //        _pen.Width = BorderWidthInner;
+                if (BorderWidthInner > 0)
+                {
+                    drawRectangle.Inflate(BorderWidthInner * -1, -BorderWidthInner * -1);
+                    _pen.Color = innerBorderColor;
+                    _pen.Width = borderWidthInner;
+                    _pen.Brush = new SolidBrush(InnerBorderColor);
 
-        //        g.DrawRectangle(_pen, drawRectangle);
-        //    }
-        //}
+                    g.FillRectangle(_pen.Brush, drawRectangle);
+                }
+            //}
+            //else
+            //{
+            //    //(base.OnPaintBackground(e);
+            //}
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            System.Drawing.Rectangle drawRectangle = new System.Drawing.Rectangle(-1, -1, this.Width+2, this.Height+2);
+
+            //if (e.ClipRectangle.Width >= drawRectangle.Width && e.ClipRectangle.Height >= drawRectangle.Height)
+            //{
+                drawRectangle.Width = e.ClipRectangle.Width;
+                drawRectangle.Height = e.ClipRectangle.Height;
+                drawRectangle.X = 0;
+                drawRectangle.Y = Math.Max(e.ClipRectangle.Y, this.Height);
+
+                var g = e.Graphics;
+                var container = g.BeginContainer();
+
+                //g.SetClip(drawRectangle);
+
+                _pen = new Pen(OuterBorderColor, BorderWidthOuter);
+                _pen.Brush = new SolidBrush(_pen.Color);
+
+
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                g.DrawRectangle(_pen, drawRectangle);
+
+                drawRectangle.Inflate(-1 * BorderWidthOuter, -1 * BorderWidthOuter);
+                _pen.Color = OuterBorderColor;
+                _pen.Width = BorderWidthInner;
+
+                g.DrawRectangle(_pen, drawRectangle);
+
+                g.EndContainer(container); ;
+                g.Save();
+            //}
+            //else
+            //{
+            //    //base.OnPaint(e);
+            //}
+        }
     }
 }

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -22,6 +13,15 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ImageViewer
 {
@@ -72,7 +72,6 @@ namespace ImageViewer
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
 
-
         private void DisplaySlideshowStatus()
         {
             string tooltipText = timerSlideShow.Enabled ? $"Slideshow started with a delay of {_applicationSettingsService.Settings.SlideshowInterval / 1000} seconds per image." : "Slideshow stopped";
@@ -106,7 +105,7 @@ namespace ImageViewer
                 timerSlideShow.Start();
             }
 
-            SyncUserControlStateWithAppSettings();
+            //SyncUserControlStateWithAppSettings();
             ToggleSlideshowMenuState();
 
             return true;
@@ -125,13 +124,11 @@ namespace ImageViewer
             return exitDialogForm.ShowDialog(this) == DialogResult.OK;
         }
 
-
         private void HandleImportDataComplete()
         {
             addBookmarkToolStripMenuItem.Enabled = true;
             SetImageReferenceCollection();
         }
-
 
         private void SyncUserControlStateWithAppSettings()
         {
@@ -158,7 +155,6 @@ namespace ImageViewer
                 var formState = settings.ExtendedAppSettings.FormStateDictionary[this.GetType().Name];
                 RestoreFormState.SetFormSizeAndPosition(this, formState);
             }
-
         }
 
         private void ChangeImage(bool next)
@@ -203,7 +199,6 @@ namespace ImageViewer
             try
             {
                 pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
-
 
                 if (_applicationSettingsService.Settings.NextImageAnimation == ImageViewApplicationSettings.ChangeImageAnimation.None)
                 {
@@ -269,24 +264,29 @@ namespace ImageViewer
                             transitionImage = ImageTransform.OffsetImagesHorizontal(currentImage, nextImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, false);
                             break;
+
                         case ImageViewApplicationSettings.ChangeImageAnimation.SlideRight:
                             transitionImage = ImageTransform.OffsetImagesHorizontal(nextImage, currentImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, true);
                             break;
+
                         case ImageViewApplicationSettings.ChangeImageAnimation.SlideDown:
                             transitionImage = ImageTransform.OffsetImagesVertical(nextImage, currentImage,
                                 new Size(nextImage.Width, nextImage.Height), factor, true);
                             break;
+
                         case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
                             transitionImage = ImageTransform.OffsetImagesVertical(currentImage, nextImage,
                                 new Size(Math.Max(nextImage.Width, currentImage.Width), nextImage.Height), factor, false);
                             break;
+
                         case ImageViewApplicationSettings.ChangeImageAnimation.FadeIn:
                             int width = nextImage.Width;
                             int height = nextImage.Height;
                             var nextImageBitmap = new Bitmap(nextImage, new Size(width, height));
                             transitionImage = ImageTransform.SetImageOpacity(nextImageBitmap, factor);
                             break;
+
                         default:
                             return;
                     }
@@ -338,6 +338,7 @@ namespace ImageViewer
                 _formState.Restore(this);
                 menuStrip1.Visible = true;
                 BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
+                ScreenSaver.Enable();
                 Cursor.Show();
             }
             else
@@ -348,7 +349,7 @@ namespace ImageViewer
 
                 BackColor = Color.Black;
                 Cursor.Hide();
-                //HideCursorInFullScreen().Start();
+                ScreenSaver.Disable();
             }
 
             _fullScreen = !_fullScreen;
@@ -410,7 +411,6 @@ namespace ImageViewer
                     int screenWidth = screen.Bounds.Width + widthOffset;
                     int screenMinx = screen.WorkingArea.X - minXOffset;
 
-
                     if (i == 0)
                     {
                         imageWindow.SetDesktopBounds(screenMinx, screen.WorkingArea.Y, screenWidth / 2,
@@ -422,7 +422,6 @@ namespace ImageViewer
                             screenWidth / 2, screen.WorkingArea.Height);
                     }
 
-
                     imageWindow.WindowState = FormWindowState.Normal;
                     imageWindow.ResetZoomAndRepaint();
                     imageWindow.Show();
@@ -430,7 +429,6 @@ namespace ImageViewer
                 }
             }
         }
-
 
         private void OpenImageInDefaultApp()
         {
@@ -472,7 +470,6 @@ namespace ImageViewer
             _pictureBoxAnimation.LoadCompleted += pictureBoxAnimation_LoadCompleted;
             bool settingsLoaded = _applicationSettingsService.LoadSettings();
 
-
             if (!settingsLoaded)
             {
                 // Problem. Settings could not be loaded due to deserialization error because the decryption used an invalid key which made protobuffer try to deserialize garbage.
@@ -496,7 +493,6 @@ namespace ImageViewer
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception);
-
                 }
 
                 _changeImageAnimation = _applicationSettingsService.Settings.NextImageAnimation;
@@ -506,7 +502,6 @@ namespace ImageViewer
                 Text = _windowTitle;
                 ToggleSlideshowMenuState();
             }
-
 
             //Notification Service
             _interactionService.Initialize(this);
@@ -532,13 +527,11 @@ namespace ImageViewer
 
         private void _imageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
         {
-
         }
 
         private void Instance_OnRegistryAccessDenied(object sender, EventArgs e)
         {
         }
-
 
         private void Instance_OnSettingsSaved(object sender, EventArgs e)
         {
@@ -554,7 +547,6 @@ namespace ImageViewer
         {
             Invoke(new NativeThreadFunctionUserInfo(ShowInfoMessageOnNativeThread), this, e);
         }
-
 
         private void ShowInfoMessageOnNativeThread(object sender, UserInformationEventArgs e)
         {
@@ -574,7 +566,6 @@ namespace ImageViewer
                 e.UserQuestion.CancelResponse.Invoke();
             }
         }
-
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -629,13 +620,18 @@ namespace ImageViewer
                 return;
             }
 
-            if (e.KeyCode == Keys.Right || e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Right || e.KeyCode == Keys.Enter)
             {
                 ChangeImage(true);
             }
             else if (e.KeyCode == Keys.Left)
             {
                 ChangeImage(false);
+            }
+            else if (e.KeyCode == Keys.Space)
+            {
+                ToggleSlideshow();
+                DisplaySlideshowStatus();
             }
         }
 
@@ -653,10 +649,12 @@ namespace ImageViewer
                 case MouseButtons.Left:
                     ChangeImage(true);
                     break;
+
                 case MouseButtons.Right:
                 case MouseButtons.XButton2:
                     ChangeImage(false);
                     break;
+
                 case MouseButtons.Middle:
                     if (settings.ToggleSlideshowWithThirdMouseButton && ToggleSlideshow())
                     {
@@ -664,6 +662,7 @@ namespace ImageViewer
                     }
 
                     break;
+
                 case MouseButtons.None:
                     break;
 
@@ -681,13 +680,12 @@ namespace ImageViewer
             });
         }
 
-
         private void FormMain_Activated(object sender, EventArgs e)
         {
             _formWindows?.RestoreFocusToMainForm();
         }
 
-        #endregion
+        #endregion Form Events
 
         #region Form Controls Events
 
@@ -695,6 +693,7 @@ namespace ImageViewer
         {
             OpenImageInDefaultApp();
         }
+
         private void DeleteImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!ImageSourceDataAvailable)
@@ -710,7 +709,8 @@ namespace ImageViewer
             }
             string currentFilePath = _imageReferenceCollection.CurrentImage.CompletePath;
 
-            var result = MessageBox.Show($"Are you sure you want to delete the current image? \nImage path: { currentFilePath } ", "Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show($@"Are you sure you want to delete the current image? 
+Image path: { currentFilePath } ", @"Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
@@ -718,13 +718,12 @@ namespace ImageViewer
                 bool imgRemoved = _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
                 if (!imgRemoved)
                 {
-
-                    MessageBox.Show($"Unable to delete file {imgRefElement.CompletePath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($@"Unable to delete file {imgRefElement.CompletePath}", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     timerSlideShow.Enabled = slideshowEnabled;
                     return;
                 }
 
-                // A cached copy of the image remains independent of file deletion. so we can delete the file while still displaying it. 
+                // A cached copy of the image remains independent of file deletion. so we can delete the file while still displaying it.
                 // The image cache service will be notified of the deletion and remove it from cache
                 // It will also be removed from the image collection set so moving forwards and backwards will not create any problems.
                 // Same with FormImageView instances.
@@ -803,7 +802,7 @@ namespace ImageViewer
             _applicationSettingsService.Settings.SlideshowInterval = timerSlideShow.Interval;
         }
 
-        #endregion
+        #endregion Form Controls Events
 
         #region Main Menu Functions
 
@@ -825,12 +824,12 @@ namespace ImageViewer
 
             if (result)
             {
-                MessageBox.Show("Loaded all bookmarks as source images", "Import complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"Loaded all bookmarks as source images", @"Import complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
                 Log.Warning("RunBookmarkImageImport returned false");
-                MessageBox.Show("Failed to load bookmarked images as source images", "Import failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(@"Failed to load bookmarked images as source images", @"Import failed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -864,9 +863,9 @@ namespace ImageViewer
                 var isLatest = await updateService.IsLatestVersion();
                 if (isLatest)
                 {
-                    MessageBox.Show("This is the latest version available", "Update check", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(@"This is the latest version available", @"Update check", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else if (MessageBox.Show("There is a newer version available, do you want to update?", "Update", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                else if (MessageBox.Show(@"There is a newer version available, do you want to update?", @"Update", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
                 {
                     await updateService.DownloadAndRunLatestVersionInstaller();
                 }
@@ -874,7 +873,7 @@ namespace ImageViewer
             catch (Exception ex)
             {
                 Log.Error(ex, "Exception while checking for updates");
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -895,9 +894,6 @@ namespace ImageViewer
             timerSlideShow.Interval = _applicationSettingsService.Settings.SlideshowInterval;
             timerSlideShow.Start();
             ToggleSlideshowMenuState();
-
-            //Disable screen saver
-            ScreenSaver.Disable();
         }
 
         private void ToggleSlideshowMenuState()
@@ -910,9 +906,6 @@ namespace ImageViewer
         {
             timerSlideShow.Enabled = false;
             ToggleSlideshowMenuState();
-
-            //Enable screen saver
-            ScreenSaver.Enable();
         }
 
         private void setIntervalToolStripMenuItem_Click(object sender, EventArgs e)
@@ -921,7 +914,6 @@ namespace ImageViewer
             formSetSlideshowInterval.OnIntervalChanged += formSetSlideshowInterval_OnIntervalChanged;
             formSetSlideshowInterval.ShowDialog(this);
         }
-
 
         private void openSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1135,7 +1127,7 @@ namespace ImageViewer
                 try
                 {
                     string fileName = openFileDialog1.FileName;
-                    var imgRefElement = _imageLoaderService.ImportSingleImage(fileName, ref  _imageReferenceCollection);
+                    var imgRefElement = _imageLoaderService.ImportSingleImage(fileName, ref _imageReferenceCollection);
                     LoadNewImageFile(imgRefElement);
                     if (pictureBox1.Image != null)
                     {
@@ -1173,7 +1165,6 @@ namespace ImageViewer
             form.ShowDialog(this);
         }
 
-        #endregion
-
+        #endregion Main Menu Functions
     }
 }

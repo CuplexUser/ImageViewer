@@ -272,6 +272,15 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 244d61723256c1e7fc9e26cd5a6ae1782d0a2003eae5f5b782c9ad4c67c0220aa8ed4a925e9c5b48e1bc6076b9571c5587846227c6bbf4af52c7ea0202a03b1244d61723256c1e7fc9e26cd5a6ae1782d0a2003eae5f5b782c9ad4c67c0220aa8ed4a925e9c5b48e1bc6076b9571c5587846227c6bbf4af52c7ea0202a03b11.
+        /// </summary>
+        internal static string ResourceSALT {
+            get {
+                return ResourceManager.GetString("ResourceSALT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap transparent {

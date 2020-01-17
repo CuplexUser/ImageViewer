@@ -14,7 +14,6 @@ using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
-using Serilog.Core;
 
 namespace ImageViewer.Services
 {
@@ -189,7 +188,9 @@ namespace ImageViewer.Services
                 if (_winId.UserClaims.Any(c => c.Value == fsAccessRules.IdentityReference.Value) &&
                     fsAccessRules.FileSystemRights.HasFlag(FileSystemRights.ListDirectory) &&
                     fsAccessRules.AccessControlType == AccessControlType.Allow)
+                {
                     return true;
+                }
             }
             return false;
         }

@@ -9,7 +9,7 @@ namespace ImageViewer.UserControls
     {
         private readonly ThumbnailService _thumbnailService;
         private bool _directorySelected;
-        private bool _scaningDirectory;
+        private bool _scanningDirectory;
 
         public ThumbnailScanDirectory(ThumbnailService thumbnailService)
         {
@@ -20,7 +20,7 @@ namespace ImageViewer.UserControls
 
         private void _thumbnailService_CompletedThumbnailScan(object sender, EventArgs e)
         {
-            _scaningDirectory = false;
+            _scanningDirectory = false;
             UpdateButtonState();
         }
 
@@ -42,11 +42,11 @@ namespace ImageViewer.UserControls
         private async void btnScan_Click(object sender, EventArgs e)
         {
             progressBar.Value = 0;
-            _scaningDirectory = true;
+            _scanningDirectory = true;
             UpdateButtonState();
             var progress = new Progress<ThumbnailScanProgress>(Handler);
 
-            await _thumbnailService.ScanDirectoryAsync(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked);
+            await _thumbnailService.ThumbnailDirectoryScan(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked);
         }
 
         private void Handler(ThumbnailScanProgress thumbnailScanProgress)
@@ -54,7 +54,7 @@ namespace ImageViewer.UserControls
             if (thumbnailScanProgress.IsComplete)
             {
                 progressBar.Value = progressBar.Maximum;
-                _scaningDirectory = false;
+                _scanningDirectory = false;
                 UpdateButtonState();
             }
             else
@@ -65,13 +65,13 @@ namespace ImageViewer.UserControls
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (_thumbnailService.IsRunningScan)
+            if (_thumbnailService.RunningThumbnailScan)
             {
                 CancelScan();
             }
             else
             {
-                _scaningDirectory = false;
+                _scanningDirectory = false;
             }
             
             UpdateButtonState();
@@ -81,7 +81,7 @@ namespace ImageViewer.UserControls
         {
             btnScan.Enabled = _directorySelected;
 
-            if (_scaningDirectory)
+            if (_scanningDirectory)
             {
                 btnScan.Enabled = false;
                 btnCancel.Enabled = true;
@@ -103,7 +103,7 @@ namespace ImageViewer.UserControls
 
         public void OnFormClosed()
         {
-            if (_scaningDirectory)
+            if (_scanningDirectory)
                 CancelScan();
         }
     }

@@ -12,8 +12,6 @@ namespace ImageViewer
         public FormThumbnailSettings(ThumbnailService thumbnailService)
         {
             _thumbnailService = thumbnailService;
-            thumbnailService.StartedThumbnailScan += ThumbnailService_StartedThumbnailScan;
-            thumbnailService.CompletedThumbnailScan += ThumbnailService_CompletedThumbnailScan;
             InitializeComponent();
         }
 
@@ -27,16 +25,16 @@ namespace ImageViewer
             btnUpdateCurrentUsage.Enabled = false;
         }
 
-        private void FormThumbnailSettings_Load(object sender, EventArgs e)
+        private async void FormThumbnailSettings_Load(object sender, EventArgs e)
         {
-            _thumbnailService.LoadThumbnailDatabase();
+            bool result = await _thumbnailService.LoadThumbnailDatabaseAsync();
             UpdateInformationLabels();
             lblInfo.Text = "Progress Information.";
         }
 
         private void UpdateInformationLabels()
         {
-            lblCurrentDbSize.Text = GeneralConverters.FormatFileSizeToString(_thumbnailService.GetThumbnailDbSize());
+            lblCurrentDbSize.Text = GeneralConverters.FormatFileSizeToString(_thumbnailService.GetDatabaseSize());
             int thumbnailItems = _thumbnailService.GetNumberOfCachedThumbnails();
             lblCachedItems.Text = thumbnailItems > 0 ? _thumbnailService.GetNumberOfCachedThumbnails().ToString() : "n/a";
         }
@@ -51,15 +49,15 @@ namespace ImageViewer
 
         private void btnClearDatabase_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to completely remove the thumbnail cache?", "Confirm delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+            if (MessageBox.Show(@"Are you sure you want to completely remove the thumbnail cache?", @"Confirm delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
                 if (_thumbnailService.ClearDatabase())
                 {
-                    MessageBox.Show("Successively cleared the Thumbnail database.", "Database cleared", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(@"Successively cleared the Thumbnail database.", @"Database cleared", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    MessageBox.Show("Failed to clear the Thumbnail database because it is in use", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(@"Failed to clear the Thumbnail database because it is in use", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 UpdateInformationLabels();
@@ -74,7 +72,7 @@ namespace ImageViewer
         private async void btnRemoveFilesNotFound_Click(object sender, EventArgs e)
         {
             btnRemoveFilesNotFound.Enabled = false;
-            bool result = await Task<bool>.Factory.StartNew(() => _thumbnailService.RemoveAllNonAccessibleFilesAndSaveDb());
+            bool result = await Task<bool>.Factory.StartNew(() => _thumbnailService.RemoveAllNonAccessibleFilesFromDb());
             btnRemoveFilesNotFound.Enabled = true;
 
             lblInfo.Text = result ? "Successfully removed missing files." : "No missing files where found.";
@@ -87,16 +85,16 @@ namespace ImageViewer
             long truncatedSize = maxSize * 1048576;
 
             // Verify that the actual thumbnail database file is larger then the target size
-            if (truncatedSize > _thumbnailService.GetThumbnailDbSize())
+            if (truncatedSize > _thumbnailService.GetDatabaseSize())
             {
-                MessageBox.Show("The thumbnail database is already smaller then the selected size!", "Unable to truncate", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"The thumbnail database is already smaller then the selected size!", @"Unable to truncate", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             btnReduceCachSize.Enabled = false;
             bool result = await Task.Run(() => _thumbnailService.TruncateCacheSize(truncatedSize));
 
-            MessageBox.Show(result ? "The thumbnail database was successfully truncated" : "Failed to truncate the database because the db is locked. Please try again in a minute", "Completed", MessageBoxButtons.OK,
+            MessageBox.Show(result ? "The thumbnail database was successfully truncated" : "Failed to truncate the database because the db is locked. Please try again in a minute", @"Completed", MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
 
             UpdateInformationLabels();
@@ -105,13 +103,13 @@ namespace ImageViewer
 
         private void btnUpdateCurrentUsage_Click(object sender, EventArgs e)
         {
-            if (!_thumbnailService.IsRunningScan)
+            if (_thumbnailService.ServiceState == ThumbnailServiceState.Idle)
             {
                 UpdateInformationLabels();
             }
             else
             {
-                MessageBox.Show("Can not update info values while a scan is running", "Scan is running", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"Can not update info values while a scan is running", @"Scan is running", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
         }
