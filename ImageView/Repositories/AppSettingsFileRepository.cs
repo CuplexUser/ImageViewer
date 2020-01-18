@@ -91,13 +91,7 @@ namespace ImageViewer.Repositories
 
         public bool LoadSettings()
         {
-            // Thread will continue without waiting if the file is not locked
-            _fileAccessWaitHandle.WaitOne(TimeSpan.FromSeconds(7.5));
-            if (_dataFileLocked)
-                return false;
-
             return LoadSettingsInternal();
-
         }
 
         private bool SaveSettingsInternal()

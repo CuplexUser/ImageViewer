@@ -44,6 +44,7 @@
             this.copyFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.openInDefaultApplicationToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.vivewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showFullscreenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.topMostToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -92,7 +93,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolTipSlideshowState = new System.Windows.Forms.ToolTip(this.components);
-            this.deleteImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.timerCursorVisible = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -219,6 +220,15 @@
             this.openInDefaultApplicationToolStripMenuItem1.Size = new System.Drawing.Size(226, 22);
             this.openInDefaultApplicationToolStripMenuItem1.Text = "Open In Default Application";
             this.openInDefaultApplicationToolStripMenuItem1.Click += new System.EventHandler(this.openInDefaultApplicationToolStripMenuItem1_Click);
+            // 
+            // deleteImageToolStripMenuItem
+            // 
+            this.deleteImageToolStripMenuItem.Name = "deleteImageToolStripMenuItem";
+            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.Delete)));
+            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.deleteImageToolStripMenuItem.Text = "Delete Image";
+            this.deleteImageToolStripMenuItem.Click += new System.EventHandler(this.DeleteImageToolStripMenuItem_Click);
             // 
             // vivewToolStripMenuItem
             // 
@@ -576,6 +586,10 @@
             this.pictureBox1.LoadCompleted += new System.ComponentModel.AsyncCompletedEventHandler(this.pictureBox1_LoadCompleted);
             this.pictureBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             this.pictureBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
+            this.pictureBox1.MouseEnter += new System.EventHandler(this.pictureBox1_MouseEnter);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.pictureBox1_MouseLeave);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.pictureBox1_MouseHover);
+            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             // 
             // toolTipSlideshowState
             // 
@@ -583,14 +597,11 @@
             this.toolTipSlideshowState.InitialDelay = 100;
             this.toolTipSlideshowState.ReshowDelay = 500;
             // 
-            // deleteImageToolStripMenuItem
+            // timerCursorVisible
             // 
-            this.deleteImageToolStripMenuItem.Name = "deleteImageToolStripMenuItem";
-            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.Delete)));
-            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
-            this.deleteImageToolStripMenuItem.Text = "Delete Image";
-            this.deleteImageToolStripMenuItem.Click += new System.EventHandler(this.DeleteImageToolStripMenuItem_Click);
+            this.timerCursorVisible.Enabled = true;
+            this.timerCursorVisible.Interval = 2000;
+            this.timerCursorVisible.Tick += new System.EventHandler(this.timerCursorVisible_Tick);
             // 
             // FormMain
             // 
@@ -607,6 +618,7 @@
             this.Text = "Image Viewer";
             this.Activated += new System.EventHandler(this.FormMain_Activated);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormMain_FormClosed);
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormMain_KeyUp);
@@ -683,6 +695,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuItemLoadBookmarkedImages;
         private System.Windows.Forms.ToolTip toolTipSlideshowState;
         private System.Windows.Forms.ToolStripMenuItem deleteImageToolStripMenuItem;
+        private System.Windows.Forms.Timer timerCursorVisible;
     }
 }
 

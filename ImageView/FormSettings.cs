@@ -32,6 +32,11 @@ namespace ImageViewer
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
+            LoadSettings();
+        }
+
+        private void LoadSettings()
+        {
             ImageViewApplicationSettings settings = _applicationSettingsService.Settings;
             chkAutoRandomize.Checked = settings.AutoRandomizeCollection;
             chkPasswordProtectBookmarks.Checked = settings.PasswordProtectBookmarks;
@@ -40,6 +45,7 @@ namespace ImageViewer
             chkConfirmExit.Checked = settings.ConfirmApplicationShutdown;
             ChkAutomaticallyCheckForUpdates.Checked = settings.AutomaticUpdateCheck;
             chkToggleSlidshowWithThirdMouseButton.Checked = settings.ToggleSlideshowWithThirdMouseButton;
+            chkAutohideCursor.Checked = settings.AutoHideCursor;
 
             if (settings.ShowNextPrevControlsOnEnterWindow)
             {
@@ -86,6 +92,12 @@ namespace ImageViewer
             numericScreenMinOffset.Value = settings.ScreenMinXOffset;
             numericScreenWidthOffset.Value = settings.ScreenWidthOffset;
 
+            if (settings.AutoHideCursorDelay < numericAutohideCursorDelay.Minimum)
+            {
+                settings.AutoHideCursorDelay = 2000;
+            }
+            numericAutohideCursorDelay.Value = settings.AutoHideCursorDelay;
+
             trackBarFadeTime.Value = settings.ImageTransitionTime;
             lblFadeTime.Text = trackBarFadeTime.Value + " ms";
 
@@ -93,7 +105,7 @@ namespace ImageViewer
             var colorList = UIHelper.GetSelectableBackgroundColors();
             colorList.AddRange(UIHelper.GetSelectableSystemBackgroundColors());
             backgroundColorDropdownList.DataSource = colorList;
-            BackgroundImageDropdown.DataSource = UIHelper.GetSelectableBackgroundColors(); 
+            BackgroundImageDropdown.DataSource = UIHelper.GetSelectableBackgroundColors();
 
             if (backgroundColorDropdownList.Items.Count > 0)
             {
@@ -140,24 +152,28 @@ namespace ImageViewer
             settings.EnableAutoLoadFunctionFromMenu = chkEnableAutoload.Checked;
             settings.ShowNextPrevControlsOnEnterWindow = rbOverWindow.Checked;
             settings.ConfirmApplicationShutdown = chkConfirmExit.Checked;
+            settings.AutoHideCursor = chkAutohideCursor.Checked;
 
             if (rbImgTransformFadeIn.Checked)
+            {
                 settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.FadeIn;
+            }
 
             settings.ToggleSlideshowWithThirdMouseButton = chkToggleSlidshowWithThirdMouseButton.Checked;
             settings.ImageTransitionTime = trackBarFadeTime.Value;
             settings.ScreenMinXOffset = Convert.ToInt32(numericScreenMinOffset.Value);
             settings.ScreenWidthOffset = Convert.ToInt32(numericScreenWidthOffset.Value);
-
+            
             Color selectedColor = (Color)backgroundColorDropdownList.SelectedItem;
             settings.MainWindowBackgroundColor = ColorDataModel.CreateFromColor(selectedColor);
+            settings.AutoHideCursorDelay = Convert.ToInt32(numericAutohideCursorDelay.Value);
 
             _applicationSettingsService.Settings.ImageCacheSize = _selectedCacheSize;
             _applicationSettingsService.Settings.AutomaticUpdateCheck = ChkAutomaticallyCheckForUpdates.Checked;
             _imageCacheService.CacheSize = _selectedCacheSize;
 
             _applicationSettingsService.SetSettingsStateModified();
-             _applicationSettingsService.SaveSettings();
+            _applicationSettingsService.SaveSettings();
             Close();
         }
 

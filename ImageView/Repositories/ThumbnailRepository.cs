@@ -34,8 +34,6 @@ namespace ImageViewer.Repositories
         /// </summary>
         private const string DatabaseFilename = "thumbs.db";
 
-        private readonly FileManager _fileManager;
-
         /// <summary>
         ///     The database key
         /// </summary>
@@ -44,7 +42,7 @@ namespace ImageViewer.Repositories
         private const string Salt = "3B4AD4D2126B52E17212C49CA2280F9AB00237A7590EDF8D2B026DC3D21053416ABAFEDB7FA61B8190BB9F58C6A0AAC15D728CD71BE6E42980A618FFBF07C55F";
         private const string Salt2 = "5035D7563952191C1AB05A5F294EF4821D94E35BF6D0CFA73A1CC8941D163848AC45F71210D742CAF975F2D48F83EDC4DFBD3AB7657F2D65BE357013B22FBD95";
 
-        [NotNull] private ReaderWriterLockSlim DbReaderWriterLock { get;}
+        private readonly FileManager _fileManager;
 
 
         /// <summary>
@@ -80,6 +78,8 @@ namespace ImageViewer.Repositories
             DbReaderWriterLock = new ReaderWriterLockSlim();
         }
 
+        [NotNull] private ReaderWriterLockSlim DbReaderWriterLock { get; }
+
         /// <summary>
         ///     Gets or sets a value indicating whether this instance is modified.
         /// </summary>
@@ -92,6 +92,11 @@ namespace ImageViewer.Repositories
             set => _isModified = value;
         }
 
+
+        public void Dispose()
+        {
+            DbReaderWriterLock.Dispose();
+        }
 
         #region Public Methods
 
@@ -161,15 +166,6 @@ namespace ImageViewer.Repositories
         }
 
         /// <summary>
-        ///     Gets the size of the file cache.
-        /// </summary>
-        /// <returns></returns>
-        public long GetThumbnailDiskSize()
-        {
-            return _thumbnailDatabase.ThumbnailEntries.Select(x => x.Length).Sum();
-        }
-
-        /// <summary>
         ///     Ges the thumbnail entry.
         /// </summary>
         /// <param name="fullPath">The full path.</param>
@@ -180,6 +176,15 @@ namespace ImageViewer.Repositories
             ThumbnailEntryModel model = _mapper.Map<ThumbnailEntryModel>(entry);
 
             return model;
+        }
+
+        /// <summary>
+        ///     Gets the size of the file cache.
+        /// </summary>
+        /// <returns></returns>
+        public long GetThumbnailDiskSize()
+        {
+            return _thumbnailDatabase.ThumbnailEntries.Select(x => x.Length).Sum();
         }
 
         /// <summary>
@@ -267,31 +272,40 @@ namespace ImageViewer.Repositories
         /// <summary>
         ///     Optimizes the database.
         /// </summary>
-        public async Task OptimizeDatabaseAsync()
+        public async Task<bool> OptimizeDatabaseAsync()
         {
-            var thumbnailsToRemove = new Queue<ThumbnailEntry>();
-            _fileManager.ClearDirectoryAccessCache();
-            foreach (var entry in _thumbnailDatabase.ThumbnailEntries)
+            try
             {
-                if (!_fileManager.HasAccessToDirectory(entry.Directory)) continue;
-                if (File.Exists(Path.Combine(entry.Directory, entry.FileName)) && FileManager.IsUpToDate(entry)) continue;
-                thumbnailsToRemove.Enqueue(entry);
+                var thumbnailsToRemove = new Queue<ThumbnailEntry>();
+                _fileManager.ClearDirectoryAccessCache();
+                foreach (var entry in _thumbnailDatabase.ThumbnailEntries)
+                {
+                    if (!_fileManager.HasAccessToDirectory(entry.Directory)) continue;
+                    if (File.Exists(Path.Combine(entry.Directory, entry.FileName)) && FileManager.IsUpToDate(entry)) continue;
+                    thumbnailsToRemove.Enqueue(entry);
+                }
+
+
+                while (thumbnailsToRemove.Count > 0)
+                {
+                    var entryModel = thumbnailsToRemove.Dequeue();
+                    _thumbnailDatabase.ThumbnailEntries.Remove(entryModel);
+                }
+
+                //Remove possible duplicates due to data corruption.
+                _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.DistinctBy(x => x.FullPath).AsEnumerable());
+
+                await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries);
+                _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));
+
+                return await SaveThumbnailDatabaseAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Optimize thumbnail database error");
             }
 
-
-            while (thumbnailsToRemove.Count > 0)
-            {
-                var entryModel = thumbnailsToRemove.Dequeue();
-                _thumbnailDatabase.ThumbnailEntries.Remove(entryModel);
-            }
-
-            //Remove possible duplicates due to data corruption.
-            _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.DistinctBy(x => x.FullPath).AsEnumerable());
-
-            await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries);
-            _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));
-
-            await SaveThumbnailDatabaseAsync();
+            return false;
         }
 
 
@@ -308,6 +322,7 @@ namespace ImageViewer.Repositories
                 {
                     return false;
                 }
+
                 DbReaderWriterLock.EnterWriteLock();
 
                 // Update SourceImageLength is a new property and needs to be calculated post process when it is zero
@@ -359,7 +374,7 @@ namespace ImageViewer.Repositories
                 IsModified = true;
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Log.Error(e, "ReduceCacheSizeAsync failed using {maxFileSize}", maxFileSize);
             }
@@ -372,6 +387,20 @@ namespace ImageViewer.Repositories
             }
 
             return false;
+        }
+
+        public bool SaveThumbnailDatabase()
+        {
+            var cancelToken = new CancellationToken(false);
+            var saveTask = Task.Factory.StartNew(SaveThumbnailDatabaseAsync, cancelToken);
+
+            cancelToken.WaitHandle.WaitOne(2000, false);
+            cancelToken.WaitHandle.Close();
+            if (saveTask.IsCanceled)
+            {
+                Log.Warning("SaveThumbnailDatabaseAsync timed out after 2000 ms");
+            }
+            return saveTask.Result.Result;
         }
 
         /// <summary>
@@ -432,9 +461,9 @@ namespace ImageViewer.Repositories
 
             //Check for duplicates
             var query = (from t in _thumbnailDatabase.ThumbnailEntries
-                group t by new {EntryFilePath = t.Directory + t.FileName}
+                         group t by new { EntryFilePath = t.Directory + t.FileName }
                 into g
-                select new {FilePath = g.Key, Count = g.Count()}).ToList();
+                         select new { FilePath = g.Key, Count = g.Count() }).ToList();
 
             var duplicateKeys = query.Where(x => x.Count > 1).Select(x => x.FilePath.EntryFilePath).ToList();
 
@@ -514,13 +543,6 @@ namespace ImageViewer.Repositories
             _fileManager.WriteImage(rawImage);
 
             return new Tuple<ThumbnailEntry, Image>(entry, image);
-        }
-
-
-
-        public void Dispose()
-        {
-            DbReaderWriterLock.Dispose();
         }
     }
 }

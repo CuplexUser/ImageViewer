@@ -100,6 +100,8 @@ namespace ImageViewer.DataContracts
                 ExtendedAppSettings = ApplicationSettingsHelper.Create(),
                 ImageCacheSize = 134217728, // 128 Mb,
                 ToggleSlideshowWithThirdMouseButton = true,
+                AutoHideCursor = true,
+                AutoHideCursorDelay = 2000,
             };
 
             return settings;
@@ -384,6 +386,7 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "LastUpdateCheck", Order = 31)]
         public DateTime LastUpdateCheck { get; set; }
 
+
         /// <summary>
         /// Gets or sets a value indicating whether [toggle slideshow with third mouse button].
         /// </summary>
@@ -393,8 +396,26 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 32)]
         public bool ToggleSlideshowWithThirdMouseButton { get; set; }
 
+        /// <summary>
+        /// Gets or sets the extended application settings.
+        /// </summary>
+        /// <value>
+        /// The extended application settings.
+        /// </value>
         [DataMember(Name = "ExtendedAppSettings", Order = 33)]
         public AppSettingsExtendedDataModel ExtendedAppSettings { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [automatic hide cursor].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember(Name = "AutoHideCursor", Order = 34)]
+        public bool AutoHideCursor { get; set; }
+
+        [DataMember(Name = "AutoHideCursorDelay", Order = 35)]
+        public int AutoHideCursorDelay { get; set; }
 
         /// <summary>
         /// Removes the duplicate entries with ignore case.

@@ -111,6 +111,12 @@ namespace ImageViewer
                 e.Handled = true;
                 Close();
             }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+                DialogResult = DialogResult.Cancel;
+                Close();
+            }
         }
 
         private void FormAddBookmark_Shown(object sender, EventArgs e)

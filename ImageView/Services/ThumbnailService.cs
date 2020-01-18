@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ImageViewer.Events;
@@ -182,18 +183,27 @@ namespace ImageViewer.Services
 
         public async Task<bool> OptimizeDatabaseAsync()
         {
-            return await Task.Factory.StartNew(OptimizeDatabase);
+            return await _thumbnailRepository.OptimizeDatabaseAsync();
         }
 
         public bool OptimizeDatabase()
         {
-            return OptimizeDatabaseAsync().Result;
+            ConfiguredTaskAwaitable<bool> result;
+            result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
+            return result.GetAwaiter().GetResult();
         }
 
 
         public bool SaveThumbnailDatabase()
         {
-            bool result = _thumbnailRepository.SaveThumbnailDatabaseAsync().Result;
+            bool result = false;
+
+            if (ServiceState == ThumbnailServiceState.Idle)
+            {
+                ServiceState = ThumbnailServiceState.SavingDatabase;
+                result = _thumbnailRepository.SaveThumbnailDatabase();
+                ServiceState = ThumbnailServiceState.Idle;
+            }
 
             return result;
         }
@@ -211,9 +221,9 @@ namespace ImageViewer.Services
             return false;
         }
 
-        public async Task<bool> LoadThumbnailDatabaseAsync()
+        public bool LoadThumbnailDatabase()
         {
-            return await Task.Factory.StartNew(() => _thumbnailRepository.LoadThumbnailDatabase());
+            return _thumbnailRepository.LoadThumbnailDatabase();
         }
 
         public int GetNumberOfCachedThumbnails()
@@ -302,11 +312,6 @@ namespace ImageViewer.Services
         public long GetDatabaseSize()
         {
             return _thumbnailRepository.GetDatabaseSize();
-        }
-
-        public bool LoadThumbnailDatabase()
-        {
-            return LoadThumbnailDatabaseAsync().Result;
         }
     }
 

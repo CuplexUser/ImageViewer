@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Services;
+using Serilog;
 
 namespace ImageViewer
 {
@@ -25,9 +26,18 @@ namespace ImageViewer
             btnUpdateCurrentUsage.Enabled = false;
         }
 
-        private async void FormThumbnailSettings_Load(object sender, EventArgs e)
+        private void FormThumbnailSettings_Load(object sender, EventArgs e)
         {
-            bool result = await _thumbnailService.LoadThumbnailDatabaseAsync();
+            try
+            {
+                _thumbnailService.LoadThumbnailDatabase();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "FormThumbnailSettings Load exception");
+                MessageBox.Show("Failed to Load Thumbnail Database", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            
             UpdateInformationLabels();
             lblInfo.Text = "Progress Information.";
         }

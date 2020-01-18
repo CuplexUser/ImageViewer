@@ -122,7 +122,7 @@ namespace ImageViewer
         private void FormBookmarks_FormClosing(object sender, FormClosingEventArgs e)
         {
             _applicationSettingsService.RegisterFormStateOnClose(this);
-             _applicationSettingsService.SaveSettings();
+            _applicationSettingsService.SaveSettings();
         }
 
         private bool ReLoadBookmarks()
@@ -144,7 +144,7 @@ namespace ImageViewer
             try
             {
                 // Select first row!
-                if (bookmarksDataGridView.Rows.Count > 0)
+                if (bookmarksDataGridView.Rows.Count > 0 && bookmarksDataGridView.Rows[0].Cells.Count > 0)
                 {
                     bookmarksDataGridView.ClearSelection();
                     bookmarksDataGridView.FirstDisplayedScrollingRowIndex = 0;

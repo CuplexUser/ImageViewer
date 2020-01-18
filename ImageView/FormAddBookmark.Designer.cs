@@ -36,7 +36,7 @@ namespace ImageViewer
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.newItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainPanel = new CustomPanel();
+            this.mainPanel = new ImageViewer.UserControls.CustomPanel();
             this.btnCreateFolder = new System.Windows.Forms.Button();
             this.comboBoxBookmarkFolders = new System.Windows.Forms.ComboBox();
             this.bookmarkFolderBindingSource = new System.Windows.Forms.BindingSource(this.components);
@@ -60,31 +60,30 @@ namespace ImageViewer
             this.toolStripMenuItem3,
             this.newItemToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(212, 58);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 54);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(211, 24);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItem1.Text = "toolStripMenuItem1";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(208, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
             // 
             // newItemToolStripMenuItem
             // 
             this.newItemToolStripMenuItem.Name = "newItemToolStripMenuItem";
-            this.newItemToolStripMenuItem.Size = new System.Drawing.Size(211, 24);
+            this.newItemToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newItemToolStripMenuItem.Text = "New Item";
             // 
             // mainPanel
             // 
+            this.mainPanel.BackColor = System.Drawing.SystemColors.Control;
             this.mainPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.mainPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mainPanel.BorderWidthInner = 0;
-            this.mainPanel.BorderWidthOuter = 0;
             this.mainPanel.Controls.Add(this.btnCreateFolder);
             this.mainPanel.Controls.Add(this.comboBoxBookmarkFolders);
             this.mainPanel.Controls.Add(this.btnCancel);
@@ -101,7 +100,6 @@ namespace ImageViewer
             this.mainPanel.OuterBorderColor = System.Drawing.Color.Empty;
             this.mainPanel.Size = new System.Drawing.Size(384, 147);
             this.mainPanel.TabIndex = 0;
-            this.mainPanel.Text = "CustomComboBox Enabled";
             this.mainPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mainPanel_MouseDown);
             // 
             // btnCreateFolder
@@ -112,7 +110,7 @@ namespace ImageViewer
             this.btnCreateFolder.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnCreateFolder.Name = "btnCreateFolder";
             this.btnCreateFolder.Size = new System.Drawing.Size(129, 30);
-            this.btnCreateFolder.TabIndex = 8;
+            this.btnCreateFolder.TabIndex = 2;
             this.btnCreateFolder.Text = "Create new";
             this.btnCreateFolder.UseVisualStyleBackColor = true;
             this.btnCreateFolder.Click += new System.EventHandler(this.btnCreateFolder_Click);
@@ -125,14 +123,14 @@ namespace ImageViewer
             this.comboBoxBookmarkFolders.FormattingEnabled = true;
             this.comboBoxBookmarkFolders.Location = new System.Drawing.Point(103, 71);
             this.comboBoxBookmarkFolders.Name = "comboBoxBookmarkFolders";
-            this.comboBoxBookmarkFolders.Size = new System.Drawing.Size(260, 29);
-            this.comboBoxBookmarkFolders.TabIndex = 7;
+            this.comboBoxBookmarkFolders.Size = new System.Drawing.Size(260, 25);
+            this.comboBoxBookmarkFolders.TabIndex = 1;
             this.comboBoxBookmarkFolders.ValueMember = "Id";
             this.comboBoxBookmarkFolders.SelectedIndexChanged += new System.EventHandler(this.comboBoxBookmarkFolders_SelectedIndexChanged);
             // 
             // bookmarkFolderBindingSource
             // 
-            this.bookmarkFolderBindingSource.DataSource = typeof(BookmarkFolder);
+            this.bookmarkFolderBindingSource.DataSource = typeof(ImageViewer.DataContracts.BookmarkFolder);
             // 
             // btnCancel
             // 
@@ -142,7 +140,7 @@ namespace ImageViewer
             this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(87, 30);
-            this.btnCancel.TabIndex = 6;
+            this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -154,8 +152,8 @@ namespace ImageViewer
             this.txtBookmarkName.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtBookmarkName.MaxLength = 255;
             this.txtBookmarkName.Name = "txtBookmarkName";
-            this.txtBookmarkName.Size = new System.Drawing.Size(260, 29);
-            this.txtBookmarkName.TabIndex = 4;
+            this.txtBookmarkName.Size = new System.Drawing.Size(260, 25);
+            this.txtBookmarkName.TabIndex = 0;
             this.txtBookmarkName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtBookmarkName_KeyUp);
             // 
             // label3
@@ -164,7 +162,7 @@ namespace ImageViewer
             this.label3.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(10, 10);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(148, 28);
+            this.label3.Size = new System.Drawing.Size(119, 21);
             this.label3.TabIndex = 3;
             this.label3.Text = "Add bookmark";
             // 
@@ -175,7 +173,7 @@ namespace ImageViewer
             this.label2.Location = new System.Drawing.Point(25, 71);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 10, 3, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 28);
+            this.label2.Size = new System.Drawing.Size(57, 21);
             this.label2.TabIndex = 2;
             this.label2.Text = "Folder:";
             // 
@@ -185,7 +183,7 @@ namespace ImageViewer
             this.label1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(25, 40);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(68, 28);
+            this.label1.Size = new System.Drawing.Size(55, 21);
             this.label1.TabIndex = 1;
             this.label1.Text = "Name:";
             // 
@@ -197,14 +195,14 @@ namespace ImageViewer
             this.btnSave.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(87, 30);
-            this.btnSave.TabIndex = 0;
+            this.btnSave.TabIndex = 4;
             this.btnSave.Text = "Save";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // FormAddBookmark
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(384, 147);
