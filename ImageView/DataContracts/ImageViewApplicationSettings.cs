@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
@@ -414,6 +416,7 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "AutoHideCursor", Order = 34)]
         public bool AutoHideCursor { get; set; }
 
+        [CustomValidation(typeof(IntegerValidator), )]
         [DataMember(Name = "AutoHideCursorDelay", Order = 35)]
         public int AutoHideCursorDelay { get; set; }
 
