@@ -104,8 +104,11 @@ namespace ImageViewer.Repositories
 
         private void ValidateAndModifyInvalidSettings()
         {
-            int val = _appSettings.AutoHideCursorDelay;
-            if (!_appSettings.AutoHideCursorDelay.
+            //RangeProperty range = _appSettings.AutoHideCursorDelay.GetType().GetProperty("AutoHideCursorDelay") as RangeProperty(AutoHideCursorDelay;
+
+            
+
+            if (true)
             {
 
             }

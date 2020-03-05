@@ -105,7 +105,6 @@ namespace ImageViewer
             pictureBox.BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
             _mouseHoverInfo = _switchImgButtonsEnabled ? new MouseHoverInfo() : null;
         }
-
         public IDisposable Subscribe(IObserver<ImageViewFormInfoBase> observer)
         {
             // Check whether observer is already registered. If not, add it 
@@ -121,7 +120,8 @@ namespace ImageViewer
             _imageLoaderService.OnImageWasDeleted -= ImageLoaderService_OnImageWasDeleted;
 
 
-            return new Unsubscriber<ImageViewFormInfoBase>(_observers, observer);
+            return observer as FormWindows;
+            //return new Unsubscriber<ImageViewFormInfoBase>(_observers, observer);
         }
 
         protected override void OnClientSizeChanged(EventArgs e)

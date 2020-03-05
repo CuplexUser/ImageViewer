@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ImageViewer</RootNamespace>
     <AssemblyName>ImageViewer</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
@@ -150,6 +150,7 @@
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration\AutofacConfig.cs" />
+    <Compile Include="Configuration\GenericConstants.cs" />
     <Compile Include="Configuration\IApplicationBuildConfig.cs" />
     <Compile Include="DataBinding\TreeViewDataContext.cs" />
     <Compile Include="DataContracts\AppSettingsExtendedDataModel.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="Library\CustomAttributes\ValidSettingAttribute.cs" />
     <Compile Include="Library\EventHandlers\ImageRemovedEventHandler.cs" />
     <Compile Include="Library\Extensions\DataAnotation.cs" />
+    <Compile Include="Library\Extensions\FixedBoundsAttribute.cs" />
     <Compile Include="Managers\ThumbnailDbManager.cs" />
     <Compile Include="Models\Interface\IAppSettingsRepository.cs" />
     <Compile Include="Models\ThumbnailDatabase.cs" />

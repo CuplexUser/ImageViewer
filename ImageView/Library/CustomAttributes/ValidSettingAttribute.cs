@@ -6,21 +6,27 @@ using ImageViewer.Library.Extensions;
 
 namespace ImageViewer.Library.CustomAttributes
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public abstract class ValidRangeAttribute : Attribute
-    {
-        public int MaxValue;
-        public int MinValue;
 
-        protected ValidRangeAttribute()
+    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    sealed class ValidRangeAttribute : Attribute
+    {
+        public readonly int MaxValue;
+        public readonly int MinValue;
+
+        // See the attribute guidelines at 
+        //  http://go.microsoft.com/fwlink/?LinkId=85236
+
+
+        // This is a positional argument
+        public ValidRangeAttribute(int min, int max)
         {
-            
+            MinValue = min;
+            MaxValue = max;
+
         }
 
-        [ConfigurationProperty()]
-        protected virtual bool IsValid()
-        {
-            new CodeThisReferenceExpression().ValidateObject().ToList().Any(x=>x.)
-        };
+
+        // This is a named argument
+        public int NamedInt { get; set; }
     }
 }

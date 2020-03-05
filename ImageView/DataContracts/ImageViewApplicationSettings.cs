@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
+using ImageViewer.Configuration;
+using ImageViewer.Library.Extensions;
 using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
@@ -416,8 +418,9 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "AutoHideCursor", Order = 34)]
         public bool AutoHideCursor { get; set; }
 
-        [CustomValidation(typeof(IntegerValidator), )]
+
         [DataMember(Name = "AutoHideCursorDelay", Order = 35)]
+        [FixedBounds(minValue: GenericConstants.MinCursorDelayValue, maxValue: GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Configuration;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -26,26 +27,5 @@ namespace ImageViewer.Library.Extensions
 
             return result.ToString();
         }
-
-
-        public static IEnumerable<ValidationResult> ValidateObject(this object source)
-        {
-            ValidationContext valContext = new ValidationContext(source, null, null);
-            var result = new List<ValidationResult>();
-            Validator.TryValidateObject(source, valContext, result, true);
-
-            return result;
-        }
-
-        public static bool IsValid(this SettingsProperty source)
-        {
-            source.
-            if (instance.ExcludeRange)
-            {
-                return value < instance.MinValue && value > instance.MaxValue;
-            }
-
-            return value >= instance.MinValue && value <= instance.MaxValue;
-        }
-    }
+    }   
 }
