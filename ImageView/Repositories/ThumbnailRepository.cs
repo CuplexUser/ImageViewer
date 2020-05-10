@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,8 @@ using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
-using ImageViewer.Utility;
 using JetBrains.Annotations;
-using MoreLinq.Extensions;
+using MoreLinq;
 using Serilog;
 
 namespace ImageViewer.Repositories
@@ -94,8 +94,9 @@ namespace ImageViewer.Repositories
         }
 
 
-        public void Dispose()
+        public void Disdfsdfsdfsdfpose(bool disposed)
         {
+
             DbReaderWriterLock.Dispose();
         }
 
@@ -296,7 +297,7 @@ namespace ImageViewer.Repositories
                 //Remove possible duplicates due to data corruption.
                 _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.DistinctBy(x => x.FullPath).AsEnumerable());
 
-                await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries);
+                await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries).ConfigureAwait(true);
                 _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));
 
                 return await SaveThumbnailDatabaseAsync();
@@ -486,7 +487,7 @@ namespace ImageViewer.Repositories
 
             if (updateToDisk)
             {
-                await SaveThumbnailDatabaseAsync();
+                await SaveThumbnailDatabaseAsync().ConfigureAwait(true);
             }
 
             return true;
@@ -494,15 +495,39 @@ namespace ImageViewer.Repositories
 
         #endregion
 
-        private string GetDatabaseKey()
+        [SecuritySafeCritical]
+        private void GetDatabaseKey( ref SecureString secureString)
         {
-            var saltBytes = GeneralConverters.HexStringToByteArray(Salt);
-
-            using (var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 1007))
+            if (SecurityContext.IsFlowSuppressed())
             {
-                var buffer = deriveBytes.GetBytes(512);
-                return Convert.ToBase64String(buffer);
+                SecurityContext.RestoreFlow();
             }
+
+            using (var context=SecurityContext.Capture())
+            {
+              
+                var saltBytes = GeneralConverters.HexStringToByteArray(Salt);
+                SecureString secure = new SecureString(); ;
+
+                SecurityContext.Run(context, new ContextCallback((object obj) => {
+
+                    using (var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 5207, HashAlgorithmName.SHA256))
+                    {
+                        var buffer = deriveBytes.GetBytes(512);
+
+                        foreach(char c in Convert.ToBase64String(buffer))
+                        {
+                            secure.AppendChar(c);
+                        } 
+                    }
+
+                }), saltBytes);
+
+                
+                secureString = secure.Copy();
+                secure.Dispose();                
+            }            
+            
         }
 
         /// <summary>
@@ -511,8 +536,24 @@ namespace ImageViewer.Repositories
         /// <returns></returns>
         private StorageManager CreateStorageManager()
         {
-            var settings = new StorageManagerSettings(true, Environment.ProcessorCount, true, GetDatabaseKey());
-            var storageManager = new StorageManager(settings);
+            StorageManager storageManager = null;
+            using (var secureStr = new SecureString())
+            {
+                var strCpy = secureStr.Copy();
+                GetDatabaseKey(ref strCpy);
+                secureStr.Clear();
+
+                foreach (char c in strCpy.ToString())
+                {
+                    secureStr.AppendChar(c);
+                }
+                strCpy.Clear();
+                strCpy.Dispose();
+
+                var settings = new StorageManagerSettings(true, Environment.ProcessorCount, true, secureStr.ToString());
+                storageManager = new StorageManager(settings);
+            }
+            
             return storageManager;
         }
 
@@ -545,5 +586,37 @@ namespace ImageViewer.Repositories
 
             return new Tuple<ThumbnailEntry, Image>(entry, image);
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _thumbnailDictionary.Clear();
+                    _thumbnailDatabase?.ThumbnailEntries?.Clear();
+                }
+
+                _thumbnailDictionary = null;
+                _thumbnailDatabase = null;
+
+                disposedValue = true;
+                GC.Collect(GC.GetGeneration(new WeakReference(this)), GCCollectionMode.Optimized);
+            }
+        }
+
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

@@ -19,7 +19,7 @@ namespace ImageViewer
             numericUDInterval.Text = _timerInterval.ToString();
         }
 
-        public event IntervalChangedDeligate OnIntervalChanged;
+        public event IntervalChangedDelegate OnIntervalChanged;
 
         private void btnOk_Click(object sender, EventArgs e)
         {

@@ -13,6 +13,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace ImageViewer
 {
@@ -26,27 +27,43 @@ namespace ImageViewer
         private ThumbnailScanDirectory _thumbnailScan;
         private int _thumbnailSize;
         private readonly FormAddBookmark _formAddBookmark;
-        private readonly ApplicationSettingsService _applicationSettingsService;
+        private readonly ApplicationSettingsService _applicationSettings;
         private readonly ImageCacheService _imageCacheService;
+        private TaskScheduler _scheduler;
 
-        public FormThumbnailView(FormAddBookmark formAddBookmark, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService)
+
+
+        public FormThumbnailView(FormAddBookmark formAddBookmark, ApplicationSettingsService applicationSettings, ImageCacheService imageCacheService, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService)
         {
             _formAddBookmark = formAddBookmark;
-            _applicationSettingsService = applicationSettingsService;
+            _applicationSettings = applicationSettings;
             _imageCacheService = imageCacheService;
             _thumbnailService = thumbnailService;
             _imageLoaderService = imageLoaderService;
-            _thumbnailSize = ValidateThumbnailSize(_applicationSettingsService.Settings.ThumbnailSize);
-            _maxThumbnails = _applicationSettingsService.Settings.MaxThumbnails;
-            _applicationSettingsService.OnSettingsSaved += _applicationSettingsService_OnSettingsSaved;
+
+            if (applicationSettings == null)
+            {
+                throw new NullReferenceException(Resources.AppApplicationSettingsServiceNull);
+            }
+
+            if (_thumbnailService == null)
+            {
+                throw new NullReferenceException(Resources.ThumbnailServiceNull);
+            }
+
+            _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
+            _maxThumbnails = _applicationSettings.Settings.MaxThumbnails;
+            _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
             _thumbnailService.LoadThumbnailDatabase();
+            _scheduler = Task.Factory.Scheduler;
+
             InitializeComponent();
         }
 
-        private void _applicationSettingsService_OnSettingsSaved(object sender, EventArgs e)
+        private void ApplicationSettingsOnSettingsSaved(object sender, EventArgs e)
         {
-            _applicationSettingsService.LoadSettings();
-            ImageViewApplicationSettings appSettings = _applicationSettingsService.Settings;
+            _applicationSettings.LoadSettings();
+            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
             flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
             picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
         }
@@ -56,7 +73,7 @@ namespace ImageViewer
             if (DesignMode)
                 return;
 
-            ImageViewApplicationSettings appSettings = _applicationSettingsService.Settings;
+            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
             if (appSettings.ThumbnailFormSize != null && appSettings.ThumbnailFormLocation != null)
             {
                 RestoreFormState.SetFormSizeAndPosition(this, appSettings.ThumbnailFormSize.ToSize(), appSettings.ThumbnailFormLocation.ToPoint(), Screen.PrimaryScreen.WorkingArea);
@@ -71,18 +88,45 @@ namespace ImageViewer
 
         private void FormThumbnailView_Closing(object sender, CancelEventArgs e)
         {
-            ImageViewApplicationSettings appSettings = _applicationSettingsService.Settings;
+            this.Hide();
+
+            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
             appSettings.ThumbnailFormLocation = PointDataModel.CreateFromPoint(Location);
             appSettings.ThumbnailFormSize = SizeDataModel.CreateFromSize(Size);
-            _applicationSettingsService.SaveSettings();
-            Controls.Clear();
+            _applicationSettings.SaveSettings();
+
+
         }
 
-        private async void btnGenerate_Click(object sender, EventArgs e)
+        private void DisposePictureBox(PictureBox objectToBeDisposed)
+        {
+            if (objectToBeDisposed != null)
+            {
+                objectToBeDisposed.Image?.Dispose();
+                objectToBeDisposed.Dispose();
+            }
+        }
+
+
+        private IEnumerable<Control> GetControlTree(Control root)
+        {
+            var controls = new List<Control> { root };
+
+            if (!root.HasChildren) return controls;
+            for (int i = 0; i < root.Controls.Count; i++)
+            {
+                var controlList = GetControlTree(root.Controls[i]);
+                controls.AddRange(controlList);
+            }
+
+            return controls;
+        }
+
+        private void btnGenerate_Click(object sender, EventArgs e)
         {
             if (_imageLoaderService.ImageReferenceList == null)
             {
-                MessageBox.Show(@"Cant generate thumbnails without any image source loaded.", @"No Images loaded!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Cant generate thumbnails without any image source loaded.", "No Images loaded!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -94,7 +138,8 @@ namespace ImageViewer
 
             try
             {
-                await Task.Factory.StartNew(BindAndLoadThumbnails);
+
+                BindAndLoadThumbnails();
             }
             catch (Exception ex)
             {
@@ -108,7 +153,6 @@ namespace ImageViewer
 
         private void BindAndLoadThumbnails()
         {
-            Invoke(new EventHandler(CleanupPictureControlObjects));
             _pictureBoxList = GenerateThumbnails();
 
             if (!IsDisposed)
@@ -118,22 +162,22 @@ namespace ImageViewer
             GC.Collect();
         }
 
-        private void CleanupPictureControlObjects(object sender, EventArgs e)
-        {
-            if (_pictureBoxList != null)
-            {
-                _pictureBoxList.ForEach(x =>
-                {
-                    for (var i = x.Controls.Count - 1; i >= 0; i--)
-                    {
-                        x.Controls[i].Dispose();
-                    }
-                    x.Dispose();
-                });
-                _pictureBoxList.Clear();
-            }
-            GC.Collect();
-        }
+        //private void CleanupPictureControlObjects(object sender, EventArgs e)
+        //{
+        //    if (_pictureBoxList != null)
+        //    {
+        //        _pictureBoxList.ForEach(x =>
+        //        {
+        //            for (int i = x.Controls.Count; i < 0; i++)
+        //            {
+        //                x.Controls[i].Dispose();
+        //            }
+        //            x.Dispose();
+        //        });
+        //        _pictureBoxList.Clear();
+        //    }
+        //    GC.Collect();
+        //}
 
         private void UpdatePictureBoxList(object sender, EventArgs e)
         {
@@ -157,9 +201,9 @@ namespace ImageViewer
 
         private List<Control> GenerateThumbnails()
         {
-            var backColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
+            var backColor = _applicationSettings.Settings.MainWindowBackgroundColor.ToColor();
             var pictureBoxes = new List<Control>();
-            bool randomizeImageCollection = _applicationSettingsService.Settings.AutoRandomizeCollection;
+            bool randomizeImageCollection = _applicationSettings.Settings.AutoRandomizeCollection;
             var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
             int items = 0;
             foreach (ImageReferenceElement element in imgRefList)
@@ -175,17 +219,34 @@ namespace ImageViewer
                     Tag = element.CompletePath
                 };
 
+                pictureBox.ControlRemoved += PictureBox_ControlRemoved;
+
                 if (pictureBox.Image == null)
                     continue;
 
                 pictureBox.MouseClick += PictureBox_MouseClick;
                 pictureBoxes.Add(pictureBox);
 
+
                 items++;
                 if (items > _maxThumbnails)
                     return pictureBoxes;
             }
             return pictureBoxes;
+        }
+
+        private void PictureBox_ControlRemoved(object sender, ControlEventArgs e)
+        {
+            if (sender is PictureBox pictureBox)
+            {
+                if (pictureBox.Image != null)
+                {
+                    pictureBox.Image.Dispose();
+                    pictureBox.Dispose();
+                }
+            }
+
+
         }
 
         private void PictureBox_MouseClick(object sender, MouseEventArgs e)
@@ -206,13 +267,16 @@ namespace ImageViewer
 
         private void btnSettings_Click(object sender, EventArgs e)
         {
-            Form frmSettings = FormFactory.CreateSettingsForm(new ThumbnailSettings(_applicationSettingsService));
+            Form frmSettings = FormFactory.CreateSettingsForm(new ThumbnailSettings(_applicationSettings));
             if (frmSettings.ShowDialog(this) == DialogResult.OK)
             {
-                _maxThumbnails = _applicationSettingsService.Settings.MaxThumbnails;
-                _thumbnailSize = ValidateThumbnailSize(_applicationSettingsService.Settings.ThumbnailSize);
-                _applicationSettingsService.SaveSettings();
+                _maxThumbnails = _applicationSettings.Settings.MaxThumbnails;
+                _thumbnailSize = ValidateThumbnailSize(_applicationSettings.Settings.ThumbnailSize);
+                _applicationSettings.SaveSettings();
             }
+
+            frmSettings.Dispose();
+            GC.Collect();
         }
 
         private int ValidateThumbnailSize(int size)
@@ -245,13 +309,13 @@ namespace ImageViewer
 
         private void btnScanDirectory_Click(object sender, EventArgs e)
         {
-            
+
             _thumbnailScan = new ThumbnailScanDirectory(_thumbnailService);
             Form frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
             frmDirectoryScan.FormClosed += FrmDirectoryScan_FormClosed;
 
             frmDirectoryScan.ShowDialog(this);
-            _thumbnailScan = null;
+            frmDirectoryScan.Dispose();
             GC.Collect();
         }
 
@@ -261,20 +325,20 @@ namespace ImageViewer
             _thumbnailScan = null;
         }
 
-        private void FormThumbnailView_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _thumbnailService.SaveThumbnailDatabase();
-            flowLayoutPanel1.Controls.Clear();
-            if (_pictureBoxList != null)
-            {
-                foreach (var control in _pictureBoxList)
-                {
-                    control.Dispose();
-                }
-            }
-            _pictureBoxList = null;
-            GC.Collect();
-        }
+        //private void FormThumbnailView_FormClosing(object sender, FormClosingEventArgs e)
+        //{
+        //    _thumbnailService.SaveThumbnailDatabase();
+        //    flowLayoutPanel1.Controls.Clear();
+        //    if (_pictureBoxList != null)
+        //    {
+        //        foreach (var control in _pictureBoxList)
+        //        {
+        //            control.Dispose();
+        //        }
+        //    }
+        //    _pictureBoxList = null;
+        //    GC.Collect();
+        //}
 
         private void picBoxMaximized_MouseClick(object sender, MouseEventArgs e)
         {
@@ -295,8 +359,19 @@ namespace ImageViewer
             {
                 Process.Start(_maximizedImgFilename);
             }
-            catch (Exception ex)
+            catch (Win32Exception ex)
             {
+                Log.Error(ex, "Win32Exception was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
+                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                Log.Error(ex, "ObjectDisposedException was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
+                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (FileNotFoundException ex)
+            {
+                Log.Error(ex, "FileNotFoundException was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
                 MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -329,12 +404,37 @@ namespace ImageViewer
         {
             SetUpdateDatabaseEnabledState(false);
 
-            await Task.Run(async () =>
+            await _thumbnailService.OptimizeDatabaseAsync().ConfigureAwait(false);
+            if (!IsDisposed)
+                Invoke(new EventHandler(OptimizeDatabaseComplete));
+        }
+
+        // Flag: Has Dispose already been called?
+        bool disposed = false;
+        // Instantiate a SafeHandle instance.
+
+
+        // Protected implementation of Dispose pattern.
+        protected override void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
             {
-                await _thumbnailService.OptimizeDatabaseAsync();
-                if (!IsDisposed)
-                    Invoke(new EventHandler(OptimizeDatabaseComplete));
-            });
+
+                // Free any other managed objects here.
+                //
+
+
+            }
+
+            // Free any unmanaged objects here.
+            //
+
+            disposed = true;
+            // Call base class implementation.
+            base.Dispose(disposing);
         }
     }
 }

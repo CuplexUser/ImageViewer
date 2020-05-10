@@ -83,6 +83,16 @@ namespace ImageViewer
             get => _cursorVisible;
             set
             {
+
+                var result = pictureBox1.AccessibilityObject.HitTest(Cursor.Position.X, Cursor.Position.Y);
+
+                string accessable = result?.Value;
+                if (accessable == null) // || !accessable.Equals(pictureBox1.AccessibilityObject))
+                {
+                    cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
+                    //return;
+                }
+
                 bool __lockWasTaken = false;
                 try
                 {
@@ -1237,6 +1247,7 @@ Image path: { currentFilePath } ", @"Confirm delete", MessageBoxButtons.YesNo, M
 
         private void UpdateCursorState()
         {
+
             if (CursorVisible)
             {
                 Cursor.Show();
@@ -1265,6 +1276,7 @@ Image path: { currentFilePath } ", @"Confirm delete", MessageBoxButtons.YesNo, M
 
             if (cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
             {
+
                 CursorVisible = false;
                 UpdateCursorState();
             }

@@ -95,11 +95,21 @@ namespace ImageViewer.Managers
         {
             try
             {
+                BookmarkContainer bookmarkContainer = null;
                 LoadedFromFile = true;
-
                 var settings = new StorageManagerSettings(false, Environment.ProcessorCount, true, password);
                 var storageManager = new StorageManager(settings);
-                var bookmarkContainer = storageManager.DeserializeObjectFromFile<BookmarkContainer>(filename, null);
+
+                try
+                {
+                    bookmarkContainer = storageManager.DeserializeObjectFromFile<BookmarkContainer>(filename, null);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, "Failed to load bookmarksfile");
+                    bookmarkContainer = CreateBookmarkContainer();
+
+                }                
 
                 if (bookmarkContainer?.RootFolder == null || string.IsNullOrEmpty(bookmarkContainer.ContainerId))
                 {

@@ -199,4 +199,13 @@
   <data name="ResourceSALT" xml:space="preserve">
     <value>244d61723256c1e7fc9e26cd5a6ae1782d0a2003eae5f5b782c9ad4c67c0220aa8ed4a925e9c5b48e1bc6076b9571c5587846227c6bbf4af52c7ea0202a03b1244d61723256c1e7fc9e26cd5a6ae1782d0a2003eae5f5b782c9ad4c67c0220aa8ed4a925e9c5b48e1bc6076b9571c5587846227c6bbf4af52c7ea0202a03b11</value>
   </data>
+  <data name="AppApplicationSettingsServiceNull" xml:space="preserve">
+    <value>AplicationSettingsService can not be null in constructor for ThumbnailView</value>
+  </data>
+  <data name="ThumbnailServiceNull" xml:space="preserve">
+    <value>Thumbnail service cant be null in constructor</value>
+  </data>
+  <data name="PictureBoxNullOrDisposed" xml:space="preserve">
+    <value>Picturebox was either null or disposed when creatring a new DisposeEventHandler</value>
+  </data>
 </root>

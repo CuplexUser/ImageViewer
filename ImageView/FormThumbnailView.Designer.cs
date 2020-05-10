@@ -11,14 +11,14 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing && (components != null))
+        //    {
+        //        components.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
 
         #region Windows Form Designer generated code
 
@@ -190,7 +190,7 @@
             this.Padding = new System.Windows.Forms.Padding(4);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Thumbnails";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormThumbnailView_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormThumbnailView_Closing);
             this.Load += new System.EventHandler(this.FormThumbnailView_Load);
             this.grpBoxControls.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picBoxMaximized)).EndInit();

@@ -61,6 +61,15 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AplicationSettingsService can not be null in constructor for ThumbnailView.
+        /// </summary>
+        internal static string AppApplicationSettingsServiceNull {
+            get {
+                return ResourceManager.GetString("AppApplicationSettingsServiceNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap application_exit {
@@ -254,6 +263,15 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Picturebox was either null or disposed when creatring a new DisposeEventHandler.
+        /// </summary>
+        internal static string PictureBoxNullOrDisposed {
+            get {
+                return ResourceManager.GetString("PictureBoxNullOrDisposed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please unlock bookmarks first.
         /// </summary>
         internal static string Please_unlock_bookmarks_first {
@@ -277,6 +295,15 @@ namespace ImageViewer.Properties {
         internal static string ResourceSALT {
             get {
                 return ResourceManager.GetString("ResourceSALT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thumbnail service cant be null in constructor.
+        /// </summary>
+        internal static string ThumbnailServiceNull {
+            get {
+                return ResourceManager.GetString("ThumbnailServiceNull", resourceCulture);
             }
         }
         

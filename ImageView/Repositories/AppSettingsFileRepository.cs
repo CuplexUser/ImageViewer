@@ -199,6 +199,11 @@ namespace ImageViewer.Repositories
                             var storageManager = new StorageManager(new StorageManagerSettings(false, 1, true, SecurityHelper.GetSecurePassword(AppSettingsPassword)));
                             _appSettings = storageManager.DeserializeObjectFromFile<ImageViewApplicationSettings>(path, null);
 
+                            if (_appSettings == null)
+                            {
+                                _appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
+                            }
+                            
                             if (_appSettings.ExtendedAppSettings.FormStateDictionary == null)
                             {
                                 _appSettings.ExtendedAppSettings.InitFormDictionary();

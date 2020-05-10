@@ -62,9 +62,7 @@ namespace ImageViewer
             this.rbImgTransformNone = new System.Windows.Forms.RadioButton();
             this.tabPageWindowSettings = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.customPanel1 = new ImageViewer.UserControls.CustomPanel();
             this.label26 = new System.Windows.Forms.Label();
-            this.label28 = new System.Windows.Forms.Label();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.numericUpDown10 = new System.Windows.Forms.NumericUpDown();
             this.label17 = new System.Windows.Forms.Label();
@@ -108,7 +106,6 @@ namespace ImageViewer
             this.label10 = new System.Windows.Forms.Label();
             this.tabPageColorSettings = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.backgroundColorDropdownList = new ImageViewer.UserControls.ColorSelectComboBox();
             this.label19 = new System.Windows.Forms.Label();
             this.lblColorOption1 = new System.Windows.Forms.Label();
             this.BackgroundImageDropdown = new System.Windows.Forms.ComboBox();
@@ -130,6 +127,9 @@ namespace ImageViewer
             this.imageListSettings = new System.Windows.Forms.ImageList(this.components);
             this.backgroundImageList = new System.Windows.Forms.ImageList(this.components);
             this.toolTipUpdateDescription = new System.Windows.Forms.ToolTip(this.components);
+            this.customPanel1 = new ImageViewer.UserControls.CustomPanel();
+            this.label28 = new System.Windows.Forms.Label();
+            this.backgroundColorDropdownList = new ImageViewer.UserControls.ColorSelectComboBox();
             this.tabControlSettings.SuspendLayout();
             this.tabPageGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -141,7 +141,6 @@ namespace ImageViewer
             ((System.ComponentModel.ISupportInitialize)(this.trackBarFadeTime)).BeginInit();
             this.tabPageWindowSettings.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.customPanel1.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).BeginInit();
@@ -166,6 +165,7 @@ namespace ImageViewer
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCacheSize)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
+            this.customPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOk
@@ -547,8 +547,10 @@ namespace ImageViewer
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.customPanel1);
+            this.groupBox3.Controls.Add(this.label26);
+            this.groupBox3.Controls.Add(this.tableLayoutPanel5);
             this.groupBox3.Controls.Add(this.label27);
+            this.groupBox3.Controls.Add(this.customPanel1);
             this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox3.Location = new System.Drawing.Point(3, 3);
@@ -560,63 +562,37 @@ namespace ImageViewer
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Window Size";
             // 
-            // customPanel1
-            // 
-            this.customPanel1.BackColor = System.Drawing.SystemColors.Control;
-            this.customPanel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.customPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.customPanel1.BorderWidthInner = 5;
-            this.customPanel1.Controls.Add(this.label26);
-            this.customPanel1.Controls.Add(this.label28);
-            this.customPanel1.Controls.Add(this.tableLayoutPanel5);
-            this.customPanel1.InnerBorderColor = System.Drawing.Color.Silver;
-            this.customPanel1.Location = new System.Drawing.Point(0, 19);
-            this.customPanel1.Margin = new System.Windows.Forms.Padding(5);
-            this.customPanel1.Name = "customPanel1";
-            this.customPanel1.OuterBorderColor = System.Drawing.Color.Silver;
-            this.customPanel1.Padding = new System.Windows.Forms.Padding(5);
-            this.customPanel1.Size = new System.Drawing.Size(300, 97);
-            this.customPanel1.TabIndex = 6;
-            // 
             // label26
             // 
             this.label26.AutoSize = true;
             this.label26.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label26.Location = new System.Drawing.Point(8, 6);
+            this.label26.Location = new System.Drawing.Point(1, 19);
             this.label26.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(217, 20);
             this.label26.TabIndex = 2;
             this.label26.Text = "Size of new windows created:";
             // 
-            // label28
-            // 
-            this.label28.AutoSize = true;
-            this.label28.Location = new System.Drawing.Point(213, 81);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(0, 16);
-            this.label28.TabIndex = 4;
-            // 
             // tableLayoutPanel5
             // 
             this.tableLayoutPanel5.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Inset;
             this.tableLayoutPanel5.ColumnCount = 3;
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.03704F));
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.96296F));
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 132F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 43.31551F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 56.68449F));
+            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel5.Controls.Add(this.numericUpDown10, 1, 0);
             this.tableLayoutPanel5.Controls.Add(this.label17, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.numericUpDown9, 1, 1);
             this.tableLayoutPanel5.Controls.Add(this.label25, 0, 1);
             this.tableLayoutPanel5.Controls.Add(this.label24, 2, 0);
             this.tableLayoutPanel5.Controls.Add(this.label22, 2, 1);
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(7, 27);
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(5, 41);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.Padding = new System.Windows.Forms.Padding(5);
             this.tableLayoutPanel5.RowCount = 2;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(185, 65);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(213, 70);
             this.tableLayoutPanel5.TabIndex = 1;
             // 
             // numericUpDown10
@@ -627,14 +603,14 @@ namespace ImageViewer
             0,
             0,
             0});
-            this.numericUpDown10.Location = new System.Drawing.Point(24, 10);
+            this.numericUpDown10.Location = new System.Drawing.Point(81, 10);
             this.numericUpDown10.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.numericUpDown10.Name = "numericUpDown10";
-            this.numericUpDown10.Size = new System.Drawing.Size(16, 22);
+            this.numericUpDown10.Size = new System.Drawing.Size(84, 22);
             this.numericUpDown10.TabIndex = 4;
             this.numericUpDown10.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDown10.ThousandsSeparator = true;
@@ -648,7 +624,7 @@ namespace ImageViewer
             // 
             this.label17.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(10, 11);
+            this.label17.Location = new System.Drawing.Point(10, 12);
             this.label17.MinimumSize = new System.Drawing.Size(40, 0);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(40, 16);
@@ -663,14 +639,14 @@ namespace ImageViewer
             0,
             0,
             0});
-            this.numericUpDown9.Location = new System.Drawing.Point(24, 36);
+            this.numericUpDown9.Location = new System.Drawing.Point(81, 39);
             this.numericUpDown9.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
             this.numericUpDown9.Name = "numericUpDown9";
-            this.numericUpDown9.Size = new System.Drawing.Size(16, 22);
+            this.numericUpDown9.Size = new System.Drawing.Size(84, 22);
             this.numericUpDown9.TabIndex = 3;
             this.numericUpDown9.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDown9.ThousandsSeparator = true;
@@ -684,7 +660,7 @@ namespace ImageViewer
             // 
             this.label25.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(10, 37);
+            this.label25.Location = new System.Drawing.Point(10, 41);
             this.label25.MinimumSize = new System.Drawing.Size(50, 0);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(50, 16);
@@ -695,7 +671,7 @@ namespace ImageViewer
             // 
             this.label24.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(48, 11);
+            this.label24.Location = new System.Drawing.Point(173, 12);
             this.label24.Margin = new System.Windows.Forms.Padding(3);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(22, 16);
@@ -706,7 +682,7 @@ namespace ImageViewer
             // 
             this.label22.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(48, 37);
+            this.label22.Location = new System.Drawing.Point(173, 41);
             this.label22.Margin = new System.Windows.Forms.Padding(3);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(22, 16);
@@ -719,7 +695,7 @@ namespace ImageViewer
             this.label27.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label27.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label27.Font = new System.Drawing.Font("Microsoft JhengHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label27.Location = new System.Drawing.Point(5, 130);
+            this.label27.Location = new System.Drawing.Point(3, 299);
             this.label27.MinimumSize = new System.Drawing.Size(300, 50);
             this.label27.Name = "label27";
             this.label27.Padding = new System.Windows.Forms.Padding(2, 2, 2, 5);
@@ -1209,20 +1185,6 @@ namespace ImageViewer
             this.tableLayoutPanel4.Size = new System.Drawing.Size(416, 76);
             this.tableLayoutPanel4.TabIndex = 2;
             // 
-            // backgroundColorDropdownList
-            // 
-            this.backgroundColorDropdownList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.backgroundColorDropdownList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
-            this.backgroundColorDropdownList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.backgroundColorDropdownList.ForeColor = System.Drawing.Color.Transparent;
-            this.backgroundColorDropdownList.FormattingEnabled = true;
-            this.backgroundColorDropdownList.Location = new System.Drawing.Point(194, 2);
-            this.backgroundColorDropdownList.Margin = new System.Windows.Forms.Padding(2);
-            this.backgroundColorDropdownList.MaxDropDownItems = 10;
-            this.backgroundColorDropdownList.Name = "backgroundColorDropdownList";
-            this.backgroundColorDropdownList.Size = new System.Drawing.Size(220, 21);
-            this.backgroundColorDropdownList.TabIndex = 0;
-            // 
             // label19
             // 
             this.label19.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -1469,6 +1431,44 @@ namespace ImageViewer
             this.toolTipUpdateDescription.ToolTipTitle = "Automatic Updates";
             this.toolTipUpdateDescription.Popup += new System.Windows.Forms.PopupEventHandler(this.toolTipUpdateDescription_Popup);
             // 
+            // customPanel1
+            // 
+            this.customPanel1.BackColor = System.Drawing.SystemColors.Control;
+            this.customPanel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.customPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.customPanel1.BorderWidthInner = 5;
+            this.customPanel1.Controls.Add(this.label28);
+            this.customPanel1.InnerBorderColor = System.Drawing.Color.Silver;
+            this.customPanel1.Location = new System.Drawing.Point(0, 19);
+            this.customPanel1.Margin = new System.Windows.Forms.Padding(5);
+            this.customPanel1.Name = "customPanel1";
+            this.customPanel1.OuterBorderColor = System.Drawing.Color.Silver;
+            this.customPanel1.Padding = new System.Windows.Forms.Padding(5);
+            this.customPanel1.Size = new System.Drawing.Size(422, 342);
+            this.customPanel1.TabIndex = 6;
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(213, 81);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(0, 16);
+            this.label28.TabIndex = 4;
+            // 
+            // backgroundColorDropdownList
+            // 
+            this.backgroundColorDropdownList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.backgroundColorDropdownList.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
+            this.backgroundColorDropdownList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.backgroundColorDropdownList.ForeColor = System.Drawing.Color.Transparent;
+            this.backgroundColorDropdownList.FormattingEnabled = true;
+            this.backgroundColorDropdownList.Location = new System.Drawing.Point(194, 2);
+            this.backgroundColorDropdownList.Margin = new System.Windows.Forms.Padding(2);
+            this.backgroundColorDropdownList.MaxDropDownItems = 10;
+            this.backgroundColorDropdownList.Name = "backgroundColorDropdownList";
+            this.backgroundColorDropdownList.Size = new System.Drawing.Size(220, 21);
+            this.backgroundColorDropdownList.TabIndex = 0;
+            // 
             // FormSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1501,8 +1501,7 @@ namespace ImageViewer
             ((System.ComponentModel.ISupportInitialize)(this.trackBarFadeTime)).EndInit();
             this.tabPageWindowSettings.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
-            this.customPanel1.ResumeLayout(false);
-            this.customPanel1.PerformLayout();
+            this.groupBox3.PerformLayout();
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).EndInit();
@@ -1536,6 +1535,8 @@ namespace ImageViewer
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCacheSize)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
+            this.customPanel1.ResumeLayout(false);
+            this.customPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
