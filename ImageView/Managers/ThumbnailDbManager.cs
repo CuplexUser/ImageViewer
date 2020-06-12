@@ -1,5 +1,4 @@
-﻿using System;
-using ImageViewer.Events;
+﻿using ImageViewer.Events;
 using ImageViewer.Repositories;
 using ImageViewer.Utility;
 using JetBrains.Annotations;

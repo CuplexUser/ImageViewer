@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using Autofac;
@@ -38,7 +37,7 @@ namespace ImageViewer.Library.AutofacModules
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-
+            
             builder.RegisterType<RegistryAccess>()
                 .As<IRegistryAccess>()
                 .SingleInstance()

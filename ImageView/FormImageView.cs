@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using GeneralToolkitLib.Events;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
 using ImageViewer.Events;

@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using Autofac;
 using GeneralToolkitLib.ConfigHelper;
@@ -44,10 +43,8 @@ namespace ImageViewer.UnitTests
             };
             _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
 
-            _container = ContainerFactory.CreateGenericContainerForApp();
+            _container = ContainerFactory.BuildContainerForThumbnailTests();
             _scope = _container.BeginLifetimeScope();
-
-
 
         }
 

@@ -33,7 +33,9 @@ namespace ImageViewer.Services
         /// <summary>
         ///     The file name reg exp
         /// </summary>
+#pragma warning disable CS0169 // The field 'ThumbnailService._fileNameRegExp' is never used
         private readonly Regex _fileNameRegExp;
+#pragma warning restore CS0169 // The field 'ThumbnailService._fileNameRegExp' is never used
 
         private readonly ThumbnailDbManager _dbManager;
 
@@ -42,18 +44,23 @@ namespace ImageViewer.Services
         /// </summary>
         private readonly ThumbnailRepository _thumbnailRepository;
 
+        private readonly ImageCacheService _cacheService;
+
 
         /// <summary>
         ///     The abort scan
         /// </summary>
+#pragma warning disable CS0414 // The field 'ThumbnailService._abortScan' is assigned but its value is never used
         private bool _abortScan;
+#pragma warning restore CS0414 // The field 'ThumbnailService._abortScan' is assigned but its value is never used
 
 
-        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager)
+        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager, ImageCacheService cacheService)
         {
             _fileManager = fileManager;
             _thumbnailRepository = thumbnailRepository;
             _dbManager = dbManager;
+            _cacheService = cacheService;
 
             string databaseDirectory = ApplicationBuildConfig.UserDataPath;
             BasePath = databaseDirectory;
@@ -73,9 +80,13 @@ namespace ImageViewer.Services
         {
         }
 
+#pragma warning disable CS0067 // The event 'ThumbnailService.StartedThumbnailScan' is never used
         public event EventHandler StartedThumbnailScan;
+#pragma warning restore CS0067 // The event 'ThumbnailService.StartedThumbnailScan' is never used
 
+#pragma warning disable CS0067 // The event 'ThumbnailService.CompletedThumbnailScan' is never used
         public event EventHandler CompletedThumbnailScan;
+#pragma warning restore CS0067 // The event 'ThumbnailService.CompletedThumbnailScan' is never used
 
         private async Task<bool> ScanDirectoryAsync(string path, bool scanSubdirectories)
         {
@@ -312,6 +323,11 @@ namespace ImageViewer.Services
         public long GetDatabaseSize()
         {
             return _thumbnailRepository.GetDatabaseSize();
+        }
+
+        public Image GetFullScaleImage(string filename)
+        {
+            return _cacheService.GetImageFromCache(filename);
         }
     }
 

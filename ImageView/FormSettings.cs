@@ -7,6 +7,7 @@ using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
 using ImageViewer.Services;
 using ImageViewer.Utility;
+using Serilog;
 
 namespace ImageViewer
 {
@@ -19,12 +20,17 @@ namespace ImageViewer
         private long _selectedCacheSize;
         private readonly ImageViewApplicationSettings _originalSettings;
 
-        public FormSettings(BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService)
+        public FormSettings(BookmarkService bookmarkService, ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
         {
-            applicationSettingsService.LoadSettings();
+            _applicationSettingsService = applicationSettingsService;
+            bool settingsLoaded = _applicationSettingsService.LoadSettings();
+            if (!settingsLoaded)
+            {
+                Log.Warning("FormSettings constructor failed to load settings");
+            }
             _originalSettings = applicationSettingsService.Settings;
             _bookmarkService = bookmarkService;
-            _applicationSettingsService = applicationSettingsService;
+
             _imageCacheService = imageCacheService;
             _selectedCacheSize = _imageCacheService.CacheSize;
             InitializeComponent();
@@ -163,7 +169,7 @@ namespace ImageViewer
             settings.ImageTransitionTime = trackBarFadeTime.Value;
             settings.ScreenMinXOffset = Convert.ToInt32(numericScreenMinOffset.Value);
             settings.ScreenWidthOffset = Convert.ToInt32(numericScreenWidthOffset.Value);
-            
+
             Color selectedColor = (Color)backgroundColorDropdownList.SelectedItem;
             settings.MainWindowBackgroundColor = ColorDataModel.CreateFromColor(selectedColor);
             settings.AutoHideCursorDelay = Convert.ToInt32(numericAutohideCursorDelay.Value);
@@ -209,12 +215,12 @@ namespace ImageViewer
             else
             {
                 using (
-                    var formgetPassword = new FormGetPassword
+                    var formGetPassword = new FormGetPassword
                     {
                         PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
                     })
                 {
-                    if (formgetPassword.ShowDialog() == DialogResult.OK && formgetPassword.PasswordVerified)
+                    if (formGetPassword.ShowDialog() == DialogResult.OK && formGetPassword.PasswordVerified)
                     {
                         _applicationSettingsService.Settings.DisablePasswordProtectBookmarks();
                         _applicationSettingsService.SaveSettings();

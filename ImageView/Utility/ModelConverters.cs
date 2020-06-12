@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
-using Castle.Components.DictionaryAdapter;
-using ImageViewer.DataContracts;
-using ImageViewer.Models;
-
-namespace ImageViewer.Utility
+﻿namespace ImageViewer.Utility
 {
     //public interface IValueResolver<in TSource, in TDestination, TDestMember>
     //{

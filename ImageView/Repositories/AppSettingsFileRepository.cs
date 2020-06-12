@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Security.Cryptography;
 using System.Threading;
-using Castle.Components.DictionaryAdapter;
-using Castle.Components.DictionaryAdapter.Xml;
 using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
-using ImageProcessor.Common.Extensions;
 using ImageViewer.DataContracts;
-using ImageViewer.Library.Extensions;
 using ImageViewer.Storage;
 using ImageViewer.Utility;
 using JetBrains.Annotations;
 using Serilog;
-using SHA256 = GeneralToolkitLib.Hashing.SHA256;
 
 namespace ImageViewer.Repositories
 {

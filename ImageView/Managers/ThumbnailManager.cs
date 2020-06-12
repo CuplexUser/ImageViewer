@@ -1,20 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using GeneralToolkitLib.Converters;
-using ImageViewer.DataContracts;
-using ImageViewer.Models;
-using ImageViewer.Repositories;
-using JetBrains.Annotations;
-using Serilog;
-using Serilog.Context;
-
-namespace ImageViewer.Managers
+﻿namespace ImageViewer.Managers
 {
     ///// <summary>
     /////     ThumbnailManager

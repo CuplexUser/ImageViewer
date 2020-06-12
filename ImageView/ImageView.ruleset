@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for ImageView" Description="Code analysis rules for ImageView.csproj." ToolsVersion="15.0">
+<RuleSet Name="Rules for ImageView" Description="Code analysis rules for ImageView.csproj." ToolsVersion="16.0">
   <Include Path="allrules.ruleset" Action="Default" />
   <Include Path="globalizationrules.ruleset" Action="Default" />
   <Include Path="nativeminimumrules.ruleset" Action="Default" />
@@ -71,5 +71,23 @@
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.CSharp" RuleNamespace="Microsoft.CodeAnalysis.CSharp">
     <Rule Id="AD0001" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeAnalysis.Features" RuleNamespace="Microsoft.CodeAnalysis.Features">
+    <Rule Id="IDE0033" Action="None" />
+    <Rule Id="IDE0033WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0044" Action="None" />
+    <Rule Id="IDE0044WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0055" Action="None" />
+    <Rule Id="IDE0055WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0070" Action="None" />
+    <Rule Id="IDE0070WithoutSuggestion" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.DependencyValidation.Analyzers" RuleNamespace="Microsoft.DependencyValidation.Analyzers">
+    <Rule Id="DV0001" Action="None" />
+    <Rule Id="DV1001" Action="None" />
+    <Rule Id="DV1002" Action="None" />
+    <Rule Id="DV1003" Action="None" />
+    <Rule Id="DV2001" Action="None" />
+    <Rule Id="DV2002" Action="None" />
   </Rules>
 </RuleSet>

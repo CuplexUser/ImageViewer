@@ -1,5 +1,3 @@
-﻿using System;
-
-namespace ImageViewer.Delegates
+﻿namespace ImageViewer.Delegates
 {
 }

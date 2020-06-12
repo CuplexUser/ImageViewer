@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using GeneralToolkitLib.Storage.Registry;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
-using ImageViewer.Interfaces;
-using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Repositories;
 using ImageViewer.Storage;

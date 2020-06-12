@@ -1,45 +1,43 @@
-﻿using ImageViewer.DataContracts;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using Autofac;
+using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using JetBrains.Annotations;
 
 namespace ImageViewer
 {
-    public partial class FormThumbnailView : Form
+    public partial class FormThumbnailView : Form, IDisposable
     {
-        private readonly ThumbnailService _thumbnailService;
+        private readonly ApplicationSettingsService _applicationSettings;
         private readonly ImageLoaderService _imageLoaderService;
+        private readonly ILifetimeScope _scope;
+        private readonly ThumbnailService _thumbnailService;
         private string _maximizedImgFilename;
         private int _maxThumbnails;
         private List<Control> _pictureBoxList;
         private ThumbnailScanDirectory _thumbnailScan;
         private int _thumbnailSize;
-        private readonly FormAddBookmark _formAddBookmark;
-        private readonly ApplicationSettingsService _applicationSettings;
-        private readonly ImageCacheService _imageCacheService;
-        private TaskScheduler _scheduler;
+
+        // Flag: Has Dispose already been called?
+        private bool disposed;
 
 
-
-        public FormThumbnailView(FormAddBookmark formAddBookmark, ApplicationSettingsService applicationSettings, ImageCacheService imageCacheService, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService)
+        public FormThumbnailView(ApplicationSettingsService applicationSettings, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
         {
-            _formAddBookmark = formAddBookmark;
             _applicationSettings = applicationSettings;
-            _imageCacheService = imageCacheService;
             _thumbnailService = thumbnailService;
             _imageLoaderService = imageLoaderService;
+            _scope = scope;
 
             if (applicationSettings == null)
             {
@@ -55,7 +53,7 @@ namespace ImageViewer
             _maxThumbnails = _applicationSettings.Settings.MaxThumbnails;
             _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
             _thumbnailService.LoadThumbnailDatabase();
-            _scheduler = Task.Factory.Scheduler;
+
 
             InitializeComponent();
         }
@@ -88,17 +86,15 @@ namespace ImageViewer
 
         private void FormThumbnailView_Closing(object sender, CancelEventArgs e)
         {
-            this.Hide();
+            Hide();
 
             ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
             appSettings.ThumbnailFormLocation = PointDataModel.CreateFromPoint(Location);
             appSettings.ThumbnailFormSize = SizeDataModel.CreateFromSize(Size);
             _applicationSettings.SaveSettings();
-
-
         }
 
-        private void DisposePictureBox(PictureBox objectToBeDisposed)
+        private static void DisposePictureBox(PictureBox objectToBeDisposed)
         {
             if (objectToBeDisposed != null)
             {
@@ -110,7 +106,7 @@ namespace ImageViewer
 
         private IEnumerable<Control> GetControlTree(Control root)
         {
-            var controls = new List<Control> { root };
+            var controls = new List<Control> {root};
 
             if (!root.HasChildren) return controls;
             for (int i = 0; i < root.Controls.Count; i++)
@@ -138,7 +134,6 @@ namespace ImageViewer
 
             try
             {
-
                 BindAndLoadThumbnails();
             }
             catch (Exception ex)
@@ -222,7 +217,10 @@ namespace ImageViewer
                 pictureBox.ControlRemoved += PictureBox_ControlRemoved;
 
                 if (pictureBox.Image == null)
+                {
+                    pictureBox.Dispose();
                     continue;
+                }                    
 
                 pictureBox.MouseClick += PictureBox_MouseClick;
                 pictureBoxes.Add(pictureBox);
@@ -232,6 +230,7 @@ namespace ImageViewer
                 if (items > _maxThumbnails)
                     return pictureBoxes;
             }
+
             return pictureBoxes;
         }
 
@@ -244,9 +243,8 @@ namespace ImageViewer
                     pictureBox.Image.Dispose();
                     pictureBox.Dispose();
                 }
+                pictureBox?.Dispose();
             }
-
-
         }
 
         private void PictureBox_MouseClick(object sender, MouseEventArgs e)
@@ -256,13 +254,23 @@ namespace ImageViewer
 
             if (pictureBox.Tag is string filename)
             {
-                Image fullScaleImage = _imageCacheService.GetImageFromCache(filename);
+                Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename); //_imageCacheService.GetImageFromCache(filename);
                 _maximizedImgFilename = filename;
                 picBoxMaximized.Image = fullScaleImage;
             }
 
             picBoxMaximized.Visible = true;
             flowLayoutPanel1.Visible = false;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_thumbnailScan!=null && !_thumbnailScan.IsDisposed)
+            {
+                _thumbnailScan.Dispose();
+            }
+            
+            base.OnClosed(e);
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
@@ -309,7 +317,6 @@ namespace ImageViewer
 
         private void btnScanDirectory_Click(object sender, EventArgs e)
         {
-
             _thumbnailScan = new ThumbnailScanDirectory(_thumbnailService);
             Form frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
             frmDirectoryScan.FormClosed += FrmDirectoryScan_FormClosed;
@@ -378,20 +385,24 @@ namespace ImageViewer
 
         private void menuItemBookmark_Click(object sender, EventArgs e)
         {
-            var fi = new FileInfo(_maximizedImgFilename);
-            var imgRef = new ImageReferenceElement
+            using (ILifetimeScope scope = _scope.BeginLifetimeScope())
             {
-                CompletePath = _maximizedImgFilename,
-                Size = fi.Length,
-                CreationTime = fi.CreationTime,
-                LastAccessTime = fi.LastAccessTime,
-                LastWriteTime = fi.LastWriteTime,
-                FileName = fi.Name,
-                Directory = fi.DirectoryName
-            };
+                var fi = new FileInfo(_maximizedImgFilename);
+                var imgRef = new ImageReferenceElement
+                {
+                    CompletePath = _maximizedImgFilename,
+                    Size = fi.Length,
+                    CreationTime = fi.CreationTime,
+                    LastAccessTime = fi.LastAccessTime,
+                    LastWriteTime = fi.LastWriteTime,
+                    FileName = fi.Name,
+                    Directory = fi.DirectoryName
+                };
 
-            _formAddBookmark.Init(contextMenuFullSizeImg.Location, imgRef);
-            _formAddBookmark.ShowDialog(this);
+                var formAddBookmark = scope.Resolve<FormAddBookmark>();
+                formAddBookmark.Init(contextMenuFullSizeImg.Location, imgRef);
+                formAddBookmark.ShowDialog(this);
+            }
         }
 
         private void menuItemCopyPath_Click(object sender, EventArgs e)
@@ -409,8 +420,6 @@ namespace ImageViewer
                 Invoke(new EventHandler(OptimizeDatabaseComplete));
         }
 
-        // Flag: Has Dispose already been called?
-        bool disposed = false;
         // Instantiate a SafeHandle instance.
 
 
@@ -422,17 +431,15 @@ namespace ImageViewer
 
             if (disposing)
             {
-
                 // Free any other managed objects here.
                 //
-
-
             }
 
             // Free any unmanaged objects here.
             //
 
             disposed = true;
+
             // Call base class implementation.
             base.Dispose(disposing);
         }

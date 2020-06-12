@@ -4,6 +4,7 @@ using System.IO;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using ImageViewer.Properties;
 using ImageViewer.Repositories;
 using JetBrains.Annotations;
 using Serilog;
@@ -39,14 +40,14 @@ namespace ImageViewer.Services
 
         private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
         {
-            
+
         }
 
         private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
         {
             // Delete from cache
             _imageCacheRepository.RemoveImageFromCache(e.ImageReference.FileName);
-            
+
         }
 
         private void ApplicationSettingsService_OnSettingsLoaded(object sender, EventArgs e)
@@ -107,7 +108,9 @@ namespace ImageViewer.Services
                             Log.Error(ex, $"Fail loading the current image file {fileName}");
 
                             // To avoid program failure
-                            image = new Bitmap(500, 500);
+                            var bitmap = Resources.No_Camera_Image;
+                            var imageFootprint = new RectangleF(Point.Empty, new SizeF(bitmap.Width, bitmap.Height));
+                            image = Resources.No_Camera_Image.Clone(imageFootprint, bitmap.PixelFormat);
                         }
                     }
                 }

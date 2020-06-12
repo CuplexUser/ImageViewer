@@ -263,6 +263,16 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap No_Camera_Image {
+            get {
+                object obj = ResourceManager.GetObject("No_Camera_Image", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Picturebox was either null or disposed when creatring a new DisposeEventHandler.
         /// </summary>
         internal static string PictureBoxNullOrDisposed {

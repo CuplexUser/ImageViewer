@@ -97,7 +97,12 @@ namespace ImageViewer.Managers
 
             //Maximize display area
             var screenBounds = Screen.PrimaryScreen.Bounds;
-            _overlayUserControl.LoadImage(imagePath);
+            if (!_overlayUserControl.LoadImage(imagePath))
+            {
+                return;
+            }
+
+
             _imageSourceState.LastShownImagePath = imagePath;
             var imageSize = _overlayUserControl.GetImageSize();
 

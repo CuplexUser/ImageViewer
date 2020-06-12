@@ -1,4 +1,13 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -13,15 +22,6 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ImageViewer
 {
@@ -37,25 +37,25 @@ namespace ImageViewer
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
+        private readonly object _lockObj = new object();
         private readonly PictureBox _pictureBoxAnimation = new PictureBox();
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
         private ImageViewApplicationSettings.ChangeImageAnimation _changeImageAnimation;
+        private bool _cursorVisible = true;
         private bool _dataReady;
         private FormBookmarks _formBookmarks;
         private FormThumbnailView _formThumbnailView;
         private FormWindows _formWindows;
         private bool _fullScreen;
+        private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
         private bool _imageTransitionRunning;
         private int _imageViewFormIdCnt = 1;
         private bool _winKeyDown;
         private DateTime cursorMovedTime = DateTime.Now;
-        private bool _cursorVisible = true;
-        private int _hideCursorDelay;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new Rectangle(Point.Empty, new Size(25, 25));
-        private readonly object _lockObj = new object();
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ImageLoaderService imageLoaderService,
             ILifetimeScope scope, UserInteractionService interactionService)
@@ -83,11 +83,10 @@ namespace ImageViewer
             get => _cursorVisible;
             set
             {
-
-                var result = pictureBox1.AccessibilityObject.HitTest(Cursor.Position.X, Cursor.Position.Y);
+                var result = pictureBox1.AccessibilityObject?.HitTest(Cursor.Position.X, Cursor.Position.Y);
 
                 string accessable = result?.Value;
-                if (accessable == null) // || !accessable.Equals(pictureBox1.AccessibilityObject))
+                if (accessable == null)
                 {
                     cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
                     //return;
@@ -195,9 +194,9 @@ namespace ImageViewer
                 BackColor = settings.MainWindowBackgroundColor.ToColor();
             }
 
-            if (settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(this.GetType().Name))
+            if (settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
             {
-                var formState = settings.ExtendedAppSettings.FormStateDictionary[this.GetType().Name];
+                var formState = settings.ExtendedAppSettings.FormStateDictionary[GetType().Name];
                 RestoreFormState.SetFormSizeAndPosition(this, formState);
             }
         }
@@ -493,6 +492,80 @@ namespace ImageViewer
             }
         }
 
+        private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (CursorVisible)
+            {
+                return;
+            }
+
+
+            if (cursorPosition.X != e.X || cursorPosition.Y != e.Y)
+            {
+                cursorPosition.X = e.X;
+                cursorPosition.Y = e.Y;
+
+                pointerBox.X = cursorPosition.X - pointerBox.Width / 2;
+                pointerBox.Y = cursorPosition.Y + pointerBox.Height / 2;
+
+                Rectangle intersercionRect = new Rectangle(cursorPosition, new Size(1, 1));
+                if (!pointerBox.IntersectsWith(intersercionRect))
+                {
+                    //Console.WriteLine($"pictureBox1_MouseMoved, locations is: X: {e.X}, Y: {e.Y}");
+                    CursorVisible = true;
+                    UpdateCursorState();
+                }
+            }
+        }
+
+        private void UpdateCursorState()
+        {
+            if (CursorVisible)
+            {
+                Cursor.Show();
+            }
+            else
+            {
+                Cursor.Hide();
+            }
+        }
+
+        private void pictureBox1_MouseHover(object sender, EventArgs e)
+        {
+            if (!timerCursorVisible.Enabled)
+            {
+                //timerCursorVisible.Enabled = true;
+            }
+        }
+
+        private void timerCursorVisible_Tick(object sender, EventArgs e)
+        {
+            if (!CursorVisible)
+            {
+                return;
+            }
+
+            if (cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
+            {
+                CursorVisible = false;
+                UpdateCursorState();
+            }
+        }
+
+        private void pictureBox1_MouseEnter(object sender, EventArgs e)
+        {
+            timerCursorVisible.Enabled = true;
+        }
+
+        private void pictureBox1_MouseLeave(object sender, EventArgs e)
+        {
+            timerCursorVisible.Enabled = false;
+        }
+
         private delegate void NativeThreadFunction();
 
         private delegate void NativeThreadFunctionUserInfo(object sender, UserInformationEventArgs e);
@@ -754,10 +827,10 @@ namespace ImageViewer
                 timerSlideShow.Stop();
                 timerSlideShow.Enabled = false;
             }
+
             string currentFilePath = _imageReferenceCollection.CurrentImage.CompletePath;
 
-            var result = MessageBox.Show($@"Are you sure you want to delete the current image? 
-Image path: { currentFilePath } ", @"Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show($@"Are you sure you want to delete the current image? Image path: {currentFilePath} ", @"Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
@@ -1213,83 +1286,5 @@ Image path: { currentFilePath } ", @"Confirm delete", MessageBoxButtons.YesNo, M
         }
 
         #endregion Main Menu Functions
-
-        private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (CursorVisible)
-            {
-                return;
-            }
-
-
-            if (cursorPosition.X != e.X || cursorPosition.Y != e.Y)
-            {
-                cursorPosition.X = e.X;
-                cursorPosition.Y = e.Y;
-
-                pointerBox.X = cursorPosition.X - pointerBox.Width / 2;
-                pointerBox.Y = cursorPosition.Y + pointerBox.Height / 2;
-
-                Rectangle intersercionRect = new Rectangle(cursorPosition, new Size(1, 1));
-                if (!pointerBox.IntersectsWith(intersercionRect))
-                {
-                    //Console.WriteLine($"pictureBox1_MouseMoved, locations is: X: {e.X}, Y: {e.Y}");
-                    CursorVisible = true;
-                    UpdateCursorState();
-                }
-            }
-        }
-
-        private void UpdateCursorState()
-        {
-
-            if (CursorVisible)
-            {
-                Cursor.Show();
-            }
-            else
-            {
-                Cursor.Hide();
-            }
-
-        }
-
-        private void pictureBox1_MouseHover(object sender, EventArgs e)
-        {
-            if (!timerCursorVisible.Enabled)
-            {
-                //timerCursorVisible.Enabled = true;
-            }
-        }
-
-        private void timerCursorVisible_Tick(object sender, EventArgs e)
-        {
-            if (!CursorVisible)
-            {
-                return;
-            }
-
-            if (cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
-            {
-
-                CursorVisible = false;
-                UpdateCursorState();
-            }
-        }
-
-        private void pictureBox1_MouseEnter(object sender, EventArgs e)
-        {
-            timerCursorVisible.Enabled = true;
-        }
-
-        private void pictureBox1_MouseLeave(object sender, EventArgs e)
-        {
-            timerCursorVisible.Enabled = false;
-        }
     }
 }

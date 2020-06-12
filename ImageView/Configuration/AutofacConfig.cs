@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
 using Autofac;
-using Autofac.Builder;
-using Autofac.Core;
 using GeneralToolkitLib.ConfigHelper;
 using ImageViewer.Library.AutofacModules;
 
@@ -37,7 +35,7 @@ namespace ImageViewer.Configuration
 
         public static  Assembly GetMainAssembly()
         {
-            return typeof(ImageViewer.Library.AutofacModules.ImageViewModule).Assembly;
+            return typeof(ImageViewModule).Assembly;
         }
     }
 }

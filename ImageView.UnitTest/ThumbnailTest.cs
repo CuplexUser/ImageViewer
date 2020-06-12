@@ -22,11 +22,12 @@ namespace ImageViewer.UnitTests
     {
         private static readonly string TestDirectory = ContainerFactory.GetTestDirectory();
         private static readonly string[] TestImages = { "testImg.jpg", "testImg2.jpg", "testImg3.jpg" };
-        private static IApplicationBuildConfig _applicationBuildConfig;
+        private static ILifetimeScope _scope;
+        private static IContainer _container;
+        private static ImageReferenceElement _genericImageRef;
+        private const string TestDataPath = "c:\\temp\\";
 
-        private IContainer _container;
 
-        private static IContainer Container { get; set; }
         private IMapper _mapper;
 
         private ILifetimeScope _lifetimeScope;
@@ -34,30 +35,45 @@ namespace ImageViewer.UnitTests
         [ClassInitialize]
         public static void TestClassInit(TestContext testContext)
         {
-            //TestDirectory = testContext.TestRunDirectory;
 
-            // Create test directory if it does not exist
+            GlobalSettings.UnitTestInitialize(TestDataPath);
+            ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
-            if (!Directory.Exists(TestDirectory))
-                Directory.CreateDirectory(TestDirectory);
-            else
-                ClearTestDirectory();
+            _genericImageRef = new ImageReferenceElement
+            {
+                Directory = TestDataPath,
+                FileName = "testImage.jpg",
+                CreationTime = DateTime.Now,
+                Size = 1024,
+                LastAccessTime = DateTime.Now.Date,
+                LastWriteTime = DateTime.Now.Date
+            };
+            _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
 
-            ApplicationBuildConfig.SetOverrideUserDataPath(TestDirectory);
+            _container = ContainerFactory.CreateGenericContainerForApp();
+            _scope = _container.BeginLifetimeScope();
 
-            // Create test data
-            Image img = Resources.testImg;
-            img.Save(Path.Combine(TestDirectory, TestImages[0]));
 
-            img = Resources.anonymus;
-            img.Save(Path.Combine(TestDirectory, TestImages[1]));
+            //if (!Directory.Exists(TestDirectory))
+            //    Directory.CreateDirectory(TestDirectory);
+            //else
+            //    ClearTestDirectory();
 
-            img = Resources.anonymus_small;
-            img.Save(Path.Combine(TestDirectory, TestImages[2]));
+            //ApplicationBuildConfig.SetOverrideUserDataPath(TestDirectory);
 
-            _applicationBuildConfig = Substitute.For<IApplicationBuildConfig>();
-            _applicationBuildConfig.UserDataPath.Returns(TestDirectory);
-            _applicationBuildConfig.DebugMode.Returns(true);
+            //// Create test data
+            //Image img = Resources.testImg;
+            //img.Save(Path.Combine(TestDirectory, TestImages[0]));
+
+            //img = Resources.anonymus;
+            //img.Save(Path.Combine(TestDirectory, TestImages[1]));
+
+            //img = Resources.anonymus_small;
+            //img.Save(Path.Combine(TestDirectory, TestImages[2]));
+
+            //_applicationBuildConfig = Substitute.For<IApplicationBuildConfig>();
+            //_applicationBuildConfig.UserDataPath.Returns(TestDirectory);
+            //_applicationBuildConfig.DebugMode.Returns(true);
         }
 
         [ClassCleanup]

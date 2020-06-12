@@ -6,7 +6,7 @@ using ImageViewer.Models;
 
 namespace ImageViewer.Repositories
 {
-    public abstract class FileContainerRespoitory
+    public abstract class FileContainerRepository
     {
         protected virtual string DatabaseFilename { get; } = "thumbs.ibd";
         private protected readonly ReaderWriterLockSlim _readerWriterLock;
@@ -16,7 +16,7 @@ namespace ImageViewer.Repositories
         private readonly FileManager _fileManager;
         private readonly ConcurrentDictionary<string, ThumbnailEntry> _thumbnailEntries;
 
-        protected FileContainerRespoitory(IMapper mapper, string indexDbPath, string binaryDataPath, FileManager fileManager)
+        protected FileContainerRepository(IMapper mapper, string indexDbPath, string binaryDataPath, FileManager fileManager)
         {
             _mapper = mapper;
             _indexDbPath = indexDbPath;

@@ -15,17 +15,19 @@ namespace ImageViewer.UserControls
             InitializeComponent();
         }
 
-        public void LoadImage(string filename)
+        public bool LoadImage(string filename)
         {
             try
             {
                 OverlayPictureBox.Image = Image.FromFile(filename);
+                return true;
             }
             catch (Exception exception)
             {
                 Log.Error(exception,"Failed to load image: "+ filename);
-                Console.WriteLine(exception);
+                OverlayPictureBox.Image= new Bitmap(100,100);
             }
+            return false;
         }
 
         public Size GetImageSize()
