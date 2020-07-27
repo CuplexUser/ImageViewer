@@ -7,6 +7,7 @@ using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Services;
 using JetBrains.Annotations;
+using Serilog;
 
 namespace ImageViewer.Repositories
 {
@@ -29,6 +30,11 @@ namespace ImageViewer.Repositories
         ///     The cache size
         /// </summary>
         private long _cacheSize;
+
+        /// <summary>
+        /// The approximation cache size
+        /// </summary>
+        private long _approximationCacheSize;
 
         /// <summary>
         ///     The cache size is valid
@@ -64,6 +70,7 @@ namespace ImageViewer.Repositories
                 if (!_cacheSizeIsValid)
                 {
                     _cacheSize = _cachedImages.Select(x => x.Value.Size).Sum();
+                    _approximationCacheSize = _cacheSize;
                     _cacheSizeIsValid = true;
                 }
 
@@ -86,7 +93,7 @@ namespace ImageViewer.Repositories
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <returns></returns>
-        public CachedImage GetImageFromCache(string fileName)
+        public CachedImage LoadAndCacheImage(string fileName)
         {
             if (_cachedImages.ContainsKey(fileName))
             {
@@ -94,6 +101,7 @@ namespace ImageViewer.Repositories
             }
 
             var imageModel = CreateCachedImageModel(fileName);
+
 
             return imageModel;
         }
@@ -143,10 +151,30 @@ namespace ImageViewer.Repositories
             }
 
             _cacheSize = cacheSize;
+            _approximationCacheSize = cacheSize;
             _maxCacheSize = cacheSize;
         }
 
         #endregion
+
+        private void AutoTruncateCacheIfCloseToFull()
+        {
+            if (IsCacheCloseToFull())
+            {
+                long currentSize = CacheSize;
+                long truncatedSize= Convert.ToInt64( Convert.ToDouble( currentSize)*0.7d) * currentSize;
+                SetCacheSize(truncatedSize, ImageCacheService.CacheTruncatePriority.RemoveOldest);
+                Log.Debug("Auto truncated cache size to {truncatedSize}:", truncatedSize);
+
+                _approximationCacheSize = CacheSize;
+            }
+        }
+
+
+        private bool IsCacheCloseToFull()
+        {
+            return Convert.ToDouble(_approximationCacheSize) * 1.2d >= _maxCacheSize;
+        }
 
         /// <summary>
         ///     Creates the cached image model.
@@ -159,6 +187,9 @@ namespace ImageViewer.Repositories
             imageModel.SetImage(ImageConverter, fileName);
             _cachedImages.Add(fileName, imageModel);
             _cacheSizeIsValid = false;
+            _approximationCacheSize += imageModel.Size;
+            AutoTruncateCacheIfCloseToFull();
+
             return imageModel;
         }
 

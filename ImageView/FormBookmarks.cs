@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using GeneralToolkitLib.WindowsApi;
 using ImageViewer.DataBinding;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
@@ -56,7 +57,7 @@ namespace ImageViewer
             _overlayFormManager.HideImageDelay = 250;
             _overlayFormManager.ShowImageDelay = 500;
 
-            var settings = _applicationSettingsService.Settings.ExtendedAppSettings;
+            var settings = _applicationSettingsService.Settings;
             if (settings.BookmarksShowMaximizedImageArea)
             {
                 Invoke(new EventHandler(maximizePreviewAreaToolStripMenuItem_Click));
@@ -67,11 +68,15 @@ namespace ImageViewer
                 Invoke(new EventHandler(showOverlayPreviewToolStripMenuItem_Click));
             }
 
-            if (_applicationSettingsService.Settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
-            {
-                var formState = settings.FormStateDictionary[GetType().Name];
-                RestoreFormState.SetFormSizeAndPosition(this, formState.Size.ToSize(), formState.Location.ToPoint(), formState.ScreenArea.ToRectangle());
-            }
+
+            _applicationSettingsService.RestoreFormSettings(typeof(FormBookmarks), this);
+            //this.SetFormStateSnapLocation< Settings. >()
+
+            //if (_applicationSettingsService.Settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
+            //{
+            //    var formState = settings.FormStateDictionary[GetType().Name];
+            //    RestoreFormState.SetFormSizeAndPosition(this, formState.Size.ToSize(), formState.Location.ToPoint(), formState.ScreenArea.ToRectangle());
+            //}
 
             if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
                 using (var formGetPassword = new FormGetPassword
@@ -785,21 +790,21 @@ namespace ImageViewer
         {
             _overlayFormManager.IsEnabled = !_overlayFormManager.IsEnabled;
             showOverlayPreviewToolStripMenuItem.Checked = _overlayFormManager.IsEnabled;
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowOverlayWindow = showOverlayPreviewToolStripMenuItem.Checked;
+            _applicationSettingsService.Settings.BookmarksShowOverlayWindow = showOverlayPreviewToolStripMenuItem.Checked;
         }
 
         private void maximizePreviewAreaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             splitContainer1.SplitterDistance = Convert.ToInt32(splitContainer1.Width * 0.75);
             splitContainer2.SplitterDistance = Convert.ToInt32(splitContainer2.Height * 0.25);
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowMaximizedImageArea = true;
+            _applicationSettingsService.Settings.BookmarksShowMaximizedImageArea = true;
         }
 
         private void restorePreviewAreaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             splitContainer1.SplitterDistance = Convert.ToInt32(splitContainer1.Width * 0.25);
             splitContainer2.SplitterDistance = Convert.ToInt32(splitContainer2.Height * 0.5);
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowMaximizedImageArea = false;
+            _applicationSettingsService.Settings.BookmarksShowMaximizedImageArea = false;
         }
 
         #endregion

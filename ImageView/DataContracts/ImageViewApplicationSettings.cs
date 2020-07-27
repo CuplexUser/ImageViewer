@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
+using ImageViewer.Models.Enums;
 using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
@@ -98,13 +99,16 @@ namespace ImageViewer.DataContracts
                 MaxThumbnails = 256,
                 ConfirmApplicationShutdown = true,
                 AutomaticUpdateCheck = true,
-                LastUpdateCheck = new DateTime(2010, 1, 1),
-                ExtendedAppSettings = ApplicationSettingsHelper.Create(),
+                LastUpdateCheck = new DateTime(2010, 1, 1),                
                 ImageCacheSize = 134217728, // 128 Mb,
                 ToggleSlideshowWithThirdMouseButton = true,
                 AutoHideCursor = true,
                 AutoHideCursorDelay = 2000,
+                AppSettingsUUID = Guid.NewGuid(),
+                BookmarksShowMaximizedImageArea = false,
+                BookmarksShowOverlayWindow = false,
             };
+            settings.InitFormDictionary();
 
             return settings;
         }
@@ -245,30 +249,12 @@ namespace ImageViewer.DataContracts
         public string PasswordDerivedString { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the main form position.
-        /// </summary>
-        /// <value>
-        /// The main form position.
-        /// </value>
-        [DataMember(Name = "MainFormPosition", Order = 16)]
-        public PointDataModel MainFormPosition { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the size of the main form.
-        /// </summary>
-        /// <value>
-        /// The size of the main form.
-        /// </value>
-        [DataMember(Name = "MainFormSize", Order = 17)]
-        public SizeDataModel MainFormSize { get; protected set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether [use saved main form position].
         /// </summary>
         /// <value>
         ///   <c>true</c> if [use saved main form position]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "UseSavedMainFormPosition", Order = 18)]
+        [DataMember(Name = "UseSavedMainFormPosition", Order = 16)]
         public bool UseSavedMainFormPosition { get; protected set; }
 
         /// <summary>
@@ -277,7 +263,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ShowSwitchImageButtons", Order = 19)]
+        [DataMember(Name = "ShowSwitchImageButtons", Order = 17)]
         public bool ShowSwitchImageButtons { get; set; }
 
         /// <summary>
@@ -286,7 +272,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The last folder location.
         /// </value>
-        [DataMember(Name = "LastFolderLocation", Order = 20)]
+        [DataMember(Name = "LastFolderLocation", Order = 18)]
         public string LastFolderLocation { get; set; }
 
         /// <summary>
@@ -295,7 +281,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ShowNextPrevControlsOnEnterWindow", Order = 21)]
+        [DataMember(Name = "ShowNextPrevControlsOnEnterWindow", Order = 19)]
         public bool ShowNextPrevControlsOnEnterWindow { get; set; }
 
         /// <summary>
@@ -304,7 +290,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size of the image cache.
         /// </value>
-        [DataMember(Name = "ImageCacheSize", Order = 22)]
+        [DataMember(Name = "ImageCacheSize", Order = 20)]
         public long ImageCacheSize { get; set; }
 
         /// <summary>
@@ -313,7 +299,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The default key.
         /// </value>
-        [DataMember(Name = "DefaultKey", Order = 23)]
+        [DataMember(Name = "DefaultKey", Order = 21)]
         public string DefaultKey { get; set; }
 
         /// <summary>
@@ -322,7 +308,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size of the thumbnail.
         /// </value>
-        [DataMember(Name = "ThumbnailSize", Order = 24)]
+        [DataMember(Name = "ThumbnailSize", Order = 22)]
         public int ThumbnailSize { get; set; }
 
         /// <summary>
@@ -331,26 +317,9 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The maximum thumbnails.
         /// </value>
-        [DataMember(Name = "MaxThumbnails", Order = 25)]
+        [DataMember(Name = "MaxThumbnails", Order = 23)]
         public int MaxThumbnails { get; set; }
 
-        /// <summary>
-        /// Gets or sets the size of the thumbnail form.
-        /// </summary>
-        /// <value>
-        /// The size of the thumbnail form.
-        /// </value>
-        [DataMember(Name = "ThumbnailFormSize", Order = 26)]
-        public SizeDataModel ThumbnailFormSize { get; set; }
-
-        /// <summary>
-        /// Gets or sets the thumbnail form location.
-        /// </summary>
-        /// <value>
-        /// The thumbnail form location.
-        /// </value>
-        [DataMember(Name = "ThumbnailFormLocation", Order = 27)]
-        public PointDataModel ThumbnailFormLocation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [confirm application shutdown].
@@ -358,7 +327,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ConfirmApplicationShutdown", Order = 28)]
+        [DataMember(Name = "ConfirmApplicationShutdown", Order = 24)]
         public bool ConfirmApplicationShutdown { get; set; }
 
         /// <summary>
@@ -367,7 +336,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The color of the main window background.
         /// </value>
-        [DataMember(Name = "MainWindowBackgroundColor", Order = 29)]
+        [DataMember(Name = "MainWindowBackgroundColor", Order = 25)]
         public ColorDataModel MainWindowBackgroundColor { get; set; }
 
         /// <summary>
@@ -376,7 +345,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AutomaticUpdateCheck", Order = 30)]
+        [DataMember(Name = "AutomaticUpdateCheck", Order = 26)]
         public bool AutomaticUpdateCheck { get; set; }
 
         /// <summary>
@@ -385,7 +354,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The last update check.
         /// </value>
-        [DataMember(Name = "LastUpdateCheck", Order = 31)]
+        [DataMember(Name = "LastUpdateCheck", Order = 27)]
         public DateTime LastUpdateCheck { get; set; }
 
 
@@ -395,17 +364,8 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 32)]
+        [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 28)]
         public bool ToggleSlideshowWithThirdMouseButton { get; set; }
-
-        /// <summary>
-        /// Gets or sets the extended application settings.
-        /// </summary>
-        /// <value>
-        /// The extended application settings.
-        /// </value>
-        [DataMember(Name = "ExtendedAppSettings", Order = 33)]
-        public AppSettingsExtendedDataModel ExtendedAppSettings { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [automatic hide cursor].
@@ -413,13 +373,59 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AutoHideCursor", Order = 34)]
+        [DataMember(Name = "AutoHideCursor", Order =29)]
         public bool AutoHideCursor { get; set; }
 
 
-        [DataMember(Name = "AutoHideCursorDelay", Order = 35)]
+        [DataMember(Name = "AutoHideCursorDelay", Order = 30)]
         [FixedBounds(minValue: GenericConstants.MinCursorDelayValue, maxValue: GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
+
+        /// <summary>
+        /// Gets or sets the application settings UUID.
+        /// </summary>
+        /// <value>
+        /// The application settings UUID.
+        /// </value>
+        [DataMember(Name = "AppSettingsUUID", Order = 31)]
+        public Guid AppSettingsUUID { get; set; }
+
+        /// <summary>
+        /// Gets or sets the form state list.
+        /// </summary>
+        /// <value>
+        /// The form state list.
+        /// </value>
+        [DataMember(Name = "FormStateDictionary", Order = 32, IsRequired = true, EmitDefaultValue = true)]
+        public Dictionary<string, FormStateModel<Form>> FormStateDictionary { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [bookmarks show maximized image area].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 33)]
+        public bool BookmarksShowMaximizedImageArea { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [bookmarks show overlay window].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember(Name = "BookmarksShowOverlayWindow", Order = 34)]
+        public bool BookmarksShowOverlayWindow { get; set; }
+
+        public void InitFormDictionary()
+        {
+            if (FormStateDictionary == null)
+            {
+                FormStateDictionary = new Dictionary<string, FormStateModel<Form>>();
+            }
+        }
+
+
 
         /// <summary>
         /// Removes the duplicate entries with ignore case.

@@ -32,7 +32,6 @@ namespace ImageViewer
         private readonly BookmarkService _bookmarkService;
         private readonly FormAddBookmark _formAddBookmark;
         private readonly FormSettings _formSettings;
-        private readonly FormState _formState = new FormState();
         private readonly ImageCacheService _imageCacheService;
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
@@ -46,8 +45,7 @@ namespace ImageViewer
         private bool _dataReady;
         private FormBookmarks _formBookmarks;
         private FormThumbnailView _formThumbnailView;
-        private FormWindows _formWindows;
-        private bool _fullScreen;
+        private FormWindows _formWindows;        
         private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
         private bool _imageTransitionRunning;
@@ -56,6 +54,8 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new Rectangle(Point.Empty, new Size(25, 25));
+        private VolatileSettingsCollection _sessionStorage;
+        private const string FullscreenSetting = "IsFullScreen";
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ImageLoaderService imageLoaderService,
             ILifetimeScope scope, UserInteractionService interactionService)
@@ -65,6 +65,7 @@ namespace ImageViewer
             _formSettings = formSettings;
             _applicationSettingsService = applicationSettingsService;
             _applicationSettingsService.LoadSettings();
+            _sessionStorage = _applicationSettingsService.SessionStorage;
 
             _imageCacheService = imageCacheService;
             _imageLoaderService = imageLoaderService;
@@ -85,11 +86,13 @@ namespace ImageViewer
             {
                 var result = pictureBox1.AccessibilityObject?.HitTest(Cursor.Position.X, Cursor.Position.Y);
 
+                //result.
+
                 string accessable = result?.Value;
                 if (accessable == null)
                 {
-                    cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
-                    //return;
+                    //cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
+                    return;
                 }
 
                 bool __lockWasTaken = false;
@@ -109,7 +112,11 @@ namespace ImageViewer
                 finally
                 {
                     if (__lockWasTaken)
+                    {
+                        Monitor.Pulse(_lockObj);
                         Monitor.Exit(_lockObj);
+                    }
+                        
                 }
             }
         }
@@ -194,10 +201,10 @@ namespace ImageViewer
                 BackColor = settings.MainWindowBackgroundColor.ToColor();
             }
 
-            if (settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
+            if (settings.FormStateDictionary.ContainsKey(GetType().Name))
             {
-                var formState = settings.ExtendedAppSettings.FormStateDictionary[GetType().Name];
-                RestoreFormState.SetFormSizeAndPosition(this, formState);
+                var formState = settings.FormStateDictionary[GetType().Name];
+                FormStateTransform.LoadFormState(this, formState);
             }
         }
 
@@ -377,28 +384,37 @@ namespace ImageViewer
 
         private void ToggleFullscreen()
         {
-            if (_fullScreen)
+            _applicationSettingsService.SaveSettings();
+            bool fullScreen = !GetSettingVal<bool>(FullscreenSetting);
+
+
+            // We are in fullscreen mode, return to normal mode
+            if (fullScreen)
             {
-                _formState.Restore(this);
+                
+
+                
+                
                 menuStrip1.Visible = true;
                 BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
                 ScreenSaver.Enable();
-                Cursor.Show();
-                CursorVisible = true;
+                _sessionStorage.GetByName(FullscreenSetting).SetGenericValue(false);
+
             }
             else
             {
-                _formState.Save(this);
-                _formState.Maximize(this);
+                this.SaveFormState(_applicationSettingsService);
+                WinApi.SetWinFullScreen(this.Handle);
+                
                 menuStrip1.Visible = false;
-
                 BackColor = Color.Black;
-                Cursor.Hide();
-                CursorVisible = false;
+                //Cursor.Hide();
+                //CursorVisible = false;
                 ScreenSaver.Disable();
+
             }
 
-            _fullScreen = !_fullScreen;
+      
         }
 
         private void AutoArrangeOnSingleScreen()
@@ -512,8 +528,8 @@ namespace ImageViewer
                 pointerBox.X = cursorPosition.X - pointerBox.Width / 2;
                 pointerBox.Y = cursorPosition.Y + pointerBox.Height / 2;
 
-                Rectangle intersercionRect = new Rectangle(cursorPosition, new Size(1, 1));
-                if (!pointerBox.IntersectsWith(intersercionRect))
+                Rectangle intersectionRect = new Rectangle(cursorPosition, new Size(1, 1));
+                if (!pointerBox.IntersectsWith(intersectionRect))
                 {
                     //Console.WriteLine($"pictureBox1_MouseMoved, locations is: X: {e.X}, Y: {e.Y}");
                     CursorVisible = true;
@@ -603,11 +619,17 @@ namespace ImageViewer
 
                 try
                 {
-                    var fileConfig = _applicationSettingsService.Settings.ExtendedAppSettings;
+                    var fileConfig = _applicationSettingsService.Settings;
                     if (fileConfig.FormStateDictionary.ContainsKey(GetType().Name))
                     {
                         var formState = fileConfig.FormStateDictionary[GetType().Name];
-                        RestoreFormState.SetFormSizeAndPosition(this, formState);
+
+                        if (formState != null)
+                        {
+                            FormStateTransform.LoadFormState(this, formState);
+                            this.UpdateFormStateSnapLocation(formState);
+                        }
+                        
                     }
                 }
                 catch (Exception exception)
@@ -702,7 +724,8 @@ namespace ImageViewer
 
             timerSlideShow.Enabled = false;
             _bookmarkService.SaveBookmarks();
-            _applicationSettingsService.UpdateOrInsertFormState(RestoreFormState.GetFormState(this));
+            FormStateTransform.SaveFormState(this, _applicationSettingsService);
+            _applicationSettingsService.SaveFormSettings(typeof(FormMain), this);
             _applicationSettingsService.SetSettingsStateModified();
             _applicationSettingsService.SaveSettings();
         }
@@ -714,13 +737,17 @@ namespace ImageViewer
 
         private void FormMain_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape && _fullScreen)
+            if (e.KeyCode == Keys.Escape && GetSettingVal<bool>(FullscreenSetting))
             {
                 ToggleFullscreen();
+                e.Handled = true;
+                return;
             }
             else if (e.Alt && e.KeyCode == Keys.Enter)
             {
                 ToggleFullscreen();
+                e.Handled = true;
+                return;
             }
 
             //if (e.KeyCode == Keys.F11)
@@ -743,16 +770,34 @@ namespace ImageViewer
             if (e.KeyCode == Keys.Right || e.KeyCode == Keys.Enter)
             {
                 ChangeImage(true);
+                e.Handled = true;
+                return;
             }
             else if (e.KeyCode == Keys.Left)
             {
                 ChangeImage(false);
+                e.Handled = true;
+                return;
             }
             else if (e.KeyCode == Keys.Space)
             {
                 ToggleSlideshow();
                 DisplaySlideshowStatus();
+                e.Handled = true;
+                return;
             }
+        }
+
+        /// <summary>
+        /// Gets the setting value.
+        /// </summary>
+        /// <typeparam name="TInv">The type of the inv.</typeparam>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
+        private TInv GetSettingVal<TInv>(string key)
+        {
+            TInv value = _sessionStorage.GetCachedSetting<TInv>(key);
+            return value;
         }
 
         private void FormMain_KeyDown(object sender, KeyEventArgs e)
@@ -1082,23 +1127,17 @@ namespace ImageViewer
 
             if (ImageSourceDataAvailable)
             {
-                if (_fullScreen)
-                {
-                    Cursor.Show();
-                }
+                
 
-                var starupPosition = new Point(Location.X, Location.Y);
-                starupPosition.X += addBookmarkToolStripMenuItem.Width;
-                starupPosition.Y += addBookmarkToolStripMenuItem.Height + (Height - ClientSize.Height);
+                var startupPosition = new Point(Location.X, Location.Y);
+                startupPosition.X += addBookmarkToolStripMenuItem.Width;
+                startupPosition.Y += addBookmarkToolStripMenuItem.Height + (Height - ClientSize.Height);
 
                 if (_imageReferenceCollection.CurrentImage != null)
                 {
-                    _formAddBookmark.Init(starupPosition, _imageReferenceCollection.CurrentImage);
+                    _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
                     _formAddBookmark.ShowDialog(this);
-                    if (_fullScreen)
-                    {
-                        Cursor.Hide();
-                    }
+                    
                 }
             }
         }

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using JetBrains.Annotations;
 
 namespace ImageViewer.Utility
 {
@@ -78,5 +80,15 @@ namespace ImageViewer.Utility
 
             return list;
         }
+
+        public struct NameValueType
+        {
+            [NotNull] public string Name;
+            public Type ValueType;
+
+        }
+
+      
+
     }
 }

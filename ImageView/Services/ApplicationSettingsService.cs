@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Windows.Forms;
 using GeneralToolkitLib.Storage.Registry;
+using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Models;
+using ImageViewer.Models.Enums;
 using ImageViewer.Repositories;
 using ImageViewer.Storage;
 using ImageViewer.Utility;
@@ -28,10 +30,13 @@ namespace ImageViewer.Services
         private ImageViewApplicationSettings _applicationSettings;
         private RegistryAppSettings _registryAppSettings;
 
+        private readonly VolatileSettingsCollection _volatileSettings;
 
-        public ApplicationSettingsService(AppSettingsFileRepository appSettingsFileRepository, IRegistryAccess registryAccess)
+
+        public ApplicationSettingsService(AppSettingsFileRepository appSettingsFileRepository, IRegistryAccess registryAccess, VolatileSettingsCollection volatileSettings)
         {
             _registryRepository = registryAccess;
+            _volatileSettings = volatileSettings;
             _fileRepository = appSettingsFileRepository;
 
             try
@@ -65,10 +70,12 @@ namespace ImageViewer.Services
 
 
         // Unit tests
-        public static ApplicationSettingsService CreateService(AppSettingsFileRepository appSettingsFileRepository)
-        {
-            return new ApplicationSettingsService(appSettingsFileRepository, new LocalStorageRegistryAccess(Application.CompanyName, Application.ProductName));
-        }
+        //public static ApplicationSettingsService CreateService(AppSettingsFileRepository appSettingsFileRepository)
+        //{
+        //    return new ApplicationSettingsService(appSettingsFileRepository, new LocalStorageRegistryAccess(Application.CompanyName, Application.ProductName));
+        //}
+
+        public VolatileSettingsCollection SessionStorage => _volatileSettings;
 
         public void SetSettingsStateModified()
         {
@@ -90,6 +97,15 @@ namespace ImageViewer.Services
                 return _applicationSettings;
             }
             private set => _applicationSettings = value;
+        }
+
+        public void RestoreFormSettings(Type formBookmarks, FormBookmarks bookmarksFormInstance)
+        {
+            if (_applicationSettings.FormStateDictionary.ContainsKey(formBookmarks.Name))
+            {
+                var formState = _applicationSettings.FormStateDictionary[formBookmarks.Name];
+                FormStateTransform.LoadFormState(bookmarksFormInstance, formState);
+            }
         }
 
         public RegistryAppSettings AppSettingsInRegistry
@@ -190,20 +206,20 @@ namespace ImageViewer.Services
             return result;
         }
 
-        public void UpdateOrInsertFormState(FormSizeAndPositionModel formState)
+        public void SaveFormState(FormStateModel<Form> formState)
         {
-            if (_fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary == null)
+            if (_fileRepository.AppSettings.FormStateDictionary == null)
             {
-                _fileRepository.AppSettings.ExtendedAppSettings.InitFormDictionary();
+                _fileRepository.AppSettings.InitFormDictionary();
             }
 
-            if (_fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary.ContainsKey(formState.FormType))
+            if (_fileRepository.AppSettings.FormStateDictionary.ContainsKey(formState.GetType().Name))
             {
-                _fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary[formState.FormType] = formState;
+                _fileRepository.AppSettings.FormStateDictionary[formState.GetType().Name] = formState;
             }
             else
             {
-                _fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary.Add(formState.FormType, formState);
+                _fileRepository.AppSettings.FormStateDictionary.Add(formState.GetType().Name, formState);
             }
         }
 
@@ -211,19 +227,22 @@ namespace ImageViewer.Services
         {
             string formName = form.GetType().Name;
             var fileDbAppSettings = _fileRepository.AppSettings;
-            bool existingForm = fileDbAppSettings.ExtendedAppSettings.FormStateDictionary.Any(x => x.Key == formName);
-            if (existingForm)
-            {
-                fileDbAppSettings.ExtendedAppSettings.FormStateDictionary[formName] = RestoreFormState.GetFormState(form);
-            }
-            else
-            {
-                var formState = RestoreFormState.GetFormState(form);
-                fileDbAppSettings.ExtendedAppSettings.FormStateDictionary.Add(formName, formState);
-            }
+            bool existingForm = fileDbAppSettings.FormStateDictionary.Any(x => x.Key == formName);
 
+            form.SaveFormState(this);
+            
             _fileRepository.NotifySettingsChanged();
             _fileRepository.SaveSettings();
+        }
+
+        internal void SaveFormSettings(Type type, FormMain form)
+        {
+            
+        }
+
+        public bool ToggleFullscreen()
+        {
+            return false;
         }
     }
 }

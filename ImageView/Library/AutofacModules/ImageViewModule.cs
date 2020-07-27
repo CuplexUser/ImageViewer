@@ -6,6 +6,7 @@ using Autofac.Core;
 using AutoMapper;
 using GeneralToolkitLib.Storage.Memory;
 using GeneralToolkitLib.Storage.Registry;
+using ImageViewer.Collections;
 using ImageViewer.Managers;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
@@ -18,6 +19,7 @@ namespace ImageViewer.Library.AutofacModules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<PasswordStorage>().SingleInstance();
+            builder.RegisterType<VolatileSettingsCollection>().SingleInstance();
 
             builder.RegisterAssemblyTypes(typeof(ManagerBase).Assembly)
                 .AssignableTo<ManagerBase>()

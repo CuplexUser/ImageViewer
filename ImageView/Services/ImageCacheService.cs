@@ -73,17 +73,14 @@ namespace ImageViewer.Services
         public long CacheSize
         {
             get => _imageCacheRepository.CacheSize;
-            set
-            {
-                _imageCacheRepository.SetCacheSize(value, CacheTruncatePriority.RemoveOldest);
-            }
+            set => _imageCacheRepository.SetCacheSize(value, CacheTruncatePriority.RemoveOldest);
         }
 
         public CachedImage GetCachedImage(string fileName)
         {
             lock (CacheLock)
             {
-                return _imageCacheRepository.GetImageFromCache(fileName);
+                return _imageCacheRepository.LoadAndCacheImage(fileName);
             }
         }
 
@@ -91,7 +88,7 @@ namespace ImageViewer.Services
         {
             lock (CacheLock)
             {
-                var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(FileManager.GetImageFromByteArray);
+                var image = _imageCacheRepository.LoadAndCacheImage(fileName).GetImage(FileManager.GetImageFromByteArray);
 
                 // Exception was thrown and handled
                 if (image == null)

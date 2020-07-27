@@ -88,7 +88,7 @@ namespace ImageViewer.Repositories
 
         public bool LoadSettings()
         {
-            bool result= LoadSettingsInternal();
+            bool result = LoadSettingsInternal();
 
             ValidateAndModifyInvalidSettings();
 
@@ -99,7 +99,7 @@ namespace ImageViewer.Repositories
         {
             //RangeProperty range = _appSettings.AutoHideCursorDelay.GetType().GetProperty("AutoHideCursorDelay") as RangeProperty(AutoHideCursorDelay;
 
-            
+
 
             if (true)
             {
@@ -162,7 +162,7 @@ namespace ImageViewer.Repositories
                 Log.Error(exception, "AppSettingsFileRepository SaveSettings Exception: {Message}", exception.Message);
             }
         }
-               
+
         private bool LoadSettingsInternal()
         {
             if (_dataFileLocked)
@@ -190,16 +190,11 @@ namespace ImageViewer.Repositories
                         {
 
                             var storageManager = new StorageManager(new StorageManagerSettings(false, 1, true, SecurityHelper.GetSecurePassword(AppSettingsPassword)));
-                            _appSettings = storageManager.DeserializeObjectFromFile<ImageViewApplicationSettings>(path, null);
+                            _appSettings = storageManager.DeserializeObjectFromFile<ImageViewApplicationSettings>(path, null) ?? ImageViewApplicationSettings.CreateDefaultSettings();
 
-                            if (_appSettings == null)
+                            if (_appSettings.FormStateDictionary == null)
                             {
-                                _appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
-                            }
-                            
-                            if (_appSettings.ExtendedAppSettings.FormStateDictionary == null)
-                            {
-                                _appSettings.ExtendedAppSettings.InitFormDictionary();
+                                _appSettings.InitFormDictionary();
                             }
                         }
                         catch
@@ -211,7 +206,7 @@ namespace ImageViewer.Repositories
                     }
 
                 }
-                
+
                 IsDirty = false;
                 result = true;
             }
@@ -235,7 +230,7 @@ namespace ImageViewer.Repositories
         {
             if (_appSettings.LastUsedSearchPaths == null)
             {
-                _appSettings.LastUsedSearchPaths= new List<string>();
+                _appSettings.LastUsedSearchPaths = new List<string>();
             }
 
             if (_appSettings.LastFolderLocation == null)

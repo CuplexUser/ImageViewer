@@ -241,6 +241,7 @@ namespace ImageViewer
 
         public void RestoreFocusToMainForm()
         {
+            FormMain.ActiveForm.Focus();
             _lastActiveImageViewForm = null;
         }
 

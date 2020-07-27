@@ -5,8 +5,15 @@ using ImageViewer.Library.AutofacModules;
 
 namespace ImageViewer.Configuration
 {
+    /// <summary>
+    /// AutofacConfig
+    /// </summary>
     public static class AutofacConfig
     {
+        /// <summary>
+        /// Creates the container.
+        /// </summary>
+        /// <returns></returns>
         public static IContainer CreateContainer()
         {
             var builder = new ContainerBuilder();
@@ -33,6 +40,10 @@ namespace ImageViewer.Configuration
 
 
 
+        /// <summary>
+        /// Gets the main assembly.
+        /// </summary>
+        /// <returns></returns>
         public static  Assembly GetMainAssembly()
         {
             return typeof(ImageViewModule).Assembly;

@@ -254,7 +254,7 @@ namespace ImageViewer
 
             if (pictureBox.Tag is string filename)
             {
-                Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename); //_imageCacheService.GetImageFromCache(filename);
+                Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename); //_imageCacheService.LoadAndCacheImage(filename);
                 _maximizedImgFilename = filename;
                 picBoxMaximized.Image = fullScaleImage;
             }
