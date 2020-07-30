@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
+using ImageViewer.Models;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 using Serilog;
@@ -18,7 +19,7 @@ namespace ImageViewer
         private readonly BookmarkService _bookmarkService;
         private readonly ImageCacheService _imageCacheService;
         private long _selectedCacheSize;
-        private readonly ImageViewApplicationSettings _originalSettings;
+        private readonly ApplicationSettingsModel _originalSettings;
 
         public FormSettings(BookmarkService bookmarkService, ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
         {
@@ -43,7 +44,7 @@ namespace ImageViewer
 
         private void LoadSettings()
         {
-            ImageViewApplicationSettings settings = _applicationSettingsService.Settings;
+            ApplicationSettingsModel settings = _applicationSettingsService.Settings;
             chkAutoRandomize.Checked = settings.AutoRandomizeCollection;
             chkPasswordProtectBookmarks.Checked = settings.PasswordProtectBookmarks;
             chkShowSwitchImgButtons.Checked = settings.ShowSwitchImageButtons;
@@ -67,7 +68,7 @@ namespace ImageViewer
             rbImgTransformNone.Checked = false;
             switch (settings.NextImageAnimation)
             {
-                case ImageViewApplicationSettings.ChangeImageAnimation.None:
+                case ApplicationSettingsDataModel.ChangeImageAnimation.None:
                     rbImgTransformNone.Checked = true;
                     break;
                 //case ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft:
@@ -82,7 +83,7 @@ namespace ImageViewer
                 //case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
                 //    rbImgTransformSlideUp.Checked = true;
                 //  break;
-                case ImageViewApplicationSettings.ChangeImageAnimation.FadeIn:
+                case ApplicationSettingsDataModel.ChangeImageAnimation.FadeIn:
                     rbImgTransformFadeIn.Checked = true;
                     break;
                 default:
@@ -139,7 +140,7 @@ namespace ImageViewer
             }
 
             if (rbImgTransformNone.Checked)
-                settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.None;
+                settings.NextImageAnimation = ApplicationSettingsDataModel.ChangeImageAnimation.None;
 
             //if (rbImgTransformSlideLeft.Checked)
             //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft;
@@ -162,7 +163,7 @@ namespace ImageViewer
 
             if (rbImgTransformFadeIn.Checked)
             {
-                settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.FadeIn;
+                settings.NextImageAnimation = ApplicationSettingsDataModel.ChangeImageAnimation.FadeIn;
             }
 
             settings.ToggleSlideshowWithThirdMouseButton = chkToggleSlidshowWithThirdMouseButton.Checked;

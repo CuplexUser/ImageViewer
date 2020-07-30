@@ -8,10 +8,10 @@ using Castle.Core.Internal;
 
 namespace ImageViewer.Storage
 {
-    public class DataContractComparer<T> : IEqualityComparer<T> where T : class
+    public class DataModelComparer<T> : IEqualityComparer<T> where T : class
     {
         private readonly T _compareBase;
-        public DataContractComparer(T compareBase)
+        public DataModelComparer(T compareBase)
         {
             if (compareBase.GetType().GetAttribute<DataContractAttribute>().TypeId.ToString() != typeof(DataContractAttribute).FullName)
             {
@@ -29,7 +29,7 @@ namespace ImageViewer.Storage
             }
         }
 
-        public DataContractComparer()
+        public DataModelComparer()
         {
 
         }

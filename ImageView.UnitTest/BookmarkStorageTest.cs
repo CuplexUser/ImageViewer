@@ -225,7 +225,7 @@ namespace ImageViewer.UnitTests
 
         private ApplicationSettingsService GetApplicationSettingsService()
         {
-            var appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
+            var appSettings = ApplicationSettingsModel.CreateDefaultSettings();
             appSettings.DefaultKey = "EkNxG2vH27y4xezfzyEJpHGenOtgLJ1x";
             var appSettingsFileRepository = Substitute.For<AppSettingsFileRepository>();
             var settingsService = Substitute.For<ApplicationSettingsService>(appSettingsFileRepository);

@@ -6,8 +6,6 @@ using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
-using ImageViewer.Models.Enums;
-using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
 {
@@ -15,8 +13,8 @@ namespace ImageViewer.DataContracts
     /// All Application settings
     /// </summary>
     [Serializable]
-    [DataContract(Name = "ImageViewApplicationSettings")]
-    public class ImageViewApplicationSettings
+    [DataContract(Name = "ApplicationSettingsDataModel")]
+    public class ApplicationSettingsDataModel
     {
         /// <summary>
         /// 
@@ -69,48 +67,11 @@ namespace ImageViewer.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImageViewApplicationSettings"/> class.
+        /// Initializes a new instance of the <see cref="ApplicationSettingsDataModel"/> class.
         /// </summary>
-        protected ImageViewApplicationSettings()
+        protected ApplicationSettingsDataModel()
         {
 
-        }
-
-        /// <summary>
-        /// Creates the default settings.
-        /// </summary>
-        /// <returns></returns>
-        public static ImageViewApplicationSettings CreateDefaultSettings()
-        {
-            var settings = new ImageViewApplicationSettings
-            {
-                AlwaysOntop = false,
-                AutoRandomizeCollection = true,
-                LastUsedSearchPaths = new List<string>(),
-                ShowImageViewFormsInTaskBar = true,
-                NextImageAnimation = ChangeImageAnimation.None,
-                ImageTransitionTime = 1000,
-                SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
-                PasswordProtectBookmarks = false,
-                PasswordDerivedString = "",
-                ShowNextPrevControlsOnEnterWindow = false,
-                ThumbnailSize = 256,
-                MaxThumbnails = 256,
-                ConfirmApplicationShutdown = true,
-                AutomaticUpdateCheck = true,
-                LastUpdateCheck = new DateTime(2010, 1, 1),                
-                ImageCacheSize = 134217728, // 128 Mb,
-                ToggleSlideshowWithThirdMouseButton = true,
-                AutoHideCursor = true,
-                AutoHideCursorDelay = 2000,
-                AppSettingsUUID = Guid.NewGuid(),
-                BookmarksShowMaximizedImageArea = false,
-                BookmarksShowOverlayWindow = false,
-            };
-            settings.InitFormDictionary();
-
-            return settings;
         }
 
         /// <summary>
@@ -397,7 +358,7 @@ namespace ImageViewer.DataContracts
         /// The form state list.
         /// </value>
         [DataMember(Name = "FormStateDictionary", Order = 32, IsRequired = true, EmitDefaultValue = true)]
-        public Dictionary<string, FormStateModel<Form>> FormStateDictionary { get; protected set; }
+        public Dictionary<string, FormStateDataModel> FormStateDictionary { get; protected set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [bookmarks show maximized image area].
@@ -421,48 +382,7 @@ namespace ImageViewer.DataContracts
         {
             if (FormStateDictionary == null)
             {
-                FormStateDictionary = new Dictionary<string, FormStateModel<Form>>();
-            }
-        }
-
-
-
-        /// <summary>
-        /// Removes the duplicate entries with ignore case.
-        /// </summary>
-        public void RemoveDuplicateEntriesWithIgnoreCase()
-        {
-            var deleteStack = new Stack<string>();
-            foreach (string searchPath in LastUsedSearchPaths)
-            {
-                if (LastUsedSearchPaths.Any(s => s.ToLower() == searchPath))
-                    deleteStack.Push(searchPath);
-            }
-
-            while (deleteStack.Count > 0)
-                LastUsedSearchPaths.Remove(deleteStack.Pop());
-        }
-
-        /// <summary>
-        /// Disables the password protect bookmarks.
-        /// </summary>
-        public void DisablePasswordProtectBookmarks()
-        {
-            PasswordProtectBookmarks = false;
-            PasswordDerivedString = null;
-        }
-
-        /// <summary>
-        /// Enables the password protect bookmarks.
-        /// </summary>
-        /// <param name="verifiedPassword">The verified password.</param>
-        public void EnablePasswordProtectBookmarks(string verifiedPassword)
-        {
-            if (verifiedPassword != null)
-            {
-                PasswordProtectBookmarks = true;
-                PasswordDerivedString = GeneralConverters.GeneratePasswordDerivedString(verifiedPassword);
-                DefaultKey = null;
+                FormStateDictionary = new Dictionary<string, FormStateDataModel>();
             }
         }
     }

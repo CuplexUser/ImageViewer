@@ -68,15 +68,12 @@ namespace ImageViewer
                 Invoke(new EventHandler(showOverlayPreviewToolStripMenuItem_Click));
             }
 
+            if (settings.FormStateDictionary.ContainsKey(nameof(FormBookmarks)))
+            {
+                this.LoadFormState(settings.FormStateDictionary[nameof(FormBookmarks)], true);
+            }
+            
 
-            _applicationSettingsService.RestoreFormSettings(typeof(FormBookmarks), this);
-            //this.SetFormStateSnapLocation< Settings. >()
-
-            //if (_applicationSettingsService.Settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
-            //{
-            //    var formState = settings.FormStateDictionary[GetType().Name];
-            //    RestoreFormState.SetFormSizeAndPosition(this, formState.Size.ToSize(), formState.Location.ToPoint(), formState.ScreenArea.ToRectangle());
-            //}
 
             if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
                 using (var formGetPassword = new FormGetPassword

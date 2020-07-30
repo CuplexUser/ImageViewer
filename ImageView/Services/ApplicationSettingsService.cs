@@ -3,10 +3,8 @@ using System.Linq;
 using System.Windows.Forms;
 using GeneralToolkitLib.Storage.Registry;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Models;
-using ImageViewer.Models.Enums;
 using ImageViewer.Repositories;
 using ImageViewer.Storage;
 using ImageViewer.Utility;
@@ -27,7 +25,7 @@ namespace ImageViewer.Services
         public string ProductName { get; } = Application.ProductName;
 
 
-        private ImageViewApplicationSettings _applicationSettings;
+        private ApplicationSettingsModel _applicationSettings;
         private RegistryAppSettings _registryAppSettings;
 
         private readonly VolatileSettingsCollection _volatileSettings;
@@ -82,7 +80,7 @@ namespace ImageViewer.Services
             _fileRepository.NotifySettingsChanged();
         }
 
-        public ImageViewApplicationSettings Settings
+        public ApplicationSettingsModel Settings
         {
             get
             {
@@ -97,15 +95,6 @@ namespace ImageViewer.Services
                 return _applicationSettings;
             }
             private set => _applicationSettings = value;
-        }
-
-        public void RestoreFormSettings(Type formBookmarks, FormBookmarks bookmarksFormInstance)
-        {
-            if (_applicationSettings.FormStateDictionary.ContainsKey(formBookmarks.Name))
-            {
-                var formState = _applicationSettings.FormStateDictionary[formBookmarks.Name];
-                FormStateTransform.LoadFormState(bookmarksFormInstance, formState);
-            }
         }
 
         public RegistryAppSettings AppSettingsInRegistry
@@ -210,7 +199,7 @@ namespace ImageViewer.Services
         {
             if (_fileRepository.AppSettings.FormStateDictionary == null)
             {
-                _fileRepository.AppSettings.InitFormDictionary();
+                _fileRepository.AppSettings.InitFormStateDictionary();
             }
 
             if (_fileRepository.AppSettings.FormStateDictionary.ContainsKey(formState.GetType().Name))

@@ -6,6 +6,7 @@ using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
+using ImageViewer.Models;
 using ImageViewer.Storage;
 using ImageViewer.Utility;
 using JetBrains.Annotations;
@@ -13,24 +14,61 @@ using Serilog;
 
 namespace ImageViewer.Repositories
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="ImageViewer.Repositories.RepositoryBase" />
     [UsedImplicitly]
     public sealed class AppSettingsFileRepository : RepositoryBase
     {
+        /// <summary>
+        /// The application settings filename
+        /// </summary>
         private const string AppSettingsFilename = "localSettings.dat";
+        /// <summary>
+        /// The application settings password
+        /// </summary>
         private const string AppSettingsPassword = "kTntQYxg4eQSkDiJnev/qoO9Dm9MrpGKbp7WQ/QfaEeP9j48HtvZ8pji/YXQ2ejx";
 
+        /// <summary>
+        /// The data file locked
+        /// </summary>
         private bool _dataFileLocked;
 
+        /// <summary>
+        /// Occurs when [load settings completed].
+        /// </summary>
         public event EventHandler LoadSettingsCompleted;
+        /// <summary>
+        /// Occurs when [save settings completed].
+        /// </summary>
         public event EventHandler SaveSettingsCompleted;
 
-        private ImageViewApplicationSettings _appSettings;
-        private ImageViewApplicationSettings _cmpSettings;
+        /// <summary>
+        /// The application settings
+        /// </summary>
+        private ApplicationSettingsModel _appSettings;
+        /// <summary>
+        /// The CMP settings
+        /// </summary>
+        private ApplicationSettingsModel _cmpSettings;
+        /// <summary>
+        /// The file access wait handle
+        /// </summary>
         private readonly ManualResetEvent _fileAccessWaitHandle;
+        /// <summary>
+        /// The is dirty
+        /// </summary>
         private bool _isDirty;
 
 
-        public ImageViewApplicationSettings AppSettings
+        /// <summary>
+        /// Gets the application settings.
+        /// </summary>
+        /// <value>
+        /// The application settings.
+        /// </value>
+        public ApplicationSettingsModel AppSettings
         {
             get
             {
@@ -43,23 +81,39 @@ namespace ImageViewer.Repositories
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSettingsFileRepository"/> class.
+        /// </summary>
         public AppSettingsFileRepository()
         {
             _fileAccessWaitHandle = new ManualResetEvent(false);
             _fileAccessWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is dirty.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is dirty; otherwise, <c>false</c>.
+        /// </value>
         public bool IsDirty
         {
             get => _isDirty;
             private set => _isDirty = value;
         }
 
+        /// <summary>
+        /// Notifies the settings changed.
+        /// </summary>
         public void NotifySettingsChanged()
         {
             IsDirty = true;
         }
 
+        /// <summary>
+        /// Evaluates the is dirty.
+        /// </summary>
+        /// <returns></returns>
         private bool EvaluateIsDirty()
         {
             if (_cmpSettings == null)
@@ -67,10 +121,14 @@ namespace ImageViewer.Repositories
                 return true;
             }
 
-            DataContractComparer<ImageViewApplicationSettings> compareSettings = new DataContractComparer<ImageViewApplicationSettings>(_cmpSettings);
+            DataModelComparer<ApplicationSettingsModel> compareSettings = new DataModelComparer<ApplicationSettingsModel>(_cmpSettings);
             return compareSettings.Equals(_appSettings);
         }
 
+        /// <summary>
+        /// Saves the settings.
+        /// </summary>
+        /// <returns></returns>
         public bool SaveSettings()
         {
             if (!IsDirty)
@@ -86,6 +144,10 @@ namespace ImageViewer.Repositories
             return SaveSettingsInternal();
         }
 
+        /// <summary>
+        /// Loads the settings.
+        /// </summary>
+        /// <returns></returns>
         public bool LoadSettings()
         {
             bool result = LoadSettingsInternal();
@@ -95,6 +157,9 @@ namespace ImageViewer.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Validates the and modify invalid settings.
+        /// </summary>
         private void ValidateAndModifyInvalidSettings()
         {
             //RangeProperty range = _appSettings.AutoHideCursorDelay.GetType().GetProperty("AutoHideCursorDelay") as RangeProperty(AutoHideCursorDelay;
@@ -107,6 +172,10 @@ namespace ImageViewer.Repositories
             }
         }
 
+        /// <summary>
+        /// Saves the settings internal.
+        /// </summary>
+        /// <returns></returns>
         private bool SaveSettingsInternal()
         {
             if (_dataFileLocked)
@@ -146,6 +215,9 @@ namespace ImageViewer.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Saves the new settings.
+        /// </summary>
         private void SaveNewSettings()
         {
             try
@@ -163,6 +235,10 @@ namespace ImageViewer.Repositories
             }
         }
 
+        /// <summary>
+        /// Loads the settings internal.
+        /// </summary>
+        /// <returns></returns>
         private bool LoadSettingsInternal()
         {
             if (_dataFileLocked)
@@ -179,7 +255,7 @@ namespace ImageViewer.Repositories
                 string path = GetFullPathToSettingsFile();
                 if (!File.Exists(path))
                 {
-                    _appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
+                    _appSettings = ApplicationSettingsModel.CreateDefaultSettings();
                     SaveNewSettings();
                 }
                 else
@@ -190,17 +266,17 @@ namespace ImageViewer.Repositories
                         {
 
                             var storageManager = new StorageManager(new StorageManagerSettings(false, 1, true, SecurityHelper.GetSecurePassword(AppSettingsPassword)));
-                            _appSettings = storageManager.DeserializeObjectFromFile<ImageViewApplicationSettings>(path, null) ?? ImageViewApplicationSettings.CreateDefaultSettings();
+                            _appSettings = storageManager.DeserializeObjectFromFile<ApplicationSettingsModel>(path, null) ?? ApplicationSettingsModel.CreateDefaultSettings();
 
                             if (_appSettings.FormStateDictionary == null)
                             {
-                                _appSettings.InitFormDictionary();
+                                _appSettings.InitFormStateDictionary();
                             }
                         }
                         catch
                         {
                             File.Delete(path);
-                            _appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
+                            _appSettings = ApplicationSettingsModel.CreateDefaultSettings();
                             SaveNewSettings();
                         }
                     }
@@ -226,6 +302,9 @@ namespace ImageViewer.Repositories
             return result;
         }
 
+        /// <summary>
+        /// Validates the loaded settings.
+        /// </summary>
         private void ValidateLoadedSettings()
         {
             if (_appSettings.LastUsedSearchPaths == null)
@@ -240,17 +319,27 @@ namespace ImageViewer.Repositories
         }
 
 
+        /// <summary>
+        /// Gets the full path to settings file.
+        /// </summary>
+        /// <returns></returns>
         private string GetFullPathToSettingsFile()
         {
             return Path.Combine(ApplicationBuildConfig.UserDataPath, AppSettingsFilename);
         }
 
+        /// <summary>
+        /// Called when [load settings completed].
+        /// </summary>
         private void OnLoadSettingsCompleted()
         {
             LoadSettingsCompleted?.Invoke(this, EventArgs.Empty);
             _cmpSettings = _appSettings;
         }
 
+        /// <summary>
+        /// Called when [save settings completed].
+        /// </summary>
         private void OnSaveSettingsCompleted()
         {
             SaveSettingsCompleted?.Invoke(this, EventArgs.Empty);

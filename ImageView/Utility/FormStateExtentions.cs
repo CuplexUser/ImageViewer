@@ -1,5 +1,5 @@
 ﻿using System.Windows.Forms;
-using ImageViewer.Models.Enums;
+using ImageViewer.Models;
 using ImageViewer.Services;
 
 namespace ImageViewer.Utility
@@ -7,12 +7,12 @@ namespace ImageViewer.Utility
     /// <summary>
     /// Calculate Screen SnapLocation. Default no form location Update. Just setting the correct snap location.
     /// </summary>
-    public static class FormStateTransform
+    public static class FormStateExtentions
     {
         /// <summary>
         /// The snap margin
         /// </summary>
-        public const int SnapMargin = 10;
+        private const int SnapMargin = 10;
 
         /// <summary>
         /// Updates the form state snap location.
@@ -20,7 +20,7 @@ namespace ImageViewer.Utility
         /// <typeparam name="T"></typeparam>
         /// <param name="form">The form.</param>
         /// <param name="formState">State of the form.</param>
-        public static void UpdateFormStateSnapLocation(this Form form, FormStateModel<Form> formState)
+        internal static void UpdateFormStateSnapLocation(this Form form, FormStateModel<Form> formState)
         {
             if (formState.WindowState != FormWindowState.Normal)
             {
@@ -92,13 +92,19 @@ namespace ImageViewer.Utility
             appSettingsService.SaveSettings();
         }
 
-        internal static void LoadFormState(Form form, FormStateModel<Form> formState)
+        public static void LoadFormState(this Form form, FormStateModel<Form> formState, bool updateSnapLocation = true)
         {
             var b = formState.ScreenRect;
             form.SetDesktopLocation(formState.ScreenLocation.X, formState.ScreenLocation.Y);
             form.SetDesktopBounds(b.X, b.Y, b.Width, b.Height);
             form.TopMost = formState.TopMost;
             form.WindowState = formState.WindowState;
+
+            if (updateSnapLocation)
+            {
+                UpdateFormStateSnapLocation(form, formState);
+            }
+
         }
     }
 }

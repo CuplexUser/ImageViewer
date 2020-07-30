@@ -61,7 +61,7 @@ namespace ImageViewer
         private void ApplicationSettingsOnSettingsSaved(object sender, EventArgs e)
         {
             _applicationSettings.LoadSettings();
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
+            ApplicationSettingsModel appSettings = _applicationSettings.Settings;
             flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
             picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
         }
@@ -71,10 +71,11 @@ namespace ImageViewer
             if (DesignMode)
                 return;
 
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
-            if (appSettings.ThumbnailFormSize != null && appSettings.ThumbnailFormLocation != null)
+            ApplicationSettingsModel appSettings = _applicationSettings.Settings;
+            
+            if (appSettings.FormStateDictionary.ContainsKey(nameof(FormThumbnailView)))
             {
-                RestoreFormState.SetFormSizeAndPosition(this, appSettings.ThumbnailFormSize.ToSize(), appSettings.ThumbnailFormLocation.ToPoint(), Screen.PrimaryScreen.WorkingArea);
+                this.LoadFormState(appSettings.FormStateDictionary[nameof(FormThumbnailView)], true);
             }
 
             Closing += FormThumbnailView_Closing;
@@ -88,9 +89,8 @@ namespace ImageViewer
         {
             Hide();
 
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
-            appSettings.ThumbnailFormLocation = PointDataModel.CreateFromPoint(Location);
-            appSettings.ThumbnailFormSize = SizeDataModel.CreateFromSize(Size);
+            ApplicationSettingsModel appSettings = _applicationSettings.Settings;
+            this.SaveFormState(_applicationSettings);
             _applicationSettings.SaveSettings();
         }
 

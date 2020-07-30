@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -22,6 +13,15 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ImageViewer
 {
@@ -40,12 +40,12 @@ namespace ImageViewer
         private readonly PictureBox _pictureBoxAnimation = new PictureBox();
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
-        private ImageViewApplicationSettings.ChangeImageAnimation _changeImageAnimation;
+        private ApplicationSettingsDataModel.ChangeImageAnimation _changeImageAnimation;
         private bool _cursorVisible = true;
         private bool _dataReady;
         private FormBookmarks _formBookmarks;
         private FormThumbnailView _formThumbnailView;
-        private FormWindows _formWindows;        
+        private FormWindows _formWindows;
         private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
         private bool _imageTransitionRunning;
@@ -54,7 +54,7 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new Rectangle(Point.Empty, new Size(25, 25));
-        private VolatileSettingsCollection _sessionStorage;
+
         private const string FullscreenSetting = "IsFullScreen";
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ImageLoaderService imageLoaderService,
@@ -65,7 +65,6 @@ namespace ImageViewer
             _formSettings = formSettings;
             _applicationSettingsService = applicationSettingsService;
             _applicationSettingsService.LoadSettings();
-            _sessionStorage = _applicationSettingsService.SessionStorage;
 
             _imageCacheService = imageCacheService;
             _imageLoaderService = imageLoaderService;
@@ -116,7 +115,7 @@ namespace ImageViewer
                         Monitor.Pulse(_lockObj);
                         Monitor.Exit(_lockObj);
                     }
-                        
+
                 }
             }
         }
@@ -200,12 +199,6 @@ namespace ImageViewer
                 pictureBox1.BackColor = settings.MainWindowBackgroundColor.ToColor();
                 BackColor = settings.MainWindowBackgroundColor.ToColor();
             }
-
-            if (settings.FormStateDictionary.ContainsKey(GetType().Name))
-            {
-                var formState = settings.FormStateDictionary[GetType().Name];
-                FormStateTransform.LoadFormState(this, formState);
-            }
         }
 
         private void ChangeImage(bool next)
@@ -232,12 +225,12 @@ namespace ImageViewer
             //Go Forward
             if (next)
             {
-                _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft;
+                _changeImageAnimation = ApplicationSettingsDataModel.ChangeImageAnimation.SlideLeft;
                 imgRef = _imageReferenceCollection.GetNextImage();
             }
             else
             {
-                _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideRight;
+                _changeImageAnimation = ApplicationSettingsDataModel.ChangeImageAnimation.SlideRight;
                 imgRef = _imageReferenceCollection.GetPreviousImage();
             }
 
@@ -251,14 +244,14 @@ namespace ImageViewer
             {
                 pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
 
-                if (_applicationSettingsService.Settings.NextImageAnimation == ImageViewApplicationSettings.ChangeImageAnimation.None)
+                if (_applicationSettingsService.Settings.NextImageAnimation == ApplicationSettingsDataModel.ChangeImageAnimation.None)
                 {
-                    _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.None;
+                    _changeImageAnimation = ApplicationSettingsDataModel.ChangeImageAnimation.None;
                 }
 
                 _pictureBoxAnimation.ImageLocation = null;
 
-                if (pictureBox1.Image != null && _changeImageAnimation != ImageViewApplicationSettings.ChangeImageAnimation.None)
+                if (pictureBox1.Image != null && _changeImageAnimation != ApplicationSettingsDataModel.ChangeImageAnimation.None)
                 {
                     _pictureBoxAnimation.Image = _imageCacheService.GetImageFromCache(imgRefElement.CompletePath);
                     _pictureBoxAnimation.Refresh();
@@ -295,7 +288,7 @@ namespace ImageViewer
             }
         }
 
-        private async Task PerformImageTransition(Image currentImage, Image nextImage, ImageViewApplicationSettings.ChangeImageAnimation animation, int animationTime)
+        private async Task PerformImageTransition(Image currentImage, Image nextImage, ApplicationSettingsDataModel.ChangeImageAnimation animation, int animationTime)
         {
             const int sleepTime = 1;
             _imageTransitionRunning = true;
@@ -311,27 +304,27 @@ namespace ImageViewer
                     Image transitionImage;
                     switch (animation)
                     {
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft:
+                        case ApplicationSettingsDataModel.ChangeImageAnimation.SlideLeft:
                             transitionImage = ImageTransform.OffsetImagesHorizontal(currentImage, nextImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, false);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideRight:
+                        case ApplicationSettingsDataModel.ChangeImageAnimation.SlideRight:
                             transitionImage = ImageTransform.OffsetImagesHorizontal(nextImage, currentImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, true);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideDown:
+                        case ApplicationSettingsDataModel.ChangeImageAnimation.SlideDown:
                             transitionImage = ImageTransform.OffsetImagesVertical(nextImage, currentImage,
                                 new Size(nextImage.Width, nextImage.Height), factor, true);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
+                        case ApplicationSettingsDataModel.ChangeImageAnimation.SlideUp:
                             transitionImage = ImageTransform.OffsetImagesVertical(currentImage, nextImage,
                                 new Size(Math.Max(nextImage.Width, currentImage.Width), nextImage.Height), factor, false);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.FadeIn:
+                        case ApplicationSettingsDataModel.ChangeImageAnimation.FadeIn:
                             int width = nextImage.Width;
                             int height = nextImage.Height;
                             var nextImageBitmap = new Bitmap(nextImage, new Size(width, height));
@@ -391,21 +384,19 @@ namespace ImageViewer
             // We are in fullscreen mode, return to normal mode
             if (fullScreen)
             {
-                
 
-                
-                
+
                 menuStrip1.Visible = true;
                 BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
                 ScreenSaver.Enable();
-                _sessionStorage.GetByName(FullscreenSetting).SetGenericValue(false);
+                _applicationSettingsService.SessionStorage.GetByName(FullscreenSetting).SetGenericValue(false);
 
             }
             else
             {
                 this.SaveFormState(_applicationSettingsService);
                 WinApi.SetWinFullScreen(this.Handle);
-                
+
                 menuStrip1.Visible = false;
                 BackColor = Color.Black;
                 //Cursor.Hide();
@@ -414,7 +405,7 @@ namespace ImageViewer
 
             }
 
-      
+
         }
 
         private void AutoArrangeOnSingleScreen()
@@ -620,16 +611,10 @@ namespace ImageViewer
                 try
                 {
                     var fileConfig = _applicationSettingsService.Settings;
-                    if (fileConfig.FormStateDictionary.ContainsKey(GetType().Name))
+                    if (fileConfig.FormStateDictionary.ContainsKey(nameof(FormMain)))
                     {
-                        var formState = fileConfig.FormStateDictionary[GetType().Name];
+                        this.LoadFormState(fileConfig.FormStateDictionary[nameof(FormMain)], true);
 
-                        if (formState != null)
-                        {
-                            FormStateTransform.LoadFormState(this, formState);
-                            this.UpdateFormStateSnapLocation(formState);
-                        }
-                        
                     }
                 }
                 catch (Exception exception)
@@ -724,7 +709,7 @@ namespace ImageViewer
 
             timerSlideShow.Enabled = false;
             _bookmarkService.SaveBookmarks();
-            FormStateTransform.SaveFormState(this, _applicationSettingsService);
+            this.SaveFormState(_applicationSettingsService);
             _applicationSettingsService.SaveFormSettings(typeof(FormMain), this);
             _applicationSettingsService.SetSettingsStateModified();
             _applicationSettingsService.SaveSettings();
@@ -796,7 +781,7 @@ namespace ImageViewer
         /// <returns></returns>
         private TInv GetSettingVal<TInv>(string key)
         {
-            TInv value = _sessionStorage.GetCachedSetting<TInv>(key);
+            TInv value = _applicationSettingsService.SessionStorage.GetCachedSetting<TInv>(key);
             return value;
         }
 
@@ -1127,7 +1112,7 @@ namespace ImageViewer
 
             if (ImageSourceDataAvailable)
             {
-                
+
 
                 var startupPosition = new Point(Location.X, Location.Y);
                 startupPosition.X += addBookmarkToolStripMenuItem.Width;
@@ -1137,7 +1122,7 @@ namespace ImageViewer
                 {
                     _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
                     _formAddBookmark.ShowDialog(this);
-                    
+
                 }
             }
         }

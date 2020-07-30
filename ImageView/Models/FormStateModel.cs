@@ -1,12 +1,11 @@
 ﻿using System;
-using System.CodeDom;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace ImageViewer.Models.Enums
+namespace ImageViewer.Models
 {
     /// <summary>
-    /// Internal state model for a Windows UI properties. Where T has baseclass Form
+    /// Internal state model for a Windows UI properties. Where T has base class Form
     /// </summary>
     public class FormStateModel<T> where T: Form
     {
@@ -91,6 +90,7 @@ namespace ImageViewer.Models.Enums
         /// Flags specifying which edges to anchor the form at.
         /// </summary>
         [Flags]
+        [Serializable]
         public enum SnapLocation
         {
             /// <summary>
@@ -119,6 +119,4 @@ namespace ImageViewer.Models.Enums
             All = Left | Top | Right | Bottom
         }
     }
-
-
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using GeneralToolkitLib.WindowsApi;
 using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
@@ -93,8 +94,8 @@ namespace ImageViewer
         {
             if (e.Button == MouseButtons.Left)
             {
-                NativeMethods.ReleaseCapture();
-                NativeMethods.SendMessage(Handle, NativeMethods.WM_NCLBUTTONDOWN, NativeMethods.HT_CAPTION, IntPtr.Zero);
+                WinApi.ReleaseCapture();
+                WinApi.SendMessage(Handle, WinApi.WM_NCLBUTTONDOWN, WinApi.HT_CAPTION, IntPtr.Zero);
             }
         }
 
