@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ImageViewer.Library.Extensions
 {
-    public static class DataAnotation
+    public static class DataAnnotation
     {
         public static string ToDescErrorsString(this IEnumerable<ValidationResult> source, string messageEmptyCollection = null)
         {

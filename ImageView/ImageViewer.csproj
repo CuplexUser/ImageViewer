@@ -87,10 +87,11 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>F6CD0E85828771EB68995FE400AB39772CFAF776</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>4D711FE25EEF45DC10FE6032C1324044BEF47950</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ImageViewer_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -177,7 +178,7 @@
     <Compile Include="Library\AutomapperProfile\ImageViewMapperProfile.cs" />
     <Compile Include="Library\CustomAttributes\ValidSettingAttribute.cs" />
     <Compile Include="Library\EventHandlers\ImageRemovedEventHandler.cs" />
-    <Compile Include="Library\Extensions\DataAnotation.cs" />
+    <Compile Include="Library\Extensions\DataAnnotation.cs" />
     <Compile Include="Library\Extensions\FixedBoundsAttribute.cs" />
     <Compile Include="Managers\ThumbnailDbManager.cs" />
     <Compile Include="Models\ApplicationSettingsModel.cs" />
@@ -603,10 +604,10 @@
   <ItemGroup />
   <ItemGroup>
     <PackageReference Include="Autofac">
-      <Version>5.2.0</Version>
+      <Version>6.0.0</Version>
     </PackageReference>
     <PackageReference Include="Autofac.Extensions.DependencyInjection">
-      <Version>6.0.0</Version>
+      <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="AutofacSerilogIntegration">
       <Version>4.0.0</Version>
@@ -627,7 +628,7 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="Serilog">
-      <Version>2.9.0</Version>
+      <Version>2.10.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Enrichers.Thread">
       <Version>3.1.0</Version>
@@ -638,14 +639,8 @@
     <PackageReference Include="Serilog.Sinks.File">
       <Version>4.1.0</Version>
     </PackageReference>
-    <PackageReference Include="Serilog.Sinks.Literate">
-      <Version>3.0.0</Version>
-    </PackageReference>
     <PackageReference Include="Serilog.Sinks.PeriodicBatching">
       <Version>2.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="Serilog.Sinks.RollingFile">
-      <Version>3.3.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.Trace">
       <Version>2.1.0</Version>

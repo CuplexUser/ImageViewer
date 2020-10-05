@@ -94,8 +94,8 @@ namespace ImageViewer
         {
             if (e.Button == MouseButtons.Left)
             {
-                WinApi.ReleaseCapture();
-                WinApi.SendMessage(Handle, WinApi.WM_NCLBUTTONDOWN, WinApi.HT_CAPTION, IntPtr.Zero);
+                //WinApi.ReleaseCapture();
+                //WinApi.SendMessage(Handle, WinApi.WM_NCLBUTTONDOWN, WinApi.HT_CAPTION, IntPtr.Zero);
             }
         }
 

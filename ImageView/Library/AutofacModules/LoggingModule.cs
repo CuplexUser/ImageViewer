@@ -18,10 +18,10 @@ namespace ImageViewer.Library.AutofacModules
             }
 
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.LiterateConsole(LogEventLevel.Debug, standardErrorFromLevel: LogEventLevel.Error, formatProvider: CultureInfo.InvariantCulture)
-                .WriteTo.RollingFile(ApplicationBuildConfig.ApplicationLogFilePath(true),
+                .WriteTo.Console(LogEventLevel.Debug, standardErrorFromLevel: LogEventLevel.Error, formatProvider: CultureInfo.InvariantCulture)
+                .WriteTo.File(ApplicationBuildConfig.ApplicationLogFilePath(true),
                     fileSizeLimitBytes: 1048576,
-                    retainedFileCountLimit: 31,
+                    retainedFileCountLimit: 20,
                     restrictedToMinimumLevel: logLevel,
                     buffered: false,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.ff} [{Level}] {Message}{NewLine}{Exception}{Data}")
