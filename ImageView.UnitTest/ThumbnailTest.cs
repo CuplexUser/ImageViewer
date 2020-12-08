@@ -5,12 +5,9 @@ using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageViewer.Configuration;
 using ImageViewer.Services;
-using ImageViewer.UnitTests.Properties;
 using ImageViewer.UnitTests.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
 using ImageViewer.Models;
 

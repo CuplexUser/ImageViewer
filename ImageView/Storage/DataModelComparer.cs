@@ -13,7 +13,7 @@ namespace ImageViewer.Storage
         private readonly T _compareBase;
         public DataModelComparer(T compareBase)
         {
-            if (compareBase.GetType().GetAttribute<DataContractAttribute>().TypeId.ToString() != typeof(DataContractAttribute).FullName)
+            if (compareBase.GetType().GetAttribute<DataContractAttribute>()?.TypeId.ToString() != typeof(DataContractAttribute).FullName)
             {
                 throw new InvalidEnumArgumentException("Compare type was missing DataContract attribute");
             }
@@ -29,7 +29,7 @@ namespace ImageViewer.Storage
             }
         }
 
-        public DataModelComparer()
+        private DataModelComparer()
         {
 
         }

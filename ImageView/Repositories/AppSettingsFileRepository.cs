@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using AutoMapper;
 using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
@@ -61,6 +62,8 @@ namespace ImageViewer.Repositories
         /// </summary>
         private bool _isDirty;
 
+        private readonly IMapper _mapper;
+
 
         /// <summary>
         /// Gets the application settings.
@@ -84,8 +87,9 @@ namespace ImageViewer.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="AppSettingsFileRepository"/> class.
         /// </summary>
-        public AppSettingsFileRepository()
+        public AppSettingsFileRepository(IMapper mapper)
         {
+            _mapper = mapper;
             _fileAccessWaitHandle = new ManualResetEvent(false);
             _fileAccessWaitHandle.Set();
         }
@@ -121,8 +125,8 @@ namespace ImageViewer.Repositories
                 return true;
             }
 
-            DataModelComparer<ApplicationSettingsModel> compareSettings = new DataModelComparer<ApplicationSettingsModel>(_cmpSettings);
-            return compareSettings.Equals(_appSettings);
+            return _appSettings.Equals(_cmpSettings);
+
         }
 
         /// <summary>
@@ -187,12 +191,18 @@ namespace ImageViewer.Repositories
             _dataFileLocked = true;
             _fileAccessWaitHandle.Reset();
 
+            if (_appSettings == null)
+            {
+                return false;
+            }
+
             try
             {
                 string path = GetFullPathToSettingsFile();
 
                 var storageManager = new StorageManager(new StorageManagerSettings(false, 1, true, SecurityHelper.GetSecurePassword(AppSettingsPassword)));
-                result = storageManager.SerializeObjectToFile(_appSettings, path, null);
+                ApplicationSettingsDataModel applicationSettingsData = _mapper.Map<ApplicationSettingsDataModel>(_appSettings);
+                result = storageManager.SerializeObjectToFile(applicationSettingsData, path, null);
                 if (result)
                 {
                     IsDirty = false;
@@ -224,8 +234,11 @@ namespace ImageViewer.Repositories
             {
                 string path = GetFullPathToSettingsFile();
 
+                _mapper.ConfigurationProvider.AssertConfigurationIsValid();
+
                 var storageManager = new StorageManager(new StorageManagerSettings(false, 1, true, SecurityHelper.GetSecurePassword(AppSettingsPassword)));
-                storageManager.SerializeObjectToFile(_appSettings, path, null);
+                var applicationSettingsData = _mapper.Map<ApplicationSettingsDataModel>(_appSettings);
+                storageManager.SerializeObjectToFile(applicationSettingsData, path, null);
                 IsDirty = false;
                 OnSaveSettingsCompleted();
             }

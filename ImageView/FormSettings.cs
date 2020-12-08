@@ -247,11 +247,20 @@ namespace ImageViewer
             lblCacheItems.Text = _imageCacheService.CachedImages.ToString();
             lblUsedSpace.Text = GeneralConverters.FormatFileSizeToString(cacheUsage, 2);
             lblFreeSpace.Text = GeneralConverters.FormatFileSizeToString(cacheSize - cacheUsage);
-            pbarPercentUsed.Value = Convert.ToInt32((double)cacheUsage / cacheSize * 100);
 
+            pbarPercentUsed.Value = cacheSize == 0 ? 0 : Convert.ToInt32((double)cacheUsage / cacheSize * 100);
             trackBarCacheSize.Minimum = Convert.ToInt32(minSize / TrackbarDivider);
             trackBarCacheSize.Maximum = Convert.ToInt32(maxSize / TrackbarDivider);
-            trackBarCacheSize.Value = Convert.ToInt32(cacheSize / TrackbarDivider);
+            if (cacheSize == 0)
+            {
+                trackBarCacheSize.Value = trackBarCacheSize.Minimum;
+
+            }
+            else
+            {
+                trackBarCacheSize.Value = Convert.ToInt32(cacheSize / TrackbarDivider);
+            }
+            
             UpdateCacheSizeLabel();
         }
 

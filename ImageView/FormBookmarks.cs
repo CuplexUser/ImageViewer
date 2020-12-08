@@ -52,7 +52,7 @@ namespace ImageViewer
             bookmarksDataGridView.RowPrePaint += bookmarksDataGridView_RowPrePaint;
             _bookmarkManager.OnBookmarksUpdate += Instance_OnBookmarksUpdate;
             bookmarksTree.AfterSelect += BookmarksTree_AfterSelect;
-            InitBookmarksDataGridViev();
+            InitBookmarksDataGridView();
             _treeViewDataContext = new TreeViewDataContext(bookmarksTree, _bookmarkManager.RootFolder);
             _overlayFormManager.HideImageDelay = 250;
             _overlayFormManager.ShowImageDelay = 500;
@@ -422,7 +422,7 @@ namespace ImageViewer
             _treeViewDataContext.BindData();
         }
 
-        private void InitBookmarksDataGridViev()
+        private void InitBookmarksDataGridView()
         {
             // Set a cell padding to provide space for the top of the focus 
             // rectangle and for the content that spans multiple columns. 

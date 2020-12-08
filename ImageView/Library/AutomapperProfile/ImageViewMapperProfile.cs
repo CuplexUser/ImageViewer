@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Windows.Forms;
+using AutoMapper;
+using ImageViewer.DataContracts;
 using ImageViewer.Models;
 
 namespace ImageViewer.Library.AutoMapperProfile
@@ -9,6 +11,8 @@ namespace ImageViewer.Library.AutoMapperProfile
         {
             ThumbnailDatabase.CreateMapping(this);
             ThumbnailEntry.CreateMapping(this);
+            ApplicationSettingsModel.CreateMapping(this);
+            FormStateModel<Form>.CreateMapping(this);
         }
     }
 }

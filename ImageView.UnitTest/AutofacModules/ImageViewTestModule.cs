@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Windows.Forms;
 using Autofac;
 using Autofac.Core;
 using GeneralToolkitLib.Storage.Memory;
@@ -11,7 +9,6 @@ using ImageViewer.Repositories;
 using ImageViewer.Services;
 using ImageViewer.Storage;
 using ImageViewer.UnitTests.TestHelper;
-using NSubstitute;
 using Module = Autofac.Module;
 
 namespace ImageViewer.UnitTests.AutofacModules

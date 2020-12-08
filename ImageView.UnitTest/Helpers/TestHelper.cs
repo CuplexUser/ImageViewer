@@ -1,8 +1,4 @@
-﻿using System.Windows.Forms;
-using Autofac;
-using Moq;
-
-namespace ImageViewer.UnitTests.Helpers
+﻿namespace ImageViewer.UnitTests.Helpers
 {
     public class TestHelper
     {

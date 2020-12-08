@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using Autofac;
 using GeneralToolkitLib.Storage.Registry;
 using ImageViewer.Collections;
 using ImageViewer.Events;
@@ -18,32 +19,30 @@ namespace ImageViewer.Services
     public sealed class ApplicationSettingsService : ServiceBase
     {
         private readonly IRegistryAccess _registryRepository;
-        private readonly AppSettingsFileRepository _fileRepository;
+        private readonly AppSettingsFileRepository _appSettingsFileRepository;
 
         public string CompanyName { get; } = Application.CompanyName;
 
         public string ProductName { get; } = Application.ProductName;
-
-
         private ApplicationSettingsModel _applicationSettings;
         private RegistryAppSettings _registryAppSettings;
+        private readonly ILifetimeScope _scope;
 
-        private readonly VolatileSettingsCollection _volatileSettings;
-
-
-        public ApplicationSettingsService(AppSettingsFileRepository appSettingsFileRepository, IRegistryAccess registryAccess, VolatileSettingsCollection volatileSettings)
+        public ApplicationSettingsService(AppSettingsFileRepository appSettingsAppSettingsFileRepository, IRegistryAccess registryAccess, VolatileSettingsCollection volatileSettings, ILifetimeScope scope)
         {
             _registryRepository = registryAccess;
-            _volatileSettings = volatileSettings;
-            _fileRepository = appSettingsFileRepository;
+            SessionStorage = volatileSettings;
+            _scope = scope;
+
+            _appSettingsFileRepository = appSettingsAppSettingsFileRepository;
+            _applicationSettings=  ApplicationSettingsModel.CreateDefaultSettings();
 
             try
             {
-                bool result = _fileRepository.LoadSettings();
+                bool result = _appSettingsFileRepository.LoadSettings();
                 if (!result)
                 {
-                    _fileRepository = new AppSettingsFileRepository();
-                    _fileRepository.SaveSettings();
+                    _appSettingsFileRepository.SaveSettings();
                 }
 
                 result = result & _registryRepository.TryReadObjectFromRegistry(out _registryAppSettings);
@@ -63,21 +62,15 @@ namespace ImageViewer.Services
 
             }
 
-            _fileRepository.LoadSettingsCompleted += _appSettingsFileRepository_LoadSettingsCompleted;
+            _appSettingsFileRepository.LoadSettingsCompleted += AppSettingsAppSettingsFileRepositoryLoadSettingsCompleted;
         }
 
 
-        // Unit tests
-        //public static ApplicationSettingsService CreateService(AppSettingsFileRepository appSettingsFileRepository)
-        //{
-        //    return new ApplicationSettingsService(appSettingsFileRepository, new LocalStorageRegistryAccess(Application.CompanyName, Application.ProductName));
-        //}
-
-        public VolatileSettingsCollection SessionStorage => _volatileSettings;
+        public VolatileSettingsCollection SessionStorage { get; }
 
         public void SetSettingsStateModified()
         {
-            _fileRepository.NotifySettingsChanged();
+            _appSettingsFileRepository.NotifySettingsChanged();
         }
 
         public ApplicationSettingsModel Settings
@@ -143,18 +136,18 @@ namespace ImageViewer.Services
 
         private bool LoadLocalStorageSettings()
         {
-            if (_applicationSettings != null && !_fileRepository.IsDirty)
+            if (_applicationSettings != null && !_appSettingsFileRepository.IsDirty)
                 return true;
 
-            return _fileRepository.LoadSettings();
+            return _appSettingsFileRepository.LoadSettings();
         }
 
 
-        private void _appSettingsFileRepository_LoadSettingsCompleted(object sender, EventArgs e)
+        private void AppSettingsAppSettingsFileRepositoryLoadSettingsCompleted(object sender, EventArgs e)
         {
-            if (_fileRepository.AppSettings != null)
+            if (_appSettingsFileRepository.AppSettings != null)
             {
-                _applicationSettings = _fileRepository.AppSettings;
+                _applicationSettings = _appSettingsFileRepository.AppSettings;
             }
 
         }
@@ -175,7 +168,7 @@ namespace ImageViewer.Services
 
             try
             {
-                result = _fileRepository.SaveSettings();
+                result = _appSettingsFileRepository.SaveSettings();
                 if (!result)
                 {
                     return false;
@@ -197,31 +190,31 @@ namespace ImageViewer.Services
 
         public void SaveFormState(FormStateModel<Form> formState)
         {
-            if (_fileRepository.AppSettings.FormStateDictionary == null)
+            if (_appSettingsFileRepository.AppSettings.FormStateDictionary == null)
             {
-                _fileRepository.AppSettings.InitFormStateDictionary();
+                _appSettingsFileRepository.AppSettings.InitFormStateDictionary();
             }
 
-            if (_fileRepository.AppSettings.FormStateDictionary.ContainsKey(formState.GetType().Name))
+            if (_appSettingsFileRepository.AppSettings.FormStateDictionary.ContainsKey(formState.GetType().Name))
             {
-                _fileRepository.AppSettings.FormStateDictionary[formState.GetType().Name] = formState;
+                _appSettingsFileRepository.AppSettings.FormStateDictionary[formState.GetType().Name] = formState;
             }
             else
             {
-                _fileRepository.AppSettings.FormStateDictionary.Add(formState.GetType().Name, formState);
+                _appSettingsFileRepository.AppSettings.FormStateDictionary.Add(formState.GetType().Name, formState);
             }
         }
 
         public void RegisterFormStateOnClose(Form form)
         {
             string formName = form.GetType().Name;
-            var fileDbAppSettings = _fileRepository.AppSettings;
+            var fileDbAppSettings = _appSettingsFileRepository.AppSettings;
             bool existingForm = fileDbAppSettings.FormStateDictionary.Any(x => x.Key == formName);
 
             form.SaveFormState(this);
             
-            _fileRepository.NotifySettingsChanged();
-            _fileRepository.SaveSettings();
+            _appSettingsFileRepository.NotifySettingsChanged();
+            _appSettingsFileRepository.SaveSettings();
         }
 
         internal void SaveFormSettings(Type type, FormMain form)

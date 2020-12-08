@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
 using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
 
@@ -357,8 +354,8 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The form state list.
         /// </value>
-        [DataMember(Name = "FormStateDictionary", Order = 32, IsRequired = true, EmitDefaultValue = true)]
-        public Dictionary<string, FormStateDataModel> FormStateDictionary { get; protected set; }
+        [DataMember(Name = "FormStateHashSet", Order = 32, IsRequired = true, EmitDefaultValue = true)]
+        public HashSet<FormStateDataModel> FormStateHashSet { get; protected set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [bookmarks show maximized image area].
@@ -380,9 +377,9 @@ namespace ImageViewer.DataContracts
 
         public void InitFormDictionary()
         {
-            if (FormStateDictionary == null)
+            if (FormStateHashSet == null)
             {
-                FormStateDictionary = new Dictionary<string, FormStateDataModel>();
+                FormStateHashSet = new HashSet<FormStateDataModel>();
             }
         }
     }

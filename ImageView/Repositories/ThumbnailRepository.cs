@@ -18,7 +18,7 @@ using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using JetBrains.Annotations;
-using MoreLinq;
+using MoreLinq.Extensions;
 using Serilog;
 
 namespace ImageViewer.Repositories

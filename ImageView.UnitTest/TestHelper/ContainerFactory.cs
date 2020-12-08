@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Reflection;
 using Autofac;
-using ImageViewer.Configuration;
 using AutofacConfig = ImageViewer.UnitTests.Configuration.AutofacConfig;
 
 namespace ImageViewer.UnitTests.TestHelper

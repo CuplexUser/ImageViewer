@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Autofac;
+using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using ImageViewer.Library.AutofacModules;
 
@@ -34,7 +35,7 @@ namespace ImageViewer.Configuration
             builder.RegisterAssemblyModules(thisAssembly);
             var container = builder.Build();
 
-
+        
             return container;
         }
 

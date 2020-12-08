@@ -26,26 +26,8 @@ namespace ImageViewer.Repositories
 
         private readonly FileManager _fileManager;
 
-        /// <summary>
-        ///     The cache size
-        /// </summary>
-        private long _cacheSize;
 
-        /// <summary>
-        /// The approximation cache size
-        /// </summary>
-        private long _approximationCacheSize;
-
-        /// <summary>
-        ///     The cache size is valid
-        /// </summary>
-        private bool _cacheSizeIsValid;
-
-        /// <summary>
-        ///     The maximum cache size
-        /// </summary>
-        private long _maxCacheSize;
-
+        private CacheUsage _cashInfo;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImageCacheRepository" /> class.
@@ -54,7 +36,7 @@ namespace ImageViewer.Repositories
         {
             _fileManager = fileManager;
             _cachedImages = new Dictionary<string, CachedImage>();
-            _maxCacheSize = ImageCacheService.DefaultCacheSize;
+            _cashInfo = new CacheUsage { MaxCacheSize = ImageCacheService.DefaultCacheSize };
         }
 
         /// <summary>
@@ -67,15 +49,21 @@ namespace ImageViewer.Repositories
         {
             get
             {
-                if (!_cacheSizeIsValid)
+                if (_cashInfo == null)
                 {
-                    _cacheSize = _cachedImages.Select(x => x.Value.Size).Sum();
-                    _approximationCacheSize = _cacheSize;
-                    _cacheSizeIsValid = true;
+                    _cashInfo = new CacheUsage();
                 }
 
-                return _cacheSize;
+
+                if (!_cashInfo.IsUpdated)
+                {
+                    _cashInfo.CacheSize = _cachedImages.Select(x => x.Value.Size).Sum();
+                    _cashInfo.IsUpdated = true;
+                }
+
+                return _cashInfo.CacheSize;
             }
+
         }
 
         /// <summary>
@@ -115,6 +103,7 @@ namespace ImageViewer.Repositories
             if (_cachedImages.ContainsKey(fileName))
             {
                 _cachedImages.Remove(fileName);
+                _cashInfo.IsUpdated = false;
             }
         }
 
@@ -149,10 +138,6 @@ namespace ImageViewer.Repositories
             {
                 TruncateCache(truncatePriority);
             }
-
-            _cacheSize = cacheSize;
-            _approximationCacheSize = cacheSize;
-            _maxCacheSize = cacheSize;
         }
 
         #endregion
@@ -162,18 +147,18 @@ namespace ImageViewer.Repositories
             if (IsCacheCloseToFull())
             {
                 long currentSize = CacheSize;
-                long truncatedSize= Convert.ToInt64( Convert.ToDouble( currentSize)*0.7d) * currentSize;
+                long truncatedSize = Convert.ToInt64(Convert.ToDouble(currentSize) * 0.7d) * currentSize;
                 SetCacheSize(truncatedSize, ImageCacheService.CacheTruncatePriority.RemoveOldest);
                 Log.Debug("Auto truncated cache size to {truncatedSize}:", truncatedSize);
 
-                _approximationCacheSize = CacheSize;
+                _cashInfo.IsUpdated = false;
             }
         }
 
 
         private bool IsCacheCloseToFull()
         {
-            return Convert.ToDouble(_approximationCacheSize) * 1.2d >= _maxCacheSize;
+            return _cashInfo.CacheSize * 1.2d >= _cashInfo.MaxCacheSize;
         }
 
         /// <summary>
@@ -186,8 +171,8 @@ namespace ImageViewer.Repositories
             var imageModel = new CachedImage();
             imageModel.SetImage(ImageConverter, fileName);
             _cachedImages.Add(fileName, imageModel);
-            _cacheSizeIsValid = false;
-            _approximationCacheSize += imageModel.Size;
+            _cashInfo.CacheSize += imageModel.Size;
+
             AutoTruncateCacheIfCloseToFull();
 
             return imageModel;
@@ -210,8 +195,7 @@ namespace ImageViewer.Repositories
         /// <param name="truncatePriority">The truncate priority.</param>
         private void TruncateCache(ImageCacheService.CacheTruncatePriority truncatePriority)
         {
-            _cacheSizeIsValid = false;
-            long truncatedSize = Convert.ToInt64(_maxCacheSize * 0.75d);
+            long truncatedSize = Convert.ToInt64(_cashInfo.MaxCacheSize * 0.75d);
 
             if (truncatePriority == ImageCacheService.CacheTruncatePriority.RemoveOldest)
             {
@@ -219,7 +203,6 @@ namespace ImageViewer.Repositories
                 {
                     string oldestImageFilename = _cachedImages.Values.OrderByDescending(x => x.AddedToCacheTime).First().Filename;
                     _cachedImages.Remove(oldestImageFilename);
-                    _cacheSizeIsValid = false;
                 }
             }
             else
@@ -228,9 +211,20 @@ namespace ImageViewer.Repositories
                 {
                     string oldestImageFilename = _cachedImages.Values.OrderByDescending(x => x.Size).First().Filename;
                     _cachedImages.Remove(oldestImageFilename);
-                    _cacheSizeIsValid = false;
                 }
             }
+
+            _cashInfo.IsUpdated = false;
+            Log.Information("Cache Truncated to " + CacheSize + " bytes");
+        }
+
+        private class CacheUsage
+        {
+            public long CacheSize { get; set; }
+
+            public long MaxCacheSize { get; set; }
+
+            public bool IsUpdated { get; set; }
         }
     }
 }

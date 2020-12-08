@@ -1,14 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
-using Autofac.Core;
 using AutoMapper;
-using ImageViewer.Library.AutofacModules;
-using ImageViewer.Library.AutoMapperProfile;
 using ImageViewer.Repositories;
-using Moq;
-using NSubstitute;
 using NSubstitute.Extensions;
 using Serilog;
 using Serilog.Core;
@@ -26,21 +19,19 @@ namespace ImageViewer.UnitTests.Configuration
 
             builder.RegisterAssemblyModules(thisAssembly);
             builder.RegisterAssemblyModules(ImageViewer.Configuration.AutofacConfig.GetMainAssembly());
-
-            
+            //builder.RegisterAssemblyModules(ImageViewer.Configuration.AutofacConfig.GetGUIAssembly());
 
 
 
             builder.RegisterAssemblyTypes(typeof(RepositoryBase).Assembly)
-                .AssignableTo<RepositoryBase>()
-                .AsSelf()
-                .AsImplementedInterfaces()
-                .SingleInstance();
+                   .AssignableTo<RepositoryBase>()
+                   .AsSelf()
+                   .AsImplementedInterfaces()
+                   .SingleInstance();
 
             builder.Register(context => context.Resolve<MapperConfiguration>()
                         .CreateMapper())
                     .As<IMapper>()
-                    .AutoActivate()
                     .SingleInstance();
 
             //builder.Register()

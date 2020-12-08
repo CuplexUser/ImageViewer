@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using AutoMapper;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Configuration;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.Extensions;
+
 namespace ImageViewer.Models
 {
-    public class ApplicationSettingsModel
+    public class ApplicationSettingsModel : IEquatable<ApplicationSettingsModel>
     {
         public static ApplicationSettingsModel CreateDefaultSettings()
         {
@@ -345,6 +347,91 @@ namespace ImageViewer.Models
                 PasswordProtectBookmarks = true;
                 PasswordDerivedString = GeneralConverters.GeneratePasswordDerivedString(verifiedPassword);
                 DefaultKey = null;
+            }
+        }
+
+        public static void CreateMapping(IProfileExpression expression)
+        {
+            expression.CreateMap<ApplicationSettingsModel, ApplicationSettingsDataModel>()
+                      .ForMember(s => s.FormStateHashSet, o => o.MapFrom(d => d.FormStateDictionary.ToHashSet()))
+                      .ForMember(s => s.MainWindowBackgroundColor, o => o.MapFrom(d => d.MainWindowBackgroundColor))
+                      .ForMember(s => s.NextImageAnimation, o => o.MapFrom(d => d.NextImageAnimation))
+                      .ForMember(s => s.WindowDockingProximity, o => o.MapFrom(d => d.WindowDockingProximity))
+                      .ReverseMap()
+                      .ForMember(s => s.WindowDockingProximity, o => o.MapFrom(d => d.WindowDockingProximity))
+                      .ForMember(s => s.FormStateDictionary, o => o.MapFrom(d => d.FormStateHashSet.ToDictionary(model => model.FormTypeFullName)))
+                      .ForMember(s => s.MainWindowBackgroundColor, o => o.MapFrom(d => d.MainWindowBackgroundColor))
+                      .ForMember(s => s.WindowDockingProximity, o => o.MapFrom(d => d.WindowDockingProximity))
+                      .ForMember(s => s.AppSettingsUUID, o => o.MapFrom(d => d.AppSettingsUUID))
+                      .ForMember(s => s.AutoRandomizeCollection, o => o.MapFrom(d => d.AutoRandomizeCollection));
+
+        }
+
+        public bool Equals(ApplicationSettingsModel other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return ShowImageViewFormsInTaskBar == other.ShowImageViewFormsInTaskBar && AlwaysOntop == other.AlwaysOntop && AutoRandomizeCollection == other.AutoRandomizeCollection && 
+                   Equals(LastUsedSearchPaths, other.LastUsedSearchPaths) && NextImageAnimation == other.NextImageAnimation && SlideshowInterval == other.SlideshowInterval && 
+                   ImageTransitionTime == other.ImageTransitionTime && EnableAutoLoadFunctionFromMenu == other.EnableAutoLoadFunctionFromMenu && EnableWindowDocking == other.EnableWindowDocking && 
+                   WindowDockingProximity == other.WindowDockingProximity && PrimaryImageSizeMode == other.PrimaryImageSizeMode && ScreenMinXOffset == other.ScreenMinXOffset && 
+                   ScreenWidthOffset == other.ScreenWidthOffset && PasswordProtectBookmarks == other.PasswordProtectBookmarks && PasswordDerivedString == other.PasswordDerivedString && 
+                   UseSavedMainFormPosition == other.UseSavedMainFormPosition && ShowSwitchImageButtons == other.ShowSwitchImageButtons && LastFolderLocation == other.LastFolderLocation &&
+                   ShowNextPrevControlsOnEnterWindow == other.ShowNextPrevControlsOnEnterWindow && ImageCacheSize == other.ImageCacheSize && DefaultKey == other.DefaultKey &&
+                   ThumbnailSize == other.ThumbnailSize && MaxThumbnails == other.MaxThumbnails && ConfirmApplicationShutdown == other.ConfirmApplicationShutdown && 
+                   Equals(MainWindowBackgroundColor, other.MainWindowBackgroundColor) && AutomaticUpdateCheck == other.AutomaticUpdateCheck && LastUpdateCheck.Equals(other.LastUpdateCheck) 
+                && ToggleSlideshowWithThirdMouseButton == other.ToggleSlideshowWithThirdMouseButton && AutoHideCursor == other.AutoHideCursor && AutoHideCursorDelay == other.AutoHideCursorDelay 
+                && AppSettingsUUID.Equals(other.AppSettingsUUID) && Equals(FormStateDictionary, other.FormStateDictionary) && BookmarksShowMaximizedImageArea == other.BookmarksShowMaximizedImageArea
+                && BookmarksShowOverlayWindow == other.BookmarksShowOverlayWindow;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ApplicationSettingsModel)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = ShowImageViewFormsInTaskBar.GetHashCode();
+                hashCode = (hashCode * 397) ^ AlwaysOntop.GetHashCode();
+                hashCode = (hashCode * 397) ^ AutoRandomizeCollection.GetHashCode();
+                hashCode = (hashCode * 397) ^ (LastUsedSearchPaths != null ? LastUsedSearchPaths.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int)NextImageAnimation;
+                hashCode = (hashCode * 397) ^ SlideshowInterval;
+                hashCode = (hashCode * 397) ^ ImageTransitionTime;
+                hashCode = (hashCode * 397) ^ EnableAutoLoadFunctionFromMenu.GetHashCode();
+                hashCode = (hashCode * 397) ^ EnableWindowDocking.GetHashCode();
+                hashCode = (hashCode * 397) ^ (int)WindowDockingProximity;
+                hashCode = (hashCode * 397) ^ PrimaryImageSizeMode;
+                hashCode = (hashCode * 397) ^ ScreenMinXOffset;
+                hashCode = (hashCode * 397) ^ ScreenWidthOffset;
+                hashCode = (hashCode * 397) ^ PasswordProtectBookmarks.GetHashCode();
+                hashCode = (hashCode * 397) ^ (PasswordDerivedString != null ? PasswordDerivedString.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ UseSavedMainFormPosition.GetHashCode();
+                hashCode = (hashCode * 397) ^ ShowSwitchImageButtons.GetHashCode();
+                hashCode = (hashCode * 397) ^ (LastFolderLocation != null ? LastFolderLocation.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ShowNextPrevControlsOnEnterWindow.GetHashCode();
+                hashCode = (hashCode * 397) ^ ImageCacheSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ (DefaultKey != null ? DefaultKey.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ ThumbnailSize;
+                hashCode = (hashCode * 397) ^ MaxThumbnails;
+                hashCode = (hashCode * 397) ^ ConfirmApplicationShutdown.GetHashCode();
+                hashCode = (hashCode * 397) ^ (MainWindowBackgroundColor != null ? MainWindowBackgroundColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ AutomaticUpdateCheck.GetHashCode();
+                hashCode = (hashCode * 397) ^ LastUpdateCheck.GetHashCode();
+                hashCode = (hashCode * 397) ^ ToggleSlideshowWithThirdMouseButton.GetHashCode();
+                hashCode = (hashCode * 397) ^ AutoHideCursor.GetHashCode();
+                hashCode = (hashCode * 397) ^ AutoHideCursorDelay;
+                hashCode = (hashCode * 397) ^ AppSettingsUUID.GetHashCode();
+                hashCode = (hashCode * 397) ^ (FormStateDictionary != null ? FormStateDictionary.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ BookmarksShowMaximizedImageArea.GetHashCode();
+                hashCode = (hashCode * 397) ^ BookmarksShowOverlayWindow.GetHashCode();
+                return hashCode;
             }
         }
     }

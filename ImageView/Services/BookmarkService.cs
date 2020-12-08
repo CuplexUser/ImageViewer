@@ -52,7 +52,25 @@ namespace ImageViewer.Services
             if (!File.Exists(filename))
                 return false;
 
-            bool loadSuccessful = _bookmarkManager.LoadFromFile(filename, password);
+            bool loadSuccessful = false;
+
+            try
+            {
+                loadSuccessful = _bookmarkManager.LoadFromFile(filename, password);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "Failed To Load bokmarksFile");
+
+            }
+            finally
+            {
+                if (!loadSuccessful)
+                {
+                    File.Delete(filename);
+                }
+            }
+
             if (loadSuccessful)
             {
                 _passwordStorage.Set(_protectedMemoryStorageKey, password);
