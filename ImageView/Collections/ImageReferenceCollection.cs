@@ -57,7 +57,10 @@ namespace ImageViewer.Collections
             }
         }
 
-        public int ImageCount => _imageLoaderService.ImageReferenceList?.Count ?? 0;
+        public int ImageCount
+        {
+            get => _imageLoaderService.ImageReferenceList?.Count ?? 0;
+        }
 
         public ImageReferenceElement GetNextImage()
         {
@@ -77,7 +80,7 @@ namespace ImageViewer.Collections
                 index = 0;
             }
 
-            return _imageLoaderService.ImageReferenceList[_randomImagePosList[index]]; ;
+            return _imageLoaderService.ImageReferenceList[_randomImagePosList[index]];
         }
 
         public ImageReferenceElement GetPreviousImage()

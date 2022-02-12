@@ -39,7 +39,7 @@ namespace ImageViewer
         private Point _mouseDown;
         private bool _mouseHover;
         private MouseHoverInfo _mouseHoverInfo;
-        private bool _mousePressed; // true as long as left mousebutton is pressed
+        private bool _mousePressed; // true as long as left mouse button is pressed
         private bool _requireFocusNotification = true;
         private bool _showSwitchImgOnMouseOverWindow;
         private bool _showSwitchImgPanel;
@@ -101,7 +101,7 @@ namespace ImageViewer
         {
             _switchImgButtonsEnabled = _applicationSettingsService.Settings.ShowSwitchImageButtons;
             _showSwitchImgOnMouseOverWindow = _applicationSettingsService.Settings.ShowNextPrevControlsOnEnterWindow;
-            pictureBox.BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
+            pictureBox.BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor;
             _mouseHoverInfo = _switchImgButtonsEnabled ? new MouseHoverInfo() : null;
         }
         public IDisposable Subscribe(IObserver<ImageViewFormInfoBase> observer)

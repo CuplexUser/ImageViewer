@@ -7,6 +7,7 @@ using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Services;
 using JetBrains.Annotations;
+using Serilog;
 
 namespace ImageViewer.Repositories
 {
@@ -94,6 +95,13 @@ namespace ImageViewer.Repositories
             }
 
             var imageModel = CreateCachedImageModel(fileName);
+
+            // Make sure we dont expand the cache size indefinitely by never removing anything from the image cache.
+            if (CacheSize >= _maxCacheSize)
+            {
+                Log.Debug("Truncating Image cache on Cache size: {CacheSize}", CacheSize);
+                TruncateCache(ImageCacheService.CacheTruncatePriority.RemoveOldest);
+            }
 
             return imageModel;
         }

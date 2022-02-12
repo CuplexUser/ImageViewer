@@ -1,18 +1,13 @@
-﻿using System;
-using Autofac;
-using AutoMapper;
+﻿using Autofac;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
-using ImageViewer.Configuration;
+using ImageViewer.Models;
 using ImageViewer.Services;
-using ImageViewer.UnitTests.Properties;
 using ImageViewer.UnitTests.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
+using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
-using ImageViewer.Models;
 
 namespace ImageViewer.UnitTests
 {
@@ -22,21 +17,18 @@ namespace ImageViewer.UnitTests
     {
         private static readonly string TestDirectory = ContainerFactory.GetTestDirectory();
         private static readonly string[] TestImages = { "testImg.jpg", "testImg2.jpg", "testImg3.jpg" };
-        private static ILifetimeScope _scope;
+        private static ILifetimeScope _lifetimeScope;
         private static IContainer _container;
         private static ImageReferenceElement _genericImageRef;
-        private const string TestDataPath = "c:\\temp\\";
-
-
-        private IMapper _mapper;
-
-        private ILifetimeScope _lifetimeScope;
+        private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
 
         [ClassInitialize]
         public static void TestClassInit(TestContext testContext)
         {
+            if (!Directory.Exists(TestDataPath))
+                Directory.CreateDirectory(TestDataPath);
 
-            GlobalSettings.UnitTestInitialize(TestDataPath);
+            GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
             _genericImageRef = new ImageReferenceElement
@@ -50,52 +42,30 @@ namespace ImageViewer.UnitTests
             };
             _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
 
-            _container = ContainerFactory.CreateGenericContainerForApp();
-            _scope = _container.BeginLifetimeScope();
+            _container = ContainerFactory.CreateUnitTestContainer();
+            _lifetimeScope = _container.BeginLifetimeScope();
 
 
-            //if (!Directory.Exists(TestDirectory))
-            //    Directory.CreateDirectory(TestDirectory);
-            //else
-            //    ClearTestDirectory();
-
-            //ApplicationBuildConfig.SetOverrideUserDataPath(TestDirectory);
-
-            //// Create test data
-            //Image img = Resources.testImg;
-            //img.Save(Path.Combine(TestDirectory, TestImages[0]));
-
-            //img = Resources.anonymus;
-            //img.Save(Path.Combine(TestDirectory, TestImages[1]));
-
-            //img = Resources.anonymus_small;
-            //img.Save(Path.Combine(TestDirectory, TestImages[2]));
-
-            //_applicationBuildConfig = Substitute.For<IApplicationBuildConfig>();
-            //_applicationBuildConfig.UserDataPath.Returns(TestDirectory);
-            //_applicationBuildConfig.DebugMode.Returns(true);
         }
 
         [ClassCleanup]
         public static void TestClassCleanup()
         {
+            _lifetimeScope.Dispose();
+            _container.Dispose();
             ClearTestDirectory();
         }
 
         [TestInitialize]
         public void ThumbnailTestInitialize()
         {
-            _container = AutofacConfig.CreateContainer();
-            _lifetimeScope = _container.BeginLifetimeScope();
-            _mapper = _lifetimeScope.Resolve<IMapper>();
+
         }
 
         [TestCleanup]
         public void ThumbnailTestCleanup()
         {
-            _mapper = null;
-            _lifetimeScope.Dispose();
-            _container.Dispose();
+
         }
 
         private static void ClearTestDirectory()
@@ -112,7 +82,7 @@ namespace ImageViewer.UnitTests
         {
             using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
-                GlobalSettings.UnitTestInitialize("ImageViewTest");
+                GlobalSettings.Settings.UnitTestInitialize("ImageViewTest");
 
                 var thumbnailService = scope.Resolve<ThumbnailService>();
 
@@ -132,16 +102,19 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void ThumbnailLoadDatabase()
         {
-            // Test database is already created by TestClassInit
-            var thumbnailService = _lifetimeScope.Resolve<ThumbnailService>();
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
+            {
+                // Test database is already created by TestClassInit
+                var thumbnailService = scope.Resolve<ThumbnailService>();
 
-            // save Database first
-            thumbnailService.ClearDatabase();
-            thumbnailService.SaveThumbnailDatabase();
+                // save Database first
+                thumbnailService.ClearDatabase();
+                thumbnailService.SaveThumbnailDatabase();
 
-            bool result = thumbnailService.LoadThumbnailDatabase();
-            Assert.IsTrue(result, "Load thumbnail database failed");
-            Assert.AreEqual(thumbnailService.GetNumberOfCachedThumbnails(), 3, "Database did not contain 3 items");
+                bool result = thumbnailService.LoadThumbnailDatabase();
+                Assert.IsTrue(result, "Load thumbnail database failed");
+                Assert.AreEqual(thumbnailService.GetNumberOfCachedThumbnails(), 3, "Database did not contain 3 items");
+            }
         }
 
         [TestMethod]

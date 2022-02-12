@@ -15,6 +15,7 @@ using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
+using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.UserInteraction;
 using ImageViewer.Properties;
@@ -32,7 +33,6 @@ namespace ImageViewer
         private readonly BookmarkService _bookmarkService;
         private readonly FormAddBookmark _formAddBookmark;
         private readonly FormSettings _formSettings;
-        private readonly FormState _formState = new FormState();
         private readonly ImageCacheService _imageCacheService;
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
@@ -41,7 +41,6 @@ namespace ImageViewer
         private readonly PictureBox _pictureBoxAnimation = new PictureBox();
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
-        private ImageViewApplicationSettings.ChangeImageAnimation _changeImageAnimation;
         private bool _cursorVisible = true;
         private bool _dataReady;
         private FormBookmarks _formBookmarks;
@@ -56,8 +55,10 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new Rectangle(Point.Empty, new Size(25, 25));
+        private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
 
-        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ImageLoaderService imageLoaderService,
+        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
+            ImageLoaderService imageLoaderService,
             ILifetimeScope scope, UserInteractionService interactionService)
         {
             _formAddBookmark = formAddBookmark;
@@ -85,8 +86,8 @@ namespace ImageViewer
             {
                 var result = pictureBox1.AccessibilityObject?.HitTest(Cursor.Position.X, Cursor.Position.Y);
 
-                string accessable = result?.Value;
-                if (accessable == null)
+                string accessible = result?.Value;
+                if (accessible == null)
                 {
                     cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
                     //return;
@@ -188,17 +189,8 @@ namespace ImageViewer
             _changeImageAnimation = settings.NextImageAnimation;
             autoLoadPreviousFolderToolStripMenuItem.Enabled = settings.EnableAutoLoadFunctionFromMenu &&
                                                               !string.IsNullOrWhiteSpace(settings.LastFolderLocation);
-            if (settings.MainWindowBackgroundColor != null)
-            {
-                pictureBox1.BackColor = settings.MainWindowBackgroundColor.ToColor();
-                BackColor = settings.MainWindowBackgroundColor.ToColor();
-            }
-
-            if (settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
-            {
-                var formState = settings.ExtendedAppSettings.FormStateDictionary[GetType().Name];
-                RestoreFormState.SetFormSizeAndPosition(this, formState);
-            }
+            pictureBox1.BackColor = settings.MainWindowBackgroundColor;
+            BackColor = settings.MainWindowBackgroundColor;
         }
 
         private void ChangeImage(bool next)
@@ -225,12 +217,12 @@ namespace ImageViewer
             //Go Forward
             if (next)
             {
-                _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft;
+                _changeImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.SlideLeft;
                 imgRef = _imageReferenceCollection.GetNextImage();
             }
             else
             {
-                _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideRight;
+                _changeImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.SlideRight;
                 imgRef = _imageReferenceCollection.GetPreviousImage();
             }
 
@@ -242,16 +234,16 @@ namespace ImageViewer
         {
             try
             {
-                pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
+                pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
 
-                if (_applicationSettingsService.Settings.NextImageAnimation == ImageViewApplicationSettings.ChangeImageAnimation.None)
+                if (_applicationSettingsService.Settings.NextImageAnimation == ApplicationSettingsModel.ChangeImageAnimation.None)
                 {
-                    _changeImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.None;
+                    _changeImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None;
                 }
 
                 _pictureBoxAnimation.ImageLocation = null;
 
-                if (pictureBox1.Image != null && _changeImageAnimation != ImageViewApplicationSettings.ChangeImageAnimation.None)
+                if (pictureBox1.Image != null && _changeImageAnimation != ApplicationSettingsModel.ChangeImageAnimation.None)
                 {
                     _pictureBoxAnimation.Image = _imageCacheService.GetImageFromCache(imgRefElement.CompletePath);
                     _pictureBoxAnimation.Refresh();
@@ -288,7 +280,7 @@ namespace ImageViewer
             }
         }
 
-        private async Task PerformImageTransition(Image currentImage, Image nextImage, ImageViewApplicationSettings.ChangeImageAnimation animation, int animationTime)
+        private async Task PerformImageTransition(Image currentImage, Image nextImage, ApplicationSettingsModel.ChangeImageAnimation animation, int animationTime)
         {
             const int sleepTime = 1;
             _imageTransitionRunning = true;
@@ -300,31 +292,31 @@ namespace ImageViewer
                 {
                     long elapsedTime = stopwatch.ElapsedMilliseconds;
 
-                    float factor = stopwatch.ElapsedMilliseconds / (float)animationTime;
+                    float factor = stopwatch.ElapsedMilliseconds / (float) animationTime;
                     Image transitionImage;
                     switch (animation)
                     {
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft:
+                        case ApplicationSettingsModel.ChangeImageAnimation.SlideLeft:
                             transitionImage = ImageTransform.OffsetImagesHorizontal(currentImage, nextImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, false);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideRight:
+                        case ApplicationSettingsModel.ChangeImageAnimation.SlideRight:
                             transitionImage = ImageTransform.OffsetImagesHorizontal(nextImage, currentImage,
                                 new Size(pictureBox1.Width, pictureBox1.Height), factor, true);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideDown:
+                        case ApplicationSettingsModel.ChangeImageAnimation.SlideDown:
                             transitionImage = ImageTransform.OffsetImagesVertical(nextImage, currentImage,
                                 new Size(nextImage.Width, nextImage.Height), factor, true);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
+                        case ApplicationSettingsModel.ChangeImageAnimation.SlideUp:
                             transitionImage = ImageTransform.OffsetImagesVertical(currentImage, nextImage,
                                 new Size(Math.Max(nextImage.Width, currentImage.Width), nextImage.Height), factor, false);
                             break;
 
-                        case ImageViewApplicationSettings.ChangeImageAnimation.FadeIn:
+                        case ApplicationSettingsModel.ChangeImageAnimation.FadeIn:
                             int width = nextImage.Width;
                             int height = nextImage.Height;
                             var nextImageBitmap = new Bitmap(nextImage, new Size(width, height));
@@ -368,7 +360,7 @@ namespace ImageViewer
 
                 stopwatch.Stop();
                 Log.Verbose("Image transition finished after " + stopwatch.ElapsedMilliseconds + " ms");
-                Invoke(new EventHandler(ImageLoadComplete), this, new EventArgs());
+                Invoke(new EventHandler(ImageLoadComplete), this, EventArgs.Empty);
             });
 
             pictureBox1.Image = nextImage.Clone() as Image;
@@ -379,19 +371,15 @@ namespace ImageViewer
         {
             if (_fullScreen)
             {
-                _formState.Restore(this);
                 menuStrip1.Visible = true;
-                BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
+                BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor;
                 ScreenSaver.Enable();
                 Cursor.Show();
                 CursorVisible = true;
             }
             else
             {
-                _formState.Save(this);
-                _formState.Maximize(this);
                 menuStrip1.Visible = false;
-
                 BackColor = Color.Black;
                 Cursor.Hide();
                 CursorVisible = false;
@@ -583,7 +571,6 @@ namespace ImageViewer
 
             DoubleBuffered = true;
             _applicationSettingsService.OnSettingsSaved += Instance_OnSettingsSaved;
-            _applicationSettingsService.OnRegistryAccessDenied += Instance_OnRegistryAccessDenied;
             _imageLoaderService.OnImportComplete += Instance_OnImportComplete;
             _imageLoaderService.OnImageWasDeleted += _imageLoaderService_OnImageWasDeleted;
 
@@ -601,19 +588,8 @@ namespace ImageViewer
             {
                 SyncUserControlStateWithAppSettings();
 
-                try
-                {
-                    var fileConfig = _applicationSettingsService.Settings.ExtendedAppSettings;
-                    if (fileConfig.FormStateDictionary.ContainsKey(GetType().Name))
-                    {
-                        var formState = fileConfig.FormStateDictionary[GetType().Name];
-                        RestoreFormState.SetFormSizeAndPosition(this, formState);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception);
-                }
+                // Restore form state
+                FormStateManager.RestoreFormState(_applicationSettingsService.Settings, this);
 
                 _changeImageAnimation = _applicationSettingsService.Settings.NextImageAnimation;
                 timerSlideShow.Interval = _applicationSettingsService.Settings.SlideshowInterval;
@@ -701,8 +677,10 @@ namespace ImageViewer
             }
 
             timerSlideShow.Enabled = false;
+            var appSettings = _applicationSettingsService.Settings;
+            FormStateManager.SaveFormState(appSettings, this);
+
             _bookmarkService.SaveBookmarks();
-            _applicationSettingsService.UpdateOrInsertFormState(RestoreFormState.GetFormState(this));
             _applicationSettingsService.SetSettingsStateModified();
             _applicationSettingsService.SaveSettings();
         }
@@ -873,7 +851,7 @@ namespace ImageViewer
 
         private void pictureBox1_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
+            pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
         }
 
         private async void pictureBoxAnimation_LoadCompleted(object sender, AsyncCompletedEventArgs e)
@@ -1087,13 +1065,13 @@ namespace ImageViewer
                     Cursor.Show();
                 }
 
-                var starupPosition = new Point(Location.X, Location.Y);
-                starupPosition.X += addBookmarkToolStripMenuItem.Width;
-                starupPosition.Y += addBookmarkToolStripMenuItem.Height + (Height - ClientSize.Height);
+                var startupPosition = new Point(Location.X, Location.Y);
+                startupPosition.X += addBookmarkToolStripMenuItem.Width;
+                startupPosition.Y += addBookmarkToolStripMenuItem.Height + (Height - ClientSize.Height);
 
                 if (_imageReferenceCollection.CurrentImage != null)
                 {
-                    _formAddBookmark.Init(starupPosition, _imageReferenceCollection.CurrentImage);
+                    _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
                     _formAddBookmark.ShowDialog(this);
                     if (_fullScreen)
                     {

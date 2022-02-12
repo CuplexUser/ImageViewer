@@ -1,20 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using AutoMapper;
-using AutoMapper.Contrib.Autofac.DependencyInjection;
 using GeneralToolkitLib.Storage.Memory;
 using GeneralToolkitLib.Storage.Registry;
 using ImageViewer.Managers;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using Module = Autofac.Module;
 
-namespace ImageViewer.Library.AutofacModules
+namespace ImageViewer.UnitTests.Configuration
 {
-    public class ImageViewModule : Module
+    public class UnitTestModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -38,7 +36,7 @@ namespace ImageViewer.Library.AutofacModules
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-            
+
             builder.RegisterType<RegistryAccess>()
                 .As<IRegistryAccess>()
                 .SingleInstance()
@@ -59,14 +57,12 @@ namespace ImageViewer.Library.AutofacModules
                             .AsSelf()
                             .AsImplementedInterfaces()
                             .SingleInstance();
-            
-            var assembly = Assembly.GetExecutingAssembly();
 
-            builder.RegisterAutoMapper(assembly);
-            builder.RegisterAssemblyTypes(assembly)
-                            .AssignableTo<Form>()
-                            .AsSelf()
-                            .InstancePerDependency();
+            //var assembly = Assembly.GetExecutingAssembly();
+            //builder.RegisterAssemblyTypes(assembly)
+            //                .AssignableTo<Form>()
+            //                .AsSelf()
+            //                .InstancePerDependency();
         }
 
         private void Handler(IActivatingEventArgs<IRegistryAccess> obj)

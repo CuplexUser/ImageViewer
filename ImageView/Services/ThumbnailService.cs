@@ -199,8 +199,7 @@ namespace ImageViewer.Services
 
         public bool OptimizeDatabase()
         {
-            ConfiguredTaskAwaitable<bool> result;
-            result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
+            ConfiguredTaskAwaitable<bool> result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
             return result.GetAwaiter().GetResult();
         }
 

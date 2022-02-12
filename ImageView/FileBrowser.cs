@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Autofac;
+using ImageViewer.Collections;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
@@ -32,7 +33,7 @@ namespace ImageViewer
 
         public string SelectedPath
         {
-            get { return _selectedPath; }
+            get => _selectedPath;
             set
             {
                 if (value == null || !File.Exists(value))

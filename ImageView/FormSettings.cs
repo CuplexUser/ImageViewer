@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
+using ImageViewer.Models;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 using Serilog;
@@ -18,7 +19,7 @@ namespace ImageViewer
         private readonly BookmarkService _bookmarkService;
         private readonly ImageCacheService _imageCacheService;
         private long _selectedCacheSize;
-        private readonly ImageViewApplicationSettings _originalSettings;
+        private readonly ApplicationSettingsModel _originalSettings;
 
         public FormSettings(BookmarkService bookmarkService, ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
         {
@@ -43,7 +44,7 @@ namespace ImageViewer
 
         private void LoadSettings()
         {
-            ImageViewApplicationSettings settings = _applicationSettingsService.Settings;
+            ApplicationSettingsModel settings = _applicationSettingsService.Settings;
             chkAutoRandomize.Checked = settings.AutoRandomizeCollection;
             chkPasswordProtectBookmarks.Checked = settings.PasswordProtectBookmarks;
             chkShowSwitchImgButtons.Checked = settings.ShowSwitchImageButtons;
@@ -67,7 +68,7 @@ namespace ImageViewer
             rbImgTransformNone.Checked = false;
             switch (settings.NextImageAnimation)
             {
-                case ImageViewApplicationSettings.ChangeImageAnimation.None:
+                case ApplicationSettingsModel.ChangeImageAnimation.None:
                     rbImgTransformNone.Checked = true;
                     break;
                 //case ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft:
@@ -82,7 +83,7 @@ namespace ImageViewer
                 //case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
                 //    rbImgTransformSlideUp.Checked = true;
                 //  break;
-                case ImageViewApplicationSettings.ChangeImageAnimation.FadeIn:
+                case ApplicationSettingsModel.ChangeImageAnimation.FadeIn:
                     rbImgTransformFadeIn.Checked = true;
                     break;
                 default:
@@ -117,7 +118,7 @@ namespace ImageViewer
             {
                 if (settings.MainWindowBackgroundColor != null)
                 {
-                    Color savedColor = ColorDataModel.CreateFromColorDataModel(settings.MainWindowBackgroundColor);
+                    Color savedColor =settings.MainWindowBackgroundColor;
                     var item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
                     backgroundColorDropdownList.SelectedItem = item;
                 }
@@ -139,7 +140,7 @@ namespace ImageViewer
             }
 
             if (rbImgTransformNone.Checked)
-                settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.None;
+                settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None;
 
             //if (rbImgTransformSlideLeft.Checked)
             //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft;
@@ -162,7 +163,7 @@ namespace ImageViewer
 
             if (rbImgTransformFadeIn.Checked)
             {
-                settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.FadeIn;
+                settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.FadeIn;
             }
 
             settings.ToggleSlideshowWithThirdMouseButton = chkToggleSlidshowWithThirdMouseButton.Checked;
@@ -171,15 +172,15 @@ namespace ImageViewer
             settings.ScreenWidthOffset = Convert.ToInt32(numericScreenWidthOffset.Value);
 
             Color selectedColor = (Color)backgroundColorDropdownList.SelectedItem;
-            settings.MainWindowBackgroundColor = ColorDataModel.CreateFromColor(selectedColor);
+            settings.MainWindowBackgroundColor = selectedColor;
             settings.AutoHideCursorDelay = Convert.ToInt32(numericAutohideCursorDelay.Value);
 
             _applicationSettingsService.Settings.ImageCacheSize = _selectedCacheSize;
             _applicationSettingsService.Settings.AutomaticUpdateCheck = ChkAutomaticallyCheckForUpdates.Checked;
             _imageCacheService.CacheSize = _selectedCacheSize;
-
-            _applicationSettingsService.SetSettingsStateModified();
+            
             _applicationSettingsService.SaveSettings();
+            _applicationSettingsService.SetSettingsStateModified();
             Close();
         }
 
@@ -205,9 +206,9 @@ namespace ImageViewer
                             return;
                         }
 
-                        _applicationSettingsService.Settings.EnablePasswordProtectBookmarks(formSetPassword.VerifiedPassword);
-                        _applicationSettingsService.SaveSettings();
-                        _bookmarkService.SaveBookmarks();
+                        //_applicationSettingsService.Settings.EnablePasswordProtectBookmarks(formSetPassword.VerifiedPassword);
+                        //_applicationSettingsService.SaveSettings();
+                        //_bookmarkService.SaveBookmarks();
                     }
                     else
                         chkPasswordProtectBookmarks.Checked = false;
@@ -222,8 +223,8 @@ namespace ImageViewer
                 {
                     if (formGetPassword.ShowDialog() == DialogResult.OK && formGetPassword.PasswordVerified)
                     {
-                        _applicationSettingsService.Settings.DisablePasswordProtectBookmarks();
-                        _applicationSettingsService.SaveSettings();
+                        //_applicationSettingsService.Settings.DisablePasswordProtectBookmarks();
+                        //_applicationSettingsService.SaveSettings();
 
                         // Check bookmark status
                         //if (BookmarkService.Instance.BookmarkManager == null)

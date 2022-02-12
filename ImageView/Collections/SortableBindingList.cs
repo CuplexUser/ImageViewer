@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace ImageViewer.Models
+namespace ImageViewer.Collections
 {
     public class SortableBindingList<T> : BindingList<T>
     {
@@ -107,7 +107,7 @@ namespace ImageViewer.Models
             ResetItems(originalList);
         }
 
-        private void ResetItems(List<T> items)
+        private void ResetItems(IReadOnlyList<T> items)
         {
             ClearItems();
 

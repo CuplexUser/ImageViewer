@@ -18,7 +18,6 @@ using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using JetBrains.Annotations;
-using MoreLinq;
 using Serilog;
 
 namespace ImageViewer.Repositories
@@ -295,7 +294,8 @@ namespace ImageViewer.Repositories
                 }
 
                 //Remove possible duplicates due to data corruption.
-                _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.DistinctBy(x => x.FullPath).AsEnumerable());
+                _thumbnailDatabase.ThumbnailEntries =
+                    new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToList());
 
                 await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries).ConfigureAwait(true);
                 _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));

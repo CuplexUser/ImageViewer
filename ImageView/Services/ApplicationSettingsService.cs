@@ -1,53 +1,32 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using GeneralToolkitLib.Storage.Registry;
-using ImageViewer.DataContracts;
-using ImageViewer.Events;
 using ImageViewer.Models;
 using ImageViewer.Repositories;
-using ImageViewer.Storage;
 using ImageViewer.Utility;
-using JetBrains.Annotations;
 using Serilog;
 
 
 namespace ImageViewer.Services
 {
-    [UsedImplicitly]
-    public sealed class ApplicationSettingsService : ServiceBase
+    public class ApplicationSettingsService : ServiceBase
     {
-        private readonly IRegistryAccess _registryRepository;
-        private readonly AppSettingsFileRepository _fileRepository;
+        private readonly AppSettingsRepository _appSettingsRepository;
+        private ApplicationSettingsModel _applicationSettings;
+        private const long MIN_CACHE_SIZE = (1024 * 1024 * 32);
+        private const long MAX_CACHE_SIZE = (1024 * 1024 * 1024);
 
-        public string CompanyName { get; } = Application.CompanyName;
-
-        public string ProductName { get; } = Application.ProductName;
-
-
-        private ImageViewApplicationSettings _applicationSettings;
-        private RegistryAppSettings _registryAppSettings;
-
-
-        public ApplicationSettingsService(AppSettingsFileRepository appSettingsFileRepository, IRegistryAccess registryAccess)
+        public ApplicationSettingsService(AppSettingsRepository appSettingsRepository)
         {
-            _registryRepository = registryAccess;
-            _fileRepository = appSettingsFileRepository;
+            _appSettingsRepository = appSettingsRepository;
 
             try
             {
-                bool result = _fileRepository.LoadSettings();
-                if (!result)
+                _applicationSettings = _appSettingsRepository.LoadSettings();
+                if (_applicationSettings == null)
                 {
-                    _fileRepository = new AppSettingsFileRepository();
-                    _fileRepository.SaveSettings();
-                }
-
-                result = result & _registryRepository.TryReadObjectFromRegistry(out _registryAppSettings);
-                if (!result || _registryAppSettings == null)
-                {
-                    _registryAppSettings = RegistryAppSettings.CreateNew(ProductName, CompanyName);
-                    _registryRepository.SaveObjectToRegistry(_registryAppSettings);
+                    _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
+                    _appSettingsRepository.SaveSettings(_applicationSettings);
                 }
 
             }
@@ -55,59 +34,22 @@ namespace ImageViewer.Services
             {
 
                 Log.Error(ex, "Fatal error encountered when accessing the registry settings");
-                _registryAppSettings = RegistryAppSettings.CreateNew(ProductName, CompanyName);
-                //MessageBox.Show(ex.Message, Resources.Fatal_error_encountered_when_accessing_the_registry_settings_please_restart_, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                throw new IOException("Application Settings could not be loaded and could not be set to default and saved");
             }
 
-            _fileRepository.LoadSettingsCompleted += _appSettingsFileRepository_LoadSettingsCompleted;
-        }
-
-
-        // Unit tests
-        public static ApplicationSettingsService CreateService(AppSettingsFileRepository appSettingsFileRepository)
-        {
-            return new ApplicationSettingsService(appSettingsFileRepository, new LocalStorageRegistryAccess(Application.CompanyName, Application.ProductName));
+            _appSettingsRepository.LoadSettingsCompleted += _appSettingsFileRepository_LoadSettingsCompleted;
         }
 
         public void SetSettingsStateModified()
         {
-            _fileRepository.NotifySettingsChanged();
+
         }
 
-        public ImageViewApplicationSettings Settings
-        {
-            get
-            {
-                while (_applicationSettings == null)
-                {
-                    if (!LoadLocalStorageSettings())
-                        throw new InvalidOperationException();
+        public ApplicationSettingsModel Settings => _applicationSettings ?? (_applicationSettings = LoadLocalStorageSettings());
 
-                    LoadLocalStorageSettings();
-                }
-
-                return _applicationSettings;
-            }
-            private set => _applicationSettings = value;
-        }
-
-        public RegistryAppSettings AppSettingsInRegistry
-        {
-            get
-            {
-                if (_registryAppSettings == null)
-                {
-                    if (!LoadRegistrySettings())
-                        throw new InvalidOperationException();
-                }
-                return _registryAppSettings;
-            }
-        }
 
         public event EventHandler OnSettingsLoaded;
         public event EventHandler OnSettingsSaved;
-        public event AccessExceptionEvent OnRegistryAccessDenied;
 
 
         public bool LoadSettings()
@@ -116,114 +58,90 @@ namespace ImageViewer.Services
 
             try
             {
-                LoadRegistrySettings();
-                LoadLocalStorageSettings();
+                _applicationSettings = _appSettingsRepository.LoadSettings();
+                ValidateSettings();
                 OnSettingsLoaded?.Invoke(this, EventArgs.Empty);
                 loadedSuccessively = true;
             }
             catch (Exception ex)
             {
-                OnRegistryAccessDenied?.Invoke(this, new AccessExceptionEventArgs(ex));
                 Log.Error(ex, "ErrorLoading AppSettings");
             }
 
             return loadedSuccessively;
         }
 
-        private bool LoadRegistrySettings()
+        private ApplicationSettingsModel LoadLocalStorageSettings()
         {
-            _registryAppSettings = _registryRepository.ReadObjectFromRegistry<RegistryAppSettings>();
-            return _registryAppSettings != null;
+            LoadSettings();
+            return _applicationSettings;
         }
 
-        private bool LoadLocalStorageSettings()
+        private void ValidateSettings()
         {
-            if (_applicationSettings != null && !_fileRepository.IsDirty)
-                return true;
+            var defSettings = AppSettingsRepository.GetDefaultApplicationSettings();
+            ModelValidator validator = new ModelValidator(_applicationSettings);
+            if (!validator.ValidateModel())
+            {
+                Log.Warning("Loaded application settings are invalid. {ErrorMessage}", validator.ValidationResults.First().ErrorMessage);
+                if (_applicationSettings.ImageCacheSize < MIN_CACHE_SIZE || _applicationSettings.ImageCacheSize > MAX_CACHE_SIZE)
+                {
+                    _applicationSettings.ImageCacheSize = defSettings.ImageCacheSize;
+                    Log.Debug("ImageCacheSize was invalid. Value changed to: {ImageCacheSize}", _applicationSettings.ImageCacheSize);
+                }
 
-            return _fileRepository.LoadSettings();
+                if (_applicationSettings.AutoHideCursorDelay < 100)
+                {
+                    _applicationSettings.AutoHideCursorDelay = defSettings.AutoHideCursorDelay;
+                    Log.Debug("AutoHideCursorDelay was invalid. Value changed to: {AutoHideCursorDelay}", _applicationSettings.AutoHideCursorDelay);
+                }
+
+                if (_applicationSettings.SlideshowInterval < 1000)
+                {
+                    _applicationSettings.SlideshowInterval = defSettings.SlideshowInterval;
+                }
+
+                //SaveSettings();
+            }
         }
-
 
         private void _appSettingsFileRepository_LoadSettingsCompleted(object sender, EventArgs e)
         {
-            if (_fileRepository.AppSettings != null)
+            if (_applicationSettings != null)
             {
-                _applicationSettings = _fileRepository.AppSettings;
+                _applicationSettings = new ApplicationSettingsModel();
             }
-
         }
+
+        public static ModelValidator CreateModelValidator(ApplicationSettingsModel model)
+        {
+            var modelValidator = new ModelValidator(model);
+            return modelValidator;
+        }
+
         public bool SaveSettings()
         {
-            bool result = true;
+            bool result;
 
             if (_applicationSettings == null)
             {
                 throw new InvalidOperationException("Cant save uninitialized Null settings");
             }
 
-            if (_registryRepository is LocalStorageRegistryAccess registryAccessStorage)
-            {
-                result = registryAccessStorage.SecureSaveDatabaseToFile();
-
-            }
-
             try
             {
-                result = _fileRepository.SaveSettings();
-                if (!result)
-                {
-                    return false;
-                }
-                Settings.RemoveDuplicateEntriesWithIgnoreCase();
-                _registryRepository.SaveObjectToRegistry(Settings);
-
-                OnSettingsSaved?.Invoke(this, new EventArgs());
+                result = _appSettingsRepository.SaveSettings(_applicationSettings);
+                if (result)
+                    OnSettingsSaved?.Invoke(this, EventArgs.Empty);
 
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "SaveSettings threw en exception on");
-                return false;
+                result = false;
             }
 
             return result;
-        }
-
-        public void UpdateOrInsertFormState(FormSizeAndPositionModel formState)
-        {
-            if (_fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary == null)
-            {
-                _fileRepository.AppSettings.ExtendedAppSettings.InitFormDictionary();
-            }
-
-            if (_fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary.ContainsKey(formState.FormType))
-            {
-                _fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary[formState.FormType] = formState;
-            }
-            else
-            {
-                _fileRepository.AppSettings.ExtendedAppSettings.FormStateDictionary.Add(formState.FormType, formState);
-            }
-        }
-
-        public void RegisterFormStateOnClose(Form form)
-        {
-            string formName = form.GetType().Name;
-            var fileDbAppSettings = _fileRepository.AppSettings;
-            bool existingForm = fileDbAppSettings.ExtendedAppSettings.FormStateDictionary.Any(x => x.Key == formName);
-            if (existingForm)
-            {
-                fileDbAppSettings.ExtendedAppSettings.FormStateDictionary[formName] = RestoreFormState.GetFormState(form);
-            }
-            else
-            {
-                var formState = RestoreFormState.GetFormState(form);
-                fileDbAppSettings.ExtendedAppSettings.FormStateDictionary.Add(formName, formState);
-            }
-
-            _fileRepository.NotifySettingsChanged();
-            _fileRepository.SaveSettings();
         }
     }
 }

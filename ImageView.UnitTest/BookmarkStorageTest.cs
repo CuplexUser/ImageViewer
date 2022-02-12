@@ -1,9 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageViewer.DataContracts;
@@ -14,6 +9,11 @@ using ImageViewer.Services;
 using ImageViewer.UnitTests.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace ImageViewer.UnitTests
 {
@@ -21,15 +21,18 @@ namespace ImageViewer.UnitTests
     [ExcludeFromCodeCoverage]
     public class BookmarkStorageTest
     {
-        private static ILifetimeScope _scope;
+        private static ILifetimeScope _lifetimeScope;
         private static IContainer _container;
         private static ImageReferenceElement _genericImageRef;
-        private const string TestDataPath = "c:\\temp\\";
+        private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
 
         [ClassInitialize]
         public static void BookmarkStorageInitialize(TestContext testContext)
         {
-            GlobalSettings.UnitTestInitialize(TestDataPath);
+            if (!Directory.Exists(TestDataPath))
+                Directory.CreateDirectory(TestDataPath);
+
+            GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
             _genericImageRef = new ImageReferenceElement
@@ -43,9 +46,8 @@ namespace ImageViewer.UnitTests
             };
             _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
 
-            _container = ContainerFactory.BuildContainerForThumbnailTests();
-            _scope = _container.BeginLifetimeScope();
-
+            _container = ContainerFactory.CreateUnitTestContainer();
+            _lifetimeScope = _container.BeginLifetimeScope();
         }
 
         [ClassCleanup]
@@ -54,7 +56,7 @@ namespace ImageViewer.UnitTests
             var files = Directory.GetFiles(TestDataPath, "*.dat");
             foreach (string filename in files) File.Delete(filename);
 
-            _scope.Dispose();
+            _lifetimeScope.Dispose();
             _container.Dispose();
         }
 
@@ -62,28 +64,21 @@ namespace ImageViewer.UnitTests
         [TestInitialize]
         public void MyTestInitialize()
         {
-            //var settingsService = _scope.Resolve<ApplicationSettingsService>();
-            //var bookmarkService = _scope.Resolve<BookmarkService>();
-            //var bookmarkManager = bookmarkService.BookmarkManager;
 
-            //Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager can not be modified before test begins");
-            //Assert.IsTrue(bookmarkManager.RootFolder.Bookmarks.Count == 0, "Test must start with empty bookmark list");
-            //Assert.IsTrue(bookmarkManager.RootFolder.BookmarkFolders.Count == 0, "Test must start with empty bookmark folder list");
-            //Assert.IsTrue(settingsService.LoadSettings(), "LoadSettingsFailed");
         }
 
         // Use TestCleanup to run code after each test has run
         [TestCleanup]
         public void MyTestCleanup()
         {
-            
+
         }
 
 
         [TestMethod]
         public void AddBookmarkAndReloadFromFile()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkService = scope.Resolve<BookmarkService>();
                 var bookmarkManager = bookmarkService.BookmarkManager;
@@ -108,7 +103,7 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void AddBookmarkFolder()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkManager = scope.Resolve<BookmarkManager>();
                 var rootFolder = bookmarkManager.RootFolder;
@@ -126,7 +121,7 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void InsertBookmarkFolder()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkManager = scope.Resolve<BookmarkManager>();
                 var rootFolder = bookmarkManager.RootFolder;
@@ -152,7 +147,7 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void InsertBookmark()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkManager = scope.Resolve<BookmarkManager>();
                 var rootFolder = bookmarkManager.RootFolder;
@@ -166,13 +161,15 @@ namespace ImageViewer.UnitTests
                 var insertedItem = bookmarkManager.RootFolder.Bookmarks.SingleOrDefault(f => f.SortOrder == 1 && f.BoookmarkName == "Bookmark2");
                 Assert.IsNotNull(insertedItem, "Could not find inserted item in collection!");
                 Assert.IsTrue(CompareBookmarkToImgRef(insertedItem, _genericImageRef), "The inserted bookmark was not identical to the reference bookmark");
+
+                scope.Dispose();
             }
         }
 
         [TestMethod]
         public void TestDeleteBookmarkFolderById()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkManager = scope.Resolve<BookmarkManager>();
                 var rootFolder = bookmarkManager.RootFolder;
@@ -196,7 +193,7 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void TestDeleteBookmarkByFilename()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkManager = scope.Resolve<BookmarkManager>();
                 var rootFolder = bookmarkManager.RootFolder;
@@ -209,14 +206,17 @@ namespace ImageViewer.UnitTests
         [TestMethod]
         public void TestIsModified()
         {
-            using (var scope = _scope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkService = scope.Resolve<BookmarkService>();
                 var bookmarkManager = bookmarkService.BookmarkManager;
                 var rootFolder = bookmarkManager.RootFolder;
+                bookmarkManager.ClearBookmarks();
 
                 Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager should not be modified");
                 bookmarkManager.AddBookmark(rootFolder.Id, "Bookmark1", _genericImageRef);
+                
+
                 Assert.IsTrue(bookmarkManager.IsModified, "BookmarkManager should be modified");
                 bookmarkService.SaveBookmarks();
                 Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager should not be modified");
@@ -225,17 +225,18 @@ namespace ImageViewer.UnitTests
 
         private ApplicationSettingsService GetApplicationSettingsService()
         {
-            var appSettings = ImageViewApplicationSettings.CreateDefaultSettings();
+            var appSettings = AppSettingsRepository.GetDefaultApplicationSettings();
             appSettings.DefaultKey = "EkNxG2vH27y4xezfzyEJpHGenOtgLJ1x";
-            var appSettingsFileRepository = Substitute.For<AppSettingsFileRepository>();
-            var settingsService = Substitute.For<ApplicationSettingsService>(appSettingsFileRepository);
+            var appSettingsRepository = Substitute.For<AppSettingsRepository>();
+            var settingsService = Substitute.For<ApplicationSettingsService>(appSettingsRepository);
 
 
 
             Application.CompanyName.Returns("Cuplex");
+
             //ApplicationSettingsService.CompanyName.Returns("Cuplex");
 
-            settingsService.ProductName.Returns("ImageViewer");
+            Application.ProductName.Returns("ImageViewer");
 
             settingsService.Settings.Returns(appSettings);
 

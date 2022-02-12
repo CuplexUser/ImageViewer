@@ -10,7 +10,7 @@ namespace ImageViewer.Models.UserInteraction
 
         public void Execute()
         {
-            OnQueryCompleted?.Invoke(this, new EventArgs());
+            OnQueryCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 }

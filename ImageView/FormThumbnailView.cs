@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using Autofac;
 using ImageViewer.DataContracts;
+using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
@@ -38,6 +39,7 @@ namespace ImageViewer
             _thumbnailService = thumbnailService;
             _imageLoaderService = imageLoaderService;
             _scope = scope;
+            
 
             if (applicationSettings == null)
             {
@@ -61,26 +63,26 @@ namespace ImageViewer
         private void ApplicationSettingsOnSettingsSaved(object sender, EventArgs e)
         {
             _applicationSettings.LoadSettings();
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
-            flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
-            picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
+            var appSettings = _applicationSettings.Settings;
+            flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor;
+            picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
         }
+
+
 
         private void FormThumbnailView_Load(object sender, EventArgs e)
         {
             if (DesignMode)
                 return;
 
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
-            if (appSettings.ThumbnailFormSize != null && appSettings.ThumbnailFormLocation != null)
-            {
-                RestoreFormState.SetFormSizeAndPosition(this, appSettings.ThumbnailFormSize.ToSize(), appSettings.ThumbnailFormLocation.ToPoint(), Screen.PrimaryScreen.WorkingArea);
-            }
-
+            var appSettings = _applicationSettings.Settings;
+            bool success = FormStateManager.RestoreFormState(appSettings, this);
+            Log.Debug("Form state successfully restored for: {Name}",Name);
+            
             Closing += FormThumbnailView_Closing;
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
-            picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor.ToColor();
+            flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor;
+            picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
             UpdateStyles();
         }
 
@@ -88,9 +90,8 @@ namespace ImageViewer
         {
             Hide();
 
-            ImageViewApplicationSettings appSettings = _applicationSettings.Settings;
-            appSettings.ThumbnailFormLocation = PointDataModel.CreateFromPoint(Location);
-            appSettings.ThumbnailFormSize = SizeDataModel.CreateFromSize(Size);
+            var appSettings = _applicationSettings.Settings;
+            FormStateManager.SaveFormState(appSettings, this);
             _applicationSettings.SaveSettings();
         }
 
@@ -106,7 +107,7 @@ namespace ImageViewer
 
         private IEnumerable<Control> GetControlTree(Control root)
         {
-            var controls = new List<Control> {root};
+            var controls = new List<Control> { root };
 
             if (!root.HasChildren) return controls;
             for (int i = 0; i < root.Controls.Count; i++)
@@ -196,7 +197,7 @@ namespace ImageViewer
 
         private List<Control> GenerateThumbnails()
         {
-            var backColor = _applicationSettings.Settings.MainWindowBackgroundColor.ToColor();
+            var backColor = _applicationSettings.Settings.MainWindowBackgroundColor;
             var pictureBoxes = new List<Control>();
             bool randomizeImageCollection = _applicationSettings.Settings.AutoRandomizeCollection;
             var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
@@ -220,7 +221,7 @@ namespace ImageViewer
                 {
                     pictureBox.Dispose();
                     continue;
-                }                    
+                }
 
                 pictureBox.MouseClick += PictureBox_MouseClick;
                 pictureBoxes.Add(pictureBox);
@@ -265,11 +266,11 @@ namespace ImageViewer
 
         protected override void OnClosed(EventArgs e)
         {
-            if (_thumbnailScan!=null && !_thumbnailScan.IsDisposed)
+            if (_thumbnailScan != null && !_thumbnailScan.IsDisposed)
             {
                 _thumbnailScan.Dispose();
             }
-            
+
             base.OnClosed(e);
         }
 

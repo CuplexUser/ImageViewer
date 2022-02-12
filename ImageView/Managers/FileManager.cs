@@ -293,10 +293,6 @@ namespace ImageViewer.Managers
             return rawImage;
         }
 
-
-
-
-
         public Image CreateThumbnail(string fullPath, Size size)
         {
             FileStream fs = null;

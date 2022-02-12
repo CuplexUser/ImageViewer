@@ -69,7 +69,7 @@ namespace ImageViewer.UserControls
             TreeNode selectedNode = bookmarksTree.SelectedNode;
 
             if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return false;
-            _bookmarkManager.VerifyIntegrityOfBookmarFolder(selectedBookmarkfolder);
+            _bookmarkManager.VerifyIntegrityOfBookmarkFolder(selectedBookmarkfolder);
 
             return true;
         }

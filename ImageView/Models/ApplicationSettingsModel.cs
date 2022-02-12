@@ -1,24 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
+using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
-using ImageViewer.Utility;
 
-namespace ImageViewer.DataContracts
+namespace ImageViewer.Models
 {
     /// <summary>
-    /// All Application settings
+    /// ApplicationSettingsModel
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ImageViewApplicationSettings")]
-    public class ImageViewApplicationSettings
+    public class ApplicationSettingsModel
     {
         /// <summary>
-        /// 
+        /// ChangeImageAnimation
         /// </summary>
         public enum ChangeImageAnimation
         {
@@ -49,7 +44,7 @@ namespace ImageViewer.DataContracts
         }
 
         /// <summary>
-        /// 
+        /// WindowDockProximity
         /// </summary>
         public enum WindowDockProximity
         {
@@ -68,54 +63,11 @@ namespace ImageViewer.DataContracts
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImageViewApplicationSettings"/> class.
-        /// </summary>
-        protected ImageViewApplicationSettings()
-        {
-
-        }
-
-        /// <summary>
-        /// Creates the default settings.
-        /// </summary>
-        /// <returns></returns>
-        public static ImageViewApplicationSettings CreateDefaultSettings()
-        {
-            var settings = new ImageViewApplicationSettings
-            {
-                AlwaysOntop = false,
-                AutoRandomizeCollection = true,
-                LastUsedSearchPaths = new List<string>(),
-                ShowImageViewFormsInTaskBar = true,
-                NextImageAnimation = ChangeImageAnimation.None,
-                ImageTransitionTime = 1000,
-                SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
-                PasswordProtectBookmarks = false,
-                PasswordDerivedString = "",
-                ShowNextPrevControlsOnEnterWindow = false,
-                ThumbnailSize = 256,
-                MaxThumbnails = 256,
-                ConfirmApplicationShutdown = true,
-                AutomaticUpdateCheck = true,
-                LastUpdateCheck = new DateTime(2010, 1, 1),
-                ExtendedAppSettings = ApplicationSettingsHelper.Create(),
-                ImageCacheSize = 134217728, // 128 Mb,
-                ToggleSlideshowWithThirdMouseButton = true,
-                AutoHideCursor = true,
-                AutoHideCursorDelay = 2000,
-            };
-
-            return settings;
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether [show image view forms in task bar].
         /// </summary>
         /// <value>
         ///   <c>true</c> if [show image view forms in task bar]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ShowImageViewFormsInTaskBar", Order = 1)]
         public bool ShowImageViewFormsInTaskBar { get; set; }
 
         /// <summary>
@@ -124,7 +76,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [always ontop]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AlwaysOntop", Order = 2)]
         public bool AlwaysOntop { get; set; }
 
         /// <summary>
@@ -133,7 +84,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [automatic randomize collection]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AutoRandomizeCollection", Order = 3)]
         public bool AutoRandomizeCollection { get; set; }
 
         /// <summary>
@@ -142,7 +92,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The last used search paths.
         /// </value>
-        [DataMember(Name = "LastUsedSearchPaths", Order = 4)]
         public List<string> LastUsedSearchPaths { get; set; }
 
         /// <summary>
@@ -151,7 +100,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The next image animation.
         /// </value>
-        [DataMember(Name = "NextImageAnimation", Order = 5)]
         public ChangeImageAnimation NextImageAnimation { get; set; }
 
         /// <summary>
@@ -160,7 +108,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The slideshow interval.
         /// </value>
-        [DataMember(Name = "SlideshowInterval", Order = 6)]
         public int SlideshowInterval { get; set; }
 
         /// <summary>
@@ -169,7 +116,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The image transition time.
         /// </value>
-        [DataMember(Name = "ImageTransitionTime", Order = 7)]
         public int ImageTransitionTime { get; set; }
 
         /// <summary>
@@ -178,26 +124,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [enable automatic load function from menu]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "EnableAutoLoadFunctionFromMenu", Order = 8)]
         public bool EnableAutoLoadFunctionFromMenu { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [enable window docking].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [enable window docking]; otherwise, <c>false</c>.
-        /// </value>
-        [DataMember(Name = "EnableWindowDocking", Order = 9)]
-        public bool EnableWindowDocking { get; set; }
-
-        /// <summary>
-        /// Gets or sets the window docking proximity.
-        /// </summary>
-        /// <value>
-        /// The window docking proximity.
-        /// </value>
-        [DataMember(Name = "WindowDockingProximity", Order = 10)]
-        public WindowDockProximity WindowDockingProximity { get; set; }
 
         /// <summary>
         /// Gets or sets the primary image size mode.
@@ -205,7 +132,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The primary image size mode.
         /// </value>
-        [DataMember(Name = "PrimaryImageSizeMode", Order = 11)]
         public int PrimaryImageSizeMode { get; set; }
 
         /// <summary>
@@ -214,7 +140,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The screen minimum x offset.
         /// </value>
-        [DataMember(Name = "ScreenMinXOffset", Order = 12)]
         public int ScreenMinXOffset { get; set; }
 
         /// <summary>
@@ -223,7 +148,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The screen width offset.
         /// </value>
-        [DataMember(Name = "ScreenWidthOffset", Order = 13)]
         public int ScreenWidthOffset { get; set; }
 
         /// <summary>
@@ -232,8 +156,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [password protect bookmarks]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "PasswordProtectBookmarks", Order = 14)]
-        public bool PasswordProtectBookmarks { get; protected set; }
+        public bool PasswordProtectBookmarks { get; set; }
 
         /// <summary>
         /// Gets or sets the password derived string.
@@ -241,35 +164,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The password derived string.
         /// </value>
-        [DataMember(Name = "PasswordDerivedString", Order = 15)]
-        public string PasswordDerivedString { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the main form position.
-        /// </summary>
-        /// <value>
-        /// The main form position.
-        /// </value>
-        [DataMember(Name = "MainFormPosition", Order = 16)]
-        public PointDataModel MainFormPosition { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets the size of the main form.
-        /// </summary>
-        /// <value>
-        /// The size of the main form.
-        /// </value>
-        [DataMember(Name = "MainFormSize", Order = 17)]
-        public SizeDataModel MainFormSize { get; protected set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether [use saved main form position].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [use saved main form position]; otherwise, <c>false</c>.
-        /// </value>
-        [DataMember(Name = "UseSavedMainFormPosition", Order = 18)]
-        public bool UseSavedMainFormPosition { get; protected set; }
+        public string PasswordDerivedString { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [show switch image buttons].
@@ -277,7 +172,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ShowSwitchImageButtons", Order = 19)]
         public bool ShowSwitchImageButtons { get; set; }
 
         /// <summary>
@@ -286,7 +180,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The last folder location.
         /// </value>
-        [DataMember(Name = "LastFolderLocation", Order = 20)]
         public string LastFolderLocation { get; set; }
 
         /// <summary>
@@ -295,7 +188,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ShowNextPrevControlsOnEnterWindow", Order = 21)]
         public bool ShowNextPrevControlsOnEnterWindow { get; set; }
 
         /// <summary>
@@ -304,7 +196,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size of the image cache.
         /// </value>
-        [DataMember(Name = "ImageCacheSize", Order = 22)]
+        [Range(typeof(long), "33554432", "1073741824", ErrorMessage = "Value for {0} must be between {1} and {2}")]
         public long ImageCacheSize { get; set; }
 
         /// <summary>
@@ -313,7 +205,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The default key.
         /// </value>
-        [DataMember(Name = "DefaultKey", Order = 23)]
         public string DefaultKey { get; set; }
 
         /// <summary>
@@ -322,7 +213,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size of the thumbnail.
         /// </value>
-        [DataMember(Name = "ThumbnailSize", Order = 24)]
         public int ThumbnailSize { get; set; }
 
         /// <summary>
@@ -331,26 +221,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The maximum thumbnails.
         /// </value>
-        [DataMember(Name = "MaxThumbnails", Order = 25)]
         public int MaxThumbnails { get; set; }
-
-        /// <summary>
-        /// Gets or sets the size of the thumbnail form.
-        /// </summary>
-        /// <value>
-        /// The size of the thumbnail form.
-        /// </value>
-        [DataMember(Name = "ThumbnailFormSize", Order = 26)]
-        public SizeDataModel ThumbnailFormSize { get; set; }
-
-        /// <summary>
-        /// Gets or sets the thumbnail form location.
-        /// </summary>
-        /// <value>
-        /// The thumbnail form location.
-        /// </value>
-        [DataMember(Name = "ThumbnailFormLocation", Order = 27)]
-        public PointDataModel ThumbnailFormLocation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [confirm application shutdown].
@@ -358,7 +229,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ConfirmApplicationShutdown", Order = 28)]
         public bool ConfirmApplicationShutdown { get; set; }
 
         /// <summary>
@@ -367,8 +237,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The color of the main window background.
         /// </value>
-        [DataMember(Name = "MainWindowBackgroundColor", Order = 29)]
-        public ColorDataModel MainWindowBackgroundColor { get; set; }
+        public Color MainWindowBackgroundColor { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [automatic update check].
@@ -376,7 +245,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AutomaticUpdateCheck", Order = 30)]
         public bool AutomaticUpdateCheck { get; set; }
 
         /// <summary>
@@ -385,9 +253,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The last update check.
         /// </value>
-        [DataMember(Name = "LastUpdateCheck", Order = 31)]
         public DateTime LastUpdateCheck { get; set; }
-
 
         /// <summary>
         /// Gets or sets a value indicating whether [toggle slideshow with third mouse button].
@@ -395,17 +261,7 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 32)]
         public bool ToggleSlideshowWithThirdMouseButton { get; set; }
-
-        /// <summary>
-        /// Gets or sets the extended application settings.
-        /// </summary>
-        /// <value>
-        /// The extended application settings.
-        /// </value>
-        [DataMember(Name = "ExtendedAppSettings", Order = 33)]
-        public AppSettingsExtendedDataModel ExtendedAppSettings { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [automatic hide cursor].
@@ -413,51 +269,56 @@ namespace ImageViewer.DataContracts
         /// <value>
         ///   <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
         /// </value>
-        [DataMember(Name = "AutoHideCursor", Order = 34)]
         public bool AutoHideCursor { get; set; }
 
 
-        [DataMember(Name = "AutoHideCursorDelay", Order = 35)]
+        /// <summary>
+        /// Gets or sets the automatic hide cursor delay.
+        /// </summary>
+        /// <value>
+        /// The automatic hide cursor delay.
+        /// </value>
         [FixedBounds(minValue: GenericConstants.MinCursorDelayValue, maxValue: GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
 
         /// <summary>
-        /// Removes the duplicate entries with ignore case.
+        /// Gets or sets the form state models.
         /// </summary>
-        public void RemoveDuplicateEntriesWithIgnoreCase()
-        {
-            var deleteStack = new Stack<string>();
-            foreach (string searchPath in LastUsedSearchPaths)
-            {
-                if (LastUsedSearchPaths.Any(s => s.ToLower() == searchPath))
-                    deleteStack.Push(searchPath);
-            }
-
-            while (deleteStack.Count > 0)
-                LastUsedSearchPaths.Remove(deleteStack.Pop());
-        }
+        /// <value>
+        /// The form state models.
+        /// </value>
+        public IDictionary<string, FormStateModel> FormStateModels { get; set; }
 
         /// <summary>
-        /// Disables the password protect bookmarks.
+        /// Gets or sets a value indicating whether [bookmarks show overlay window].
         /// </summary>
-        public void DisablePasswordProtectBookmarks()
-        {
-            PasswordProtectBookmarks = false;
-            PasswordDerivedString = null;
-        }
+        /// <value>
+        ///   <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
+        /// </value>
+        public bool BookmarksShowOverlayWindow { get; set; }
 
         /// <summary>
-        /// Enables the password protect bookmarks.
+        /// Gets or sets a value indicating whether [bookmarks show maximized image area].
         /// </summary>
-        /// <param name="verifiedPassword">The verified password.</param>
-        public void EnablePasswordProtectBookmarks(string verifiedPassword)
-        {
-            if (verifiedPassword != null)
-            {
-                PasswordProtectBookmarks = true;
-                PasswordDerivedString = GeneralConverters.GeneratePasswordDerivedString(verifiedPassword);
-                DefaultKey = null;
-            }
-        }
+        /// <value>
+        ///   <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
+        /// </value>
+        public bool BookmarksShowMaximizedImageArea { get; set; }
+
+        /// <summary>
+        /// Gets or sets the application settings UUID.
+        /// </summary>
+        /// <value>
+        /// The application settings UUID.
+        /// </value>
+        public Guid AppSettingsGuid { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is loaded from disk.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsLoadedFromDisk { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace ImageViewer.DataContracts
 {
     /// <summary>
-    /// 
+    /// Bookmark Data Model
     /// </summary>
     [Serializable]
     [DataContract(Name = "Bookmark")]
@@ -101,11 +101,11 @@ namespace ImageViewer.DataContracts
         public DateTime LastAccessTime { get; set; }
 
         /// <summary>
-        /// Gets the size formated.
+        /// Gets the size formatted.
         /// </summary>
         /// <value>
-        /// The size formated.
+        /// The size formatted.
         /// </value>
-        public string SizeFormated => GeneralToolkitLib.Converters.GeneralConverters.FormatFileSizeToString(Size);
+        public string SizeFormatted => GeneralToolkitLib.Converters.GeneralConverters.FormatFileSizeToString(Size);
     }
 }

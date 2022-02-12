@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -10,6 +11,7 @@ using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.InputForms;
 using ImageViewer.Managers;
+using ImageViewer.Models;
 using ImageViewer.Models.Enums;
 using ImageViewer.Properties;
 using ImageViewer.Services;
@@ -56,7 +58,7 @@ namespace ImageViewer
             _overlayFormManager.HideImageDelay = 250;
             _overlayFormManager.ShowImageDelay = 500;
 
-            var settings = _applicationSettingsService.Settings.ExtendedAppSettings;
+            var settings = _applicationSettingsService.Settings;
             if (settings.BookmarksShowMaximizedImageArea)
             {
                 Invoke(new EventHandler(maximizePreviewAreaToolStripMenuItem_Click));
@@ -67,11 +69,8 @@ namespace ImageViewer
                 Invoke(new EventHandler(showOverlayPreviewToolStripMenuItem_Click));
             }
 
-            if (_applicationSettingsService.Settings.ExtendedAppSettings.FormStateDictionary.ContainsKey(GetType().Name))
-            {
-                var formState = settings.FormStateDictionary[GetType().Name];
-                RestoreFormState.SetFormSizeAndPosition(this, formState.Size.ToSize(), formState.Location.ToPoint(), formState.ScreenArea.ToRectangle());
-            }
+            // Restore previous form state
+            FormStateManager.RestoreFormState(settings, this);
 
             if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
                 using (var formGetPassword = new FormGetPassword
@@ -121,8 +120,10 @@ namespace ImageViewer
 
         private void FormBookmarks_FormClosing(object sender, FormClosingEventArgs e)
         {
-            _applicationSettingsService.RegisterFormStateOnClose(this);
+            var appSettings = _applicationSettingsService.Settings;
+            FormStateManager.SaveFormState(appSettings, this);
             _applicationSettingsService.SaveSettings();
+            e.Cancel = false;
         }
 
         private bool ReLoadBookmarks()
@@ -130,7 +131,7 @@ namespace ImageViewer
             TreeNode selectedNode = bookmarksTree.SelectedNode;
 
             if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return false;
-            _bookmarkManager.VerifyIntegrityOfBookmarFolder(selectedBookmarkfolder);
+            _bookmarkManager.VerifyIntegrityOfBookmarkFolder(selectedBookmarkfolder);
             bookmarkBindingSource.DataSource = selectedBookmarkfolder.Bookmarks.OrderBy(x => x.SortOrder).ToList();
 
             bookmarksDataGridView.Refresh();
@@ -509,7 +510,7 @@ namespace ImageViewer
                 if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return;
 
 
-                _bookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder)column.Tag);
+                BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder)column.Tag);
                 ReLoadBookmarks();
                 await _bookmarkService.SaveBookmarksAsync();
             }
@@ -785,21 +786,21 @@ namespace ImageViewer
         {
             _overlayFormManager.IsEnabled = !_overlayFormManager.IsEnabled;
             showOverlayPreviewToolStripMenuItem.Checked = _overlayFormManager.IsEnabled;
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowOverlayWindow = showOverlayPreviewToolStripMenuItem.Checked;
+            _applicationSettingsService.Settings.BookmarksShowOverlayWindow = showOverlayPreviewToolStripMenuItem.Checked;
         }
 
         private void maximizePreviewAreaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             splitContainer1.SplitterDistance = Convert.ToInt32(splitContainer1.Width * 0.75);
             splitContainer2.SplitterDistance = Convert.ToInt32(splitContainer2.Height * 0.25);
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowMaximizedImageArea = true;
+            _applicationSettingsService.Settings.BookmarksShowMaximizedImageArea = true;
         }
 
         private void restorePreviewAreaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             splitContainer1.SplitterDistance = Convert.ToInt32(splitContainer1.Width * 0.25);
             splitContainer2.SplitterDistance = Convert.ToInt32(splitContainer2.Height * 0.5);
-            _applicationSettingsService.Settings.ExtendedAppSettings.BookmarksShowMaximizedImageArea = false;
+            _applicationSettingsService.Settings.BookmarksShowMaximizedImageArea = false;
         }
 
         #endregion

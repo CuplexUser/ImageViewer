@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ImageViewer.UnitTests
 {
@@ -59,12 +59,12 @@ namespace ImageViewer.UnitTests
                 // Populate the rows of the DataGridView.
                 string[] row1 = new string[]
                 {"Meatloaf", "Main Dish", "1 lb. lean ground beef, 1/2 cup bread crumbs, " + "1/4 cup ketchup, 1/3 tsp onion powder, 1 clove of garlic, " + "1/2 pack onion soup mix, dash of your favorite BBQ Sauce", "****"};
-                string[] row2 = new string[] {"Key Lime Pie", "Dessert", "lime juice, whipped cream, eggs, evaporated milk", "****"};
-                string[] row3 = new string[] {"Orange-Salsa Pork Chops", "Main Dish", "pork chops, salsa, orange juice, pineapple", "****"};
-                string[] row4 = new string[] {"Black Bean and Rice Salad", "Salad", "black beans, brown rice", "****"};
-                string[] row5 = new string[] {"Chocolate Cheesecake", "Dessert", "cream cheese, unsweetened chocolate", "***"};
-                string[] row6 = new string[] {"Black Bean Dip", "Appetizer", "black beans, sour cream, salsa, chips", "***"};
-                object[] rows = new object[] {row1, row2, row3, row4, row5, row6};
+                string[] row2 = new string[] { "Key Lime Pie", "Dessert", "lime juice, whipped cream, eggs, evaporated milk", "****" };
+                string[] row3 = new string[] { "Orange-Salsa Pork Chops", "Main Dish", "pork chops, salsa, orange juice, pineapple", "****" };
+                string[] row4 = new string[] { "Black Bean and Rice Salad", "Salad", "black beans, brown rice", "****" };
+                string[] row5 = new string[] { "Chocolate Cheesecake", "Dessert", "cream cheese, unsweetened chocolate", "***" };
+                string[] row6 = new string[] { "Black Bean Dip", "Appetizer", "black beans, sour cream, salsa, chips", "***" };
+                object[] rows = new object[] { row1, row2, row3, row4, row5, row6 };
                 foreach (string[] rowArray in rows)
                 {
                     this.dataGridView1.Rows.Add(rowArray);
@@ -92,7 +92,7 @@ namespace ImageViewer.UnitTests
             // current cell. This is necessary to refresh the focus rectangle.
             private void dataGridView1_CurrentCellChanged(object sender, EventArgs e)
             {
-                if(oldRowIndex != -1)
+                if (oldRowIndex != -1)
                 {
                     this.dataGridView1.InvalidateRow(oldRowIndex);
                 }
@@ -107,7 +107,7 @@ namespace ImageViewer.UnitTests
 
                 // Determine whether the cell should be painted
                 // with the custom selection background.
-                if((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected)
+                if ((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected)
                 {
                     // Calculate the bounds of the row.
                     Rectangle rowBounds = new Rectangle(this.dataGridView1.RowHeadersWidth,
@@ -140,7 +140,7 @@ namespace ImageViewer.UnitTests
                 try
                 {
                     // Determine the foreground color.
-                    if((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected)
+                    if ((e.State & DataGridViewElementStates.Selected) == DataGridViewElementStates.Selected)
                     {
                         forebrush = new SolidBrush(e.InheritedRowStyle.SelectionForeColor);
                     }
@@ -152,7 +152,7 @@ namespace ImageViewer.UnitTests
                     // Get the content that spans multiple columns.
                     object recipe = this.dataGridView1.Rows.SharedRow(e.RowIndex).Cells[2].Value;
 
-                    if(recipe != null)
+                    if (recipe != null)
                     {
                         String text = recipe.ToString();
 
@@ -165,7 +165,7 @@ namespace ImageViewer.UnitTests
                         textArea.Width += this.dataGridView1.HorizontalScrollingOffset;
                         textArea.Y += rowBounds.Height - e.InheritedRowStyle.Padding.Bottom;
                         textArea.Height -= rowBounds.Height - e.InheritedRowStyle.Padding.Bottom;
-                        textArea.Height = (textArea.Height/e.InheritedRowStyle.Font.Height)*e.InheritedRowStyle.Font.Height;
+                        textArea.Height = (textArea.Height / e.InheritedRowStyle.Font.Height) * e.InheritedRowStyle.Font.Height;
 
                         // Calculate the portion of the text area that needs painting.
                         RectangleF clip = textArea;
@@ -185,7 +185,7 @@ namespace ImageViewer.UnitTests
                     forebrush.Dispose();
                 }
 
-                if(this.dataGridView1.CurrentCellAddress.Y == e.RowIndex)
+                if (this.dataGridView1.CurrentCellAddress.Y == e.RowIndex)
                 {
                     // Paint the focus rectangle.
                     e.DrawFocus(rowBounds, true);

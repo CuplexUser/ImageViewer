@@ -33,7 +33,7 @@ namespace ImageViewer
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
             bool debugMode = ApplicationBuildConfig.DebugMode;
-            GlobalSettings.Initialize(Assembly.GetExecutingAssembly().GetName().Name, !debugMode);
+            GlobalSettings.Settings.Initialize(Assembly.GetExecutingAssembly().GetName().Name, !debugMode);
 
             Log.Verbose("Application started");
 
@@ -47,7 +47,7 @@ namespace ImageViewer
 
                 if (!readSuccessful)
                 {
-                    string userDataPath = GlobalSettings.GetUserDataDirectoryPath();
+                    string userDataPath = GlobalSettings.Settings.GetUserDataDirectoryPath();
                     Log.Error("Failed to load application settings on program load. User data path {userDataPath}", userDataPath);
                 }
 
