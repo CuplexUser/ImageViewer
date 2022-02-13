@@ -62,10 +62,8 @@ Global
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Debug|x64.Build.0 = Debug|Any CPU
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Deploy|Any CPU.ActiveCfg = Deploy|Any CPU
-		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Deploy|Any CPU.Build.0 = Deploy|Any CPU
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Deploy|x64.ActiveCfg = Deploy|Any CPU
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8E163ED3-3018-4B42-AEB9-EEFC30D2162B}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

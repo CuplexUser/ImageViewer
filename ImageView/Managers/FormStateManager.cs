@@ -68,5 +68,30 @@ namespace ImageViewer.Managers
                     break;
             }
         }
+
+        public static void ToggleFullscreen(WindowStateModel windowState, Form form)
+        {
+            if (windowState.IsFullscreen)
+            {
+                // Restore normal window state
+                form.FormBorderStyle = windowState.BorderStyle;
+                form.WindowState = windowState.WindowState;
+                form.BackColor = windowState.BackgroundColor;
+                windowState.IsFullscreen = false;
+            }
+            else
+            {
+                // Set initial values to be restored when leaving fullscreen mode
+                windowState.BorderStyle = form.FormBorderStyle;
+                windowState.WindowState = form.WindowState;
+                windowState.BackgroundColor = form.BackColor;
+
+                // Set fullscreen
+                form.FormBorderStyle = FormBorderStyle.None;
+                form.WindowState = FormWindowState.Maximized;
+                form.BackColor = Color.Black;
+                windowState.IsFullscreen = true;
+            }
+        }
     }
 }

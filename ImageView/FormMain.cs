@@ -11,7 +11,6 @@ using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
@@ -37,16 +36,14 @@ namespace ImageViewer
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
-        private readonly object _lockObj = new object();
-        private readonly PictureBox _pictureBoxAnimation = new PictureBox();
+        private readonly object _lockObj = new();
+        private readonly PictureBox _pictureBoxAnimation = new();
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
-        private bool _cursorVisible = true;
         private bool _dataReady;
         private FormBookmarks _formBookmarks;
         private FormThumbnailView _formThumbnailView;
         private FormWindows _formWindows;
-        private bool _fullScreen;
         private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
         private bool _imageTransitionRunning;
@@ -54,12 +51,13 @@ namespace ImageViewer
         private bool _winKeyDown;
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
-        private Rectangle pointerBox = new Rectangle(Point.Empty, new Size(25, 25));
+        private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
+        private readonly WindowStateModel _windowState;
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
-            ImageLoaderService imageLoaderService,
-            ILifetimeScope scope, UserInteractionService interactionService)
+                ImageLoaderService imageLoaderService,
+                ILifetimeScope scope, UserInteractionService interactionService)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
@@ -71,6 +69,7 @@ namespace ImageViewer
             _imageLoaderService = imageLoaderService;
             _scope = scope;
             _interactionService = interactionService;
+            _windowState = new WindowStateModel();
 
             InitializeComponent();
             _imageViewFormList = new List<FormImageView>();
@@ -78,42 +77,6 @@ namespace ImageViewer
         }
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
-
-        private bool CursorVisible
-        {
-            get => _cursorVisible;
-            set
-            {
-                var result = pictureBox1.AccessibilityObject?.HitTest(Cursor.Position.X, Cursor.Position.Y);
-
-                string accessible = result?.Value;
-                if (accessible == null)
-                {
-                    cursorMovedTime = DateTime.Now.AddMilliseconds(_hideCursorDelay);
-                    //return;
-                }
-
-                bool __lockWasTaken = false;
-                try
-                {
-                    Monitor.Enter(_lockObj, ref __lockWasTaken);
-
-                    if (!value && cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
-                    {
-                        _cursorVisible = false;
-                    }
-                    else
-                    {
-                        _cursorVisible = true;
-                    }
-                }
-                finally
-                {
-                    if (__lockWasTaken)
-                        Monitor.Exit(_lockObj);
-                }
-            }
-        }
 
         private void DisplaySlideshowStatus()
         {
@@ -234,7 +197,7 @@ namespace ImageViewer
         {
             try
             {
-                pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
+                pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
 
                 if (_applicationSettingsService.Settings.NextImageAnimation == ApplicationSettingsModel.ChangeImageAnimation.None)
                 {
@@ -292,7 +255,7 @@ namespace ImageViewer
                 {
                     long elapsedTime = stopwatch.ElapsedMilliseconds;
 
-                    float factor = stopwatch.ElapsedMilliseconds / (float) animationTime;
+                    float factor = stopwatch.ElapsedMilliseconds / (float)animationTime;
                     Image transitionImage;
                     switch (animation)
                     {
@@ -369,24 +332,22 @@ namespace ImageViewer
 
         private void ToggleFullscreen()
         {
-            if (_fullScreen)
+            if (_windowState.IsFullscreen)
             {
+                FormStateManager.ToggleFullscreen(_windowState, this);
                 menuStrip1.Visible = true;
-                BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor;
                 ScreenSaver.Enable();
                 Cursor.Show();
-                CursorVisible = true;
+                _windowState.CursorVisible = true;
             }
             else
             {
+                FormStateManager.ToggleFullscreen(_windowState, this);
                 menuStrip1.Visible = false;
-                BackColor = Color.Black;
                 Cursor.Hide();
-                CursorVisible = false;
+                _windowState.CursorVisible = false;
                 ScreenSaver.Disable();
             }
-
-            _fullScreen = !_fullScreen;
         }
 
         private void AutoArrangeOnSingleScreen()
@@ -486,7 +447,7 @@ namespace ImageViewer
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (CursorVisible)
+            if (_windowState.CursorVisible)
             {
                 return;
             }
@@ -500,11 +461,11 @@ namespace ImageViewer
                 pointerBox.X = cursorPosition.X - pointerBox.Width / 2;
                 pointerBox.Y = cursorPosition.Y + pointerBox.Height / 2;
 
-                Rectangle intersercionRect = new Rectangle(cursorPosition, new Size(1, 1));
-                if (!pointerBox.IntersectsWith(intersercionRect))
+                Rectangle interspersionRectangle = new Rectangle(cursorPosition, new Size(1, 1));
+                if (!pointerBox.IntersectsWith(interspersionRectangle))
                 {
                     //Console.WriteLine($"pictureBox1_MouseMoved, locations is: X: {e.X}, Y: {e.Y}");
-                    CursorVisible = true;
+                    _windowState.CursorVisible = true;
                     UpdateCursorState();
                 }
             }
@@ -512,7 +473,7 @@ namespace ImageViewer
 
         private void UpdateCursorState()
         {
-            if (CursorVisible)
+            if (_windowState.CursorVisible)
             {
                 Cursor.Show();
             }
@@ -532,14 +493,14 @@ namespace ImageViewer
 
         private void timerCursorVisible_Tick(object sender, EventArgs e)
         {
-            if (!CursorVisible)
+            if (!_windowState.CursorVisible)
             {
                 return;
             }
 
             if (cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
             {
-                CursorVisible = false;
+                _windowState.CursorVisible = false;
                 UpdateCursorState();
             }
         }
@@ -692,7 +653,7 @@ namespace ImageViewer
 
         private void FormMain_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Escape && _fullScreen)
+            if (e.KeyCode == Keys.Escape && _windowState.IsFullscreen)
             {
                 ToggleFullscreen();
             }
@@ -851,7 +812,7 @@ namespace ImageViewer
 
         private void pictureBox1_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
+            pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
         }
 
         private async void pictureBoxAnimation_LoadCompleted(object sender, AsyncCompletedEventArgs e)
@@ -1060,7 +1021,7 @@ namespace ImageViewer
 
             if (ImageSourceDataAvailable)
             {
-                if (_fullScreen)
+                if (_windowState.IsFullscreen)
                 {
                     Cursor.Show();
                 }
@@ -1073,7 +1034,7 @@ namespace ImageViewer
                 {
                     _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
                     _formAddBookmark.ShowDialog(this);
-                    if (_fullScreen)
+                    if (_windowState.IsFullscreen)
                     {
                         Cursor.Hide();
                     }

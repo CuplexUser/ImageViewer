@@ -761,15 +761,15 @@ namespace ImageViewer
             if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
             {
                 string selectedPath = folderBrowserDialog1.SelectedPath;
-                int linkesFixed = await _bookmarkManager.FixBrokenLinksFromBaseDir(selectedPath);
+                int linksFixed = await _bookmarkManager.FixBrokenLinksFromBaseDir(selectedPath);
 
-                if (linkesFixed > 0)
+                if (linksFixed > 0)
                 {
                     _bookmarkService.SaveBookmarks();
                 }
 
 
-                MessageBox.Show($@"Corrected {linkesFixed} incorrect file paths", @"Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($@"Corrected {linksFixed} incorrect file paths", @"Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

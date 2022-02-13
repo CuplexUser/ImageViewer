@@ -80,7 +80,7 @@ namespace ImageViewer.Repositories
         /// </value>
         public int CachedImages => _cachedImages.Count;
 
-        #region Public Methods
+        #region Public Methods 
 
         /// <summary>
         ///     Gets the image from cache.

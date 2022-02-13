@@ -46,18 +46,6 @@ namespace ImageViewer.Models
                    FormPosition.X == other.FormPosition.X &&
                    WindowState == other.WindowState;
         }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = (FormName != null ? FormName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ FormSize.GetHashCode();
-                hashCode = (hashCode * 397) ^ FormPosition.GetHashCode();
-                hashCode = (hashCode * 397) ^ (int)WindowState;
-                return hashCode;
-            }
-        }
     }
 
     /// <summary>

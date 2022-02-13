@@ -5,7 +5,7 @@ namespace ImageViewer.Utility
 {
     public static class UIHelper
     {
-        public static List<Color> GetSelectableSystemBackgroundColors()
+        public static IEnumerable<Color> GetSelectableSystemBackgroundColors()
         {
             var list = new List<Color>
             {

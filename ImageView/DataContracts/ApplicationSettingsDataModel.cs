@@ -369,6 +369,15 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "FormStateDataModels", Order = 33)]
         public IList<FormStateDataModel> FormStateDataModels { get; set; }
 
+        [DataMember(Name = "BookmarksShowOverlayWindow", Order = 34)]
+        public bool BookmarksShowOverlayWindow { get; set; }
+
+        [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 35)]
+        public bool BookmarksShowMaximizedImageArea { get; set; }
+
+        [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 36)]
+        public Guid AppSettingsGuid { get; set; }
+
         /// <summary>
         /// Removes the duplicate entries with ignore case.
         /// </summary>
