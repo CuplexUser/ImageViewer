@@ -30,27 +30,33 @@ namespace ImageViewer
         /// </summary>
         private void InitializeComponent()
         {
-            this.renameBookmark1 = new RenameBookmark();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEditBookmark));
+            this.editBookmark1 = new ImageViewer.UserControls.EditBookmark();
             this.SuspendLayout();
             // 
-            // renameBookmark1
+            // editBookmark1
             // 
-            this.renameBookmark1.Location = new System.Drawing.Point(12, 12);
-            this.renameBookmark1.Name = "renameBookmark1";
-            this.renameBookmark1.Size = new System.Drawing.Size(425, 165);
-            this.renameBookmark1.TabIndex = 0;
+            this.editBookmark1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.editBookmark1.Location = new System.Drawing.Point(5, 5);
+            this.editBookmark1.Margin = new System.Windows.Forms.Padding(5);
+            this.editBookmark1.Name = "editBookmark1";
+            this.editBookmark1.Size = new System.Drawing.Size(344, 141);
+            this.editBookmark1.TabIndex = 0;
             // 
             // FormEditBookmark
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(437, 175);
-            this.Controls.Add(this.renameBookmark1);
+            this.ClientSize = new System.Drawing.Size(354, 151);
+            this.Controls.Add(this.editBookmark1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(350, 180);
             this.Name = "FormEditBookmark";
-            this.ShowIcon = false;
+            this.Padding = new System.Windows.Forms.Padding(5);
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "EditBookmark";
@@ -62,6 +68,6 @@ namespace ImageViewer
 
         #endregion
 
-        private UserControls.RenameBookmark renameBookmark1;
+        private UserControls.EditBookmark editBookmark1;
     }
 }

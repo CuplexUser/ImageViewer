@@ -1,6 +1,6 @@
 ﻿namespace ImageViewer.UserControls
 {
-    partial class RenameBookmark
+    partial class EditBookmark
     {
         /// <summary> 
         /// Required designer variable.
@@ -33,8 +33,10 @@
             this.lblBookmarkName = new System.Windows.Forms.Label();
             this.txtName = new System.Windows.Forms.TextBox();
             this.grpBox1 = new System.Windows.Forms.GroupBox();
+            this.lblFileInfo = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtFilename = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.lblFilename = new System.Windows.Forms.Label();
             this.grpBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -42,9 +44,10 @@
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(197, 113);
+            this.btnCancel.Location = new System.Drawing.Point(173, 108);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(100, 30);
+            this.btnCancel.Size = new System.Drawing.Size(75, 24);
             this.btnCancel.TabIndex = 0;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -54,9 +57,10 @@
             // 
             this.btnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(303, 113);
+            this.btnOk.Location = new System.Drawing.Point(252, 108);
+            this.btnOk.Margin = new System.Windows.Forms.Padding(2);
             this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(100, 30);
+            this.btnOk.Size = new System.Drawing.Size(75, 24);
             this.btnOk.TabIndex = 1;
             this.btnOk.Text = "Ok";
             this.btnOk.UseVisualStyleBackColor = true;
@@ -65,64 +69,97 @@
             // lblBookmarkName
             // 
             this.lblBookmarkName.AutoSize = true;
-            this.lblBookmarkName.Location = new System.Drawing.Point(6, 37);
+            this.lblBookmarkName.Location = new System.Drawing.Point(4, 30);
+            this.lblBookmarkName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblBookmarkName.Name = "lblBookmarkName";
-            this.lblBookmarkName.Size = new System.Drawing.Size(116, 17);
+            this.lblBookmarkName.Size = new System.Drawing.Size(35, 13);
             this.lblBookmarkName.TabIndex = 2;
-            this.lblBookmarkName.Text = "Bookmark Name:";
+            this.lblBookmarkName.Text = "Name";
             // 
             // txtName
             // 
             this.txtName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtName.Location = new System.Drawing.Point(128, 34);
+            this.txtName.Location = new System.Drawing.Point(46, 27);
+            this.txtName.Margin = new System.Windows.Forms.Padding(2);
             this.txtName.MaxLength = 250;
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(275, 22);
+            this.txtName.Size = new System.Drawing.Size(281, 20);
             this.txtName.TabIndex = 3;
             this.txtName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtName_KeyUp);
             // 
             // grpBox1
             // 
-            this.grpBox1.Controls.Add(this.lblFilename);
+            this.grpBox1.Controls.Add(this.lblFileInfo);
+            this.grpBox1.Controls.Add(this.label2);
+            this.grpBox1.Controls.Add(this.txtFilename);
             this.grpBox1.Controls.Add(this.label1);
             this.grpBox1.Controls.Add(this.txtName);
             this.grpBox1.Controls.Add(this.btnCancel);
             this.grpBox1.Controls.Add(this.lblBookmarkName);
             this.grpBox1.Controls.Add(this.btnOk);
-            this.grpBox1.Location = new System.Drawing.Point(3, 3);
+            this.grpBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grpBox1.Location = new System.Drawing.Point(4, 4);
+            this.grpBox1.Margin = new System.Windows.Forms.Padding(4);
             this.grpBox1.Name = "grpBox1";
-            this.grpBox1.Size = new System.Drawing.Size(409, 149);
+            this.grpBox1.Padding = new System.Windows.Forms.Padding(2);
+            this.grpBox1.Size = new System.Drawing.Size(332, 137);
             this.grpBox1.TabIndex = 4;
             this.grpBox1.TabStop = false;
-            this.grpBox1.Text = "Rename Bokmark";
+            this.grpBox1.Text = "Edit Bokmark";
+            // 
+            // lblFileInfo
+            // 
+            this.lblFileInfo.AutoEllipsis = true;
+            this.lblFileInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblFileInfo.Location = new System.Drawing.Point(46, 82);
+            this.lblFileInfo.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
+            this.lblFileInfo.Name = "lblFileInfo";
+            this.lblFileInfo.Size = new System.Drawing.Size(122, 49);
+            this.lblFileInfo.TabIndex = 7;
+            this.lblFileInfo.Text = "...";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(7, 91);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(25, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Info";
+            // 
+            // txtFilename
+            // 
+            this.txtFilename.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFilename.Location = new System.Drawing.Point(46, 55);
+            this.txtFilename.Margin = new System.Windows.Forms.Padding(2);
+            this.txtFilename.MaxLength = 250;
+            this.txtFilename.Name = "txtFilename";
+            this.txtFilename.ReadOnly = true;
+            this.txtFilename.Size = new System.Drawing.Size(281, 20);
+            this.txtFilename.TabIndex = 5;
+            this.txtFilename.TextChanged += new System.EventHandler(this.txtFilename_TextChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 71);
+            this.label1.Location = new System.Drawing.Point(4, 58);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(113, 17);
+            this.label1.Size = new System.Drawing.Size(29, 13);
             this.label1.TabIndex = 4;
-            this.label1.Text = "Bookmarked file:";
+            this.label1.Text = "Path";
             // 
-            // lblFilename
+            // EditBookmark
             // 
-            this.lblFilename.AutoSize = true;
-            this.lblFilename.Location = new System.Drawing.Point(125, 71);
-            this.lblFilename.Name = "lblFilename";
-            this.lblFilename.Size = new System.Drawing.Size(77, 17);
-            this.lblFilename.TabIndex = 5;
-            this.lblFilename.Text = "<filename>";
-            // 
-            // RenameBookmark
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.grpBox1);
-            this.Name = "RenameBookmark";
-            this.Size = new System.Drawing.Size(427, 166);
-            this.Load += new System.EventHandler(this.RenameBookmark_Load);
+            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Name = "EditBookmark";
+            this.Size = new System.Drawing.Size(340, 145);
+            this.Load += new System.EventHandler(this.EditBookmark_Load);
             this.grpBox1.ResumeLayout(false);
             this.grpBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -136,7 +173,9 @@
         private System.Windows.Forms.Label lblBookmarkName;
         private System.Windows.Forms.TextBox txtName;
         private System.Windows.Forms.GroupBox grpBox1;
-        private System.Windows.Forms.Label lblFilename;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblFileInfo;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtFilename;
     }
 }

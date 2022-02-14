@@ -53,7 +53,7 @@ namespace ImageViewer.Repositories
                 AutoHideCursorDelay = 2000,
                 AppSettingsGuid = Guid.NewGuid(),
                 IsLoadedFromDisk = false,
-                FormStateModels = new Dictionary<string, FormStateModel>()
+                FormStateModels = new Dictionary<string, FormStateModel>(),
             };
 
             return settings;
@@ -61,33 +61,34 @@ namespace ImageViewer.Repositories
 
         public ApplicationSettingsModel LoadSettings()
         {
-            if (_settingsModel != null && _settingsModel.IsLoadedFromDisk)
+            if (_settingsModel is { IsLoadedFromDisk: true })
             {
                 return _settingsModel;
             }
 
-            var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath);
-            var settings = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
-
-            if (settings == null)
+            if (File.Exists(appConfigSettingsFilePath))
             {
-                settings = GetDefaultApplicationSettings();
+                var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath);
+                _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
+                _settingsModel.IsLoadedFromDisk = true;
+            }
+            else
+            {
+                _settingsModel = GetDefaultApplicationSettings();
                 Log.Warning("Failed to load settings from disk. {appConfigSettingsFilePath}", appConfigSettingsFilePath);
-                return settings;
             }
 
-            if (settings.FormStateModels == null)
+            if (_settingsModel.FormStateModels == null)
             {
-                settings.FormStateModels = new ConcurrentDictionary<string, FormStateModel>();
+                _settingsModel.FormStateModels = new ConcurrentDictionary<string, FormStateModel>();
+                Log.Warning("Settings FormStateModels where null at LoadSettings");
             }
 
-            settings.IsLoadedFromDisk = true;
-            if (settings.AppSettingsGuid == Guid.Empty)
-                settings.AppSettingsGuid = Guid.NewGuid();
+            if (_settingsModel.AppSettingsGuid == Guid.Empty)
+                _settingsModel.AppSettingsGuid = Guid.NewGuid();
 
-            _settingsModel = settings;
             OnLoadSettingsCompleted();
-            return settings;
+            return _settingsModel;
         }
 
         public bool SaveSettings(ApplicationSettingsModel settings)

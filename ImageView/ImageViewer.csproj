@@ -201,6 +201,7 @@
     <Compile Include="Managers\FormStateManager.cs" />
     <Compile Include="Managers\ThumbnailDbManager.cs" />
     <Compile Include="Models\ApplicationSettingsModel.cs" />
+    <Compile Include="Models\BookmarkEditModel.cs" />
     <Compile Include="Models\FormStateModel.cs" />
     <Compile Include="Models\Interface\IAppSettingsRepository.cs" />
     <Compile Include="Models\WindowStateModel.cs" />
@@ -423,11 +424,11 @@
     <Compile Include="UserControls\CustomPanel.Designer.cs">
       <DependentUpon>CustomPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\RenameBookmark.cs">
+    <Compile Include="UserControls\EditBookmark.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UserControls\RenameBookmark.Designer.cs">
-      <DependentUpon>RenameBookmark.cs</DependentUpon>
+    <Compile Include="UserControls\EditBookmark.Designer.cs">
+      <DependentUpon>EditBookmark.cs</DependentUpon>
     </Compile>
     <Compile Include="UserControls\RenameBookmarkFolder.cs">
       <SubType>UserControl</SubType>
@@ -554,8 +555,8 @@
     <EmbeddedResource Include="UserControls\GetPassword.resx">
       <DependentUpon>GetPassword.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UserControls\RenameBookmark.resx">
-      <DependentUpon>RenameBookmark.cs</DependentUpon>
+    <EmbeddedResource Include="UserControls\EditBookmark.resx">
+      <DependentUpon>EditBookmark.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserControls\RenameBookmarkFolder.resx">
       <DependentUpon>RenameBookmarkFolder.cs</DependentUpon>

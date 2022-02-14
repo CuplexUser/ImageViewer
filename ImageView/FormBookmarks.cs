@@ -53,7 +53,7 @@ namespace ImageViewer
             bookmarksDataGridView.RowPrePaint += bookmarksDataGridView_RowPrePaint;
             _bookmarkManager.OnBookmarksUpdate += Instance_OnBookmarksUpdate;
             bookmarksTree.AfterSelect += BookmarksTree_AfterSelect;
-            InitBookmarksDataGridViev();
+            InitBookmarksDataGridView();
             _treeViewDataContext = new TreeViewDataContext(bookmarksTree, _bookmarkManager.RootFolder);
             _overlayFormManager.HideImageDelay = 250;
             _overlayFormManager.ShowImageDelay = 500;
@@ -176,7 +176,7 @@ namespace ImageViewer
             }
 
             DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
-            if (!(selectedRow.DataBoundItem is Bookmark bookmark)) return;
+            if (selectedRow.DataBoundItem is not Bookmark bookmark) return;
 
             int selectedIndex = bookmarksDataGridView.CurrentRow.Index;
             if (selectedIndex > 0)
@@ -274,12 +274,12 @@ namespace ImageViewer
         private string SelectBookmarksFilePassword()
         {
             var uc = new GetPassword();
-            var paswordForm = FormFactory.CreateModalForm(uc);
-            paswordForm.StartPosition = FormStartPosition.CenterParent;
-            paswordForm.ShowInTaskbar = false;
-            paswordForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+            var passwordForm = FormFactory.CreateModalForm(uc);
+            passwordForm.StartPosition = FormStartPosition.CenterParent;
+            passwordForm.ShowInTaskbar = false;
+            passwordForm.FormBorderStyle = FormBorderStyle.FixedSingle;
 
-            if (paswordForm.ShowDialog(this) == DialogResult.OK)
+            if (passwordForm.ShowDialog(this) == DialogResult.OK)
             {
                 return uc.SelectedPassword;
             }
@@ -421,7 +421,7 @@ namespace ImageViewer
             _treeViewDataContext.BindData();
         }
 
-        private void InitBookmarksDataGridViev()
+        private void InitBookmarksDataGridView()
         {
             // Set a cell padding to provide space for the top of the focus 
             // rectangle and for the content that spans multiple columns. 
@@ -611,15 +611,15 @@ namespace ImageViewer
             saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
             var userControl = new SelectPassword();
-            Form paswordForm = FormFactory.CreateModalForm(userControl);
+            var passwordForm = FormFactory.CreateModalForm(userControl);
 
-            paswordForm.Controls.Add(userControl);
-            paswordForm.StartPosition = FormStartPosition.CenterParent;
-            paswordForm.ShowInTaskbar = false;
-            paswordForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+            passwordForm.Controls.Add(userControl);
+            passwordForm.StartPosition = FormStartPosition.CenterParent;
+            passwordForm.ShowInTaskbar = false;
+            passwordForm.FormBorderStyle = FormBorderStyle.FixedSingle;
 
 
-            if (paswordForm.ShowDialog(this) == DialogResult.OK)
+            if (passwordForm.ShowDialog(this) == DialogResult.OK)
             {
                 string password = userControl.SelectedPassword;
 
@@ -712,14 +712,36 @@ namespace ImageViewer
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
-            if (!(selectedRow?.DataBoundItem is Bookmark bookmark)) return;
+            if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
 
             var editBookmark = new FormEditBookmark();
-            editBookmark.InitForRename(bookmark.BoookmarkName, bookmark.FileName);
+            var model = new BookmarkEditModel {FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName};
+            editBookmark.InitEditForm(model, false);
             if (editBookmark.ShowDialog(this) == DialogResult.OK)
             {
-                string name = editBookmark.GetNewName();
+                string name = editBookmark.GetBookmarkEditModel().Name;
                 bookmark.BoookmarkName = name;
+                ReLoadBookmarks();
+            }
+        }
+
+        // Edit both the Name and image path of a selected bookmark
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
+            if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+
+            var editBookmark = new FormEditBookmark();
+            var model = new BookmarkEditModel { FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName };
+            editBookmark.InitEditForm(model, true);
+
+            if (editBookmark.ShowDialog(this) == DialogResult.OK)
+            {
+                var editModel = editBookmark.GetBookmarkEditModel();
+                bookmark.BoookmarkName = editModel.Name;
+                bookmark.CompletePath = editModel.CompletePath;
+                bookmark.FileName = editModel.FileName;
+                bookmark.Size = editModel.FileSize;
                 ReLoadBookmarks();
             }
         }
@@ -771,10 +793,6 @@ namespace ImageViewer
 
                 MessageBox.Show($@"Corrected {linksFixed} incorrect file paths", @"Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)

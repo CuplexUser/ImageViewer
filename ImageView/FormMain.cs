@@ -153,7 +153,8 @@ namespace ImageViewer
             autoLoadPreviousFolderToolStripMenuItem.Enabled = settings.EnableAutoLoadFunctionFromMenu &&
                                                               !string.IsNullOrWhiteSpace(settings.LastFolderLocation);
             pictureBox1.BackColor = settings.MainWindowBackgroundColor;
-            BackColor = settings.MainWindowBackgroundColor;
+            var backColor = Color.FromArgb(255, settings.MainWindowBackgroundColor);
+            BackColor = backColor;
         }
 
         private void ChangeImage(bool next)

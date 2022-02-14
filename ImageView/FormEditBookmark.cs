@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using ImageViewer.Models;
 
 namespace ImageViewer
 {
@@ -15,14 +16,14 @@ namespace ImageViewer
 
         }
 
-        public void InitForRename(string bookmarkName, string filename)
+        public void InitEditForm(BookmarkEditModel model, bool editFilename)
         {
-            renameBookmark1.InitControl(bookmarkName,filename);
+            editBookmark1.InitControl(model, editFilename);
         }
 
-        public string GetNewName()
+        public BookmarkEditModel GetBookmarkEditModel()
         {
-            return renameBookmark1.GetNewBookmarkName();
+            return editBookmark1.GetEditModel();
         }
     }
 }

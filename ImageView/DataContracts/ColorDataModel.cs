@@ -56,9 +56,9 @@ namespace ImageViewer.DataContracts
         {
             return new ColorDataModel
             {
-                R=color.R,
-                G= color.G,
-                B= color.B,
+                R = color.R,
+                G = color.G,
+                B = color.B,
                 A = color.A
             };
         }
