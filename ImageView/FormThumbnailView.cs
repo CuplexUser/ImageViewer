@@ -119,7 +119,9 @@ namespace ImageViewer
             return controls;
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e)
+
+        // Generate Thumbnail list
+        private async void btnGenerate_Click(object sender, EventArgs e)
         {
             if (_imageLoaderService.ImageReferenceList == null)
             {
@@ -202,7 +204,7 @@ namespace ImageViewer
             bool randomizeImageCollection = _applicationSettings.Settings.AutoRandomizeCollection;
             var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
             int items = 0;
-            foreach (ImageReferenceElement element in imgRefList)
+            foreach (ImageReference element in imgRefList)
             {
                 var pictureBox = new PictureBox
                 {
@@ -389,7 +391,7 @@ namespace ImageViewer
             using (ILifetimeScope scope = _scope.BeginLifetimeScope())
             {
                 var fi = new FileInfo(_maximizedImgFilename);
-                var imgRef = new ImageReferenceElement
+                var imgRef = new ImageReference
                 {
                     CompletePath = _maximizedImgFilename,
                     Size = fi.Length,

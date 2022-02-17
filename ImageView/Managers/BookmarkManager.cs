@@ -360,7 +360,7 @@ namespace ImageViewer.Managers
             return folder;
         }
 
-        public Bookmark AddBookmark(string parentFolderId, string bookmarkName, ImageReferenceElement imgRef)
+        public Bookmark AddBookmark(string parentFolderId, string bookmarkName, ImageReference imgRef)
         {
             BookmarkFolder parentFolder = GetBookmarkFolderById(_bookmarkContainer.RootFolder, parentFolderId);
             if (parentFolder == null)
@@ -385,7 +385,7 @@ namespace ImageViewer.Managers
             return bookmark;
         }
 
-        public Bookmark InsertBookmark(string parentFolderId, string bookmarkName, ImageReferenceElement imgRef, int index)
+        public Bookmark InsertBookmark(string parentFolderId, string bookmarkName, ImageReference imgRef, int index)
         {
             BookmarkFolder parentFolder = GetBookmarkFolderById(_bookmarkContainer.RootFolder, parentFolderId);
             if (parentFolder == null)

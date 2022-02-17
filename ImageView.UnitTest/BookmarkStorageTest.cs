@@ -23,7 +23,7 @@ namespace ImageViewer.UnitTests
     {
         private static ILifetimeScope _lifetimeScope;
         private static IContainer _container;
-        private static ImageReferenceElement _genericImageRef;
+        private static ImageReference _genericImageRef;
         private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
 
         [ClassInitialize]
@@ -35,7 +35,7 @@ namespace ImageViewer.UnitTests
             GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
-            _genericImageRef = new ImageReferenceElement
+            _genericImageRef = new ImageReference
             {
                 Directory = TestDataPath,
                 FileName = "testImage.jpg",
@@ -243,7 +243,7 @@ namespace ImageViewer.UnitTests
             return settingsService;
         }
 
-        private bool CompareBookmarkToImgRef(Bookmark bookmark, ImageReferenceElement imageReference)
+        private bool CompareBookmarkToImgRef(Bookmark bookmark, ImageReference imageReference)
         {
             return imageReference.Size == bookmark.Size &&
                    imageReference.CompletePath == bookmark.CompletePath &&

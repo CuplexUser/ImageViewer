@@ -17,7 +17,7 @@ namespace ImageViewer
     {
         private readonly BookmarkManager _bookmarkManager;
         private readonly BookmarkService _bookmarkService;
-        private ImageReferenceElement _imageReference;
+        private ImageReference _imageReference;
         private readonly ApplicationSettingsService _applicationSettingsService;
         public FormAddBookmark(BookmarkManager bookmarkManager, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService)
         {
@@ -28,7 +28,7 @@ namespace ImageViewer
             _applicationSettingsService = applicationSettingsService;
         }
 
-        public void Init(Point startupPosition, ImageReferenceElement imageReference)
+        public void Init(Point startupPosition, ImageReference imageReference)
         {
             SetDesktopLocation(startupPosition.X, startupPosition.Y);
             _imageReference = imageReference;

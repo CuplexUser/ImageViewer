@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Autofac;
 using ImageViewer.Collections;
+using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
@@ -154,9 +155,9 @@ namespace ImageViewer
             DelayOperation.DelayAction(delegate { _enableLoadFormOnEnterKey = true; }, 2000);
         }
 
-        private SortableBindingList<ImageReferenceElement> GetSortableBindingSource()
+        private SortableBindingList<ImageReference> GetSortableBindingSource()
         {
-            return new SortableBindingList<ImageReferenceElement>(_imageLoaderService.ImageReferenceList);
+            return new SortableBindingList<ImageReference>(_imageLoaderService.ImageReferenceList);
         }
 
         private void dataGridViewLoadedImages_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
@@ -188,8 +189,7 @@ namespace ImageViewer
                 DataGridViewSelectedRowCollection selectedRows = dataGridViewLoadedImages.SelectedRows;
                 foreach (DataGridViewRow row in selectedRows)
                 {
-                    var imgRefElement = row.DataBoundItem as ImageReferenceElement;
-                    if (imgRefElement != null)
+                    if (row.DataBoundItem is ImageReference imgRefElement)
                         _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
                 }
                 dataGridViewLoadedImages.DataSource = GetSortableBindingSource();
@@ -199,8 +199,7 @@ namespace ImageViewer
         private void copyFilepathToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridViewLoadedImages.SelectedRows.Count == 0) return;
-            var imgRefElement = dataGridViewLoadedImages.SelectedRows[0].DataBoundItem as ImageReferenceElement;
-            if (imgRefElement != null)
+            if (dataGridViewLoadedImages.SelectedRows[0].DataBoundItem is ImageReference imgRefElement)
             {
                 Clipboard.Clear();
                 Clipboard.SetText(imgRefElement.Directory);
@@ -209,8 +208,7 @@ namespace ImageViewer
 
         private void openWithDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var imgRefElement = dataGridViewLoadedImages.SelectedRows[0].DataBoundItem as ImageReferenceElement;
-            if (imgRefElement != null)
+            if (dataGridViewLoadedImages.SelectedRows[0].DataBoundItem is ImageReference imgRefElement)
                 Process.Start(imgRefElement.CompletePath);
         }
 

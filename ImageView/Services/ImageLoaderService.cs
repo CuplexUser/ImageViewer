@@ -11,7 +11,6 @@ using AutoMapper;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
-using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -40,7 +39,7 @@ namespace ImageViewer.Services
         private readonly WindowsIdentity _winId;
         private int _filesLoaded;
         private string _imageBaseDir;
-        private List<ImageReferenceElement> _imageReferenceList;
+        private List<ImageReference> _imageReferenceList;
         private int _progressInterval;
         private bool _runWorkerThread;
         private int _tickCount;
@@ -69,7 +68,7 @@ namespace ImageViewer.Services
             }
         }
 
-        public List<ImageReferenceElement> ImageReferenceList
+        public List<ImageReference> ImageReferenceList
         {
             get
             {
@@ -117,14 +116,14 @@ namespace ImageViewer.Services
                 }
 
                 IsRunningImport = true;
-                List<ImageReferenceElement> imgReferenceList = null;
+                List<ImageReference> imgReferenceList = null;
                 await Task.Run(() =>
                 {
                     var bookmarks = _bookmarkService.BookmarkManager.GetAllBookmarksRecursive(_bookmarkService.BookmarkManager.RootFolder);
 
                     var query = from b in bookmarks
                                 orderby b.LastWriteTime
-                                select new ImageReferenceElement
+                                select new ImageReference
                                 {
                                     FileName = b.FileName,
                                     Directory = b.Directory,
@@ -195,9 +194,9 @@ namespace ImageViewer.Services
             return false;
         }
 
-        private List<ImageReferenceElement> GetAllImagesRecursive(string baseDir)
+        private List<ImageReference> GetAllImagesRecursive(string baseDir)
         {
-            var imageReferenceList = new List<ImageReferenceElement>();
+            var imageReferenceList = new List<ImageReference>();
 
             if (!_runWorkerThread)
                 return imageReferenceList;
@@ -211,7 +210,7 @@ namespace ImageViewer.Services
             foreach (var fileInfo in fileInfoArray)
             {
                 if (_fileNameRegExp.IsMatch(fileInfo.Name))
-                    imageReferenceList.Add(new ImageReferenceElement
+                    imageReferenceList.Add(new ImageReference
                     {
                         FileName = fileInfo.Name,
                         Directory = baseDir,
@@ -272,7 +271,7 @@ namespace ImageViewer.Services
 
     #endregion
 
-        internal bool PermanentlyRemoveFile(ImageReferenceElement imgRefElement)
+        internal bool PermanentlyRemoveFile(ImageReference imgRefElement)
         {
             int removedItems = 0;
             try
@@ -337,9 +336,9 @@ namespace ImageViewer.Services
             return imageReferenceCollection;
         }
 
-        public List<ImageReferenceElement> GenerateThumbnailList(bool randomOrder)
+        public List<ImageReference> GenerateThumbnailList(bool randomOrder)
         {
-            var imgRefList = new List<ImageReferenceElement>();
+            var imgRefList = new List<ImageReference>();
             if (randomOrder)
             {
                 var randomImagePosList = GetRandomImagePositionList();
@@ -352,7 +351,7 @@ namespace ImageViewer.Services
             }
             else
             {
-                foreach (ImageReferenceElement element in _imageReferenceList)
+                foreach (ImageReference element in _imageReferenceList)
                 {
                     imgRefList.Add(element);
                 }
@@ -367,11 +366,11 @@ namespace ImageViewer.Services
             GC.SuppressFinalize(this);
         }
 
-        public ImageReferenceElement ImportSingleImage(string fileName, ref ImageReferenceCollection imgReferenceCollection)
+        public ImageReference ImportSingleImage(string fileName, ref ImageReferenceCollection imgReferenceCollection)
         {
             var fileInfo = new FileInfo(fileName);
 
-            var imgRefElement = new ImageReferenceElement
+            var imgRefElement = new ImageReference
             {
                 FileName = fileInfo.Name,
                 Directory = fileInfo.DirectoryName,
@@ -387,7 +386,7 @@ namespace ImageViewer.Services
                 bool createdNewImgRefList = false;
                 if (_imageReferenceList == null)
                 {
-                    _imageReferenceList= new List<ImageReferenceElement>();
+                    _imageReferenceList= new List<ImageReference>();
                     createdNewImgRefList = true;
                 }
 

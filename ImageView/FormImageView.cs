@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
+using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Interfaces;
 using ImageViewer.Library.EventHandlers;
@@ -32,7 +33,7 @@ namespace ImageViewer
         private ImageReferenceCollection _imageReferenceCollection;
         private int _imagesViewed;
         private ImageViewFormImageInfo _imageViewFormInfo;
-        private ImageReferenceElement _imgRef;
+        private ImageReference _imgRef;
         private int _imgx; // current offset of image
         private int _imgy;
         private FormWindowState _lastFormState;
@@ -158,7 +159,7 @@ namespace ImageViewer
             }
         }
 
-        private void LoadNewImageFile(ImageReferenceElement imageReference)
+        private void LoadNewImageFile(ImageReference imageReference)
         {
             try
             {

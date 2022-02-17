@@ -17,11 +17,11 @@ namespace ImageViewer.UserControls
         private readonly BookmarkManager _bookmarkManager;
         private readonly BookmarkService _bookmarkService;
         private TreeViewDataContext _treeViewDataContext;
-        private readonly ImageReferenceElement _imageReference;
+        private readonly ImageReference _imageReference;
 
         public string DefaultBookmarkName { get; set; }
 
-        public CreateBookmarkFolder(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ImageReferenceElement imageReference)
+        public CreateBookmarkFolder(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ImageReference imageReference)
         {
             _bookmarkManager = bookmarkManager;
             _imageReference = imageReference;

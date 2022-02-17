@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using ImageViewer.DataContracts;
 
 namespace ImageViewer.UnitTests
 {
@@ -19,7 +20,7 @@ namespace ImageViewer.UnitTests
         private static readonly string[] TestImages = { "testImg.jpg", "testImg2.jpg", "testImg3.jpg" };
         private static ILifetimeScope _lifetimeScope;
         private static IContainer _container;
-        private static ImageReferenceElement _genericImageRef;
+        private static ImageReference _genericImageRef;
         private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
 
         [ClassInitialize]
@@ -31,7 +32,7 @@ namespace ImageViewer.UnitTests
             GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
-            _genericImageRef = new ImageReferenceElement
+            _genericImageRef = new ImageReference
             {
                 Directory = TestDataPath,
                 FileName = "testImage.jpg",

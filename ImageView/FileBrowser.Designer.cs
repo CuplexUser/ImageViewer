@@ -1,4 +1,5 @@
-﻿using ImageViewer.Models;
+﻿using ImageViewer.DataContracts;
+using ImageViewer.Models;
 
 namespace ImageViewer
 {
@@ -290,7 +291,7 @@ namespace ImageViewer
             // 
             // bindingSourceForImageService
             // 
-            this.bindingSourceForImageService.DataSource = typeof(ImageReferenceElement);
+            this.bindingSourceForImageService.DataSource = typeof(ImageReference);
             // 
             // FileBrowser
             // 

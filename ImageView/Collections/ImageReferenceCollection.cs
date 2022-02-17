@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Services;
@@ -29,7 +30,7 @@ namespace ImageViewer.Collections
             _randomImagePosList.Remove(index);
             Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
 
-            if (CurrentImage != null && CurrentImage == (ImageReferenceElement)e.ImageReference)
+            if (CurrentImage != null && CurrentImage == (ImageReference)e.ImageReference)
             {
                 GetNextImage();
             }
@@ -41,7 +42,7 @@ namespace ImageViewer.Collections
             _randomImagePosList.Clear();
         }
 
-        public ImageReferenceElement CurrentImage { get; private set; }
+        public ImageReference CurrentImage { get; private set; }
 
         private int ImageListPointer
         {
@@ -62,7 +63,7 @@ namespace ImageViewer.Collections
             get => _imageLoaderService.ImageReferenceList?.Count ?? 0;
         }
 
-        public ImageReferenceElement GetNextImage()
+        public ImageReference GetNextImage()
         {
             if (_randomImagePosList.Count == 0 || _imageLoaderService.ImageReferenceList.Count == 0)
                 return null;
@@ -72,7 +73,7 @@ namespace ImageViewer.Collections
             return CurrentImage;
         }
 
-        public ImageReferenceElement PeekNextImage()
+        public ImageReference PeekNextImage()
         {
             var index = ImageListPointer + 1;
             if (index >= _randomImagePosList.Count)
@@ -83,7 +84,7 @@ namespace ImageViewer.Collections
             return _imageLoaderService.ImageReferenceList[_randomImagePosList[index]];
         }
 
-        public ImageReferenceElement GetPreviousImage()
+        public ImageReference GetPreviousImage()
         {
             ImageListPointer = ImageListPointer - 1;
             CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];

@@ -11,6 +11,7 @@ using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
+using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
@@ -31,18 +32,14 @@ namespace ImageViewer
         private readonly ApplicationSettingsService _applicationSettingsService;
         private readonly BookmarkService _bookmarkService;
         private readonly FormAddBookmark _formAddBookmark;
-        private readonly FormSettings _formSettings;
         private readonly ImageCacheService _imageCacheService;
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
-        private readonly object _lockObj = new();
         private readonly PictureBox _pictureBoxAnimation = new();
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
         private bool _dataReady;
-        private FormBookmarks _formBookmarks;
-        private FormThumbnailView _formThumbnailView;
         private FormWindows _formWindows;
         private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
@@ -55,13 +52,13 @@ namespace ImageViewer
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private readonly WindowStateModel _windowState;
 
-        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, FormSettings formSettings, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
+        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
                 ImageLoaderService imageLoaderService,
                 ILifetimeScope scope, UserInteractionService interactionService)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
-            _formSettings = formSettings;
+            
             _applicationSettingsService = applicationSettingsService;
             _applicationSettingsService.LoadSettings();
 
@@ -169,7 +166,7 @@ namespace ImageViewer
                 return;
             }
 
-            ImageReferenceElement imgRef;
+            ImageReference imgRef;
 
             //Reset timer
             if (timerSlideShow.Enabled)
@@ -194,7 +191,7 @@ namespace ImageViewer
             AddNextImageToCache(_imageReferenceCollection.PeekNextImage().CompletePath);
         }
 
-        private void LoadNewImageFile(ImageReferenceElement imgRefElement)
+        private void LoadNewImageFile(ImageReference imgRefElement)
         {
             try
             {
@@ -567,16 +564,6 @@ namespace ImageViewer
             _interactionService.UserQuestionReceived += InteractionServiceUserQuestionReceived;
         }
 
-        private void FormThumbnailView_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (sender is Form form)
-            {
-                form.Dispose();
-            }
-
-            _formThumbnailView = null;
-            GC.Collect();
-        }
 
         private void Instance_OnImportComplete(object sender, ProgressEventArgs e)
         {
@@ -774,7 +761,7 @@ namespace ImageViewer
 
             if (result == DialogResult.Yes)
             {
-                ImageReferenceElement imgRefElement = _imageReferenceCollection.CurrentImage;
+                var imgRefElement = _imageReferenceCollection.CurrentImage;
                 bool imgRemoved = _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
                 if (!imgRemoved)
                 {
@@ -977,8 +964,9 @@ namespace ImageViewer
 
         private void openSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _formSettings.ShowDialog(this);
-
+            var frmSettings = _scope.Resolve<FormSettings>();
+            frmSettings.ShowDialog(this);
+            
             foreach (var imageView in _imageViewFormList)
             {
                 imageView.ReloadSettings();
@@ -1045,23 +1033,9 @@ namespace ImageViewer
 
         private void openBookmarksToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            if (_formBookmarks == null)
-            {
-                _formBookmarks = new FormBookmarks(_bookmarkService, _bookmarkService.BookmarkManager, _applicationSettingsService);
-                _formBookmarks.Show();
-                _formBookmarks.Focus();
-                _formBookmarks.Closed += (o, args) =>
-                {
-                    _formBookmarks = null;
-                    GC.Collect();
-                };
-            }
-            else
-            {
-                _formBookmarks.WindowState = FormWindowState.Normal;
-                _formBookmarks.Show();
-                _formBookmarks.Focus();
-            }
+            var formBookmarks = _scope.Resolve<FormBookmarks>();
+            formBookmarks.Show();
+            formBookmarks.Focus();
         }
 
         private void newWindowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1205,17 +1179,8 @@ namespace ImageViewer
 
         private void openThumbnailsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (_formThumbnailView == null)
-            {
-                //_formThumbnailView = new FormThumbnailView(_formAddBookmark, _applicationSettingsService, _imageCacheService,);
-                _formThumbnailView = _scope.Resolve<FormThumbnailView>();
-                _formThumbnailView.Show();
-                _formThumbnailView.FormClosed += FormThumbnailView_FormClosed;
-            }
-            else
-            {
-                _formThumbnailView.Focus();
-            }
+            var formThumbnailView = _scope.Resolve<FormThumbnailView>();
+            formThumbnailView.Show();
         }
 
         private void thumbnailDBSettingsToolStripMenuItem_Click(object sender, EventArgs e)
