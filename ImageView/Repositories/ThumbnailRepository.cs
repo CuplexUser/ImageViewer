@@ -92,13 +92,6 @@ namespace ImageViewer.Repositories
             set => _isModified = value;
         }
 
-
-        public void Disdfsdfsdfsdfpose(bool disposed)
-        {
-
-            DbReaderWriterLock.Dispose();
-        }
-
         #region Public Methods
 
         //public bool RemoveAllEntriesNotLocatedOnDisk()

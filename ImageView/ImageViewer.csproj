@@ -328,7 +328,6 @@
     <Compile Include="Providers\ProviderBase.cs" />
     <Compile Include="Repositories\AppSettingsRepository.cs" />
     <Compile Include="Repositories\FileContainerRepository.cs" />
-    <Compile Include="Repositories\IAsyncBinaryDataAccessHandler.cs" />
     <Compile Include="Repositories\ImageCacheRepository.cs" />
     <Compile Include="Repositories\RepositoryBase.cs" />
     <Compile Include="Repositories\ThumbnailRepository.cs" />

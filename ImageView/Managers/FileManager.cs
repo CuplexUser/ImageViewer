@@ -51,7 +51,7 @@ namespace ImageViewer.Managers
 
         private readonly Dictionary<string, bool> _directoryAccessDictionary;
 
-        private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+        //private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileManager"/> class.
@@ -390,19 +390,5 @@ namespace ImageViewer.Managers
         {
             Dispose(true);
         }
-
-
-        //protected virtual void Dispose(bool finalize)
-        //{
-        //    _fileStream?.Dispose();
-
-        //    cacheLock?.Dispose();
-        //    GC.SuppressFinalize(this);
-        //}
-
-        //public void Dispose()
-        //{
-        //    Dispose(true);
-        //}
     }
 }

@@ -196,7 +196,7 @@ namespace ImageViewer.Models
         /// <value>
         /// The size of the image cache.
         /// </value>
-        [Range(typeof(long), "33554432", "1073741824", ErrorMessage = "Value for {0} must be between {1} and {2}")]
+        [Range(typeof(long), "16777216", "268435456", ErrorMessage = "Value for {0} must be between {1} and {2}")]
         public long ImageCacheSize { get; set; }
 
         /// <summary>

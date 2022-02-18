@@ -15,16 +15,16 @@ namespace ImageViewer.Services
     public class ImageCacheService : ServiceBase
     {
         private readonly ImageCacheRepository _imageCacheRepository;
-        private readonly ImageLoaderService _imageLoaderService;
-        private static readonly object CacheLock = new object();
-        public const long DefaultCacheSize = 16777216;
-        public const long MinCacheSize = 5242880;
-        public const long MaxCacheSize = 268435456;
+
+        private static readonly object CacheLock = new();
+        public const long DefaultCacheSize = 134217728;// 128 Mb
+        public const long MinCacheSize = 16777216;     //16 Mb
+        public const long MaxCacheSize = 268435456;    // 256 Mb
 
         public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService)
         {
             _imageCacheRepository = imageCacheRepository;
-            _imageLoaderService = imageLoaderService;
+
             if (_imageCacheRepository.CacheSize < MinCacheSize)
             {
                 _imageCacheRepository.SetCacheSize(MinCacheSize, CacheTruncatePriority.RemoveLargest);
@@ -69,14 +69,12 @@ namespace ImageViewer.Services
 
         public int CachedImages => _imageCacheRepository.CachedImages;
 
+        public long CacheSpaceAllocated => _imageCacheRepository.CacheSpaceAllocated;
 
         public long CacheSize
         {
             get => _imageCacheRepository.CacheSize;
-            set
-            {
-                _imageCacheRepository.SetCacheSize(value, CacheTruncatePriority.RemoveOldest);
-            }
+            set => _imageCacheRepository.SetCacheSize(value, CacheTruncatePriority.RemoveOldest);
         }
 
         public CachedImage GetCachedImage(string fileName)

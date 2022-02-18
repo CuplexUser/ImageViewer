@@ -16,12 +16,11 @@ namespace ImageViewer
     {
         private const int TrackbarDivider = 1048576;
         private readonly ApplicationSettingsService _applicationSettingsService;
-        private readonly BookmarkService _bookmarkService;
         private readonly ImageCacheService _imageCacheService;
         private long _selectedCacheSize;
         private readonly ApplicationSettingsModel _originalSettings;
 
-        public FormSettings(BookmarkService bookmarkService, ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
+        public FormSettings(ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
         {
             _applicationSettingsService = applicationSettingsService;
             bool settingsLoaded = _applicationSettingsService.LoadSettings();
@@ -30,10 +29,7 @@ namespace ImageViewer
                 Log.Warning("FormSettings constructor failed to load settings");
             }
             _originalSettings = applicationSettingsService.Settings;
-            _bookmarkService = bookmarkService;
-
             _imageCacheService = imageCacheService;
-            _selectedCacheSize = _imageCacheService.CacheSize;
             InitializeComponent();
         }
 
@@ -54,6 +50,8 @@ namespace ImageViewer
             chkToggleSlidshowWithThirdMouseButton.Checked = settings.ToggleSlideshowWithThirdMouseButton;
             chkAutohideCursor.Checked = settings.AutoHideCursor;
 
+            _selectedCacheSize = _imageCacheService.CacheSize;
+
             if (settings.ShowNextPrevControlsOnEnterWindow)
             {
                 rbOverWindow.Checked = true;
@@ -71,18 +69,6 @@ namespace ImageViewer
                 case ApplicationSettingsModel.ChangeImageAnimation.None:
                     rbImgTransformNone.Checked = true;
                     break;
-                //case ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft:
-                //    rbImgTransformSlideLeft.Checked = true;
-                //    break;
-                //case ImageViewApplicationSettings.ChangeImageAnimation.SlideRight:
-                //    rbImgTransformSlideRight.Checked = true;
-                //    break;
-                //case ImageViewApplicationSettings.ChangeImageAnimation.SlideDown:
-                //    rbImgTransformSlideDown.Checked = true;
-                //    break;
-                //case ImageViewApplicationSettings.ChangeImageAnimation.SlideUp:
-                //    rbImgTransformSlideUp.Checked = true;
-                //  break;
                 case ApplicationSettingsModel.ChangeImageAnimation.FadeIn:
                     rbImgTransformFadeIn.Checked = true;
                     break;
@@ -116,17 +102,12 @@ namespace ImageViewer
 
             if (backgroundColorDropdownList.Items.Count > 0)
             {
-                if (settings.MainWindowBackgroundColor != null)
-                {
-                    Color savedColor =settings.MainWindowBackgroundColor;
-                    var item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
-                    backgroundColorDropdownList.SelectedItem = item;
-                }
-                else
-                {
-                    backgroundColorDropdownList.SelectedIndex = 0;
-                }
+                Color savedColor =settings.MainWindowBackgroundColor;
+                var item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
+                backgroundColorDropdownList.SelectedItem = item;
             }
+
+            // Log.Information("Load Settings Cache size: {_selectedCacheSize}", _selectedCacheSize);
 
             UpdateCacheStats();
         }
@@ -141,18 +122,6 @@ namespace ImageViewer
 
             if (rbImgTransformNone.Checked)
                 settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None;
-
-            //if (rbImgTransformSlideLeft.Checked)
-            //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideLeft;
-
-            //if (rbImgTransformSlideRight.Checked)
-            //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideRight;
-
-            //if (rbImgTransformSlideDown.Checked)
-            //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideDown;
-
-            //if (rbImgTransformSlideUp.Checked)
-            //    settings.NextImageAnimation = ImageViewApplicationSettings.ChangeImageAnimation.SlideUp;
 
             settings.AutoRandomizeCollection = chkAutoRandomize.Checked;
             settings.ShowSwitchImageButtons = chkShowSwitchImgButtons.Checked;
@@ -206,9 +175,6 @@ namespace ImageViewer
                             return;
                         }
 
-                        //_applicationSettingsService.Settings.EnablePasswordProtectBookmarks(formSetPassword.VerifiedPassword);
-                        //_applicationSettingsService.SaveSettings();
-                        //_bookmarkService.SaveBookmarks();
                     }
                     else
                         chkPasswordProtectBookmarks.Checked = false;
@@ -223,12 +189,7 @@ namespace ImageViewer
                 {
                     if (formGetPassword.ShowDialog() == DialogResult.OK && formGetPassword.PasswordVerified)
                     {
-                        //_applicationSettingsService.Settings.DisablePasswordProtectBookmarks();
-                        //_applicationSettingsService.SaveSettings();
-
-                        // Check bookmark status
-                        //if (BookmarkService.Instance.BookmarkManager == null)
-                        //    BookmarkService.Instance.Dispose();
+                        
                     }
                     else
                         chkPasswordProtectBookmarks.Checked = true;
@@ -239,15 +200,16 @@ namespace ImageViewer
         private void UpdateCacheStats()
         {
             long cacheSize = _selectedCacheSize;
-            long cacheUsage = _imageCacheService.CacheSize;
+            long cacheUsage = _imageCacheService.CacheSpaceAllocated;
             const long maxSize = ImageCacheService.MaxCacheSize;
             const long minSize = ImageCacheService.MinCacheSize;
-            pbarPercentUsed.Maximum = (int)cacheSize;
+            pbarPercentUsed.Maximum = 100;
+            pbarPercentUsed.Minimum = 0;
 
             lblCacheItems.Text = _imageCacheService.CachedImages.ToString();
             lblUsedSpace.Text = GeneralConverters.FormatFileSizeToString(cacheUsage, 2);
             lblFreeSpace.Text = GeneralConverters.FormatFileSizeToString(cacheSize - cacheUsage);
-            pbarPercentUsed.Value = Convert.ToInt32((double)cacheUsage / cacheSize * 100);
+            pbarPercentUsed.Value = Convert.ToInt32((double)cacheUsage / cacheSize * 100d);
 
             trackBarCacheSize.Minimum = Convert.ToInt32(minSize / TrackbarDivider);
             trackBarCacheSize.Maximum = Convert.ToInt32(maxSize / TrackbarDivider);
