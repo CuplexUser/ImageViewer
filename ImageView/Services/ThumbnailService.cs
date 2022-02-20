@@ -243,10 +243,15 @@ namespace ImageViewer.Services
 
         public Image GetThumbnail(string filename)
         {
-            if (_thumbnailRepository.IsCached(filename)) return _thumbnailRepository.GetThumbnailImage(filename);
+            if (_thumbnailRepository.IsCached(filename)) 
+                return _thumbnailRepository.GetThumbnailImage(filename);
 
-            var thumbnailImage = _fileManager.CreateThumbnail(filename, new Size(512, 512));
-            return _thumbnailRepository.AddThumbnailImage(filename, thumbnailImage);
+            Image thumbnailImage = null;
+
+            thumbnailImage = _fileManager.CreateThumbnail(filename, new Size(512, 512));
+            _thumbnailRepository.AddThumbnailImage(filename, thumbnailImage);
+
+            return thumbnailImage;
         }
 
 

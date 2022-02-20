@@ -176,7 +176,7 @@ namespace ImageViewer.Repositories
         ///     Gets the size of the file cache.
         /// </summary>
         /// <returns></returns>
-        public long GetThumbnailDiskSize()
+        private long GetThumbnailDiskSize()
         {
             return _thumbnailDatabase.ThumbnailEntries.Select(x => x.Length).Sum();
         }

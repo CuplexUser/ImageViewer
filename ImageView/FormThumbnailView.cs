@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autofac;
+using ImageProcessor;
 using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
@@ -79,7 +81,7 @@ namespace ImageViewer
             bool success = FormStateManager.RestoreFormState(appSettings, this);
             Log.Debug("Form state successfully restored for: {Name}",Name);
             
-            Closing += FormThumbnailView_Closing;
+            
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor;
             picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
@@ -121,7 +123,7 @@ namespace ImageViewer
 
 
         // Generate Thumbnail list
-        private async void btnGenerate_Click(object sender, EventArgs e)
+        private void btnGenerate_Click(object sender, EventArgs e)
         {
             if (_imageLoaderService.ImageReferenceList == null)
             {
@@ -208,7 +210,6 @@ namespace ImageViewer
             {
                 var pictureBox = new PictureBox
                 {
-                    Image = _thumbnailService.GetThumbnail(element.CompletePath),
                     Width = _thumbnailSize,
                     Height = _thumbnailSize,
                     BorderStyle = BorderStyle.FixedSingle,
@@ -217,6 +218,11 @@ namespace ImageViewer
                     Tag = element.CompletePath
                 };
 
+                //var x = new ImageFactory().Load(element.CompletePath).Resize(new Size(512, 512)).Image;
+
+                //Task<Image>.Factory.StartNew(() => _thumbnailService.GetThumbnail(element.CompletePath));
+
+                pictureBox.Image =    _thumbnailService.GetThumbnail(element.CompletePath);
                 pictureBox.ControlRemoved += PictureBox_ControlRemoved;
 
                 if (pictureBox.Image == null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Media;
 using ImageViewer.Models;
@@ -20,7 +21,7 @@ namespace ImageViewer.Managers
                     var model = settings.FormStateModels[form.Name];
 
                     //Validate FormStateModel
-                    if (!ValidateFormStateModel(model, form))
+                    if (!ValidateFormStateModel(model))
                     {
                         Log.Warning($"The FormStateModel for {form.Name} vas not valid invalid. Replacing it with a generic. FormSize={model.FormSize}", form.Name, model.FormSize);
                         settings.FormStateModels.Remove(model.FormName);
@@ -30,7 +31,8 @@ namespace ImageViewer.Managers
                         {
                             FormName = form.Name,
                             WindowState = FormState.Normal,
-                            FormSize = form.Size
+                            FormSize = form.Bounds.Size,
+                            FormPosition = new Point()
                         };
 
                         if (model.FormSize.IsEmpty)
@@ -38,14 +40,11 @@ namespace ImageViewer.Managers
                             model.FormSize = form.MinimumSize;
                         }
 
-                        model.FormPosition = GetOffsetCenterPointInRect(Screen.PrimaryScreen.Bounds, form.Size);
+                        //model.FormPosition = GetOffsetCenterPointInRect(Screen.PrimaryScreen.Bounds, form.Size);
                         settings.FormStateModels.Add(form.Name, model);
                     }
 
-                    form.Width = model.FormSize.Width;
-                    form.Height = model.FormSize.Height;
-
-                    form.Location = new Point(model.FormPosition.X, model.FormPosition.Y);
+                    form.Bounds = new Rectangle(model.FormPosition, model.FormSize);
                     form.WindowState = (FormWindowState)model.WindowState;
 
                     return true;
@@ -68,12 +67,13 @@ namespace ImageViewer.Managers
             return center;
         }
 
-        private static bool ValidateFormStateModel(FormStateModel model, Form form)
+        //Validates that the Form is located on any screen
+        private static bool ValidateFormStateModel(FormStateModel model)
         {
-            var screenRect = Screen.PrimaryScreen.Bounds;
-            var formStateRect = new Rectangle(model.FormPosition, model.FormSize);
+            var modelBounds = new Rectangle(model.FormPosition, model.FormSize);
+            bool intersect = Screen.AllScreens.Any(x => x.Bounds.IntersectsWith(modelBounds));
 
-            return screenRect.Contains(formStateRect) && (screenRect.Width >= form.Width) && (screenRect.Height >= form.Height);
+            return intersect;
         }
 
         public static void SaveFormState(ApplicationSettingsModel appSettings, Form form)
@@ -90,29 +90,16 @@ namespace ImageViewer.Managers
             }
 
             model.FormName = form.Name;
-            var restoreBounds = form.RestoreBounds;
-
-            switch (form.WindowState)
+            model.WindowState = (FormState)form.WindowState;
+            if (form.WindowState == FormWindowState.Normal)
             {
-                case FormWindowState.Normal:
-                    model.FormPosition = form.Location;
-                    model.FormSize = form.Size;
-                    model.WindowState = FormState.Normal;
-                    break;
-                case FormWindowState.Minimized:
-                    model.FormPosition = restoreBounds.Location;
-                    model.FormSize = restoreBounds.Size;
-                    model.WindowState = FormState.Minimized;
-                    break;
-                case FormWindowState.Maximized:
-                    model.FormPosition = restoreBounds.Location;
-                    model.FormSize = restoreBounds.Size;
-                    model.WindowState = FormState.Maximized;
-                    model.FormSize = form.MinimumSize;
-                    break;
-                default:
-                    model.WindowState = FormState.Normal;
-                    break;
+                model.FormSize = form.Bounds.Size;
+                model.FormPosition = form.Bounds.Location;
+            }
+            else
+            {
+                model.FormSize = form.RestoreBounds.Size;
+                model.FormPosition = form.RestoreBounds.Location;
             }
         }
 
