@@ -220,15 +220,18 @@ namespace ImageViewer.Services
 
         public async Task<bool> SaveThumbnailDatabaseAsync()
         {
-            if (ServiceState == ThumbnailServiceState.Idle)
-            {
-                ServiceState = ThumbnailServiceState.SavingDatabase;
-                bool result = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
-                ServiceState = ThumbnailServiceState.Idle;
-                return result;
-            }
+            await Task.Delay(10);
+            return true;
 
-            return false;
+            //if (ServiceState == ThumbnailServiceState.Idle)
+            //{
+            //    ServiceState = ThumbnailServiceState.SavingDatabase;
+            //    bool result = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
+            //    ServiceState = ThumbnailServiceState.Idle;
+            //    return result;
+            //}
+
+            //return false;
         }
 
         public bool LoadThumbnailDatabase()

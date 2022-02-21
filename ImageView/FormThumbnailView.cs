@@ -4,11 +4,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autofac;
 using ImageProcessor;
 using ImageViewer.DataContracts;
+using ImageViewer.Delegates;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
@@ -27,13 +30,50 @@ namespace ImageViewer
         private readonly ThumbnailService _thumbnailService;
         private string _maximizedImgFilename;
         private int _maxThumbnails;
-        private List<Control> _pictureBoxList;
         private ThumbnailScanDirectory _thumbnailScan;
         private int _thumbnailSize;
+        private bool formIsDisposing;
+        private readonly ThumbnailFormState _state = new ThumbnailFormState();
+
 
         // Flag: Has Dispose already been called?
         private bool disposed;
+        private UpdatePicBoxListEventHandler _updatePicBoxList;
 
+
+        private ApplicationSettingsModel AppSettings
+        {
+            get => _applicationSettings?.Settings;
+        }
+
+        private class ThumbnailFormState
+        {
+            public bool IsDisposing { get; set; }
+            public bool IsGeneratingThumbnails { get; private set; }
+            public bool CanClose
+            {
+                get { return !IsGeneratingThumbnails; }
+            }
+
+
+
+            public ThumbnailFormState()
+            {
+
+            }
+
+            public void StartingThumbnailScan()
+            {
+                IsGeneratingThumbnails = true;
+            }
+
+            public void ThumbnailGenerationCompleted()
+            {
+                IsGeneratingThumbnails = false;
+            }
+
+
+        }
 
         public FormThumbnailView(ApplicationSettingsService applicationSettings, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
         {
@@ -41,7 +81,8 @@ namespace ImageViewer
             _thumbnailService = thumbnailService;
             _imageLoaderService = imageLoaderService;
             _scope = scope;
-            
+            _updatePicBoxList += UpdatePicBoxList;
+
 
             if (applicationSettings == null)
             {
@@ -54,10 +95,9 @@ namespace ImageViewer
             }
 
             _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
-            _maxThumbnails = _applicationSettings.Settings.MaxThumbnails;
+            _maxThumbnails = AppSettings.MaxThumbnails;
             _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
             _thumbnailService.LoadThumbnailDatabase();
-
 
             InitializeComponent();
         }
@@ -70,42 +110,34 @@ namespace ImageViewer
             picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
         }
 
-
-
         private void FormThumbnailView_Load(object sender, EventArgs e)
         {
             if (DesignMode)
                 return;
 
-            var appSettings = _applicationSettings.Settings;
-            bool success = FormStateManager.RestoreFormState(appSettings, this);
-            Log.Debug("Form state successfully restored for: {Name}",Name);
-            
-            
+            FormStateManager.RestoreFormState(AppSettings, this);
+
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
-            flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor;
-            picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
+            flowLayoutPanel1.BackColor = AppSettings.MainWindowBackgroundColor;
+            picBoxMaximized.BackColor = AppSettings.MainWindowBackgroundColor;
             UpdateStyles();
         }
 
         private void FormThumbnailView_Closing(object sender, CancelEventArgs e)
         {
+            if (!_state.CanClose)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             Hide();
 
-            var appSettings = _applicationSettings.Settings;
+            formIsDisposing = true;
+            var appSettings = AppSettings;
             FormStateManager.SaveFormState(appSettings, this);
             _applicationSettings.SaveSettings();
         }
-
-        private static void DisposePictureBox(PictureBox objectToBeDisposed)
-        {
-            if (objectToBeDisposed != null)
-            {
-                objectToBeDisposed.Image?.Dispose();
-                objectToBeDisposed.Dispose();
-            }
-        }
-
 
         private IEnumerable<Control> GetControlTree(Control root)
         {
@@ -123,7 +155,7 @@ namespace ImageViewer
 
 
         // Generate Thumbnail list
-        private void btnGenerate_Click(object sender, EventArgs e)
+        private async void btnGenerate_Click(object sender, EventArgs e)
         {
             if (_imageLoaderService.ImageReferenceList == null)
             {
@@ -136,10 +168,11 @@ namespace ImageViewer
             flowLayoutPanel1.Controls.Clear();
 
             btnGenerate.Enabled = false;
+            _state.StartingThumbnailScan();
 
             try
             {
-                BindAndLoadThumbnails();
+                await BindAndLoadThumbnailsAsync();
             }
             catch (Exception ex)
             {
@@ -151,41 +184,73 @@ namespace ImageViewer
             Refresh();
         }
 
-        private void BindAndLoadThumbnails()
+        private async Task BindAndLoadThumbnailsAsync()
         {
-            _pictureBoxList = GenerateThumbnails();
+            var modelList = GenerateThumbnailModels();
+            ImageFactory imgFactory = new ImageFactory(MetaDataMode.None);
 
-            if (!IsDisposed)
-                Invoke(new EventHandler(UpdatePictureBoxList));
+            // Generate thumbnails
+            await Task.Factory.StartNew(() =>
+            {
+                var picBoxList = new List<PictureBox>();
+                foreach (PictureBoxModel model in modelList)
+                {
+                    var picBox = CreatePictureBox(model);
 
-            _thumbnailService.SaveThumbnailDatabase();
+                    // Perform thumbnail generation
+                    picBox.Image = imgFactory.Load(model.SourceImagePath).Resize(model.ThumbnailSize).Image;
+                    //picBoxList.Add(picBox);
+
+                    if (formIsDisposing)
+                        break;
+
+                    if (!formIsDisposing)
+                        Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
+                }
+
+                if (!formIsDisposing)
+                    Invoke(new EventHandler(ThumbnailGenerationCompleted));
+
+            });
+
+            if (!formIsDisposing)
+            {
+                await _thumbnailService.SaveThumbnailDatabaseAsync();
+                GC.Collect();
+            }
+
+        }
+
+        private PictureBox CreatePictureBox(PictureBoxModel model)
+        {
+            var picBox = new PictureBox
+            {
+                Width = model.ThumbnailSize.Width,
+                Height = model.ThumbnailSize.Height,
+                BorderStyle = model.BorderStyle,
+                SizeMode = model.SizeMode,
+            };
+
+            picBox.Tag = model.SourceImagePath;
+            picBox.MouseClick += PictureBox_MouseClick;
+            picBox.ControlRemoved += PictureBox_ControlRemoved;
+
+            return picBox;
+        }
+
+        private void ThumbnailGenerationCompleted(object sender, EventArgs e)
+        {
+            _state.ThumbnailGenerationCompleted();
+            SetUpdateDatabaseEnabledState(true);
             GC.Collect();
         }
 
-        //private void CleanupPictureControlObjects(object sender, EventArgs e)
-        //{
-        //    if (_pictureBoxList != null)
-        //    {
-        //        _pictureBoxList.ForEach(x =>
-        //        {
-        //            for (int i = x.Controls.Count; i < 0; i++)
-        //            {
-        //                x.Controls[i].Dispose();
-        //            }
-        //            x.Dispose();
-        //        });
-        //        _pictureBoxList.Clear();
-        //    }
-        //    GC.Collect();
-        //}
 
-        private void UpdatePictureBoxList(object sender, EventArgs e)
+        private void UpdatePicBoxList(object sender, UpdatePicBoxEventArgs e)
         {
-            if (_pictureBoxList == null) return;
-            flowLayoutPanel1.Controls.AddRange(_pictureBoxList.ToArray());
-            SetUpdateDatabaseEnabledState(true);
+            if (e == null) return;
 
-            GC.Collect();
+            flowLayoutPanel1.Controls.Add(e.PictureBoxModel);
         }
 
         private void SetUpdateDatabaseEnabledState(bool enabled)
@@ -199,49 +264,77 @@ namespace ImageViewer
             SetUpdateDatabaseEnabledState(true);
         }
 
-        private List<Control> GenerateThumbnails()
+        private List<PictureBoxModel> GenerateThumbnailModels()
         {
-            var backColor = _applicationSettings.Settings.MainWindowBackgroundColor;
-            var pictureBoxes = new List<Control>();
-            bool randomizeImageCollection = _applicationSettings.Settings.AutoRandomizeCollection;
+            var backColor = AppSettings.MainWindowBackgroundColor;
+            var modelList = new List<PictureBoxModel>();
+
+            bool randomizeImageCollection = AppSettings.AutoRandomizeCollection;
             var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
-            int items = 0;
-            foreach (ImageReference element in imgRefList)
+
+            if (imgRefList.Count > _maxThumbnails)
             {
-                var pictureBox = new PictureBox
-                {
-                    Width = _thumbnailSize,
-                    Height = _thumbnailSize,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    SizeMode = PictureBoxSizeMode.Zoom,
-                    BackColor = backColor,
-                    Tag = element.CompletePath
-                };
-
-                //var x = new ImageFactory().Load(element.CompletePath).Resize(new Size(512, 512)).Image;
-
-                //Task<Image>.Factory.StartNew(() => _thumbnailService.GetThumbnail(element.CompletePath));
-
-                pictureBox.Image =    _thumbnailService.GetThumbnail(element.CompletePath);
-                pictureBox.ControlRemoved += PictureBox_ControlRemoved;
-
-                if (pictureBox.Image == null)
-                {
-                    pictureBox.Dispose();
-                    continue;
-                }
-
-                pictureBox.MouseClick += PictureBox_MouseClick;
-                pictureBoxes.Add(pictureBox);
-
-
-                items++;
-                if (items > _maxThumbnails)
-                    return pictureBoxes;
+                imgRefList = imgRefList.Take(_maxThumbnails).ToList();
             }
 
-            return pictureBoxes;
+            foreach (ImageReference element in imgRefList)
+            {
+                var model = new PictureBoxModel
+                {
+                    BackColor = backColor,
+                    SourceImagePath = element.CompletePath,
+                    ThumbnailSize = new Size(_thumbnailSize, _thumbnailSize),
+                    BorderStyle = BorderStyle.FixedSingle,
+                    SizeMode = PictureBoxSizeMode.Zoom
+                };
+
+                modelList.Add(model);
+            }
+
+            return modelList;
         }
+
+        //private List<Control> GenerateThumbnails()
+        //{
+        //    var backColor = AppSettings.MainWindowBackgroundColor;
+        //    var pictureBoxes = new List<Control>();
+        //    bool randomizeImageCollection = AppSettings.AutoRandomizeCollection;
+        //    var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
+        //    int items = 0;
+        //    foreach (ImageReference element in imgRefList)
+        //    {
+        //        var pictureBox = new PictureBox
+        //        {
+        //            Width = _thumbnailSize,
+        //            Height = _thumbnailSize,
+        //            BorderStyle = BorderStyle.FixedSingle,
+        //            SizeMode = PictureBoxSizeMode.Zoom,
+        //            BackColor = backColor,
+        //            Tag = element.CompletePath
+        //        };
+
+        //        //var x = new ImageFactory().Load(element.CompletePath).Resize(new Size(512, 512)).Image;
+        //        //Task<Image>.Factory.StartNew(() => _thumbnailService.GetThumbnail(element.CompletePath));
+        //        //pictureBox.Image =  _thumbnailService.GetThumbnail(element.CompletePath);
+        //        pictureBox.ControlRemoved += PictureBox_ControlRemoved;
+
+        //        if (pictureBox.Image == null)
+        //        {
+        //            pictureBox.Dispose();
+        //            continue;
+        //        }
+
+        //        pictureBox.MouseClick += PictureBox_MouseClick;
+        //        pictureBoxes.Add(pictureBox);
+
+
+        //        items++;
+        //        if (items > _maxThumbnails)
+        //            return pictureBoxes;
+        //    }
+
+        //    return pictureBoxes;
+        //}
 
         private void PictureBox_ControlRemoved(object sender, ControlEventArgs e)
         {
@@ -272,23 +365,13 @@ namespace ImageViewer
             flowLayoutPanel1.Visible = false;
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            if (_thumbnailScan != null && !_thumbnailScan.IsDisposed)
-            {
-                _thumbnailScan.Dispose();
-            }
-
-            base.OnClosed(e);
-        }
-
         private void btnSettings_Click(object sender, EventArgs e)
         {
             Form frmSettings = FormFactory.CreateSettingsForm(new ThumbnailSettings(_applicationSettings));
             if (frmSettings.ShowDialog(this) == DialogResult.OK)
             {
-                _maxThumbnails = _applicationSettings.Settings.MaxThumbnails;
-                _thumbnailSize = ValidateThumbnailSize(_applicationSettings.Settings.ThumbnailSize);
+                _maxThumbnails = AppSettings.MaxThumbnails;
+                _thumbnailSize = ValidateThumbnailSize(AppSettings.ThumbnailSize);
                 _applicationSettings.SaveSettings();
             }
 
@@ -340,21 +423,6 @@ namespace ImageViewer
             _thumbnailScan?.OnFormClosed();
             _thumbnailScan = null;
         }
-
-        //private void FormThumbnailView_FormClosing(object sender, FormClosingEventArgs e)
-        //{
-        //    _thumbnailService.SaveThumbnailDatabase();
-        //    flowLayoutPanel1.Controls.Clear();
-        //    if (_pictureBoxList != null)
-        //    {
-        //        foreach (var control in _pictureBoxList)
-        //        {
-        //            control.Dispose();
-        //        }
-        //    }
-        //    _pictureBoxList = null;
-        //    GC.Collect();
-        //}
 
         private void picBoxMaximized_MouseClick(object sender, MouseEventArgs e)
         {
@@ -440,6 +508,8 @@ namespace ImageViewer
 
             if (disposing)
             {
+                formIsDisposing = true;
+                _state.IsDisposing = true;
                 // Free any other managed objects here.
                 //
             }

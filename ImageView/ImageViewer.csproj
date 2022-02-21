@@ -124,7 +124,7 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -191,6 +191,7 @@
     <Compile Include="DataContracts\SizeDataModel.cs" />
     <Compile Include="DataContracts\VectorDataModel.cs" />
     <Compile Include="Delegates\DeligateFunctions.cs" />
+    <Compile Include="Delegates\UpdatePicBoxListEventHandler.cs" />
     <Compile Include="Events\TransitionImageUpdateEventArgs.cs" />
     <Compile Include="Library\AutomapperProfile\AppConfigProfile.cs" />
     <Compile Include="Library\AutomapperProfile\ImageViewMapperProfile.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="Models\BookmarkEditModel.cs" />
     <Compile Include="Models\FormStateModel.cs" />
     <Compile Include="Models\Interface\IAppSettingsRepository.cs" />
+    <Compile Include="Models\PictureBoxModel.cs" />
     <Compile Include="Models\WindowStateModel.cs" />
     <Compile Include="Models\ThumbnailDatabase.cs" />
     <Compile Include="DataContracts\ThumbnailDatabaseModel.cs" />
@@ -657,13 +659,13 @@
       <Version>3.1.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.File">
-      <Version>4.1.0</Version>
+      <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.PeriodicBatching">
-      <Version>2.3.0</Version>
+      <Version>2.3.1</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.Trace">
-      <Version>2.1.0</Version>
+      <Version>3.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common">
       <Version>6.0.0</Version>
