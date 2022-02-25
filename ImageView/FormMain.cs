@@ -37,6 +37,7 @@ namespace ImageViewer
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
         private readonly PictureBox _pictureBoxAnimation = new();
+        private readonly FormManager _formManager;
         private readonly ILifetimeScope _scope;
         private readonly string _windowTitle;
         private bool _dataReady;
@@ -51,14 +52,16 @@ namespace ImageViewer
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private readonly WindowStateModel _windowState;
+        private Dictionary<string, Form> ActiveFormList { get; }
+
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
                 ImageLoaderService imageLoaderService,
-                ILifetimeScope scope, UserInteractionService interactionService)
+                ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
-            
+
             _applicationSettingsService = applicationSettingsService;
             _applicationSettingsService.LoadSettings();
 
@@ -66,11 +69,13 @@ namespace ImageViewer
             _imageLoaderService = imageLoaderService;
             _scope = scope;
             _interactionService = interactionService;
+            _formManager = formManager;
             _windowState = new WindowStateModel();
 
             InitializeComponent();
             _imageViewFormList = new List<FormImageView>();
             _windowTitle = "Image Viewer - " + Application.ProductVersion;
+            ActiveFormList = new Dictionary<string, Form>(); ;
         }
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
@@ -342,7 +347,7 @@ namespace ImageViewer
             {
                 FormStateManager.ToggleFullscreen(_windowState, this);
                 menuStrip1.Visible = false;
-                Cursor.Hide();
+                //Cursor.Hide();
                 _windowState.CursorVisible = false;
                 ScreenSaver.Disable();
             }
@@ -471,13 +476,17 @@ namespace ImageViewer
 
         private void UpdateCursorState()
         {
+            if (!ImageSourceDataAvailable)
+                return;
+
             if (_windowState.CursorVisible)
             {
                 Cursor.Show();
             }
             else
             {
-                Cursor.Hide();
+                if (Focused)
+                    Cursor.Hide();
             }
         }
 
@@ -966,7 +975,7 @@ namespace ImageViewer
         {
             var frmSettings = _scope.Resolve<FormSettings>();
             frmSettings.ShowDialog(this);
-            
+
             foreach (var imageView in _imageViewFormList)
             {
                 imageView.ReloadSettings();
@@ -1033,9 +1042,7 @@ namespace ImageViewer
 
         private void openBookmarksToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            var formBookmarks = _scope.Resolve<FormBookmarks>();
-            formBookmarks.Show();
-            formBookmarks.Focus();
+            _formManager.ShowForm(typeof(FormBookmarks));
         }
 
         private void newWindowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1179,14 +1186,12 @@ namespace ImageViewer
 
         private void openThumbnailsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var formThumbnailView = _scope.Resolve<FormThumbnailView>();
-            formThumbnailView.Show();
+            _formManager.ShowForm(typeof(FormThumbnailView));
         }
 
         private void thumbnailDBSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var thumbnailService = _scope.Resolve<ThumbnailService>();
-            var form = new FormThumbnailSettings(thumbnailService);
+            var form = _formManager.GetFormInstance(typeof(FormThumbnailSettings));
             form.ShowDialog(this);
         }
 

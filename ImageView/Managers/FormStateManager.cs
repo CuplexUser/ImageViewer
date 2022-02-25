@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Media;
 using ImageViewer.Models;
 using Serilog;
 using Color = System.Drawing.Color;

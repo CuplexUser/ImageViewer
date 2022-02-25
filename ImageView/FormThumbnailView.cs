@@ -97,7 +97,7 @@ namespace ImageViewer
             _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
             _maxThumbnails = AppSettings.MaxThumbnails;
             _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
-            _thumbnailService.LoadThumbnailDatabase();
+            //_thumbnailService.LoadThumbnailDatabase();
 
             InitializeComponent();
         }

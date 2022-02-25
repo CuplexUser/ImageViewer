@@ -88,6 +88,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <LangVersion>9</LangVersion>
     <DebugSymbols>false</DebugSymbols>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>EB689F59BC091065757DB92A85FCD68F213AADFB</ManifestCertificateThumbprint>
@@ -124,7 +125,7 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>false</DelaySign>
@@ -199,6 +200,7 @@
     <Compile Include="Library\EventHandlers\ImageRemovedEventHandler.cs" />
     <Compile Include="Library\Extensions\DataAnotation.cs" />
     <Compile Include="Library\Extensions\FixedBoundsAttribute.cs" />
+    <Compile Include="Managers\FormManager.cs" />
     <Compile Include="Managers\FormStateManager.cs" />
     <Compile Include="Managers\ThumbnailDbManager.cs" />
     <Compile Include="Models\ApplicationSettingsModel.cs" />
@@ -236,7 +238,6 @@
     <Compile Include="Managers\ManagerBase.cs" />
     <Compile Include="Managers\OverlayFormManager.cs" />
     <Compile Include="Models\ThumbnailEntry.cs" />
-    <Compile Include="Managers\ThumbnailManager.cs" />
     <Compile Include="Models\ApplicationVersion.cs" />
     <Compile Include="Models\CachedImage.cs" />
     <Compile Include="Managers\BookmarkManager.cs" />
@@ -641,7 +642,7 @@
       <Version>4.4.1</Version>
     </PackageReference>
     <PackageReference Include="ImageProcessor">
-      <Version>2.8.0</Version>
+      <Version>2.9.1</Version>
     </PackageReference>
     <PackageReference Include="JetBrains.Annotations">
       <Version>2021.3.0</Version>
