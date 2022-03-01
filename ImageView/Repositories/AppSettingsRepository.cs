@@ -38,7 +38,7 @@ namespace ImageViewer.Repositories
                 NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None,
                 ImageTransitionTime = 1000,
                 SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
+                PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
                 ShowNextPrevControlsOnEnterWindow = false,
@@ -53,7 +53,7 @@ namespace ImageViewer.Repositories
                 AutoHideCursorDelay = 2000,
                 AppSettingsGuid = Guid.NewGuid(),
                 IsLoadedFromDisk = false,
-                FormStateModels = new Dictionary<string, FormStateModel>(),
+                FormStateModels = new Dictionary<string, FormStateModel>()
             };
 
             return settings;
@@ -61,7 +61,7 @@ namespace ImageViewer.Repositories
 
         public ApplicationSettingsModel LoadSettings()
         {
-            if (_settingsModel is { IsLoadedFromDisk: true })
+            if (_settingsModel is {IsLoadedFromDisk: true})
             {
                 return _settingsModel;
             }
@@ -108,6 +108,7 @@ namespace ImageViewer.Repositories
         /// Occurs when [load settings completed].
         /// </summary>
         public event EventHandler LoadSettingsCompleted;
+
         /// <summary>
         /// Occurs when [save settings completed].
         /// </summary>

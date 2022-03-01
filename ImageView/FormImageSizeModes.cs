@@ -8,6 +8,7 @@ namespace ImageViewer
     public partial class FormImageSizeModes : Form
     {
         private readonly ApplicationSettingsService _applicationSettingsService;
+
         public FormImageSizeModes(ApplicationSettingsService applicationSettingsService)
         {
             _applicationSettingsService = applicationSettingsService;
@@ -36,7 +37,7 @@ namespace ImageViewer
         {
             ImageSizeMode =
                 (PictureBoxSizeMode)
-                    Enum.Parse(typeof(PictureBoxSizeMode), comboBoxImageSizeModes.SelectedIndex.ToString());
+                Enum.Parse(typeof(PictureBoxSizeMode), comboBoxImageSizeModes.SelectedIndex.ToString());
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -48,7 +49,7 @@ namespace ImageViewer
         private void btnSave_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            _applicationSettingsService.Settings.PrimaryImageSizeMode = (int)ImageSizeMode;
+            _applicationSettingsService.Settings.PrimaryImageSizeMode = (int) ImageSizeMode;
             _applicationSettingsService.SaveSettings();
             Close();
         }

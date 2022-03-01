@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,6 +36,7 @@ namespace ImageViewer
         private int _thumbnailSize;
         private bool formIsDisposing;
         private readonly ThumbnailFormState _state = new ThumbnailFormState();
+        private CancellationToken _thumbnailGenCancellationToken;
 
 
         // Flag: Has Dispose already been called?
@@ -50,16 +53,15 @@ namespace ImageViewer
         {
             public bool IsDisposing { get; set; }
             public bool IsGeneratingThumbnails { get; private set; }
+
             public bool CanClose
             {
                 get { return !IsGeneratingThumbnails; }
             }
 
 
-
             public ThumbnailFormState()
             {
-
             }
 
             public void StartingThumbnailScan()
@@ -71,8 +73,6 @@ namespace ImageViewer
             {
                 IsGeneratingThumbnails = false;
             }
-
-
         }
 
         public FormThumbnailView(ApplicationSettingsService applicationSettings, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
@@ -141,7 +141,7 @@ namespace ImageViewer
 
         private IEnumerable<Control> GetControlTree(Control root)
         {
-            var controls = new List<Control> { root };
+            var controls = new List<Control> {root};
 
             if (!root.HasChildren) return controls;
             for (int i = 0; i < root.Controls.Count; i++)
@@ -182,43 +182,97 @@ namespace ImageViewer
 
             btnGenerate.Enabled = true;
             Refresh();
+            GC.Collect(0, GCCollectionMode.Optimized);
         }
 
         private async Task BindAndLoadThumbnailsAsync()
         {
             var modelList = GenerateThumbnailModels();
-            ImageFactory imgFactory = new ImageFactory(MetaDataMode.None);
+            int maxThreads = Environment.ProcessorCount;
+            ConcurrentQueue<PictureBoxModel> pictureBoxModels = new ConcurrentQueue<PictureBoxModel>(modelList);
+            PictureBox[] pictureBoxes = new PictureBox[maxThreads];
+
+            _thumbnailGenCancellationToken = new CancellationToken(false);
+            var tasks = new Task<Image>[maxThreads];
 
             // Generate thumbnails
-            await Task.Factory.StartNew(() =>
+            while (pictureBoxModels.Count > 0)
             {
-                var picBoxList = new List<PictureBox>();
-                foreach (PictureBoxModel model in modelList)
+                int taskCount = 0;
+                for (int i = 0; i < tasks.Length; i++)
                 {
-                    var picBox = CreatePictureBox(model);
-
-                    // Perform thumbnail generation
-                    picBox.Image = imgFactory.Load(model.SourceImagePath).Resize(model.ThumbnailSize).Image;
-                    //picBoxList.Add(picBox);
-
-                    if (formIsDisposing)
+                    taskCount++;
+                    pictureBoxModels.TryDequeue(out PictureBoxModel model);
+                    if (model == null)
                         break;
 
-                    if (!formIsDisposing)
-                        Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
+                    var picBox = CreatePictureBox(model);
+
+                    tasks[i] = Task<Image>.Factory.StartNew(() => LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize, new ImageFactory(MetaDataMode.None)), _thumbnailGenCancellationToken);
+                    pictureBoxes[i] = picBox;
+                    picBox.Image = await tasks[i];
                 }
 
-                if (!formIsDisposing)
-                    Invoke(new EventHandler(ThumbnailGenerationCompleted));
+                Task[] activeTasks = tasks.Take(taskCount).ToArray();
+                Task.WaitAll(activeTasks);
 
-            });
+                if (formIsDisposing)
+                    break;
 
-            if (!formIsDisposing)
-            {
-                await _thumbnailService.SaveThumbnailDatabaseAsync();
-                GC.Collect();
+                Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
             }
 
+            if (!formIsDisposing)
+                Invoke(new EventHandler(ThumbnailGenerationCompleted));
+        }
+
+        //private async Task BindAndLoadThumbnailsAsync2()
+        //{
+        //    var modelList = GenerateThumbnailModels();
+        //    int maxThreads = Environment.ProcessorCount;
+        //    object lockObj = new object();
+        //    List<PictureBox> pictureBoxes = new List<PictureBox>();
+        //    IEnumerable<PictureBoxModel> pictureBoxModels = modelList.ToList();
+
+        //    await Task.Factory.StartNew(() =>
+        //    {
+        //        foreach (var model in pictureBoxModels)
+        //        {
+        //            var picBox = CreatePictureBox(model);
+        //            picBox.Image = LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize, new ImageFactory(MetaDataMode.None));
+        //            pictureBoxes.Add(picBox);
+
+        //            if (pictureBoxes.Count >= maxThreads)
+        //            {
+        //                lock(lockObj)
+        //                {
+        //                    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
+        //                    pictureBoxes.Clear();
+        //                }
+        //            }
+        //        }
+
+        //        if (pictureBoxes.Count > 0)
+        //        {
+        //            lock (lockObj)
+        //            {
+        //                Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
+        //                pictureBoxes.Clear();
+        //            }
+        //        }
+
+
+        //    }, _thumbnailGenCancellationToken);
+
+        //    if (!formIsDisposing)
+        //        Invoke(new EventHandler(ThumbnailGenerationCompleted));
+        //}
+
+        private static Image LoadAndResizeImage(string sourceImagePath, Size size, ImageFactory factory)
+        {
+            var img = factory.Load(sourceImagePath).Resize(size).Image.Clone() as Image;
+            factory.Dispose();
+            return img;
         }
 
         private PictureBox CreatePictureBox(PictureBoxModel model)
@@ -228,7 +282,7 @@ namespace ImageViewer
                 Width = model.ThumbnailSize.Width,
                 Height = model.ThumbnailSize.Height,
                 BorderStyle = model.BorderStyle,
-                SizeMode = model.SizeMode,
+                SizeMode = model.SizeMode
             };
 
             picBox.Tag = model.SourceImagePath;
@@ -248,9 +302,13 @@ namespace ImageViewer
 
         private void UpdatePicBoxList(object sender, UpdatePicBoxEventArgs e)
         {
-            if (e == null) return;
+            if (e?.PictureBoxModelList != null)
+            {
+                flowLayoutPanel1.SuspendLayout();
+                flowLayoutPanel1.Controls.AddRange(e.PictureBoxModelList.Select(x => x as Control).ToArray());
 
-            flowLayoutPanel1.Controls.Add(e.PictureBoxModel);
+                flowLayoutPanel1.ResumeLayout(true);
+            }
         }
 
         private void SetUpdateDatabaseEnabledState(bool enabled)
@@ -264,7 +322,7 @@ namespace ImageViewer
             SetUpdateDatabaseEnabledState(true);
         }
 
-        private List<PictureBoxModel> GenerateThumbnailModels()
+        private IEnumerable<PictureBoxModel> GenerateThumbnailModels()
         {
             var backColor = AppSettings.MainWindowBackgroundColor;
             var modelList = new List<PictureBoxModel>();
@@ -345,6 +403,7 @@ namespace ImageViewer
                     pictureBox.Image.Dispose();
                     pictureBox.Dispose();
                 }
+
                 pictureBox?.Dispose();
             }
         }
@@ -488,13 +547,16 @@ namespace ImageViewer
             Clipboard.SetText(_maximizedImgFilename);
         }
 
-        private async void btnOptimize_Click(object sender, EventArgs e)
+        private void btnOptimize_Click(object sender, EventArgs e)
         {
-            SetUpdateDatabaseEnabledState(false);
+            Log.Debug("Optimize Clicked but not yet implemented");
 
-            await _thumbnailService.OptimizeDatabaseAsync().ConfigureAwait(false);
-            if (!IsDisposed)
-                Invoke(new EventHandler(OptimizeDatabaseComplete));
+            return;
+
+            //SetUpdateDatabaseEnabledState(false);
+            //await _thumbnailService.OptimizeDatabaseAsync().ConfigureAwait(false);
+            //if (!IsDisposed)
+            //    Invoke(new EventHandler(OptimizeDatabaseComplete));
         }
 
         // Instantiate a SafeHandle instance.

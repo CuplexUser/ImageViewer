@@ -49,13 +49,12 @@ namespace ImageViewer.UserControls
             {
                 lblFileInfo.Text = @"File does not exist";
             }
-
         }
 
         private bool ValidateForm()
         {
             bool valid = txtName.Text.Length > 0;
-            valid = valid & txtFilename.Text.Length > 0 && File.Exists(txtFilename.Text);
+            valid = valid & (txtFilename.Text.Length > 0) && File.Exists(txtFilename.Text);
             return valid;
         }
 

@@ -17,9 +17,9 @@ namespace ImageViewer.Services
         private readonly ImageCacheRepository _imageCacheRepository;
 
         private static readonly object CacheLock = new();
-        public const long DefaultCacheSize = 134217728;// 128 Mb
-        public const long MinCacheSize = 16777216;     //16 Mb
-        public const long MaxCacheSize = 268435456;    // 256 Mb
+        public const long DefaultCacheSize = 134217728; // 128 Mb
+        public const long MinCacheSize = 16777216; //16 Mb
+        public const long MaxCacheSize = 268435456; // 256 Mb
 
         public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService)
         {
@@ -40,14 +40,12 @@ namespace ImageViewer.Services
 
         private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
         {
-
         }
 
         private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
         {
             // Delete from cache
             _imageCacheRepository.RemoveImageFromCache(e.ImageReference.FileName);
-
         }
 
         private void ApplicationSettingsService_OnSettingsLoaded(object sender, EventArgs e)
@@ -120,7 +118,7 @@ namespace ImageViewer.Services
         public enum CacheTruncatePriority
         {
             RemoveOldest,
-            RemoveLargest,
+            RemoveLargest
         }
     }
 }

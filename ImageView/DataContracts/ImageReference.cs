@@ -6,8 +6,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ImageReference")]
+    [Serializable, DataContract(Name = "ImageReference")]
     public class ImageReference
     {
         /// <summary>

@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ThumbnailDatabaseModel")]
+    [Serializable, DataContract(Name = "ThumbnailDatabaseModel")]
     public class ThumbnailDatabaseModel
     {
         /// <summary>

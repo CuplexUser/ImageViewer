@@ -6,8 +6,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// Bookmark Data Model
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "Bookmark")]
+    [Serializable, DataContract(Name = "Bookmark")]
     public class Bookmark
     {
         /// <summary>

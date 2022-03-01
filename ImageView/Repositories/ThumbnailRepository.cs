@@ -395,6 +395,7 @@ namespace ImageViewer.Repositories
             {
                 Log.Warning("SaveThumbnailDatabaseAsync timed out after 2000 ms");
             }
+
             return saveTask.Result.Result;
         }
 
@@ -456,9 +457,9 @@ namespace ImageViewer.Repositories
 
             //Check for duplicates
             var query = (from t in _thumbnailDatabase.ThumbnailEntries
-                         group t by new { EntryFilePath = t.Directory + t.FileName }
+                group t by new {EntryFilePath = t.Directory + t.FileName}
                 into g
-                         select new { FilePath = g.Key, Count = g.Count() }).ToList();
+                select new {FilePath = g.Key, Count = g.Count()}).ToList();
 
             var duplicateKeys = query.Where(x => x.Count > 1).Select(x => x.FilePath.EntryFilePath).ToList();
 
@@ -489,38 +490,36 @@ namespace ImageViewer.Repositories
         #endregion
 
         [SecuritySafeCritical]
-        private void GetDatabaseKey( ref SecureString secureString)
+        private void GetDatabaseKey(ref SecureString secureString)
         {
             if (SecurityContext.IsFlowSuppressed())
             {
                 SecurityContext.RestoreFlow();
             }
 
-            using (var context=SecurityContext.Capture())
+            using (var context = SecurityContext.Capture())
             {
-              
                 var saltBytes = GeneralConverters.HexStringToByteArray(Salt);
-                SecureString secure = new SecureString(); ;
+                SecureString secure = new SecureString();
+                ;
 
-                SecurityContext.Run(context, new ContextCallback((object obj) => {
-
+                SecurityContext.Run(context, new ContextCallback((object obj) =>
+                {
                     using (var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 5207, HashAlgorithmName.SHA256))
                     {
                         var buffer = deriveBytes.GetBytes(512);
 
-                        foreach(char c in Convert.ToBase64String(buffer))
+                        foreach (char c in Convert.ToBase64String(buffer))
                         {
                             secure.AppendChar(c);
-                        } 
+                        }
                     }
-
                 }), saltBytes);
 
-                
+
                 secureString = secure.Copy();
-                secure.Dispose();                
-            }            
-            
+                secure.Dispose();
+            }
         }
 
         /// <summary>
@@ -540,13 +539,14 @@ namespace ImageViewer.Repositories
                 {
                     secureStr.AppendChar(c);
                 }
+
                 strCpy.Clear();
                 strCpy.Dispose();
 
                 var settings = new StorageManagerSettings(true, Environment.ProcessorCount, true, secureStr.ToString());
                 storageManager = new StorageManager(settings);
             }
-            
+
             return storageManager;
         }
 
@@ -581,6 +581,7 @@ namespace ImageViewer.Repositories
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -610,6 +611,7 @@ namespace ImageViewer.Repositories
 
             GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }

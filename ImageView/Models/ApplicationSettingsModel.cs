@@ -21,22 +21,27 @@ namespace ImageViewer.Models
             /// The none
             /// </summary>
             None = 0,
+
             /// <summary>
             /// The slide left
             /// </summary>
             SlideLeft = 1,
+
             /// <summary>
             /// The slide right
             /// </summary>
             SlideRight = 2,
+
             /// <summary>
             /// The slide down
             /// </summary>
             SlideDown = 3,
+
             /// <summary>
             /// The slide up
             /// </summary>
             SlideUp = 4,
+
             /// <summary>
             /// The fade in
             /// </summary>
@@ -52,10 +57,12 @@ namespace ImageViewer.Models
             /// The near
             /// </summary>
             Near = 1,
+
             /// <summary>
             /// The normal
             /// </summary>
             Normal = 2,
+
             /// <summary>
             /// The far
             /// </summary>
@@ -278,7 +285,7 @@ namespace ImageViewer.Models
         /// <value>
         /// The automatic hide cursor delay.
         /// </value>
-        [FixedBounds(minValue: GenericConstants.MinCursorDelayValue, maxValue: GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
+        [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
 
         /// <summary>

@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "SizeDataModel")]
+    [Serializable, DataContract(Name = "SizeDataModel")]
     public class SizeDataModel
     {
         /// <summary>
@@ -34,7 +33,6 @@ namespace ImageViewer.DataContracts
         /// </summary>
         public SizeDataModel()
         {
-
         }
 
         /// <summary>

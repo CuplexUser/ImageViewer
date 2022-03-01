@@ -44,7 +44,7 @@ namespace ImageViewer.Managers
                     }
 
                     form.Bounds = new Rectangle(model.FormPosition, model.FormSize);
-                    form.WindowState = (FormWindowState)model.WindowState;
+                    form.WindowState = (FormWindowState) model.WindowState;
 
                     return true;
                 }
@@ -89,7 +89,7 @@ namespace ImageViewer.Managers
             }
 
             model.FormName = form.Name;
-            model.WindowState = (FormState)form.WindowState;
+            model.WindowState = (FormState) form.WindowState;
             if (form.WindowState == FormWindowState.Normal)
             {
                 model.FormSize = form.Bounds.Size;

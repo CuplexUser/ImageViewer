@@ -35,7 +35,7 @@ namespace ImageViewer.Services
         private async Task<ApplicationVersion> GetLatestVersion()
         {
             string url = Properties.Settings.Default.UpdateHistoryUrl;
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebRequest req = (HttpWebRequest) WebRequest.Create(url);
 
             var response = await req.GetResponseAsync();
             var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());

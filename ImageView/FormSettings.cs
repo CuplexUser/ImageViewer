@@ -20,7 +20,7 @@ namespace ImageViewer
         private long _selectedCacheSize;
         private readonly ApplicationSettingsModel _originalSettings;
 
-        public FormSettings(ApplicationSettingsService  applicationSettingsService, ImageCacheService imageCacheService)
+        public FormSettings(ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService)
         {
             _applicationSettingsService = applicationSettingsService;
             bool settingsLoaded = _applicationSettingsService.LoadSettings();
@@ -28,6 +28,7 @@ namespace ImageViewer
             {
                 Log.Warning("FormSettings constructor failed to load settings");
             }
+
             _originalSettings = applicationSettingsService.Settings;
             _imageCacheService = imageCacheService;
             InitializeComponent();
@@ -89,6 +90,7 @@ namespace ImageViewer
             {
                 settings.AutoHideCursorDelay = 2000;
             }
+
             numericAutohideCursorDelay.Value = settings.AutoHideCursorDelay;
 
             trackBarFadeTime.Value = settings.ImageTransitionTime;
@@ -102,7 +104,7 @@ namespace ImageViewer
 
             if (backgroundColorDropdownList.Items.Count > 0)
             {
-                Color savedColor =settings.MainWindowBackgroundColor;
+                Color savedColor = settings.MainWindowBackgroundColor;
                 var item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
                 backgroundColorDropdownList.SelectedItem = item;
             }
@@ -140,14 +142,14 @@ namespace ImageViewer
             settings.ScreenMinXOffset = Convert.ToInt32(numericScreenMinOffset.Value);
             settings.ScreenWidthOffset = Convert.ToInt32(numericScreenWidthOffset.Value);
 
-            Color selectedColor = (Color)backgroundColorDropdownList.SelectedItem;
+            Color selectedColor = (Color) backgroundColorDropdownList.SelectedItem;
             settings.MainWindowBackgroundColor = selectedColor;
             settings.AutoHideCursorDelay = Convert.ToInt32(numericAutohideCursorDelay.Value);
 
             _applicationSettingsService.Settings.ImageCacheSize = _selectedCacheSize;
             _applicationSettingsService.Settings.AutomaticUpdateCheck = ChkAutomaticallyCheckForUpdates.Checked;
             _imageCacheService.CacheSize = _selectedCacheSize;
-            
+
             _applicationSettingsService.SaveSettings();
             _applicationSettingsService.SetSettingsStateModified();
             Close();
@@ -174,7 +176,6 @@ namespace ImageViewer
                             chkPasswordProtectBookmarks.Checked = false;
                             return;
                         }
-
                     }
                     else
                         chkPasswordProtectBookmarks.Checked = false;
@@ -189,7 +190,6 @@ namespace ImageViewer
                 {
                     if (formGetPassword.ShowDialog() == DialogResult.OK && formGetPassword.PasswordVerified)
                     {
-                        
                     }
                     else
                         chkPasswordProtectBookmarks.Checked = true;
@@ -209,7 +209,7 @@ namespace ImageViewer
             lblCacheItems.Text = _imageCacheService.CachedImages.ToString();
             lblUsedSpace.Text = GeneralConverters.FormatFileSizeToString(cacheUsage, 2);
             lblFreeSpace.Text = GeneralConverters.FormatFileSizeToString(cacheSize - cacheUsage);
-            pbarPercentUsed.Value = Convert.ToInt32((double)cacheUsage / cacheSize * 100d);
+            pbarPercentUsed.Value = Convert.ToInt32((double) cacheUsage / cacheSize * 100d);
 
             trackBarCacheSize.Minimum = Convert.ToInt32(minSize / TrackbarDivider);
             trackBarCacheSize.Maximum = Convert.ToInt32(maxSize / TrackbarDivider);
@@ -235,7 +235,6 @@ namespace ImageViewer
 
         private void toolTipUpdateDescription_Popup(object sender, PopupEventArgs e)
         {
-
         }
     }
 }

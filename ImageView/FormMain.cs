@@ -56,8 +56,8 @@ namespace ImageViewer
 
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
-                ImageLoaderService imageLoaderService,
-                ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
+            ImageLoaderService imageLoaderService,
+            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
@@ -75,7 +75,8 @@ namespace ImageViewer
             InitializeComponent();
             _imageViewFormList = new List<FormImageView>();
             _windowTitle = "Image Viewer - " + Application.ProductVersion;
-            ActiveFormList = new Dictionary<string, Form>(); ;
+            ActiveFormList = new Dictionary<string, Form>();
+            ;
         }
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
@@ -200,7 +201,7 @@ namespace ImageViewer
         {
             try
             {
-                pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
+                pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
 
                 if (_applicationSettingsService.Settings.NextImageAnimation == ApplicationSettingsModel.ChangeImageAnimation.None)
                 {
@@ -258,7 +259,7 @@ namespace ImageViewer
                 {
                     long elapsedTime = stopwatch.ElapsedMilliseconds;
 
-                    float factor = stopwatch.ElapsedMilliseconds / (float)animationTime;
+                    float factor = stopwatch.ElapsedMilliseconds / (float) animationTime;
                     Image transitionImage;
                     switch (animation)
                     {
@@ -809,7 +810,7 @@ namespace ImageViewer
 
         private void pictureBox1_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
+            pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
         }
 
         private async void pictureBoxAnimation_LoadCompleted(object sender, AsyncCompletedEventArgs e)
@@ -935,7 +936,8 @@ namespace ImageViewer
 
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var fileBrowser = _scope.Resolve<FileBrowser>();
+            //var fileBrowser = _scope.Resolve<FileBrowser>();
+            var fileBrowser = _formManager.GetFormInstance(typeof(FileBrowser));
             fileBrowser.ShowDialog(this);
         }
 
@@ -973,7 +975,8 @@ namespace ImageViewer
 
         private void openSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var frmSettings = _scope.Resolve<FormSettings>();
+            //var frmSettings = _scope.Resolve<FormSettings>();
+            var frmSettings = _formManager.GetFormInstance(typeof(FormSettings));
             frmSettings.ShowDialog(this);
 
             foreach (var imageView in _imageViewFormList)

@@ -549,12 +549,29 @@ namespace ImageViewer.Managers
             }
 
             int removedItems = removeQueue.Count;
+
             while (removeQueue.Count > 0)
             {
-                DeleteBookmark(removeQueue.Dequeue());
+                DeleteBookmarkQuit(removeQueue.Dequeue());
+            }
+
+            if (removedItems > 0)
+            {
+                ReindexSortOrder(false, true);
+                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
             }
 
             return removedItems;
+        }
+
+        private bool DeleteBookmarkQuit(Bookmark bookmark)
+        {
+            BookmarkFolder parentFolder = GetBookmarkFolderById(_bookmarkContainer.RootFolder, bookmark.ParentFolderId);
+
+            if (parentFolder == null)
+                return false;
+
+            return parentFolder.Bookmarks.Remove(bookmark);
         }
 
         private static IEnumerable<Bookmark> GetAllBookmarksIncludingSubfolders(BookmarkFolder rootFolder)

@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "RectangleDataModel")]
+    [Serializable, DataContract(Name = "RectangleDataModel")]
     public class RectangleDataModel
     {
         /// <summary>
@@ -49,7 +48,6 @@ namespace ImageViewer.DataContracts
 
         public RectangleDataModel()
         {
-
         }
 
         public RectangleDataModel(Rectangle rectangle)

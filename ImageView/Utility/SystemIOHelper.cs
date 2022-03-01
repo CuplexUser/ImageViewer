@@ -8,13 +8,13 @@ namespace ImageViewer.Utility
     {
         public static long GetFileSize(string filename)
         {
-            FileInfo fileInfo= new FileInfo(filename);
+            FileInfo fileInfo = new FileInfo(filename);
             return fileInfo.Length;
         }
 
         public static string FormatFileSizeToString(long byteCount, int decimales = 1)
         {
-            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+            string[] suf = {"B", "KB", "MB", "GB", "TB", "PB", "EB"}; //Longs run out around EB
             if (byteCount == 0)
                 return "0" + suf[0];
             long bytes = Math.Abs(byteCount);

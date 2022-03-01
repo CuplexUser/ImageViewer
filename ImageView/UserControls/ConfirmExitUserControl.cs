@@ -16,7 +16,6 @@ namespace ImageViewer.UserControls
 
         private void ConfirmExitUserControl_Load(object sender, EventArgs e)
         {
-            
         }
 
         private void chkDisableExitDialog_CheckedChanged(object sender, EventArgs e)

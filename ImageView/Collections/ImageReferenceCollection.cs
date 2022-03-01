@@ -30,7 +30,7 @@ namespace ImageViewer.Collections
             _randomImagePosList.Remove(index);
             Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
 
-            if (CurrentImage != null && CurrentImage == (ImageReference)e.ImageReference)
+            if (CurrentImage != null && CurrentImage == (ImageReference) e.ImageReference)
             {
                 GetNextImage();
             }
@@ -98,11 +98,13 @@ namespace ImageViewer.Collections
                 Log.Error("ImageReference Collection:SingleImageLoadedSetAsCurrent() Assert error _randomImagePosList==null");
                 return;
             }
+
             while (_randomImagePosList.Count < _imageLoaderService.ImageReferenceList.Count)
             {
                 int maxValue = _randomImagePosList.Max();
                 _randomImagePosList.Add(maxValue + 1);
             }
+
             ImageListPointer = _imageLoaderService.ImageReferenceList.Count - 1;
             CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
         }

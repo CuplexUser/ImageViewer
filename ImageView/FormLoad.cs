@@ -77,6 +77,7 @@ namespace ImageViewer
                 MessageBox.Show("Base path must be set");
                 return;
             }
+
             if (!Directory.Exists(_baseSearchPath))
             {
                 MessageBox.Show("Base path does not exist");
@@ -89,7 +90,7 @@ namespace ImageViewer
 
             if (!result)
             {
-                _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" }); 
+                _interactionService.InformUser(new UserInteractionInformation {Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error"});
             }
 
             btnStart.Enabled = false;

@@ -74,9 +74,9 @@ namespace ImageViewer
 
             if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
                 using (var formGetPassword = new FormGetPassword
-                {
-                    PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
-                })
+                       {
+                           PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
+                       })
                 {
                     if (formGetPassword.ShowDialog() == DialogResult.OK)
                     {
@@ -110,12 +110,10 @@ namespace ImageViewer
 
                 InitBookmarksDataSource();
             }
-
         }
 
         private void FormBookmarks_Shown(object sender, EventArgs e)
         {
-
         }
 
         private void FormBookmarks_FormClosing(object sender, FormClosingEventArgs e)
@@ -499,7 +497,7 @@ namespace ImageViewer
                 }
                 else
                 {
-                    var currentSortOrder = (SortOrder)(int)column.Tag;
+                    var currentSortOrder = (SortOrder) (int) column.Tag;
                     column.Tag = currentSortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
                 }
 
@@ -510,7 +508,7 @@ namespace ImageViewer
                 if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return;
 
 
-                BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder)column.Tag);
+                BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder) column.Tag);
                 ReLoadBookmarks();
                 await _bookmarkService.SaveBookmarksAsync();
             }
@@ -554,7 +552,7 @@ namespace ImageViewer
                     using (Brush backbrush = new LinearGradientBrush(rowBounds, _gridViewGradientBackgroundColorStart, _gridViewGradientBackgroundColorStop, LinearGradientMode.Vertical))
                     {
                         e.Graphics.FillRectangle(backbrush, rowBounds);
-                        var p = new Pen(backbrush, 1) { Color = _gridViewSelectionBorderColor };
+                        var p = new Pen(backbrush, 1) {Color = _gridViewSelectionBorderColor};
                         e.Graphics.DrawRectangle(p, rowBounds);
                     }
                 }
@@ -732,7 +730,7 @@ namespace ImageViewer
             if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
 
             var editBookmark = new FormEditBookmark();
-            var model = new BookmarkEditModel { FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName };
+            var model = new BookmarkEditModel {FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName};
             editBookmark.InitEditForm(model, true);
 
             if (editBookmark.ShowDialog(this) == DialogResult.OK)

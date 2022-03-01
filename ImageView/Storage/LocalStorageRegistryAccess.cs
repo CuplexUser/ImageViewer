@@ -47,7 +47,6 @@ namespace ImageViewer.Storage
                     var storageManager = new StorageManager(settings);
                     _storageDictionary = storageManager.DeserializeObjectFromFile<Dictionary<string, object>>(_localStorageFilePath, null);
                     return true;
-
                 }
                 catch (Exception ex)
                 {
@@ -59,7 +58,7 @@ namespace ImageViewer.Storage
                 _storageDictionary = new Dictionary<string, object>();
             }
 
-            
+
             return false;
         }
 
@@ -131,7 +130,7 @@ namespace ImageViewer.Storage
         {
             try
             {
-                return (T)Convert.ChangeType(objToConvert, typeof(T));
+                return (T) Convert.ChangeType(objToConvert, typeof(T));
             }
             catch (Exception ex)
             {

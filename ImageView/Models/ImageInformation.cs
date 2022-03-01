@@ -64,6 +64,5 @@ namespace ImageViewer.Models
         /// The last modified date.
         /// </value>
         public DateTime LastModifiedDate { get; set; }
-        
     }
 }

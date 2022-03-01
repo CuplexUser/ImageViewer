@@ -7,6 +7,7 @@ namespace ImageViewer.UserControls
     public partial class ThumbnailSettings : UserControl
     {
         private readonly ApplicationSettingsService _applicationSettingsService;
+
         public ThumbnailSettings(ApplicationSettingsService applicationSettingsService)
         {
             _applicationSettingsService = applicationSettingsService;
@@ -45,7 +46,7 @@ namespace ImageViewer.UserControls
                 return 256;
             if (rb512.Checked)
                 return 512;
-           
+
             return 256;
         }
 

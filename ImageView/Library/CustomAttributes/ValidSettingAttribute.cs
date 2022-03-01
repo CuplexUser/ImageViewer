@@ -2,9 +2,8 @@
 
 namespace ImageViewer.Library.CustomAttributes
 {
-
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    sealed class ValidRangeAttribute : Attribute
+    internal sealed class ValidRangeAttribute : Attribute
     {
         public readonly int MaxValue;
         public readonly int MinValue;
@@ -18,7 +17,6 @@ namespace ImageViewer.Library.CustomAttributes
         {
             MinValue = min;
             MaxValue = max;
-
         }
 
 

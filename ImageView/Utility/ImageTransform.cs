@@ -31,9 +31,9 @@ namespace ImageViewer.Utility
 
 
             for (int k = 0;
-                (k + 4 < pixelBuffer.Length) &&
-                (k + 4 < blendBuffer.Length);
-                k += 4)
+                 k + 4 < pixelBuffer.Length &&
+                 k + 4 < blendBuffer.Length;
+                 k += 4)
             {
                 if (blendTypeBlue == BitwiseBlendType.And)
                     blue = pixelBuffer[k] & blendBuffer[k];
@@ -77,9 +77,9 @@ namespace ImageViewer.Utility
                     red = 255;
 
 
-                pixelBuffer[k] = (byte)blue;
-                pixelBuffer[k + 1] = (byte)green;
-                pixelBuffer[k + 2] = (byte)red;
+                pixelBuffer[k] = (byte) blue;
+                pixelBuffer[k + 1] = (byte) green;
+                pixelBuffer[k + 2] = (byte) red;
             }
 
 
@@ -87,7 +87,7 @@ namespace ImageViewer.Utility
 
 
             BitmapData resultData = resultBitmap.LockBits(new Rectangle(0, 0,
-                resultBitmap.Width, resultBitmap.Height),
+                    resultBitmap.Width, resultBitmap.Height),
                 ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
 
@@ -145,7 +145,7 @@ namespace ImageViewer.Utility
             //var result = new Bitmap(picBoxSize.Width, picBoxSize.Height);
             int x1 = result.Width / 2 - currentImage.Width / 2;
             int x2 = x1 + currentImage.Width;
-            int offset = (int)(result.Width * factor);
+            int offset = (int) (result.Width * factor);
 
             if (!leftToRight)
                 offset = offset * -1;
@@ -154,8 +154,8 @@ namespace ImageViewer.Utility
             int y2 = 0;
             int x1Offset = Math.Min(0, x1 + offset);
 
-            float ratio1 = currentImage.Width / (float)currentImage.Height;
-            float ratio2 = nextImage.Width / (float)nextImage.Height;
+            float ratio1 = currentImage.Width / (float) currentImage.Height;
+            float ratio2 = nextImage.Width / (float) nextImage.Height;
 
             Graphics gfx = Graphics.FromImage(result);
             gfx.DrawImage(currentImage,
@@ -171,8 +171,8 @@ namespace ImageViewer.Utility
         {
             var result = new Bitmap(nextImage, imageSize.Width, imageSize.Height);
 
-            int verticalOffset = (int)(imageSize.Height * factor);
-            int verticalOffset2 = (int)(nextImage.Height * (1 - factor));
+            int verticalOffset = (int) (imageSize.Height * factor);
+            int verticalOffset2 = (int) (nextImage.Height * (1 - factor));
 
             using (Graphics gfx = Graphics.FromImage(result))
             {
@@ -180,6 +180,7 @@ namespace ImageViewer.Utility
                 gfx.DrawImage(nextImage,
                     new Rectangle(0, verticalOffset2, imageSize.Width, imageSize.Height + verticalOffset2));
             }
+
             return result;
         }
 
@@ -214,6 +215,7 @@ namespace ImageViewer.Utility
                     gfx.DrawImage(SecondImage, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, image.Width,
                         image.Height, GraphicsUnit.Pixel, attributes);
                 }
+
                 return bmp;
             }
             catch (Exception ex)
@@ -249,6 +251,7 @@ namespace ImageViewer.Utility
                     gfx.DrawImage(image, new Rectangle(0, 0, bmp.Width, bmp.Height), 0, 0, image.Width, image.Height,
                         GraphicsUnit.Pixel, attributes);
                 }
+
                 return bmp;
             }
             catch (Exception ex)

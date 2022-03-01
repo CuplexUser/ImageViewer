@@ -9,7 +9,7 @@ namespace ImageViewer.Managers
     public class ThumbnailDbManager : ManagerBase, IThumbnailOperation
     {
         private readonly ThumbnailRepository _thumbnailRepository;
-        
+
 
         public ThumbnailDbManager(ThumbnailRepository thumbnailRepository)
         {
@@ -20,6 +20,7 @@ namespace ImageViewer.Managers
         {
             throw new System.NotImplementedException();
         }
+
         public bool ReduceCacheSize(WorkParameters parameters)
         {
             throw new System.NotImplementedException();
@@ -36,6 +37,4 @@ namespace ImageViewer.Managers
             throw new System.NotImplementedException();
         }
     }
-
-   
 }

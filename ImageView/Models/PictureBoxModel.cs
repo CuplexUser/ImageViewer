@@ -4,7 +4,7 @@ using System.Windows.Forms;
 namespace ImageViewer.Models
 {
     /// <summary>
-    /// PictureBoxModel
+    /// PictureBoxModelList
     /// </summary>
     public class PictureBoxModel
     {

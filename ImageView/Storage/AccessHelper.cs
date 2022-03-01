@@ -30,12 +30,14 @@ namespace ImageViewer.Storage
                         fsAccessRules.AccessControlType == AccessControlType.Allow)
                         return true;
                 }
+
                 return false;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "Errorr in DirectoryData.UserHasReadAccessToDirectory {directoryInfo}", directoryInfo);
             }
+
             return false;
         }
     }

@@ -45,10 +45,12 @@ namespace ImageViewer.Repositories
             /// The cached images
             /// </summary>
             private readonly IQueryable<CachedImage> _cachedImages;
+
             /// <summary>
             /// The update cache usage
             /// </summary>
             private bool _updateCacheUsage;
+
             /// <summary>
             /// The cache usage
             /// </summary>

@@ -15,6 +15,7 @@ namespace ImageViewer.Models
         /// The border style.
         /// </value>
         public FormBorderStyle BorderStyle { get; set; }
+
         /// <summary>
         /// Gets or sets the state of the window.
         /// </summary>
@@ -22,6 +23,7 @@ namespace ImageViewer.Models
         /// The state of the window.
         /// </value>
         public FormWindowState WindowState { get; set; }
+
         /// <summary>
         /// Gets or sets the color of the background.
         /// </summary>
@@ -29,6 +31,7 @@ namespace ImageViewer.Models
         /// The color of the background.
         /// </value>
         public Color BackgroundColor { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether this instance is fullscreen.
         /// </summary>
@@ -36,6 +39,7 @@ namespace ImageViewer.Models
         ///   <c>true</c> if this instance is fullscreen; otherwise, <c>false</c>.
         /// </value>
         public bool IsFullscreen { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether [cursor visible].
         /// </summary>

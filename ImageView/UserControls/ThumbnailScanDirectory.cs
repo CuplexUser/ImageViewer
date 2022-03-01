@@ -73,7 +73,7 @@ namespace ImageViewer.UserControls
             {
                 _scanningDirectory = false;
             }
-            
+
             UpdateButtonState();
         }
 

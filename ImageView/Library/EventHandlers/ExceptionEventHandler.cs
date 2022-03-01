@@ -18,7 +18,6 @@ namespace ImageViewer.Library.EventHandlers
 
         public ExceptionEventArgs()
         {
-
         }
 
         public ExceptionEventArgs(Exception exception, params object[] parameters)

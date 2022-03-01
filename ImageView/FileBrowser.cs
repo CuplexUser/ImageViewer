@@ -23,7 +23,7 @@ namespace ImageViewer
         private readonly ImageLoaderService _imageLoaderService;
         private readonly ILifetimeScope _scope;
 
-        public FileBrowser(ApplicationSettingsService applicationSettingsService, ImageLoaderService imageLoaderService, Autofac.ILifetimeScope scope)
+        public FileBrowser(ApplicationSettingsService applicationSettingsService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
         {
             _applicationSettingsService = applicationSettingsService;
             _applicationSettingsService.LoadSettings();
@@ -97,6 +97,7 @@ namespace ImageViewer
                 SelectedPath = null;
                 return;
             }
+
             if (!Directory.Exists(txtBaseDirectory.Text))
             {
                 txtBaseDirectory.Text = SelectedPath;
@@ -136,6 +137,7 @@ namespace ImageViewer
                     MessageBox.Show(Resources.FileBrowser_OpenImporterForm_No_valid_path_selected);
                 return;
             }
+
             if (!PathCollection.Contains(SelectedPath))
                 PathCollection.Add(SelectedPath);
 
@@ -192,6 +194,7 @@ namespace ImageViewer
                     if (row.DataBoundItem is ImageReference imgRefElement)
                         _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
                 }
+
                 dataGridViewLoadedImages.DataSource = GetSortableBindingSource();
             }
         }

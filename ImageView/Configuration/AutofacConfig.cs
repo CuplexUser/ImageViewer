@@ -18,7 +18,7 @@ namespace ImageViewer.Configuration
 
             coreAssemblies[0] = thisAssembly;
             coreAssemblies[1] = generalToolKitAssembly;
-           
+
             if (generalToolKitAssembly != null)
             {
                 builder.RegisterAssemblyModules(generalToolKitAssembly);
@@ -32,8 +32,7 @@ namespace ImageViewer.Configuration
         }
 
 
-
-        public static  Assembly GetMainAssembly()
+        public static Assembly GetMainAssembly()
         {
             return typeof(ImageViewModule).Assembly;
         }

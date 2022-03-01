@@ -19,6 +19,7 @@ namespace ImageViewer
         private readonly BookmarkService _bookmarkService;
         private ImageReference _imageReference;
         private readonly ApplicationSettingsService _applicationSettingsService;
+
         public FormAddBookmark(BookmarkManager bookmarkManager, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService)
         {
             InitializeComponent();
@@ -47,7 +48,6 @@ namespace ImageViewer
 
         private void FormAddBookmark_Load(object sender, EventArgs e)
         {
-
             if (!_bookmarkManager.LoadedFromFile && !_applicationSettingsService.Settings.PasswordProtectBookmarks)
             {
                 _bookmarkService.OpenBookmarks();
@@ -67,9 +67,9 @@ namespace ImageViewer
 
         private void InitFolderDropdownList()
         {
-            var bokmarkFoldersToBind = new List<BookmarkFolder> { _bookmarkManager.RootFolder };
+            var bokmarkFoldersToBind = new List<BookmarkFolder> {_bookmarkManager.RootFolder};
             bokmarkFoldersToBind.AddRange(_bookmarkManager.RootFolder.BookmarkFolders);
-            bokmarkFoldersToBind.Add(new BookmarkFolder { Name = "Chose another folder...", Id = "n/a", SortOrder = bokmarkFoldersToBind.Count });
+            bokmarkFoldersToBind.Add(new BookmarkFolder {Name = "Chose another folder...", Id = "n/a", SortOrder = bokmarkFoldersToBind.Count});
             bookmarkFolderBindingSource.DataSource = bokmarkFoldersToBind;
 
             if (comboBoxBookmarkFolders.Items.Count > 0)

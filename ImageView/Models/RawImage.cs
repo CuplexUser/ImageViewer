@@ -30,7 +30,7 @@ namespace ImageViewer.Models
         /// </summary>
         /// <param name="loadImageToByteArrFunc">The load image to byte arr function.</param>
         /// <returns></returns>
-        public Image LoadImage(Func< byte[],Image> loadImageToByteArrFunc)
+        public Image LoadImage(Func<byte[], Image> loadImageToByteArrFunc)
         {
             return loadImageToByteArrFunc.Invoke(ImageData);
         }

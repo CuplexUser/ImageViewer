@@ -85,7 +85,8 @@ namespace ImageViewer.Services
         public event ProgressUpdateEventHandler OnImportComplete;
         public event ImageRemovedEventHandler OnImageWasDeleted;
 
-    #region Image Import
+        #region Image Import
+
         private void DoImageImport()
         {
             try
@@ -97,6 +98,7 @@ namespace ImageViewer.Services
                     _imageReferenceList = GetAllImagesRecursive(_imageBaseDir);
                     IsRunningImport = false;
                 }
+
                 OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
             }
             catch (Exception ex)
@@ -122,17 +124,17 @@ namespace ImageViewer.Services
                     var bookmarks = _bookmarkService.BookmarkManager.GetAllBookmarksRecursive(_bookmarkService.BookmarkManager.RootFolder);
 
                     var query = from b in bookmarks
-                                orderby b.LastWriteTime
-                                select new ImageReference
-                                {
-                                    FileName = b.FileName,
-                                    Directory = b.Directory,
-                                    CompletePath = b.CompletePath,
-                                    Size = b.Size,
-                                    CreationTime = b.CreationTime,
-                                    LastWriteTime = b.LastWriteTime,
-                                    LastAccessTime = b.LastAccessTime
-                                };
+                        orderby b.LastWriteTime
+                        select new ImageReference
+                        {
+                            FileName = b.FileName,
+                            Directory = b.Directory,
+                            CompletePath = b.CompletePath,
+                            Size = b.Size,
+                            CreationTime = b.CreationTime,
+                            LastWriteTime = b.LastWriteTime,
+                            LastAccessTime = b.LastAccessTime
+                        };
 
                     imgReferenceList = query.ToList();
                 });
@@ -143,6 +145,7 @@ namespace ImageViewer.Services
                     _totalNumberOfFiles = imgReferenceList.Count;
                     _imageReferenceList = imgReferenceList;
                 }
+
                 IsRunningImport = false;
                 OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
                 return true;
@@ -152,6 +155,7 @@ namespace ImageViewer.Services
                 Log.Error(ex, "ImageLoaderService.DoImageImportFromBookmarkedImages()");
                 IsRunningImport = false;
             }
+
             return false;
         }
 
@@ -191,6 +195,7 @@ namespace ImageViewer.Services
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -241,6 +246,7 @@ namespace ImageViewer.Services
             {
                 return await DoImageImportFromBookmarkedImages();
             }
+
             return false;
         }
 
@@ -261,6 +267,7 @@ namespace ImageViewer.Services
 
                 return true;
             }
+
             return false;
         }
 
@@ -269,7 +276,7 @@ namespace ImageViewer.Services
             _runWorkerThread = false;
         }
 
-    #endregion
+        #endregion
 
         internal bool PermanentlyRemoveFile(ImageReference imgRefElement)
         {
@@ -283,17 +290,19 @@ namespace ImageViewer.Services
                 {
                     File.Delete(imgRefElement.CompletePath);
                 }
+
                 removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
                 ImageReference imgReference = _mapper.Map<ImageReference>(imgRefElement);
                 imgRefElement = null;
 
                 // Delete from cache
-                OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count-1));
+                OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count - 1));
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "ImageLoaderService.PermanentlyRemoveFile {imgRefElement}", imgRefElement);
             }
+
             return removedItems > 0;
         }
 
@@ -356,6 +365,7 @@ namespace ImageViewer.Services
                     imgRefList.Add(element);
                 }
             }
+
             return imgRefList;
         }
 
@@ -380,13 +390,13 @@ namespace ImageViewer.Services
                 LastAccessTime = fileInfo.LastWriteTime,
                 Size = fileInfo.Length
             };
-            
+
             lock (_threadLock)
             {
                 bool createdNewImgRefList = false;
                 if (_imageReferenceList == null)
                 {
-                    _imageReferenceList= new List<ImageReference>();
+                    _imageReferenceList = new List<ImageReference>();
                     createdNewImgRefList = true;
                 }
 
@@ -411,7 +421,7 @@ namespace ImageViewer.Services
             ImagesLoaded = imagesLoaded;
 
             if (totalNumberOfFiles > 0)
-                CompletionRate = imagesLoaded / (double)totalNumberOfFiles;
+                CompletionRate = imagesLoaded / (double) totalNumberOfFiles;
         }
 
         public ProgressStatusEnum ProgressStatus { get; private set; }

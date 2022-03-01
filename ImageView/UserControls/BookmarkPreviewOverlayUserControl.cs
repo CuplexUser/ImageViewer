@@ -24,9 +24,10 @@ namespace ImageViewer.UserControls
             }
             catch (Exception exception)
             {
-                Log.Error(exception,"Failed to load image: "+ filename);
-                OverlayPictureBox.Image= new Bitmap(100,100);
+                Log.Error(exception, "Failed to load image: " + filename);
+                OverlayPictureBox.Image = new Bitmap(100, 100);
             }
+
             return false;
         }
 

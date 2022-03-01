@@ -15,6 +15,7 @@ namespace ImageViewer.Models
         /// The major.
         /// </value>
         public int Major { get; private set; }
+
         /// <summary>
         /// Gets the minor.
         /// </summary>
@@ -22,6 +23,7 @@ namespace ImageViewer.Models
         /// The minor.
         /// </value>
         public int Minor { get; private set; }
+
         /// <summary>
         /// Gets the build.
         /// </summary>
@@ -29,6 +31,7 @@ namespace ImageViewer.Models
         /// The build.
         /// </value>
         public int Build { get; private set; }
+
         /// <summary>
         /// Gets the revistion.
         /// </summary>
@@ -109,7 +112,7 @@ namespace ImageViewer.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((ApplicationVersion) obj);
         }
 

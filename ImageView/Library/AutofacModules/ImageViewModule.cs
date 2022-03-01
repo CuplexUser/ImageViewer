@@ -38,7 +38,7 @@ namespace ImageViewer.Library.AutofacModules
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-            
+
             builder.RegisterType<RegistryAccess>()
                 .As<IRegistryAccess>()
                 .SingleInstance()
@@ -55,18 +55,18 @@ namespace ImageViewer.Library.AutofacModules
                 .SingleInstance();
 
             builder.Register(Configure)
-                            .AutoActivate()
-                            .AsSelf()
-                            .AsImplementedInterfaces()
-                            .SingleInstance();
-            
+                .AutoActivate()
+                .AsSelf()
+                .AsImplementedInterfaces()
+                .SingleInstance();
+
             var assembly = Assembly.GetExecutingAssembly();
 
             builder.RegisterAutoMapper(assembly);
             builder.RegisterAssemblyTypes(assembly)
-                            .AssignableTo<Form>()
-                            .AsSelf()
-                            .InstancePerDependency();
+                .AssignableTo<Form>()
+                .AsSelf()
+                .InstancePerDependency();
         }
 
         private void Handler(IActivatingEventArgs<IRegistryAccess> obj)

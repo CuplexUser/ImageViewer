@@ -59,6 +59,7 @@ namespace ImageViewer.Services
                 Log.Information("Loaded bookmarks from file");
                 return true;
             }
+
             Log.Error("Failed to load bookmarks from file");
             return false;
         }
@@ -111,10 +112,7 @@ namespace ImageViewer.Services
 
         public async Task SaveBookmarksAsync()
         {
-            await Task.Factory.StartNew(() =>
-            {
-                SaveBookmarks(true);
-            });
+            await Task.Factory.StartNew(() => { SaveBookmarks(true); });
         }
     }
 }

@@ -13,7 +13,6 @@ namespace ImageViewer
 
         private void FormEditBookmark_Load(object sender, EventArgs e)
         {
-
         }
 
         public void InitEditForm(BookmarkEditModel model, bool editFilename)

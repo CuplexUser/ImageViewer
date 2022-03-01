@@ -15,6 +15,7 @@ namespace ImageViewer.Managers
         /// The scope
         /// </summary>
         private readonly ILifetimeScope _scope;
+
         /// <summary>
         /// Gets the form instances.
         /// </summary>
@@ -74,7 +75,7 @@ namespace ImageViewer.Managers
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void FormManager_Closed(object sender, EventArgs e)
         {
-            Form frm = (Form)sender;
+            Form frm = (Form) sender;
             if (frm != null && FormInstances.ContainsKey(frm.Name))
                 FormInstances.Remove(frm.Name);
         }

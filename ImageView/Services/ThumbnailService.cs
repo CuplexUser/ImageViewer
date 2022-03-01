@@ -126,7 +126,7 @@ namespace ImageViewer.Services
 
             bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
-            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
+            progress?.Report(new ThumbnailScanProgress {TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true});
             return saveResult;
         }
 
@@ -135,7 +135,7 @@ namespace ImageViewer.Services
             var scannedFiles = 0;
             return await Task.Factory.StartNew(() =>
                 {
-                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
+                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress {IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount});
 
                     return scannedFiles;
                 }
@@ -246,7 +246,7 @@ namespace ImageViewer.Services
 
         public Image GetThumbnail(string filename)
         {
-            if (_thumbnailRepository.IsCached(filename)) 
+            if (_thumbnailRepository.IsCached(filename))
                 return _thumbnailRepository.GetThumbnailImage(filename);
 
             Image thumbnailImage = null;

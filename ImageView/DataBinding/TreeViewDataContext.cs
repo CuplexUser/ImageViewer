@@ -25,7 +25,6 @@ namespace ImageViewer.DataBinding
 
         private void TreeView_ControlAdded(object sender, ControlEventArgs e)
         {
-
         }
 
         private void TreeView_AfterExpand(object sender, TreeViewEventArgs e)
@@ -90,7 +89,7 @@ namespace ImageViewer.DataBinding
                 var treeView = new TreeNode(folder.Name) {Tag = folder};
                 treeNodeList.Add(treeView);
 
-                if (folder.BookmarkFolders!=null && folder.BookmarkFolders.Count > 0)
+                if (folder.BookmarkFolders != null && folder.BookmarkFolders.Count > 0)
                     treeView.Nodes.AddRange(RecursiveAddTreeNodes(folder).ToArray());
             }
 
