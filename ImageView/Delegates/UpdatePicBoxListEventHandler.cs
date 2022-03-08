@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ImageViewer.Models;
 
 namespace ImageViewer.Delegates
 {

@@ -261,3 +261,5 @@ paket-files/
 __pycache__/
 *.pyc
 /Dotfuscated/Dotfuscated
+/ImageView.UnitTest/.upgrade-assistant
+/AnalysisReport.sarif

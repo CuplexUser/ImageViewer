@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
-using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
 using ImageViewer.Models;
 using ImageViewer.Services;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -246,12 +245,12 @@ namespace ImageViewer
 
         private void bookmarksTree_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = e.Data.GetDataPresent(typeof(Bookmark)) ? DragDropEffects.Move : DragDropEffects.None;
+            e.Effect = e.Data!.GetDataPresent(typeof(Bookmark)) ? DragDropEffects.Move : DragDropEffects.None;
         }
 
         private void bookmarksTree_DragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(Bookmark)))
+            if (e.Data!.GetDataPresent(typeof(Bookmark)))
                 e.Effect = e.AllowedEffect;
         }
 

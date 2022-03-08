@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ImageViewer.DataContracts;
 
 namespace ImageViewer.DataBinding
 {
-    public class TreeViewDataContext
+    public class TreeViewGenericDataContext<T> where T : class , IExpandableNode
     {
-        private readonly BookmarkFolder _rootFolder;
         private readonly TreeView _treeView;
+        private readonly T _rootFolder;
 
-
-        public TreeViewDataContext(TreeView treeView, BookmarkFolder rootFolder)
+        public TreeViewGenericDataContext(TreeView treeView, T rootFolder)
         {
             _treeView = treeView;
             _rootFolder = rootFolder;
@@ -23,30 +21,32 @@ namespace ImageViewer.DataBinding
             treeView.ControlAdded += TreeView_ControlAdded;
         }
 
-        private void TreeView_ControlAdded(object sender, ControlEventArgs e)
+        private void TreeView_ControlAdded(object? sender, ControlEventArgs e)
         {
+
         }
 
-        private void TreeView_AfterExpand(object sender, TreeViewEventArgs e)
-        {
-            e.Node?.Expand();
-        }
-
-        private void TreeView_AfterCollapse(object sender, TreeViewEventArgs e)
-        {
-        }
-
-        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        private void TreeView_AfterExpand(object? sender, TreeViewEventArgs e)
         {
             e.Node?.Expand();
         }
 
-        private void TreeView_AfterCheck(object sender, TreeViewEventArgs e)
+        private void TreeView_AfterCollapse(object? sender, TreeViewEventArgs e)
+        {
+
+        }
+
+        private void TreeView_AfterSelect(object? sender, TreeViewEventArgs e)
         {
             e.Node?.Expand();
         }
 
-        public void ExpandNode(BookmarkFolder folderToExpand)
+        private void TreeView_AfterCheck(object? sender, TreeViewEventArgs e)
+        {
+            e.Node?.Expand();
+        }
+
+        public void ExpandNode(T folderToExpand)
         {
             if (folderToExpand == null)
                 return;
@@ -55,7 +55,7 @@ namespace ImageViewer.DataBinding
             ExpandNode(_treeView.Nodes, folderToExpand);
         }
 
-        private void ExpandNode(TreeNodeCollection treeNodeCollection, BookmarkFolder rootFolder)
+        private void ExpandNode(TreeNodeCollection treeNodeCollection, T rootFolder)
         {
             foreach (TreeNode treeNode in treeNodeCollection)
             {
@@ -71,25 +71,25 @@ namespace ImageViewer.DataBinding
             }
         }
 
-
         public void BindData()
         {
             _treeView.Nodes.Clear();
-            var rootTreeNode = new TreeNode("Bookmarks") {Tag = _rootFolder};
+            var rootTreeNode = new TreeNode("Subfolders") { Tag = _rootFolder };
             rootTreeNode.Nodes.AddRange(RecursiveAddTreeNodes(_rootFolder).ToArray());
             _treeView.Nodes.Add(rootTreeNode);
         }
 
-        private List<TreeNode> RecursiveAddTreeNodes(BookmarkFolder rootFolder)
+        private List<TreeNode> RecursiveAddTreeNodes(T rootFolder)
         {
             var treeNodeList = new List<TreeNode>();
 
-            foreach (BookmarkFolder folder in rootFolder.BookmarkFolders.OrderBy(x => x.SortOrder))
+            foreach (var folderNode in rootFolder.GetChildNodes().OrderBy(x => x.SortOrder))
             {
-                var treeView = new TreeNode(folder.Name) {Tag = folder};
+                var folder = (T) folderNode;
+                var treeView = new TreeNode(folder.Name) { Tag = folder };
                 treeNodeList.Add(treeView);
 
-                if (folder.BookmarkFolders != null && folder.BookmarkFolders.Count > 0)
+                if (folder.GetChildNodes() != null && (folder.GetChildNodes().Any()))
                     treeView.Nodes.AddRange(RecursiveAddTreeNodes(folder).ToArray());
             }
 

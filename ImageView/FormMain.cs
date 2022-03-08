@@ -862,6 +862,11 @@ namespace ImageViewer
         #endregion Form Controls Events
 
         #region Main Menu Functions
+        private void openFileCollectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
+            form.ShowDialog(this);
+        }
 
         private void openInDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1199,5 +1204,7 @@ namespace ImageViewer
         }
 
         #endregion Main Menu Functions
+
+
     }
 }

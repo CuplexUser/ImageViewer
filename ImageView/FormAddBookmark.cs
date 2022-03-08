@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using ImageViewer.DataContracts;
 using ImageViewer.Managers;
-using ImageViewer.Models;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;

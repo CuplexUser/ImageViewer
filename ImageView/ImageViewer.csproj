@@ -134,7 +134,7 @@
     </None>
   </ItemGroup>
 	<ItemGroup>
-    <Content Include="defaultIcon.ico" />
+    <Content Include="Prasilarts-Claire-Monitor-11-Computer-Matrix.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.3.0" />
@@ -200,7 +200,7 @@
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>None</DebugType>
+    <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
     <IsPublishable>False</IsPublishable>
     <SignAssembly>False</SignAssembly>
@@ -214,7 +214,7 @@
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
     <UserSecretsId>e6e05188-b9c5-4534-8987-4b493e5b7544</UserSecretsId>
-    <ApplicationIcon>defaultIcon.ico</ApplicationIcon>
+    <ApplicationIcon>Prasilarts-Claire-Monitor-11-Computer-Matrix.ico</ApplicationIcon>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>

@@ -145,12 +145,15 @@ namespace ImageViewer.Services
         private List<string> GetSubDirList(string path)
         {
             var dirList = new List<string>();
-            var directories = Directory.GetDirectories(path);
+            var dirInfo = new DirectoryInfo(path);
 
-            foreach (string directory in directories)
+            foreach (var directory in dirInfo.EnumerateDirectories())
             {
-                dirList.Add(directory);
-                dirList.AddRange(GetSubDirList(directory));
+                if ((directory.Attributes & FileAttributes.Hidden) == 0)
+                {
+                    dirList.Add(directory.Name);
+                    dirList.AddRange(GetSubDirList(directory.FullName));
+                }
             }
 
             return dirList;

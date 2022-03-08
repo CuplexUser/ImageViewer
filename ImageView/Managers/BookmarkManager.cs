@@ -9,7 +9,6 @@ using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
-using ImageViewer.Models;
 using ImageViewer.Utility;
 using JetBrains.Annotations;
 using Serilog;
@@ -552,7 +551,7 @@ namespace ImageViewer.Managers
 
             while (removeQueue.Count > 0)
             {
-                DeleteBookmarkQuit(removeQueue.Dequeue());
+                DeleteBookmarkQuick(removeQueue.Dequeue());
             }
 
             if (removedItems > 0)
@@ -564,7 +563,7 @@ namespace ImageViewer.Managers
             return removedItems;
         }
 
-        private bool DeleteBookmarkQuit(Bookmark bookmark)
+        private bool DeleteBookmarkQuick(Bookmark bookmark)
         {
             BookmarkFolder parentFolder = GetBookmarkFolderById(_bookmarkContainer.RootFolder, bookmark.ParentFolderId);
 

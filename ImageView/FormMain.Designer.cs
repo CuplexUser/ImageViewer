@@ -94,6 +94,7 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolTipSlideshowState = new System.Windows.Forms.ToolTip(this.components);
             this.timerCursorVisible = new System.Windows.Forms.Timer(this.components);
+            this.openFileCollectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -113,13 +114,15 @@
             this.otherToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(624, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(728, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFileCollectionToolStripMenuItem,
             this.openBrowserToolStripMenuItem,
             this.menuItemOpenImage,
             this.menuItemLoadBookmarkedImages,
@@ -135,7 +138,7 @@
             // 
             this.openBrowserToolStripMenuItem.Name = "openBrowserToolStripMenuItem";
             this.openBrowserToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.openBrowserToolStripMenuItem.Text = "&Open File Browser";
+            this.openBrowserToolStripMenuItem.Text = "&Open Legacy File Browser";
             this.openBrowserToolStripMenuItem.Click += new System.EventHandler(this.OpenFolderToolStripMenuItem_Click);
             // 
             // menuItemOpenImage
@@ -578,8 +581,9 @@
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.InitialImage = null;
             this.pictureBox1.Location = new System.Drawing.Point(0, 24);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(624, 418);
+            this.pictureBox1.Size = new System.Drawing.Size(728, 486);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
@@ -603,16 +607,24 @@
             this.timerCursorVisible.Interval = 2000;
             this.timerCursorVisible.Tick += new System.EventHandler(this.timerCursorVisible_Tick);
             // 
+            // openFileCollectionToolStripMenuItem
+            // 
+            this.openFileCollectionToolStripMenuItem.Name = "openFileCollectionToolStripMenuItem";
+            this.openFileCollectionToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.openFileCollectionToolStripMenuItem.Text = "&Open File Browser";
+            this.openFileCollectionToolStripMenuItem.Click += new System.EventHandler(this.openFileCollectionToolStripMenuItem_Click);
+            // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(624, 442);
+            this.ClientSize = new System.Drawing.Size(728, 510);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.MinimumSize = new System.Drawing.Size(399, 298);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.MinimumSize = new System.Drawing.Size(463, 338);
             this.Name = "FormMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Image Viewer";
@@ -696,6 +708,7 @@
         private System.Windows.Forms.ToolTip toolTipSlideshowState;
         private System.Windows.Forms.ToolStripMenuItem deleteImageToolStripMenuItem;
         private System.Windows.Forms.Timer timerCursorVisible;
+        private System.Windows.Forms.ToolStripMenuItem openFileCollectionToolStripMenuItem;
     }
 }
 
