@@ -206,8 +206,8 @@ namespace ImageViewer
             pbarPercentUsed.Minimum = 0;
 
             lblCacheItems.Text = _imageCacheService.CachedImages.ToString();
-            lblUsedSpace.Text = GeneralConverters.FormatFileSizeToString(cacheUsage, 2);
-            lblFreeSpace.Text = GeneralConverters.FormatFileSizeToString(cacheSize - cacheUsage);
+            lblUsedSpace.Text = SystemIOHelper.FormatFileSizeToString(cacheUsage, 2);
+            lblFreeSpace.Text = SystemIOHelper.FormatFileSizeToString(cacheSize - cacheUsage);
             pbarPercentUsed.Value = Convert.ToInt32((double) cacheUsage / cacheSize * 100d);
 
             trackBarCacheSize.Minimum = Convert.ToInt32(minSize / TrackbarDivider);
@@ -218,7 +218,7 @@ namespace ImageViewer
 
         private void UpdateCacheSizeLabel()
         {
-            lblCacheSize.Text = GeneralConverters.FormatFileSizeToString(trackBarCacheSize.Value * TrackbarDivider, 0);
+            lblCacheSize.Text = SystemIOHelper.FormatFileSizeToString(trackBarCacheSize.Value * TrackbarDivider, 0);
         }
 
         private void trackBarFadeTime_Scroll(object sender, EventArgs e)

@@ -1,4 +1,9 @@
 ﻿using System;
+using AutoMapper;
+using ImageViewer.DataContracts;
+using ImageViewer.DataContracts.Import;
+using ImageViewer.Library.AutoMapperProfile;
+using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import
 {
@@ -48,7 +53,15 @@ namespace ImageViewer.Models.Import
         /// <value>
         /// The last modifies.
         /// </value>
-        public DateTime LastModifies { get; set; }
+        public DateTime LastModified { get; set; }
+
+        /// <summary>
+        /// Gets or sets the creation time.
+        /// </summary>
+        /// <value>
+        /// The creation time.
+        /// </value>
+        public DateTime CreationTime { get; set; }
         /// <summary>
         /// Gets or sets the size of the file.
         /// </summary>
@@ -62,5 +75,25 @@ namespace ImageViewer.Models.Import
         /// <value>
         /// The sort order.
         /// </value>
-        public int SortOrder { get; set; } }
+        public int SortOrder { get; set; }
+
+
+        /// <summary>
+        /// Creates the mapping.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        public static void CreateMapping(IProfileExpression expression)
+        {
+            expression.CreateMap<ImageRefModel, ImageReference>()
+                .ForMember(s => s.Size, o => o.MapFrom(d => d.FileSize))
+                .ForMember(s => s.CompletePath, o => o.MapFrom(d => d.CompletePath))
+                .ForMember(s => s.FileName, o => o.MapFrom(d => d.FileName))
+                .ForMember(s => s.LastWriteTime, o => o.MapFrom(d => d.LastModified))
+                .ForMember(s => s.CreationTime, o => o.MapFrom(d => d.CreationTime))
+                .ForMember(s => s.Directory, o => o.MapFrom(d => d.Directory))
+                .ReverseMap()
+                .ForMember(s => s.ImageType, o => o.MapFrom(d => SystemIOHelper.GetFileExtention(d.FileName)))
+                .ForMember(s => s.SortOrder, o => o.MapFrom((reference, model, arg3) => arg3));
+        }
+    }
 }

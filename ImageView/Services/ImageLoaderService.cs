@@ -11,6 +11,7 @@ using AutoMapper;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
+using ImageViewer.Models.Import;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -124,17 +125,17 @@ namespace ImageViewer.Services
                     var bookmarks = _bookmarkService.BookmarkManager.GetAllBookmarksRecursive(_bookmarkService.BookmarkManager.RootFolder);
 
                     var query = from b in bookmarks
-                        orderby b.LastWriteTime
-                        select new ImageReference
-                        {
-                            FileName = b.FileName,
-                            Directory = b.Directory,
-                            CompletePath = b.CompletePath,
-                            Size = b.Size,
-                            CreationTime = b.CreationTime,
-                            LastWriteTime = b.LastWriteTime,
-                            LastAccessTime = b.LastAccessTime
-                        };
+                                orderby b.LastWriteTime
+                                select new ImageReference
+                                {
+                                    FileName = b.FileName,
+                                    Directory = b.Directory,
+                                    CompletePath = b.CompletePath,
+                                    Size = b.Size,
+                                    CreationTime = b.CreationTime,
+                                    LastWriteTime = b.LastWriteTime,
+                                    LastAccessTime = b.LastAccessTime
+                                };
 
                     imgReferenceList = query.ToList();
                 });
@@ -265,6 +266,30 @@ namespace ImageViewer.Services
                     DoImageImport();
                 });
 
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> RunIMageImportAsync(Func<List<ImageRefModel>> selectFunc)
+        {
+            if (!IsRunningImport)
+            {
+                _imageReferenceList = null;
+                _imageBaseDir = "";
+                IsRunningImport = true;
+                _filesLoaded = 0;
+
+                await Task.Factory.StartNew(() =>
+                {
+                    _runWorkerThread = true;
+                    var imgRefModels = selectFunc.Invoke();
+                    _filesLoaded = imgRefModels.Count;
+                    List<ImageReference> imgRefList = _mapper.Map<List<ImageReference>>(imgRefModels);
+                    _imageReferenceList = imgRefList;
+                    IsRunningImport = false;
+                });
                 return true;
             }
 
@@ -421,7 +446,7 @@ namespace ImageViewer.Services
             ImagesLoaded = imagesLoaded;
 
             if (totalNumberOfFiles > 0)
-                CompletionRate = imagesLoaded / (double) totalNumberOfFiles;
+                CompletionRate = imagesLoaded / (double)totalNumberOfFiles;
         }
 
         public ProgressStatusEnum ProgressStatus { get; private set; }

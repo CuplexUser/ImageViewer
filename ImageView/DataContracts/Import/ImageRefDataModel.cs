@@ -60,7 +60,7 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The last modifies.
         /// </value>
-        [DataMember(Name = "LastModifies")]
+        [DataMember(Name = "LastModified")]
         public DateTime LastModifies { get; set; }
 
         /// <summary>

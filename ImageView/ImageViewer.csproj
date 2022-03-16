@@ -189,6 +189,11 @@
     <Compile Remove="UserControls\CustomTreeView.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="ImageView.idc" />
+    <None Remove="ImageViewer.csproj.DotSettings" />
+    <None Remove="upgrade-assistant.clef" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

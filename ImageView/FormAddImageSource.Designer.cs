@@ -29,17 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node1");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node13");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
-            treeNode2});
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Node11");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Node12");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode3,
-            treeNode4,
-            treeNode5});
+            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Node1");
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Node13");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
+            treeNode8});
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Node11");
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Node12");
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
+            treeNode7,
+            treeNode9,
+            treeNode10,
+            treeNode11});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAddImageSource));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -53,8 +53,9 @@
             this.cbDrives = new System.Windows.Forms.ComboBox();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lstBoxSourceImages = new System.Windows.Forms.ListBox();
+            this.grpTargetCollection = new System.Windows.Forms.GroupBox();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.listViewSource = new System.Windows.Forms.ListView();
             this.contextMenuOutputImageList = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemAddFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemAddFolder = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,8 +63,19 @@
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItemRemoveItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.groupBoxSummary = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.lblRootFolders = new System.Windows.Forms.Label();
+            this.lblImages = new System.Windows.Forms.Label();
+            this.lblFolders = new System.Windows.Forms.Label();
+            this.lblDriveCount = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.lblImageCount = new System.Windows.Forms.Label();
+            this.lblCombinedSize = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label3 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -88,17 +100,22 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.contextMenuAddSource.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.grpTargetCollection.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.contextMenuOutputImageList.SuspendLayout();
+            this.groupBoxSummary.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -108,7 +125,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(5, 2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(244, 519);
+            this.groupBox1.Size = new System.Drawing.Size(239, 569);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Source selection";
@@ -121,7 +138,7 @@
             this.panel2.Controls.Add(this.treeViewFileSystem);
             this.panel2.Location = new System.Drawing.Point(3, 47);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(238, 469);
+            this.panel2.Size = new System.Drawing.Size(233, 519);
             this.panel2.TabIndex = 7;
             // 
             // treeViewFileSystem
@@ -133,35 +150,36 @@
             this.treeViewFileSystem.ImageList = this.imgListIcons;
             this.treeViewFileSystem.Location = new System.Drawing.Point(0, 0);
             this.treeViewFileSystem.Name = "treeViewFileSystem";
-            treeNode1.ImageKey = "Folder";
-            treeNode1.Name = "Node1";
-            treeNode1.SelectedImageKey = "FolderSelected";
-            treeNode1.Text = "Node1";
-            treeNode2.ImageKey = "Folder";
-            treeNode2.Name = "Node13";
-            treeNode2.SelectedImageKey = "FolderSelected";
-            treeNode2.Text = "Node13";
-            treeNode3.ImageIndex = 1;
-            treeNode3.Name = "Node10";
-            treeNode3.SelectedImageKey = "FolderSelected";
-            treeNode3.Text = "Node10";
-            treeNode4.ImageKey = "Folder";
-            treeNode4.Name = "Node11";
-            treeNode4.SelectedImageKey = "FolderSelected";
-            treeNode4.Text = "Node11";
-            treeNode5.ImageKey = "Folder";
-            treeNode5.Name = "Node12";
-            treeNode5.SelectedImageKey = "FolderSelected";
-            treeNode5.Text = "Node12";
-            treeNode6.ImageKey = "Drive";
-            treeNode6.Name = "Node0";
-            treeNode6.SelectedImageKey = "Drive";
-            treeNode6.Text = "Node0";
+            treeNode7.ImageKey = "Folder";
+            treeNode7.Name = "Node1";
+            treeNode7.SelectedImageKey = "FolderSelected";
+            treeNode7.Text = "Node1";
+            treeNode8.ImageKey = "Folder";
+            treeNode8.Name = "Node13";
+            treeNode8.SelectedImageKey = "FolderSelected";
+            treeNode8.Text = "Node13";
+            treeNode9.ImageIndex = 1;
+            treeNode9.Name = "Node10";
+            treeNode9.SelectedImageKey = "FolderSelected";
+            treeNode9.Text = "Node10";
+            treeNode10.ImageKey = "Folder";
+            treeNode10.Name = "Node11";
+            treeNode10.SelectedImageKey = "FolderSelected";
+            treeNode10.Text = "Node11";
+            treeNode11.ImageKey = "Folder";
+            treeNode11.Name = "Node12";
+            treeNode11.SelectedImageKey = "FolderSelected";
+            treeNode11.Text = "Node12";
+            treeNode12.ImageKey = "Drive";
+            treeNode12.Name = "Node0";
+            treeNode12.SelectedImageKey = "Drive";
+            treeNode12.Text = "Node0";
             this.treeViewFileSystem.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode6});
+            treeNode12});
             this.treeViewFileSystem.SelectedImageIndex = 2;
-            this.treeViewFileSystem.Size = new System.Drawing.Size(238, 469);
+            this.treeViewFileSystem.Size = new System.Drawing.Size(233, 519);
             this.treeViewFileSystem.TabIndex = 6;
+            this.treeViewFileSystem.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeViewFileSystem_ItemDrag);
             this.treeViewFileSystem.MouseClick += new System.Windows.Forms.MouseEventHandler(this.treeViewFileSystem_MouseClick);
             this.treeViewFileSystem.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.treeViewFileSystem_MouseDoubleClick);
             // 
@@ -220,7 +238,7 @@
             this.cbDrives.FormattingEnabled = true;
             this.cbDrives.Location = new System.Drawing.Point(3, 18);
             this.cbDrives.Name = "cbDrives";
-            this.cbDrives.Size = new System.Drawing.Size(238, 23);
+            this.cbDrives.Size = new System.Drawing.Size(233, 23);
             this.cbDrives.TabIndex = 5;
             this.cbDrives.SelectedIndexChanged += new System.EventHandler(this.cbDrives_SelectedIndexChanged);
             // 
@@ -229,7 +247,7 @@
             this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLoad.Enabled = false;
             this.btnLoad.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnLoad.Location = new System.Drawing.Point(615, 6);
+            this.btnLoad.Location = new System.Drawing.Point(599, 6);
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(95, 28);
             this.btnLoad.TabIndex = 1;
@@ -240,42 +258,58 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(716, 6);
+            this.btnCancel.Location = new System.Drawing.Point(700, 6);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(95, 28);
             this.btnCancel.TabIndex = 2;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "Close";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // groupBox2
+            // grpTargetCollection
             // 
-            this.groupBox2.Controls.Add(this.lstBoxSourceImages);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.lblImageCount);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(5, 2);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox2.Size = new System.Drawing.Size(547, 519);
-            this.groupBox2.TabIndex = 5;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Target collection";
+            this.grpTargetCollection.Controls.Add(this.panel3);
+            this.grpTargetCollection.Controls.Add(this.groupBoxSummary);
+            this.grpTargetCollection.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpTargetCollection.Location = new System.Drawing.Point(5, 2);
+            this.grpTargetCollection.Name = "grpTargetCollection";
+            this.grpTargetCollection.Padding = new System.Windows.Forms.Padding(5);
+            this.grpTargetCollection.Size = new System.Drawing.Size(536, 569);
+            this.grpTargetCollection.TabIndex = 5;
+            this.grpTargetCollection.TabStop = false;
+            this.grpTargetCollection.Text = "Target collection";
             // 
-            // lstBoxSourceImages
+            // panel3
             // 
-            this.lstBoxSourceImages.AllowDrop = true;
-            this.lstBoxSourceImages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.panel3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstBoxSourceImages.ContextMenuStrip = this.contextMenuOutputImageList;
-            this.lstBoxSourceImages.FormattingEnabled = true;
-            this.lstBoxSourceImages.ItemHeight = 15;
-            this.lstBoxSourceImages.Location = new System.Drawing.Point(8, 42);
-            this.lstBoxSourceImages.Name = "lstBoxSourceImages";
-            this.lstBoxSourceImages.Size = new System.Drawing.Size(532, 469);
-            this.lstBoxSourceImages.TabIndex = 4;
-            this.lstBoxSourceImages.Click += new System.EventHandler(this.lstBoxSourceImages_Click);
+            this.panel3.Controls.Add(this.listViewSource);
+            this.panel3.Location = new System.Drawing.Point(8, 18);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(520, 475);
+            this.panel3.TabIndex = 7;
+            // 
+            // listViewSource
+            // 
+            this.listViewSource.AllowDrop = true;
+            this.listViewSource.ContextMenuStrip = this.contextMenuOutputImageList;
+            this.listViewSource.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listViewSource.GridLines = true;
+            this.listViewSource.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listViewSource.LargeImageList = this.imgListIcons;
+            this.listViewSource.Location = new System.Drawing.Point(0, 0);
+            this.listViewSource.Name = "listViewSource";
+            this.listViewSource.ShowGroups = false;
+            this.listViewSource.Size = new System.Drawing.Size(520, 475);
+            this.listViewSource.SmallImageList = this.imgListIcons;
+            this.listViewSource.Sorting = System.Windows.Forms.SortOrder.Ascending;
+            this.listViewSource.TabIndex = 4;
+            this.listViewSource.UseCompatibleStateImageBehavior = false;
+            this.listViewSource.View = System.Windows.Forms.View.List;
+            this.listViewSource.Click += new System.EventHandler(this.listViewSource_Click);
+            this.listViewSource.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstBoxSourceImages_DragDrop);
+            this.listViewSource.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstBoxSourceImages_DragEnter);
             // 
             // contextMenuOutputImageList
             // 
@@ -300,6 +334,7 @@
             this.toolStripMenuItemAddFolder.Name = "toolStripMenuItemAddFolder";
             this.toolStripMenuItemAddFolder.Size = new System.Drawing.Size(196, 22);
             this.toolStripMenuItemAddFolder.Text = "Add Folder";
+            this.toolStripMenuItemAddFolder.Click += new System.EventHandler(this.toolStripMenuItemAddFolder_Click);
             // 
             // toolStripMenuItemAddFlderRecursive
             // 
@@ -317,32 +352,156 @@
             this.toolStripMenuItemRemoveItem.Name = "toolStripMenuItemRemoveItem";
             this.toolStripMenuItemRemoveItem.Size = new System.Drawing.Size(196, 22);
             this.toolStripMenuItemRemoveItem.Text = "Remove Selected Items";
+            this.toolStripMenuItemRemoveItem.Click += new System.EventHandler(this.toolStripMenuItemRemoveItem_Click);
             // 
             // clearAllToolStripMenuItem
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
             this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
+            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
+            // 
+            // groupBoxSummary
+            // 
+            this.groupBoxSummary.Controls.Add(this.tableLayoutPanel1);
+            this.groupBoxSummary.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.groupBoxSummary.Location = new System.Drawing.Point(5, 494);
+            this.groupBoxSummary.Name = "groupBoxSummary";
+            this.groupBoxSummary.Size = new System.Drawing.Size(526, 70);
+            this.groupBoxSummary.TabIndex = 6;
+            this.groupBoxSummary.TabStop = false;
+            this.groupBoxSummary.Text = "Summary";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 5;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.Controls.Add(this.lblRootFolders, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.lblImages, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.lblFolders, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.lblDriveCount, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.lblCombinedSize, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label2, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label6, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 4, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 19);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 51.92308F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 48.07692F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(520, 48);
+            this.tableLayoutPanel1.TabIndex = 5;
+            // 
+            // lblRootFolders
+            // 
+            this.lblRootFolders.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblRootFolders.AutoSize = true;
+            this.lblRootFolders.Location = new System.Drawing.Point(107, 28);
+            this.lblRootFolders.Name = "lblRootFolders";
+            this.lblRootFolders.Size = new System.Drawing.Size(13, 15);
+            this.lblRootFolders.TabIndex = 11;
+            this.lblRootFolders.Text = "0";
+            // 
+            // lblImages
+            // 
+            this.lblImages.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblImages.AutoSize = true;
+            this.lblImages.Location = new System.Drawing.Point(3, 28);
+            this.lblImages.Name = "lblImages";
+            this.lblImages.Size = new System.Drawing.Size(13, 15);
+            this.lblImages.TabIndex = 10;
+            this.lblImages.Text = "0";
+            // 
+            // lblFolders
+            // 
+            this.lblFolders.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblFolders.AutoSize = true;
+            this.lblFolders.Location = new System.Drawing.Point(211, 28);
+            this.lblFolders.Name = "lblFolders";
+            this.lblFolders.Size = new System.Drawing.Size(13, 15);
+            this.lblFolders.TabIndex = 9;
+            this.lblFolders.Text = "0";
+            // 
+            // lblDriveCount
+            // 
+            this.lblDriveCount.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblDriveCount.AutoSize = true;
+            this.lblDriveCount.Location = new System.Drawing.Point(419, 28);
+            this.lblDriveCount.Name = "lblDriveCount";
+            this.lblDriveCount.Size = new System.Drawing.Size(13, 15);
+            this.lblDriveCount.TabIndex = 8;
+            this.lblDriveCount.Text = "0";
             // 
             // label4
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.label4.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 21);
+            this.label4.Location = new System.Drawing.Point(3, 4);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(79, 15);
+            this.label4.Size = new System.Drawing.Size(45, 15);
             this.label4.TabIndex = 3;
-            this.label4.Text = "Files included";
+            this.label4.Text = "Images";
             // 
-            // lblImageCount
+            // lblCombinedSize
             // 
-            this.lblImageCount.AutoSize = true;
-            this.lblImageCount.Location = new System.Drawing.Point(93, 21);
-            this.lblImageCount.Name = "lblImageCount";
-            this.lblImageCount.Size = new System.Drawing.Size(13, 15);
-            this.lblImageCount.TabIndex = 1;
-            this.lblImageCount.Text = "0";
+            this.lblCombinedSize.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblCombinedSize.AutoSize = true;
+            this.lblCombinedSize.Location = new System.Drawing.Point(315, 28);
+            this.lblCombinedSize.Name = "lblCombinedSize";
+            this.lblCombinedSize.Size = new System.Drawing.Size(13, 15);
+            this.lblCombinedSize.TabIndex = 1;
+            this.lblCombinedSize.Text = "0";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(107, 4);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(71, 15);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Root folders";
+            // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(211, 4);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(45, 15);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Folders";
+            // 
+            // label6
+            // 
+            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(315, 4);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(86, 15);
+            this.label6.TabIndex = 6;
+            this.label6.Text = "Combined Size";
+            // 
+            // label7
+            // 
+            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(419, 4);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(70, 15);
+            this.label7.TabIndex = 7;
+            this.label7.Text = "Drive Count";
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Width = 250;
             // 
             // splitContainer1
             // 
@@ -359,10 +518,10 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
+            this.splitContainer1.Panel2.Controls.Add(this.grpTargetCollection);
             this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(5, 2, 5, 5);
-            this.splitContainer1.Size = new System.Drawing.Size(815, 526);
-            this.splitContainer1.SplitterDistance = 254;
+            this.splitContainer1.Size = new System.Drawing.Size(799, 576);
+            this.splitContainer1.SplitterDistance = 249;
             this.splitContainer1.TabIndex = 6;
             // 
             // label3
@@ -381,10 +540,10 @@
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.btnCancel);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 553);
+            this.panel1.Location = new System.Drawing.Point(0, 603);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(3);
-            this.panel1.Size = new System.Drawing.Size(817, 40);
+            this.panel1.Size = new System.Drawing.Size(801, 40);
             this.panel1.TabIndex = 8;
             // 
             // label5
@@ -406,7 +565,7 @@
             this.viewToolStripMenuItem});
             this.menuMain.Location = new System.Drawing.Point(0, 0);
             this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(817, 24);
+            this.menuMain.Size = new System.Drawing.Size(801, 24);
             this.menuMain.TabIndex = 9;
             this.menuMain.Text = "menuMain";
             // 
@@ -430,24 +589,24 @@
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(157, 6);
             // 
             // newCollectionToolStripMenuItem
             // 
             this.newCollectionToolStripMenuItem.Name = "newCollectionToolStripMenuItem";
-            this.newCollectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newCollectionToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.newCollectionToolStripMenuItem.Text = "New Collection";
             // 
             // openCollectionToolStripMenuItem
             // 
             this.openCollectionToolStripMenuItem.Name = "openCollectionToolStripMenuItem";
-            this.openCollectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openCollectionToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.openCollectionToolStripMenuItem.Text = "Open Collection";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(157, 6);
             // 
             // toolStripMenuItem1
             // 
@@ -455,7 +614,7 @@
             this.filesToolStripMenuItem,
             this.foldersToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
             this.toolStripMenuItem1.Text = "Add";
             // 
             // filesToolStripMenuItem
@@ -473,29 +632,29 @@
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(157, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.saveAsToolStripMenuItem.Text = "Save As";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(157, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -521,11 +680,15 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // bindingSource1
+            // 
+            this.bindingSource1.DataSource = typeof(ImageViewer.Models.Import.SourceFolderModel);
+            // 
             // FormAddImageSource
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(817, 593);
+            this.ClientSize = new System.Drawing.Size(801, 643);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuMain);
@@ -540,9 +703,12 @@
             this.groupBox1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.contextMenuAddSource.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.grpTargetCollection.ResumeLayout(false);
+            this.panel3.ResumeLayout(false);
             this.contextMenuOutputImageList.ResumeLayout(false);
+            this.groupBoxSummary.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -551,6 +717,7 @@
             this.panel1.PerformLayout();
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -561,10 +728,10 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnLoad;
         private System.Windows.Forms.Button btnCancel;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox grpTargetCollection;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label lblImageCount;
+        private System.Windows.Forms.Label lblCombinedSize;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
@@ -588,7 +755,6 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.TreeView treeViewFileSystem;
         private System.Windows.Forms.ComboBox cbDrives;
-        private System.Windows.Forms.ListBox lstBoxSourceImages;
         private System.Windows.Forms.ContextMenuStrip contextMenuAddSource;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
@@ -605,5 +771,19 @@
         private System.Windows.Forms.ToolStripMenuItem addFolderMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
         private System.Windows.Forms.ToolStripMenuItem updateToolStripMenuItem;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.ListView listViewSource;
+        private System.Windows.Forms.GroupBox groupBoxSummary;
+        private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label lblRootFolders;
+        private System.Windows.Forms.Label lblImages;
+        private System.Windows.Forms.Label lblFolders;
+        private System.Windows.Forms.Label lblDriveCount;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.BindingSource bindingSource1;
     }
 }

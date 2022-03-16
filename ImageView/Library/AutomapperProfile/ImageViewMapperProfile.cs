@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ImageViewer.Models;
+using ImageViewer.Models.Import;
 
 namespace ImageViewer.Library.AutoMapperProfile
 {
@@ -9,6 +10,9 @@ namespace ImageViewer.Library.AutoMapperProfile
         {
             ThumbnailDatabase.CreateMapping(this);
             ThumbnailEntry.CreateMapping(this);
+            SourceFolderModel.CreateMapping(this);
+            ListViewSourceModel.CreateMapping(this);
+            ImageRefModel.CreateMapping(this);
         }
     }
 }

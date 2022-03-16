@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Models;
+using ImageViewer.Utility;
 
 namespace ImageViewer.UserControls
 {
@@ -41,7 +42,7 @@ namespace ImageViewer.UserControls
             {
                 FileInfo fi = new FileInfo(fileName);
                 _editModel.FileSize = fi.Length;
-                string template = $"{GeneralConverters.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
+                string template = $"{SystemIOHelper.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
                 lblFileInfo.Text = template;
             }
             else

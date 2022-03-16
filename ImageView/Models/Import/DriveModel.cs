@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using GeneralToolkitLib.Converters;
+using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import
 {
@@ -91,7 +92,7 @@ namespace ImageViewer.Models.Import
         private string getFormattedSize()
         {
             var size = TotalSize;
-            return GeneralConverters.FormatFileSizeToString(size, 0);
+            return SystemIOHelper.FormatFileSizeToString(size, 0);
         }
 
         public override string ToString()

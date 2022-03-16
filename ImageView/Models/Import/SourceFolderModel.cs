@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using AutoMapper;
 using ImageViewer.DataBinding;
+using ImageViewer.DataContracts.Import;
+using JetBrains.Annotations;
 
 namespace ImageViewer.Models.Import
 {
@@ -93,6 +96,34 @@ namespace ImageViewer.Models.Import
             {
                 throw new ArgumentException("fullPath canot be Null");
             }
+        }
+
+        [UsedImplicitly]
+        public SourceFolderModel()
+        {
+
+        }
+
+        public static void CreateMapping(IProfileExpression expression)
+        {
+            expression.CreateMap<SourceFolderModel, SourceFolderDataModel>()
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullPath))
+                .ForMember(s => s.ParentFolderId, o => o.MapFrom(d => d.ParentFolderId))
+                .ReverseMap()
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
+                .ForMember(s => s.FullPath, o => o.MapFrom(d => d.FullName));
+
+            expression.CreateMap<SourceFolderModel, ListViewSourceModel>()
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
+                .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullPath))
+                .ForMember(s => s.SortOrder, o => o.MapFrom(d => d.SortOrder))
+                .ForMember(s => s.Folders, o => o.MapFrom(d => d.Folders))
+                .ForMember(s => s.ImageList, o => o.MapFrom(d => d.ImageList))
+                .ReverseMap()
+                .ForMember(s => s.FullPath, o => o.MapFrom(d => d.FullName));
         }
     }
 }

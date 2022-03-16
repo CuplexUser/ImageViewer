@@ -865,7 +865,10 @@ namespace ImageViewer
         private void openFileCollectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
-            form.ShowDialog(this);
+            if (form.ShowDialog(this) == DialogResult.OK)
+            {
+                SetImageReferenceCollection();
+            }
         }
 
         private void openInDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)

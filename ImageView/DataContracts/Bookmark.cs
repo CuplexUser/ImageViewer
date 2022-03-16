@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
 {
@@ -105,6 +106,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size formatted.
         /// </value>
-        public string SizeFormatted => GeneralToolkitLib.Converters.GeneralConverters.FormatFileSizeToString(Size);
+        public string SizeFormatted => SystemIOHelper.FormatFileSizeToString(Size);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using GeneralToolkitLib.Converters;
+using ImageViewer.Utility;
 
 namespace ImageViewer.Models
 {
@@ -31,7 +32,7 @@ namespace ImageViewer.Models
         /// <value>
         /// The size formatted.
         /// </value>
-        public string SizeFormatted => GeneralConverters.FormatFileSizeToString(Size);
+        public string SizeFormatted => SystemIOHelper.FormatFileSizeToString(Size);
 
         /// <summary>
         /// Gets or sets the name of the file.

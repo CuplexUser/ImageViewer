@@ -32,6 +32,11 @@ namespace ImageViewer
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormBookmarks));
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Child1");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Child2");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Root", new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode2});
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.FolderImages = new System.Windows.Forms.ImageList(this.components);
@@ -96,21 +101,15 @@ namespace ImageViewer
             // 
             // FolderImages
             // 
+            this.FolderImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
             this.FolderImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("FolderImages.ImageStream")));
             this.FolderImages.TransparentColor = System.Drawing.Color.Transparent;
-            this.FolderImages.Images.SetKeyName(0, "folder.ico");
-            this.FolderImages.Images.SetKeyName(1, "opened_folder.ico");
-            this.FolderImages.Images.SetKeyName(2, "Folder_Icon.ico");
-            this.FolderImages.Images.SetKeyName(3, "Folder_yellow_Icon.ico");
-            this.FolderImages.Images.SetKeyName(4, "Folder_IconOpen.ico");
-            this.FolderImages.Images.SetKeyName(5, "Folder_my_pictures_Icon.ico");
-            this.FolderImages.Images.SetKeyName(6, "Folder-Opened-icon.ico");
-            this.FolderImages.Images.SetKeyName(7, "Folder-Closed-icon.ico");
-            this.FolderImages.Images.SetKeyName(8, "Documents-icon.ico");
-            this.FolderImages.Images.SetKeyName(9, "Folder-icon.ico");
-            this.FolderImages.Images.SetKeyName(10, "normal_folder.ico");
-            this.FolderImages.Images.SetKeyName(11, "Open_Folder_Icon.ico");
-            this.FolderImages.Images.SetKeyName(12, "Closed_Folder_Icon.ico");
+            this.FolderImages.Images.SetKeyName(0, "folder");
+            this.FolderImages.Images.SetKeyName(1, "FolderOpen");
+            this.FolderImages.Images.SetKeyName(2, "FolderOpen2");
+            this.FolderImages.Images.SetKeyName(3, "Folder2");
+            this.FolderImages.Images.SetKeyName(4, "FolderFolderOpen");
+            this.FolderImages.Images.SetKeyName(5, "FolderOpen3");
             // 
             // splitContainer1
             // 
@@ -153,11 +152,23 @@ namespace ImageViewer
             this.bookmarksTree.AllowDrop = true;
             this.bookmarksTree.ContextMenuStrip = this.contextMenuStripFolders;
             this.bookmarksTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bookmarksTree.ImageIndex = 0;
+            this.bookmarksTree.ImageKey = "Folder2";
             this.bookmarksTree.ImageList = this.FolderImages;
             this.bookmarksTree.Location = new System.Drawing.Point(0, 0);
             this.bookmarksTree.Name = "bookmarksTree";
-            this.bookmarksTree.SelectedImageIndex = 1;
+            treeNode1.ImageKey = "FolderOpen2";
+            treeNode1.Name = "Node1";
+            treeNode1.SelectedImageKey = "FolderOpen2";
+            treeNode1.Text = "Child1";
+            treeNode2.Name = "Node2";
+            treeNode2.Text = "Child2";
+            treeNode3.ImageKey = "Folder2";
+            treeNode3.Name = "Node0";
+            treeNode3.SelectedImageKey = "FolderOpen3";
+            treeNode3.Text = "Root";
+            this.bookmarksTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
+            treeNode3});
+            this.bookmarksTree.SelectedImageKey = "FolderOpen3";
             this.bookmarksTree.ShowPlusMinus = false;
             this.bookmarksTree.ShowRootLines = false;
             this.bookmarksTree.Size = new System.Drawing.Size(233, 293);
@@ -238,7 +249,7 @@ namespace ImageViewer
             this.bookmarksDataGridView.Name = "bookmarksDataGridView";
             this.bookmarksDataGridView.RowHeadersVisible = false;
             this.bookmarksDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            this.bookmarksDataGridView.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bookmarksDataGridView.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.bookmarksDataGridView.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.bookmarksDataGridView.RowTemplate.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(227)))), ((int)(((byte)(252)))));
             this.bookmarksDataGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.Black;
@@ -301,7 +312,7 @@ namespace ImageViewer
             // 
             // bookmarkBindingSource
             // 
-            this.bookmarkBindingSource.DataSource = typeof(Bookmark);
+            this.bookmarkBindingSource.DataSource = typeof(ImageViewer.DataContracts.Bookmark);
             // 
             // mainWinMenu
             // 
@@ -339,14 +350,14 @@ namespace ImageViewer
             // openAndIncludeToolStripMenuItem
             // 
             this.openAndIncludeToolStripMenuItem.Name = "openAndIncludeToolStripMenuItem";
-            this.openAndIncludeToolStripMenuItem.Size = new System.Drawing.Size(237, 22);
+            this.openAndIncludeToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.openAndIncludeToolStripMenuItem.Text = "Append To Current Bookmarks";
             this.openAndIncludeToolStripMenuItem.Click += new System.EventHandler(this.openAndIncludeToolStripMenuItem_Click);
             // 
             // openAndReplaceToolStripMenuItem
             // 
             this.openAndReplaceToolStripMenuItem.Name = "openAndReplaceToolStripMenuItem";
-            this.openAndReplaceToolStripMenuItem.Size = new System.Drawing.Size(237, 22);
+            this.openAndReplaceToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.openAndReplaceToolStripMenuItem.Text = "Replace Current Bookmarks";
             this.openAndReplaceToolStripMenuItem.Click += new System.EventHandler(this.openAndReplaceToolStripMenuItem_Click);
             // 
@@ -375,7 +386,7 @@ namespace ImageViewer
             this.tryToFixBrokenLinksToolStripMenuItem,
             this.removeDuplicatesToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // tryToFixBrokenLinksToolStripMenuItem
@@ -407,33 +418,33 @@ namespace ImageViewer
             // showOverlayPreviewToolStripMenuItem
             // 
             this.showOverlayPreviewToolStripMenuItem.Name = "showOverlayPreviewToolStripMenuItem";
-            this.showOverlayPreviewToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.showOverlayPreviewToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.showOverlayPreviewToolStripMenuItem.Text = "Show Overlay Preview";
             this.showOverlayPreviewToolStripMenuItem.Click += new System.EventHandler(this.showOverlayPreviewToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(192, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(193, 6);
             // 
             // maximizePreviewAreaToolStripMenuItem
             // 
             this.maximizePreviewAreaToolStripMenuItem.Name = "maximizePreviewAreaToolStripMenuItem";
-            this.maximizePreviewAreaToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.maximizePreviewAreaToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.maximizePreviewAreaToolStripMenuItem.Text = "Maximize Preview Area";
             this.maximizePreviewAreaToolStripMenuItem.Click += new System.EventHandler(this.maximizePreviewAreaToolStripMenuItem_Click);
             // 
             // restorePreviewAreaToolStripMenuItem
             // 
             this.restorePreviewAreaToolStripMenuItem.Name = "restorePreviewAreaToolStripMenuItem";
-            this.restorePreviewAreaToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            this.restorePreviewAreaToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.restorePreviewAreaToolStripMenuItem.Text = "Restore Preview Area";
             this.restorePreviewAreaToolStripMenuItem.Click += new System.EventHandler(this.restorePreviewAreaToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(192, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(193, 6);
             // 
             // contextMenuStripBookmarks
             // 
@@ -477,7 +488,7 @@ namespace ImageViewer
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(832, 603);
             this.Controls.Add(this.splitContainer1);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainWinMenu;
             this.MinimumSize = new System.Drawing.Size(400, 300);
