@@ -29,17 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Node1");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Node13");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
-            treeNode8});
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Node11");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Node12");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
-            treeNode7,
-            treeNode9,
-            treeNode10,
-            treeNode11});
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node1");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node13");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
+            treeNode2});
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Node11");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Node12");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode3,
+            treeNode4,
+            treeNode5});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAddImageSource));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -150,32 +150,32 @@
             this.treeViewFileSystem.ImageList = this.imgListIcons;
             this.treeViewFileSystem.Location = new System.Drawing.Point(0, 0);
             this.treeViewFileSystem.Name = "treeViewFileSystem";
-            treeNode7.ImageKey = "Folder";
-            treeNode7.Name = "Node1";
-            treeNode7.SelectedImageKey = "FolderSelected";
-            treeNode7.Text = "Node1";
-            treeNode8.ImageKey = "Folder";
-            treeNode8.Name = "Node13";
-            treeNode8.SelectedImageKey = "FolderSelected";
-            treeNode8.Text = "Node13";
-            treeNode9.ImageIndex = 1;
-            treeNode9.Name = "Node10";
-            treeNode9.SelectedImageKey = "FolderSelected";
-            treeNode9.Text = "Node10";
-            treeNode10.ImageKey = "Folder";
-            treeNode10.Name = "Node11";
-            treeNode10.SelectedImageKey = "FolderSelected";
-            treeNode10.Text = "Node11";
-            treeNode11.ImageKey = "Folder";
-            treeNode11.Name = "Node12";
-            treeNode11.SelectedImageKey = "FolderSelected";
-            treeNode11.Text = "Node12";
-            treeNode12.ImageKey = "Drive";
-            treeNode12.Name = "Node0";
-            treeNode12.SelectedImageKey = "Drive";
-            treeNode12.Text = "Node0";
+            treeNode1.ImageKey = "Folder";
+            treeNode1.Name = "Node1";
+            treeNode1.SelectedImageKey = "FolderSelected";
+            treeNode1.Text = "Node1";
+            treeNode2.ImageKey = "Folder";
+            treeNode2.Name = "Node13";
+            treeNode2.SelectedImageKey = "FolderSelected";
+            treeNode2.Text = "Node13";
+            treeNode3.ImageIndex = 1;
+            treeNode3.Name = "Node10";
+            treeNode3.SelectedImageKey = "FolderSelected";
+            treeNode3.Text = "Node10";
+            treeNode4.ImageKey = "Folder";
+            treeNode4.Name = "Node11";
+            treeNode4.SelectedImageKey = "FolderSelected";
+            treeNode4.Text = "Node11";
+            treeNode5.ImageKey = "Folder";
+            treeNode5.Name = "Node12";
+            treeNode5.SelectedImageKey = "FolderSelected";
+            treeNode5.Text = "Node12";
+            treeNode6.ImageKey = "Drive";
+            treeNode6.Name = "Node0";
+            treeNode6.SelectedImageKey = "Drive";
+            treeNode6.Text = "Node0";
             this.treeViewFileSystem.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode12});
+            treeNode6});
             this.treeViewFileSystem.SelectedImageIndex = 2;
             this.treeViewFileSystem.Size = new System.Drawing.Size(233, 519);
             this.treeViewFileSystem.TabIndex = 6;
@@ -321,7 +321,7 @@
             this.toolStripMenuItemRemoveItem,
             this.clearAllToolStripMenuItem});
             this.contextMenuOutputImageList.Name = "contextMenuOutputImageList";
-            this.contextMenuOutputImageList.Size = new System.Drawing.Size(197, 120);
+            this.contextMenuOutputImageList.Size = new System.Drawing.Size(197, 142);
             // 
             // toolStripMenuItemAddFiles
             // 
@@ -341,6 +341,7 @@
             this.toolStripMenuItemAddFlderRecursive.Name = "toolStripMenuItemAddFlderRecursive";
             this.toolStripMenuItemAddFlderRecursive.Size = new System.Drawing.Size(196, 22);
             this.toolStripMenuItemAddFlderRecursive.Text = "Add Folder Recursive";
+            this.toolStripMenuItemAddFlderRecursive.Click += new System.EventHandler(this.toolStripMenuItemAddFlderRecursive_Click);
             // 
             // toolStripMenuItem6
             // 

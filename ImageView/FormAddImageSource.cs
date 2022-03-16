@@ -376,6 +376,8 @@ namespace ImageViewer
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            if (!_imageLoaderService.IsRunningImport)
+                Close();
         }
 
         private void lstBoxSourceImages_Click(object sender, EventArgs e)
@@ -511,7 +513,7 @@ namespace ImageViewer
             return result;
         }
 
-        private void EnumerateFiles(ListViewSourceModel sourceFolder, string[] searchPattern)
+        private void EnumerateFiles(ListViewSourceModel sourceFolder, string[] searchPattern, bool recursive = true)
         {
             try
             {
@@ -543,7 +545,7 @@ namespace ImageViewer
                     sourceFolder.ImageList.Add(imgRef);
                 }
 
-                if (sourceFolder.Folders != null)
+                if (sourceFolder.Folders != null && recursive)
                 {
                     foreach (var sourceFolderModel in sourceFolder.Folders)
                     {
@@ -585,35 +587,6 @@ namespace ImageViewer
             }
         }
 
-        private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
-            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
-            {
-                string path = folderBrowserDialog1.SelectedPath;
-                if (Directory.Exists(path))
-                {
-                    var node = GetChildNode(path, RootNode);
-
-                    if (node != null)
-                    {
-                        try
-                        {
-                            ListViewSourceModel listViewSourceModel = _mapper.Map<ListViewSourceModel>(node);
-                            EnumerateFiles(listViewSourceModel, ValidFileTypes);
-                            AddSourceFolderToListView(listViewSourceModel);
-                            UpdateSelectionStats();
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "toolStripMenuItemAddFolder_Click exception");
-                        }
-                    }
-
-                }
-            }
-        }
-
         private SourceFolderModel GetChildNode(string path, SourceCollectionBase rootNode)
         {
             foreach (var folder in rootNode.Folders)
@@ -652,6 +625,51 @@ namespace ImageViewer
             }
 
             return null;
+        }
+
+        private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
+            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = folderBrowserDialog1.SelectedPath;
+                AddSourceFolder(path,false);
+            }
+        }
+
+        private void AddSourceFolder(string path, bool recursive)
+        {
+            if (Directory.Exists(path))
+            {
+                var node = GetChildNode(path, RootNode);
+
+                if (node != null)
+                {
+                    try
+                    {
+                        ListViewSourceModel listViewSourceModel = _mapper.Map<ListViewSourceModel>(node);
+                        EnumerateFiles(listViewSourceModel, ValidFileTypes, recursive);
+                        if (!recursive)
+                            listViewSourceModel.Folders.Clear();
+                        AddSourceFolderToListView(listViewSourceModel);
+                        UpdateSelectionStats();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "toolStripMenuItemAddFolder_Click exception");
+                    }
+                }
+            }
+        }
+
+        private void toolStripMenuItemAddFlderRecursive_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
+            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = folderBrowserDialog1.SelectedPath;
+                AddSourceFolder(path, true);
+            }
         }
     }
 }
