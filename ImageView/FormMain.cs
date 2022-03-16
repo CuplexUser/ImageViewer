@@ -867,7 +867,7 @@ namespace ImageViewer
             var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
             if (form.ShowDialog(this) == DialogResult.OK)
             {
-                SetImageReferenceCollection();
+                HandleImportDataComplete();
             }
         }
 
