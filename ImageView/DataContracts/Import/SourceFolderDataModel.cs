@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using ImageViewer.Models.Import;
 
 namespace ImageViewer.DataContracts.Import
 {
     /// <summary>
     /// SourceFolderDataModel
     /// </summary>
-    [DataContract(Name = "SourceFolderDataModel")]
+    [Serializable, DataContract(Name = "SourceFolderDataModel", Namespace = "ImageViewer.DataContracts.Import")]
     public class SourceFolderDataModel
     {
         /// <summary>
@@ -15,7 +17,7 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The identifier.
         /// </value>
-        [DataMember(Name = "Id")]
+        [DataMember(Name = "Id", Order = 1, IsRequired = true)]
         public string Id { get; set; }
 
         /// <summary>
@@ -24,7 +26,7 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The parent folder identifier.
         /// </value>
-        [DataMember(Name = "ParentFolderId")]
+        [DataMember(Name = "ParentFolderId", Order = 2)]
         public string ParentFolderId { get; set; }
 
         /// <summary>
@@ -33,24 +35,17 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The sort order.
         /// </value>
-        [DataMember(Name = "SortOrder")]
+        [DataMember(Name = "SortOrder", Order = 3)]
         public int SortOrder { get; set; }
 
-        /// <summary>
-        /// Gets or sets the tag.
-        /// </summary>
-        /// <value>
-        /// The tag.
-        /// </value>
-        [DataMember(Name = "Tag")]
-        public SourceFolderDataModel Tag { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>
         /// The name.
         /// </value>
-        [DataMember(Name = "Name")]
+        [DataMember(Name = "Name", Order = 4)]
         public string Name { get; set; }
         /// <summary>
         /// Gets or sets the full name.
@@ -58,7 +53,7 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The full name.
         /// </value>
-        [DataMember(Name = "FullName")]
+        [DataMember(Name = "FullName", Order = 5)]
         public string FullName { get; set; }
         /// <summary>
         /// Gets or sets the folders.
@@ -66,7 +61,7 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The folders.
         /// </value>
-        [DataMember(Name = "Folders")]
+        [DataMember(Name = "Folders", Order = 6)]
         public List<SourceFolderDataModel> Folders { get; set; }
         /// <summary>
         /// Gets or sets the image list.
@@ -74,8 +69,8 @@ namespace ImageViewer.DataContracts.Import
         /// <value>
         /// The image list.
         /// </value>
-        [DataMember(Name = "ImageList")]
-        protected List<ImageRefDataModel> ImageList { get; set; }
+        [DataMember(Name = "ImageList", Order = 7)]
+        public List<ImageRefModel> ImageList { get; set; }
 
         /// <summary>
         /// Converts to string.

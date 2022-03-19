@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace ImageViewer.DataContracts
 {
     /// <summary>
-    /// 
+    /// SizeDataModel
     /// </summary>
     [Serializable, DataContract(Name = "SizeDataModel")]
     public class SizeDataModel

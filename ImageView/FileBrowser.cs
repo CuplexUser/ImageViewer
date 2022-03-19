@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -211,21 +210,27 @@ namespace ImageViewer
         private void openWithDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dataGridViewLoadedImages.SelectedRows[0].DataBoundItem is ImageReference imgRefElement)
-                Process.Start(imgRefElement.CompletePath);
+                ApplicationIOHelper.OpenImageInDefaultAplication(imgRefElement.CompletePath);
         }
 
         private void FileListMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            if (dataGridViewLoadedImages.SelectedRows.Count == 0)
-                e.Cancel = true;
-            else if (dataGridViewLoadedImages.SelectedRows.Count > 1)
+            switch (dataGridViewLoadedImages.SelectedRows.Count)
             {
-                copyFilepathToolStripMenuItem.Visible = false;
-                openWithDefaultApplicationToolStripMenuItem.Visible = false;
+                case 0:
+                    e.Cancel = true;
+                    break;
+                case > 1:
+                    copyFilepathToolStripMenuItem.Visible = false;
+                    openWithDefaultApplicationToolStripMenuItem.Visible = false;
+                    break;
+                default:
+                {
+                    foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
+                        menuItem.Visible = true;
+                    break;
+                }
             }
-            else
-                foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
-                    menuItem.Visible = true;
         }
 
         private void SavePathListToSettings()

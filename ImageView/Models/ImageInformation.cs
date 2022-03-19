@@ -1,11 +1,10 @@
 ﻿using System;
-using GeneralToolkitLib.Converters;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Models
 {
     /// <summary>
-    /// 
+    /// ImageInformation
     /// </summary>
     public class ImageInformation
     {

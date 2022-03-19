@@ -38,12 +38,14 @@
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+    <DefineConstants></DefineConstants>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <LangVersion>9</LangVersion>
     <WarningLevel>0</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Deterministic>False</Deterministic>
   </PropertyGroup>
 
 
@@ -53,8 +55,10 @@
     </CodeAnalysisRuleSet>
     <LangVersion>9</LangVersion>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+    <DefineConstants></DefineConstants>
     <WarningLevel>0</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <Deterministic>False</Deterministic>
   </PropertyGroup>
 	<PropertyGroup>
     <ManifestCertificateThumbprint>EB689F59BC091065757DB92A85FCD68F213AADFB</ManifestCertificateThumbprint>
@@ -73,8 +77,9 @@
     <StartupObject>ImageViewer.Program</StartupObject>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	  <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+	  <DefineConstants></DefineConstants>
 	  <WarningLevel>0</WarningLevel>
+	  <Deterministic>True</Deterministic>
 	</PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -84,8 +89,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>0</WarningLevel>
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
-    <Deterministic>False</Deterministic>
+    <DefineConstants></DefineConstants>
+    <Deterministic>True</Deterministic>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
@@ -135,9 +140,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-	<ItemGroup>
-    <Content Include="Prasilarts-Claire-Monitor-11-Computer-Matrix.ico" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.3.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
@@ -183,7 +185,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GeneralToolkitLib\GeneralToolkitLib\GeneralToolkitLib.csproj" />
+    <ProjectReference Include="..\..\GeneralToolkitLib\GeneralToolkitLib\GeneralToolkitLib.csproj">
+      <CopyLocal>False</CopyLocal>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Library\ModuleWeaver.cs" />
@@ -196,6 +200,9 @@
     <None Remove="upgrade-assistant.clef" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Claire-MonitorComputer-Matrix.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -206,22 +213,22 @@
     <PostBuildEvent Condition="'$(Configuration)' == 'Release'">
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
-    <IsPublishable>False</IsPublishable>
+    <IsPublishable>True</IsPublishable>
     <SignAssembly>False</SignAssembly>
     <Copyright>Martin Dahl 2022</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <AssemblyVersion>2.0.0.1</AssemblyVersion>
-    <FileVersion>2.0.0.1</FileVersion>
+    <AssemblyVersion>2.0.1.1</AssemblyVersion>
+    <FileVersion>2.0.1.1</FileVersion>
     <PackageLicenseFile>D:\Projects\ImageViewer\LICENSE.txt</PackageLicenseFile>
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
     <UserSecretsId>e6e05188-b9c5-4534-8987-4b493e5b7544</UserSecretsId>
-    <ApplicationIcon>Prasilarts-Claire-Monitor-11-Computer-Matrix.ico</ApplicationIcon>
+    <ApplicationIcon>Claire-MonitorComputer-Matrix.ico</ApplicationIcon>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
@@ -232,5 +239,8 @@
     <PackageProjectUrl>https://apps.cuplex.se</PackageProjectUrl>
     <ImplicitUsings>disable</ImplicitUsings>
     <BaseOutputPath>bin\</BaseOutputPath>
+    <PostBuildEvent>
+	rem    call $(SolutionDir)SignAssembly.bat
+    </PostBuildEvent>
 	</PropertyGroup>
 </Project>

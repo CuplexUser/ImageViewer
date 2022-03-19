@@ -201,7 +201,7 @@ namespace ImageViewer
         {
             try
             {
-                pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
+                pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
 
                 if (_applicationSettingsService.Settings.NextImageAnimation == ApplicationSettingsModel.ChangeImageAnimation.None)
                 {
@@ -259,7 +259,7 @@ namespace ImageViewer
                 {
                     long elapsedTime = stopwatch.ElapsedMilliseconds;
 
-                    float factor = stopwatch.ElapsedMilliseconds / (float) animationTime;
+                    float factor = stopwatch.ElapsedMilliseconds / (float)animationTime;
                     Image transitionImage;
                     switch (animation)
                     {
@@ -434,14 +434,8 @@ namespace ImageViewer
             if (ImageSourceDataAvailable)
             {
                 string currentFile = _imageReferenceCollection.CurrentImage.CompletePath;
-                try
-                {
-                    Process.Start(currentFile);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Error in MainForm open image in default app");
-                }
+                if (currentFile != null)
+                    ApplicationIOHelper.OpenImageInDefaultAplication(currentFile);
             }
         }
 
@@ -810,7 +804,7 @@ namespace ImageViewer
 
         private void pictureBox1_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pictureBox1.SizeMode = (PictureBoxSizeMode) _applicationSettingsService.Settings.PrimaryImageSizeMode;
+            pictureBox1.SizeMode = (PictureBoxSizeMode)_applicationSettingsService.Settings.PrimaryImageSizeMode;
         }
 
         private async void pictureBoxAnimation_LoadCompleted(object sender, AsyncCompletedEventArgs e)

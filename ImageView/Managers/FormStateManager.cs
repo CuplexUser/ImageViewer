@@ -22,7 +22,7 @@ namespace ImageViewer.Managers
                     //Validate FormStateModel
                     if (!ValidateFormStateModel(model))
                     {
-                        Log.Warning($"The FormStateModel for {form.Name} vas not valid invalid. Replacing it with a generic. FormSize={model.FormSize}", form.Name, model.FormSize);
+                        Log.Warning($"The FormStateModel for {form.Name} was invalid. Replacing it with a generic. FormSize={model.FormSize}", form.Name, model.FormSize);
                         settings.FormStateModels.Remove(model.FormName);
 
                         // Creating a new generic FormState for specified Form and with center screen start

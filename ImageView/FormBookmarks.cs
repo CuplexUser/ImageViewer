@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -197,15 +196,8 @@ namespace ImageViewer
 
             DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
 
-            if (!(selectedRow?.DataBoundItem is Bookmark bookmark)) return;
-            try
-            {
-                Process.Start(bookmark.CompletePath);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Error in LoadImageFromSelectedRow()");
-            }
+            if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+            ApplicationIOHelper.OpenImageInDefaultAplication(bookmark.CompletePath);
         }
 
         private void LoadPreviewImageFromSelectedRow()

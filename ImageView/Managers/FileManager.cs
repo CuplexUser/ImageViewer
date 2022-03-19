@@ -158,6 +158,14 @@ namespace ImageViewer.Managers
             //else
             //    SaveToDisk();
 
+            await Task.Factory.StartNew(() =>
+            {
+                RecreateDatabase(thumbnailEntries);
+            });
+        }
+
+        private void RecreateDatabase(List<ThumbnailEntry> thumbnailEntries)
+        {
             var tempFileName = GeneralConverters.GetDirectoryNameFromPath(_fileName) + TemporaryDatabaseFilename;
 
             FileStream temporaryDatabaseFile = null;

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -497,25 +496,8 @@ namespace ImageViewer
 
         private void menuItemOpenInDefApp_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Process.Start(_maximizedImgFilename);
-            }
-            catch (Win32Exception ex)
-            {
-                Log.Error(ex, "Win32Exception was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (ObjectDisposedException ex)
-            {
-                Log.Error(ex, "ObjectDisposedException was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (FileNotFoundException ex)
-            {
-                Log.Error(ex, "FileNotFoundException was thrown when trying to open {_maximizedImgFilename}", _maximizedImgFilename);
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            if (!ApplicationIOHelper.OpenImageInDefaultAplication(_maximizedImgFilename))
+                MessageBox.Show($"Failed to open file: {_maximizedImgFilename}", Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void menuItemBookmark_Click(object sender, EventArgs e)

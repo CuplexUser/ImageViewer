@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
 using ImageViewer.Utility;
 using Serilog;
 

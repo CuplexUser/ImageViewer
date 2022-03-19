@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using GeneralToolkitLib.Converters;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import

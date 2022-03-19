@@ -66,28 +66,6 @@ namespace ImageViewer.Models.Import
         /// </value>
         public List<ImageRefModel> ImageList { get; set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ListViewSourceModel"/> class.
-        /// </summary>
-        public ListViewSourceModel()
-        {
-
-        }
-
-        /// <summary>
-        /// Creates the new.
-        /// </summary>
-        /// <returns></returns>
-        public static ListViewSourceModel CreateNew()
-        {
-            var model = new ListViewSourceModel
-            {
-                Id = Guid.NewGuid().ToString(),
-                Folders = new List<ListViewSourceModel>(),
-                ImageList = new List<ImageRefModel>()
-            };
-            return model;
-        }
 
 
         /// <summary>

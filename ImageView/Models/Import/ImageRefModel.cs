@@ -2,7 +2,6 @@
 using AutoMapper;
 using ImageViewer.DataContracts;
 using ImageViewer.DataContracts.Import;
-using ImageViewer.Library.AutoMapperProfile;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import

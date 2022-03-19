@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -13,6 +12,7 @@ using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Properties;
 using ImageViewer.Services;
+using ImageViewer.Utility;
 using Serilog;
 
 namespace ImageViewer
@@ -509,14 +509,7 @@ namespace ImageViewer
         private void openWithDefaultProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_imgRef == null) return;
-            try
-            {
-                Process.Start(_imgRef.CompletePath);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            ApplicationIOHelper.OpenImageInDefaultAplication(_imgRef.CompletePath);
         }
 
         private void FormImageView_Activated(object sender, EventArgs e)
