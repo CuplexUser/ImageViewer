@@ -105,10 +105,10 @@ namespace ImageViewer
             this.FolderImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("FolderImages.ImageStream")));
             this.FolderImages.TransparentColor = System.Drawing.Color.Transparent;
             this.FolderImages.Images.SetKeyName(0, "folder");
-            this.FolderImages.Images.SetKeyName(1, "FolderOpen");
-            this.FolderImages.Images.SetKeyName(2, "FolderOpen2");
-            this.FolderImages.Images.SetKeyName(3, "Folder2");
-            this.FolderImages.Images.SetKeyName(4, "FolderFolderOpen");
+            this.FolderImages.Images.SetKeyName(1, "FolderOpen3");
+            this.FolderImages.Images.SetKeyName(2, "FolderOpen");
+            this.FolderImages.Images.SetKeyName(3, "FolderOpen2");
+            this.FolderImages.Images.SetKeyName(4, "Folder2");
             this.FolderImages.Images.SetKeyName(5, "FolderOpen3");
             // 
             // splitContainer1
@@ -152,23 +152,25 @@ namespace ImageViewer
             this.bookmarksTree.AllowDrop = true;
             this.bookmarksTree.ContextMenuStrip = this.contextMenuStripFolders;
             this.bookmarksTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bookmarksTree.ImageKey = "Folder2";
+            this.bookmarksTree.ImageKey = "folder";
             this.bookmarksTree.ImageList = this.FolderImages;
             this.bookmarksTree.Location = new System.Drawing.Point(0, 0);
             this.bookmarksTree.Name = "bookmarksTree";
-            treeNode1.ImageKey = "FolderOpen2";
+            treeNode1.ImageKey = "folder";
             treeNode1.Name = "Node1";
             treeNode1.SelectedImageKey = "FolderOpen2";
             treeNode1.Text = "Child1";
+            treeNode2.ImageKey = "folder";
             treeNode2.Name = "Node2";
+            treeNode2.SelectedImageKey = "FolderOpen2";
             treeNode2.Text = "Child2";
-            treeNode3.ImageKey = "Folder2";
+            treeNode3.ImageKey = "folder";
             treeNode3.Name = "Node0";
-            treeNode3.SelectedImageKey = "FolderOpen3";
+            treeNode3.SelectedImageKey = "FolderOpen2";
             treeNode3.Text = "Root";
             this.bookmarksTree.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode3});
-            this.bookmarksTree.SelectedImageKey = "FolderOpen3";
+            this.bookmarksTree.SelectedImageKey = "FolderOpen2";
             this.bookmarksTree.ShowPlusMinus = false;
             this.bookmarksTree.ShowRootLines = false;
             this.bookmarksTree.Size = new System.Drawing.Size(233, 293);

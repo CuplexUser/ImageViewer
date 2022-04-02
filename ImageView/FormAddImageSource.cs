@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -33,6 +34,8 @@ namespace ImageViewer
 
         private readonly List<ListViewSourceModel> _importList;
 
+        private readonly Dictionary<string, string> _controlStateDictionary;
+
         //private const string ValidFileTypes = "*.jpg;*.jpeg;*.png;*.bmp";
         private readonly string[] ValidFileTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
 
@@ -42,11 +45,12 @@ namespace ImageViewer
             _mapper = mapper;
             _imageLoaderService = imageLoaderService;
             _interactionService = interactionService;
-            
+
             RootNodeChanged += FormAddImageSource_RootNodeChanged;
             InitializeComponent();
             _nodeModelComparer = new NodeModelComparer();
             _importList = new List<ListViewSourceModel>();
+            _controlStateDictionary = new Dictionary<string, string>();
         }
 
         private bool Initialized { get; set; }
@@ -61,12 +65,14 @@ namespace ImageViewer
             if (DesignMode)
                 return;
 
+            //Recent Files
+            recentCollectionsMenuItem.DropDownItems.Clear();
+
             treeViewFileSystem.Nodes.Clear();
 
             // Restore previous form state
             var settings = _applicationSettingsService.Settings;
             FormStateManager.RestoreFormState(settings, this);
-
 
             // Clear ListView
             listViewSource.Columns.Clear();
@@ -76,11 +82,24 @@ namespace ImageViewer
             listViewSource.DataBindings.Add(new Binding("Name", _importList, "ImageList"));
             listViewSource.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
 
-
             EnumerateDrives();
             treeViewFileSystem.AfterSelect += TreeViewFileSystem_AfterSelect;
             treeViewFileSystem.AfterExpand += TreeViewFileSystem_AfterExpand;
             treeViewFileSystem.BeforeExpand += TreeViewFileSystem_BeforeExpand;
+
+            //Additional Settings
+            var additionalParameters = FormStateManager.GetAdditionalParameters(settings, this);
+            if (additionalParameters != null && additionalParameters.ContainsKey("cbDrives.SelectedIndex"))
+            {
+                string selectedIndex = additionalParameters["cbDrives.SelectedIndex"];
+                _controlStateDictionary.Add("cbDrives.SelectedIndex", selectedIndex);
+
+                if (int.TryParse(selectedIndex, out int index))
+                {
+                    if (index >= 0 && index < cbDrives.Items.Count)
+                        cbDrives.SelectedIndex = index;
+                }
+            }
 
             DriveModel selectedDrive = cbDrives.SelectedItem as DriveModel;
             RootNode = RootObjectModel.CreateRootObject(selectedDrive);
@@ -93,7 +112,7 @@ namespace ImageViewer
 
         private void RecursiveNodeExpansion(ref TreeNode node, ref SourceFolderModel sourceFolder, int maxLevel)
         {
-            if (node.Level >= maxLevel)
+            if (node.Level > maxLevel)
             {
                 return;
             }
@@ -222,6 +241,15 @@ namespace ImageViewer
             if (driveModel == null)
                 return;
 
+            if (_controlStateDictionary.ContainsKey("cbDrives.SelectedIndex"))
+            {
+                _controlStateDictionary["cbDrives.SelectedIndex"] = cbDrives.SelectedIndex.ToString();
+            }
+            else
+            {
+                _controlStateDictionary.Add("cbDrives.SelectedIndex", cbDrives.SelectedIndex.ToString());
+            }
+
             RootObjectModel rootObject = RootObjectModel.CreateRootObject(driveModel);
             treeViewFileSystem.Nodes.Clear();
             RootNode = RootObjectModel.CreateRootObject(driveModel);
@@ -240,6 +268,7 @@ namespace ImageViewer
         {
             var appSettings = _applicationSettingsService.Settings;
             FormStateManager.SaveFormState(appSettings, this);
+            FormStateManager.UpdateAdditionallParameters(appSettings,this, _controlStateDictionary);
             _applicationSettingsService.SaveSettings();
             e.Cancel = false;
         }
@@ -273,7 +302,7 @@ namespace ImageViewer
                         node.Nodes.Add(tn);
                     }
 
-                    
+
                     treeViewFileSystem.Sort();
                     treeViewFileSystem.EndUpdate();
                 }
@@ -407,10 +436,35 @@ namespace ImageViewer
 
         private void addFolderRecursiveMenuItem_Click(object sender, EventArgs e)
         {
+            var folder = treeViewFileSystem.SelectedNode;
+
+            if (folder?.Tag is SourceFolderModel model)
+            {
+                AddSourceFolder(model.FullPath, true);
+            }
         }
 
         private void addFolderMenuItem_Click(object sender, EventArgs e)
         {
+            var folder = treeViewFileSystem.SelectedNode;
+
+            if (folder?.Tag is SourceFolderModel model)
+            {
+                AddSourceFolder(model.FullPath, false);
+            }
+        }
+        private void updateFolderMenuItem_Click(object sender, EventArgs e)
+        {
+            var folder = treeViewFileSystem.SelectedNode;
+
+            if (folder?.Tag is SourceFolderModel model)
+            {
+                model.ImageList.Clear();
+                model.Folders.Clear();
+                folder.Nodes.Clear();
+
+                RecursiveNodeExpansion(ref folder, ref model, folder.Level + 2);
+            }
         }
 
         private void treeViewFileSystem_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -477,18 +531,18 @@ namespace ImageViewer
 
         }
 
-        private void AddSourceFolderToListView(ListViewSourceModel sourceFolder)
+        private void AddSourceFolderToListView(ListViewSourceModel sourceFolder, bool recursive = true)
         {
             if (_importList.All(x => x.Id != sourceFolder.Id))
             {
-                ApplicationIOHelper.EnumerateFiles(sourceFolder, ValidFileTypes);
+                ApplicationIOHelper.EnumerateFiles(sourceFolder, ValidFileTypes, recursive);
                 _importList.Add(sourceFolder);
 
                 var listViewItem = new ListViewItem
                 {
                     Name = sourceFolder.FullName,
                     Text = sourceFolder.Name,
-                    ImageKey = "Folder2",
+                    ImageIndex = 1,
                     Tag = sourceFolder
                 };
 
@@ -659,7 +713,7 @@ namespace ImageViewer
 
                 if (saveFileDialog1.ShowDialog(this) == DialogResult.OK)
                 {
-                 
+
 
                     //if (!false)
                     //{
@@ -674,14 +728,60 @@ namespace ImageViewer
 
         }
 
-        private void openCollectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void newCollectionMenuItem_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void newCollectionToolStripMenuItem_Click(object sender, EventArgs e)
+        private void openCollectionMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void largeIconToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.LargeIcon;
+        }
+
+        private void detailedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.Details;
+        }
+
+        private void smallIconToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.SmallIcon;
+        }
+
+        private void listToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.List;
+        }
+
+        private void titleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.Tile;
+        }
+
+        private void defaultToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listViewSource.View = View.List;
+        }
+
+        private void listViewSource_DoubleClick(object sender, EventArgs e)
+        {
+            if (listViewSource.SelectedItems.Count==0)
+                return;
+
+
+            var item = listViewSource.SelectedItems[0];
+            item.UseItemStyleForSubItems = true;
+            Log.Debug("listViewSource_DoubleClick, Item: {Item}", item.Name);
+        }
+
+        private void listViewSource_StyleChanged(object sender, EventArgs e)
+        {
+            lblListViewMode.Text = listViewSource.View.ToString();
         }
     }
 }

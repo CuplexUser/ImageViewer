@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace ImageViewer.Models
 {
@@ -38,6 +39,8 @@ namespace ImageViewer.Models
         /// The state of the window.
         /// </value>
         public FormState WindowState { get; set; }
+
+        public Dictionary<string,string> AdditionalParameters { get; set; }
 
         public bool Equals(FormStateModel other)
         {

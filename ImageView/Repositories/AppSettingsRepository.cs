@@ -70,6 +70,14 @@ namespace ImageViewer.Repositories
             {
                 var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath);
                 _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
+
+                if (_settingsModel == null)
+                {
+                    var dataModel = ApplicationSettingsDataModel.CreateDefaultSettings();
+                    _settingsModel= _mapper.Map<ApplicationSettingsModel>(dataModel);
+                    Log.Warning("Failed to Deserialize Settings file");
+                }
+
                 _settingsModel.IsLoadedFromDisk = true;
             }
             else

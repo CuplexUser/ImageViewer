@@ -49,6 +49,7 @@ namespace ImageViewer.Library.AutoMapperProfile
                 .ForMember(s => s.FormName, o => o.MapFrom(d => d.FormName))
                 .ForMember(s => s.FormPosition, o => o.MapFrom(d => d.FormPosition))
                 .ForMember(s => s.FormSize, o => o.MapFrom(d => d.FormSize))
+                .ForMember(s => s.AdditionalParameters, o => o.MapFrom(d=>d.AdditionalParameters))
                 .ForMember(s => s.WindowsState, o => o.MapFrom(d => d.WindowState))
                 .ReverseMap();
 

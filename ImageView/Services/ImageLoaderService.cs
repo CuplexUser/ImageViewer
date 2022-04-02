@@ -64,7 +64,7 @@ namespace ImageViewer.Services
             get => _progressInterval;
             set
             {
-                if (value >= 10 && value <= 2500)
+                if (value is >= 10 and <= 2500)
                     _progressInterval = value;
             }
         }
@@ -286,10 +286,14 @@ namespace ImageViewer.Services
                     _runWorkerThread = true;
                     var imgRefModels = selectFunc.Invoke();
                     _filesLoaded = imgRefModels.Count;
+
+                    // Map from ImageRefferenceMoel toImageRefference
                     List<ImageReference> imgRefList = _mapper.Map<List<ImageReference>>(imgRefModels);
                     _imageReferenceList = imgRefList;
                     IsRunningImport = false;
                 });
+
+                OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
                 return true;
             }
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -44,7 +46,7 @@ namespace ImageViewer.Managers
                     }
 
                     form.Bounds = new Rectangle(model.FormPosition, model.FormSize);
-                    form.WindowState = (FormWindowState) model.WindowState;
+                    form.WindowState = (FormWindowState)model.WindowState;
 
                     return true;
                 }
@@ -55,6 +57,48 @@ namespace ImageViewer.Managers
             }
 
             return false;
+        }
+
+        public static Dictionary<string,string> GetAdditionalParameters(ApplicationSettingsModel settings, Form form)
+        {
+            if (settings.FormStateModels.ContainsKey(form.Name))
+            {
+                return settings.FormStateModels[form.Name].AdditionalParameters;
+            }
+
+            return null;
+        }
+
+        public static void UpdateAdditionallParameters(ApplicationSettingsModel settings, Form form, Dictionary<string, string> additionalParameters, bool replace = false)
+        {
+            if (settings.FormStateModels.ContainsKey(form.Name))
+            {
+                var parameters = settings.FormStateModels[form.Name].AdditionalParameters;
+
+                if (replace)
+                {
+                    parameters = additionalParameters;
+                }
+                else
+                {
+                    if (parameters == null)
+                    {
+                        parameters = additionalParameters;
+                    }
+                    else
+                    {
+                        foreach (string key in additionalParameters.Keys)
+                        {
+                            if (parameters.ContainsKey(key))
+                                parameters[key] = additionalParameters[key];
+                            else
+                                parameters.Add(key, additionalParameters[key]);
+                        }
+                    }
+                }
+
+                settings.FormStateModels[form.Name].AdditionalParameters = parameters;
+            }
         }
 
         private static Point GetOffsetCenterPointInRect(Rectangle boundingRect, Size winSize)
@@ -89,7 +133,7 @@ namespace ImageViewer.Managers
             }
 
             model.FormName = form.Name;
-            model.WindowState = (FormState) form.WindowState;
+            model.WindowState = (FormState)form.WindowState;
             if (form.WindowState == FormWindowState.Normal)
             {
                 model.FormSize = form.Bounds.Size;

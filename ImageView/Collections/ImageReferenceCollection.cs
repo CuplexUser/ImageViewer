@@ -29,7 +29,7 @@ namespace ImageViewer.Collections
             _randomImagePosList.Remove(index);
             Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
 
-            if (CurrentImage != null && CurrentImage == (ImageReference) e.ImageReference)
+            if (CurrentImage != null && CurrentImage == e.ImageReference)
             {
                 GetNextImage();
             }
@@ -67,7 +67,7 @@ namespace ImageViewer.Collections
             if (_randomImagePosList.Count == 0 || _imageLoaderService.ImageReferenceList.Count == 0)
                 return null;
 
-            ImageListPointer = ImageListPointer + 1;
+            ImageListPointer += 1;
             CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
             return CurrentImage;
         }

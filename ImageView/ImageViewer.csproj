@@ -143,6 +143,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.3.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+    <PackageReference Include="GeneralToolkitLib" Version="3.1.1" />
     <PackageReference Include="ImageProcessor.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2">
@@ -185,11 +186,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\GeneralToolkitLib\GeneralToolkitLib\GeneralToolkitLib.csproj">
-      <CopyLocal>False</CopyLocal>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Library\ModuleWeaver.cs" />
     <Compile Remove="Models\BookmarkTree.cs" />
     <Compile Remove="UserControls\CustomTreeView.cs" />
@@ -207,6 +203,14 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Library\Converters\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="GeneralToolkitLib">
+      <HintPath>..\Dependencies\GeneralToolkitLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 	<PropertyGroup>

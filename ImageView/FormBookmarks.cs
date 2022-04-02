@@ -216,7 +216,7 @@ namespace ImageViewer
 
         private void bookmarksTree_DragDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetData(typeof(Bookmark)) is Bookmark bookmark)
+            if (e.Data?.GetData(typeof(Bookmark)) is Bookmark bookmark)
             {
                 // The mouse locations are relative to the screen, so they must be 
                 // converted to client coordinates.
@@ -551,21 +551,13 @@ namespace ImageViewer
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Exception in bookmarksDataGridView_RowPrePaint()", ex);
+                Log.Error(ex, "Exception in bookmarksDataGridView_RowPrePaint()");
             }
         }
 
         #endregion
 
         #region MenuEventHandlers
-
-        private void setDefaultDriveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var formSetDefaultDrive = new FormSetDefaultDrive();
-            if (formSetDefaultDrive.ShowDialog(this) == DialogResult.OK)
-            {
-            }
-        }
 
         private void renameFolderMenuItem_Click(object sender, EventArgs e)
         {

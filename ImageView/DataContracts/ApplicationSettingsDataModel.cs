@@ -91,7 +91,8 @@ namespace ImageViewer.DataContracts
                 PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
-                ShowNextPrevControlsOnEnterWindow = false,
+                ShowNextPrevControlsOnEnterWindow = true,
+                ShowSwitchImageButtons = true,
                 ThumbnailSize = 256,
                 MaxThumbnails = 256,
                 ConfirmApplicationShutdown = true,
@@ -100,7 +101,8 @@ namespace ImageViewer.DataContracts
                 ImageCacheSize = 134217728, // 128 Mb,
                 ToggleSlideshowWithThirdMouseButton = true,
                 AutoHideCursor = true,
-                AutoHideCursorDelay = 2000
+                AutoHideCursorDelay = 2000,
+                AppSettingsGuid = Guid.NewGuid()
             };
 
             return settings;

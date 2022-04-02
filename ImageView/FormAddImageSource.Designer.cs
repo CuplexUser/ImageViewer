@@ -29,18 +29,24 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Node1");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Node13");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
-            treeNode8});
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Node11");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Node12");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
-            treeNode7,
-            treeNode9,
-            treeNode10,
-            treeNode11});
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node1");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node13");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
+            treeNode2});
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Node11");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Node12");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
+            treeNode1,
+            treeNode3,
+            treeNode4,
+            treeNode5});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAddImageSource));
+            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Group 1", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("", "Folder");
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+            "List Item 1",
+            "Subitem 1",
+            "Subitem 2"}, "Folder");
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.treeViewFileSystem = new System.Windows.Forms.TreeView();
@@ -48,7 +54,7 @@
             this.addFolderRecursiveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addFolderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
-            this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateFolderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imgListIcons = new System.Windows.Forms.ImageList(this.components);
             this.cbDrives = new System.Windows.Forms.ComboBox();
             this.btnLoad = new System.Windows.Forms.Button();
@@ -56,6 +62,8 @@
             this.grpTargetCollection = new System.Windows.Forms.GroupBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.listViewSource = new System.Windows.Forms.ListView();
+            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.contextMenuOutputImageList = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItemAddFiles = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemAddFolder = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,6 +71,7 @@
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItemRemoveItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imgListViewIcons = new System.Windows.Forms.ImageList(this.components);
             this.groupBoxSummary = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.lblRootFolders = new System.Windows.Forms.Label();
@@ -79,12 +88,12 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label3 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
+            this.lblListViewMode = new System.Windows.Forms.Label();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
-            this.newCollectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openCollectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newCollectionMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openCollectionMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.filesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,14 +102,30 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.recentCollectionsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.file1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeDuplicatesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
+            this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setViewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.largeIconToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.detailedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.smallIconToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.titleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem10 = new System.Windows.Forms.ToolStripSeparator();
+            this.defaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.groupBox1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.contextMenuAddSource.SuspendLayout();
@@ -115,7 +140,6 @@
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -150,32 +174,32 @@
             this.treeViewFileSystem.ImageList = this.imgListIcons;
             this.treeViewFileSystem.Location = new System.Drawing.Point(0, 0);
             this.treeViewFileSystem.Name = "treeViewFileSystem";
-            treeNode7.ImageKey = "Folder";
-            treeNode7.Name = "Node1";
-            treeNode7.SelectedImageKey = "FolderSelected";
-            treeNode7.Text = "Node1";
-            treeNode8.ImageKey = "Folder";
-            treeNode8.Name = "Node13";
-            treeNode8.SelectedImageKey = "FolderSelected";
-            treeNode8.Text = "Node13";
-            treeNode9.ImageIndex = 1;
-            treeNode9.Name = "Node10";
-            treeNode9.SelectedImageKey = "FolderSelected";
-            treeNode9.Text = "Node10";
-            treeNode10.ImageKey = "Folder";
-            treeNode10.Name = "Node11";
-            treeNode10.SelectedImageKey = "FolderSelected";
-            treeNode10.Text = "Node11";
-            treeNode11.ImageKey = "Folder";
-            treeNode11.Name = "Node12";
-            treeNode11.SelectedImageKey = "FolderSelected";
-            treeNode11.Text = "Node12";
-            treeNode12.ImageKey = "Drive";
-            treeNode12.Name = "Node0";
-            treeNode12.SelectedImageKey = "Drive";
-            treeNode12.Text = "Node0";
+            treeNode1.ImageKey = "Folder";
+            treeNode1.Name = "Node1";
+            treeNode1.SelectedImageKey = "FolderSelected";
+            treeNode1.Text = "Node1";
+            treeNode2.ImageKey = "Folder";
+            treeNode2.Name = "Node13";
+            treeNode2.SelectedImageKey = "FolderSelected";
+            treeNode2.Text = "Node13";
+            treeNode3.ImageIndex = 1;
+            treeNode3.Name = "Node10";
+            treeNode3.SelectedImageKey = "FolderSelected";
+            treeNode3.Text = "Node10";
+            treeNode4.ImageKey = "Folder";
+            treeNode4.Name = "Node11";
+            treeNode4.SelectedImageKey = "FolderSelected";
+            treeNode4.Text = "Node11";
+            treeNode5.ImageKey = "Folder";
+            treeNode5.Name = "Node12";
+            treeNode5.SelectedImageKey = "FolderSelected";
+            treeNode5.Text = "Node12";
+            treeNode6.ImageKey = "Drive";
+            treeNode6.Name = "Node0";
+            treeNode6.SelectedImageKey = "Drive";
+            treeNode6.Text = "Node0";
             this.treeViewFileSystem.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode12});
+            treeNode6});
             this.treeViewFileSystem.SelectedImageIndex = 2;
             this.treeViewFileSystem.Size = new System.Drawing.Size(233, 519);
             this.treeViewFileSystem.TabIndex = 6;
@@ -189,7 +213,7 @@
             this.addFolderRecursiveMenuItem,
             this.addFolderMenuItem,
             this.toolStripMenuItem7,
-            this.updateToolStripMenuItem});
+            this.updateFolderMenuItem});
             this.contextMenuAddSource.Name = "contextMenuAddSource";
             this.contextMenuAddSource.Size = new System.Drawing.Size(186, 76);
             // 
@@ -212,11 +236,12 @@
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
             this.toolStripMenuItem7.Size = new System.Drawing.Size(182, 6);
             // 
-            // updateToolStripMenuItem
+            // updateFolderMenuItem
             // 
-            this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
-            this.updateToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.updateToolStripMenuItem.Text = "Update";
+            this.updateFolderMenuItem.Name = "updateFolderMenuItem";
+            this.updateFolderMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.updateFolderMenuItem.Text = "Update";
+            this.updateFolderMenuItem.Click += new System.EventHandler(this.updateFolderMenuItem_Click);
             // 
             // imgListIcons
             // 
@@ -293,14 +318,27 @@
             // listViewSource
             // 
             this.listViewSource.AllowDrop = true;
+            this.listViewSource.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader2,
+            this.columnHeader3});
             this.listViewSource.ContextMenuStrip = this.contextMenuOutputImageList;
             this.listViewSource.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewSource.GridLines = true;
+            this.listViewSource.GroupImageList = this.imgListViewIcons;
+            listViewGroup1.Header = "Group 1";
+            listViewGroup1.Name = "listViewGroup1";
+            listViewGroup1.Subtitle = "Sub";
+            this.listViewSource.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
+            listViewGroup1});
             this.listViewSource.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.listViewSource.LargeImageList = this.imgListIcons;
+            listViewItem1.IndentCount = 1;
+            listViewItem2.IndentCount = 1;
+            this.listViewSource.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1,
+            listViewItem2});
+            this.listViewSource.LargeImageList = this.imgListViewIcons;
             this.listViewSource.Location = new System.Drawing.Point(0, 0);
             this.listViewSource.Name = "listViewSource";
-            this.listViewSource.ShowGroups = false;
             this.listViewSource.Size = new System.Drawing.Size(520, 475);
             this.listViewSource.SmallImageList = this.imgListIcons;
             this.listViewSource.Sorting = System.Windows.Forms.SortOrder.Ascending;
@@ -310,6 +348,17 @@
             this.listViewSource.Click += new System.EventHandler(this.listViewSource_Click);
             this.listViewSource.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstBoxSourceImages_DragDrop);
             this.listViewSource.DragEnter += new System.Windows.Forms.DragEventHandler(this.lstBoxSourceImages_DragEnter);
+            this.listViewSource.DoubleClick += new System.EventHandler(this.listViewSource_DoubleClick);
+            this.listViewSource.StyleChanged += new System.EventHandler(this.listViewSource_StyleChanged);
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Width = 250;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "ColumnHeader 2";
+            this.columnHeader3.Width = 175;
             // 
             // contextMenuOutputImageList
             // 
@@ -362,6 +411,16 @@
             this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(196, 22);
             this.clearAllToolStripMenuItem.Text = "Clear All";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
+            // 
+            // imgListViewIcons
+            // 
+            this.imgListViewIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imgListViewIcons.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imgListViewIcons.ImageStream")));
+            this.imgListViewIcons.TransparentColor = System.Drawing.Color.Transparent;
+            this.imgListViewIcons.Images.SetKeyName(0, "Folder");
+            this.imgListViewIcons.Images.SetKeyName(1, "Folder2");
+            this.imgListViewIcons.Images.SetKeyName(2, "Image2");
+            this.imgListViewIcons.Images.SetKeyName(3, "Image");
             // 
             // groupBoxSummary
             // 
@@ -537,7 +596,7 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.lblListViewMode);
             this.panel1.Controls.Add(this.btnLoad);
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.btnCancel);
@@ -548,15 +607,15 @@
             this.panel1.Size = new System.Drawing.Size(801, 40);
             this.panel1.TabIndex = 8;
             // 
-            // label5
+            // lblListViewMode
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(130, 13);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(59, 15);
-            this.label5.TabIndex = 3;
-            this.label5.Text = "Loading...";
+            this.lblListViewMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblListViewMode.AutoSize = true;
+            this.lblListViewMode.Location = new System.Drawing.Point(130, 13);
+            this.lblListViewMode.Name = "lblListViewMode";
+            this.lblListViewMode.Size = new System.Drawing.Size(95, 15);
+            this.lblListViewMode.TabIndex = 3;
+            this.lblListViewMode.Text = "(List View Mode)";
             // 
             // menuMain
             // 
@@ -575,14 +634,16 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem4,
-            this.newCollectionToolStripMenuItem,
-            this.openCollectionToolStripMenuItem,
+            this.newCollectionMenuItem,
+            this.openCollectionMenuItem,
             this.toolStripMenuItem3,
             this.toolStripMenuItem1,
             this.toolStripMenuItem2,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
             this.toolStripMenuItem5,
+            this.recentCollectionsMenuItem,
+            this.toolStripMenuItem9,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -591,26 +652,26 @@
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(169, 6);
             // 
-            // newCollectionToolStripMenuItem
+            // newCollectionMenuItem
             // 
-            this.newCollectionToolStripMenuItem.Name = "newCollectionToolStripMenuItem";
-            this.newCollectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.newCollectionToolStripMenuItem.Text = "New Collection";
-            this.newCollectionToolStripMenuItem.Click += new System.EventHandler(this.newCollectionToolStripMenuItem_Click);
+            this.newCollectionMenuItem.Name = "newCollectionMenuItem";
+            this.newCollectionMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.newCollectionMenuItem.Text = "New";
+            this.newCollectionMenuItem.Click += new System.EventHandler(this.newCollectionMenuItem_Click);
             // 
-            // openCollectionToolStripMenuItem
+            // openCollectionMenuItem
             // 
-            this.openCollectionToolStripMenuItem.Name = "openCollectionToolStripMenuItem";
-            this.openCollectionToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.openCollectionToolStripMenuItem.Text = "Open Collection";
-            this.openCollectionToolStripMenuItem.Click += new System.EventHandler(this.openCollectionToolStripMenuItem_Click);
+            this.openCollectionMenuItem.Name = "openCollectionMenuItem";
+            this.openCollectionMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.openCollectionMenuItem.Text = "Open";
+            this.openCollectionMenuItem.Click += new System.EventHandler(this.openCollectionMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(169, 6);
             // 
             // toolStripMenuItem1
             // 
@@ -618,7 +679,7 @@
             this.filesToolStripMenuItem,
             this.foldersToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
             this.toolStripMenuItem1.Text = "Add";
             // 
             // filesToolStripMenuItem
@@ -636,39 +697,100 @@
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(169, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.saveAsToolStripMenuItem.Text = "Save As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(169, 6);
+            // 
+            // recentCollectionsMenuItem
+            // 
+            this.recentCollectionsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.file1ToolStripMenuItem});
+            this.recentCollectionsMenuItem.Name = "recentCollectionsMenuItem";
+            this.recentCollectionsMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.recentCollectionsMenuItem.Text = "Recent Collections";
+            // 
+            // file1ToolStripMenuItem
+            // 
+            this.file1ToolStripMenuItem.Name = "file1ToolStripMenuItem";
+            this.file1ToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.file1ToolStripMenuItem.Text = "File 1";
+            // 
+            // toolStripMenuItem9
+            // 
+            this.toolStripMenuItem9.Name = "toolStripMenuItem9";
+            this.toolStripMenuItem9.Size = new System.Drawing.Size(169, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeDuplicatesMenuItem,
+            this.toolStripMenuItem8,
+            this.cutToolStripMenuItem,
+            this.copyToolStripMenuItem,
+            this.pasteToolStripMenuItem,
+            this.deleteToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "&Edit";
+            // 
+            // removeDuplicatesMenuItem
+            // 
+            this.removeDuplicatesMenuItem.Name = "removeDuplicatesMenuItem";
+            this.removeDuplicatesMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.removeDuplicatesMenuItem.Text = "Remove Duplicates";
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(172, 6);
+            // 
+            // cutToolStripMenuItem
+            // 
+            this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.cutToolStripMenuItem.Text = "Cut";
+            // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.copyToolStripMenuItem.Text = "Copy";
+            // 
+            // pasteToolStripMenuItem
+            // 
+            this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.pasteToolStripMenuItem.Text = "Paste";
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
             // 
             // toolsToolStripMenuItem
             // 
@@ -678,17 +800,76 @@
             // 
             // viewToolStripMenuItem
             // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setViewMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "&View";
             // 
+            // setViewMenuItem
+            // 
+            this.setViewMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.largeIconToolStripMenuItem,
+            this.detailedToolStripMenuItem,
+            this.smallIconToolStripMenuItem,
+            this.listToolStripMenuItem,
+            this.titleToolStripMenuItem,
+            this.toolStripMenuItem10,
+            this.defaultToolStripMenuItem});
+            this.setViewMenuItem.Name = "setViewMenuItem";
+            this.setViewMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.setViewMenuItem.Text = "Set View";
+            // 
+            // largeIconToolStripMenuItem
+            // 
+            this.largeIconToolStripMenuItem.Name = "largeIconToolStripMenuItem";
+            this.largeIconToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.largeIconToolStripMenuItem.Text = "Large Icon";
+            this.largeIconToolStripMenuItem.Click += new System.EventHandler(this.largeIconToolStripMenuItem_Click);
+            // 
+            // detailedToolStripMenuItem
+            // 
+            this.detailedToolStripMenuItem.Name = "detailedToolStripMenuItem";
+            this.detailedToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.detailedToolStripMenuItem.Text = "Detailed";
+            this.detailedToolStripMenuItem.Click += new System.EventHandler(this.detailedToolStripMenuItem_Click);
+            // 
+            // smallIconToolStripMenuItem
+            // 
+            this.smallIconToolStripMenuItem.Name = "smallIconToolStripMenuItem";
+            this.smallIconToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.smallIconToolStripMenuItem.Text = "Small Icon";
+            this.smallIconToolStripMenuItem.Click += new System.EventHandler(this.smallIconToolStripMenuItem_Click);
+            // 
+            // listToolStripMenuItem
+            // 
+            this.listToolStripMenuItem.Name = "listToolStripMenuItem";
+            this.listToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.listToolStripMenuItem.Text = "List";
+            this.listToolStripMenuItem.Click += new System.EventHandler(this.listToolStripMenuItem_Click);
+            // 
+            // titleToolStripMenuItem
+            // 
+            this.titleToolStripMenuItem.Name = "titleToolStripMenuItem";
+            this.titleToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.titleToolStripMenuItem.Text = "Title";
+            this.titleToolStripMenuItem.Click += new System.EventHandler(this.titleToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem10
+            // 
+            this.toolStripMenuItem10.Name = "toolStripMenuItem10";
+            this.toolStripMenuItem10.Size = new System.Drawing.Size(126, 6);
+            // 
+            // defaultToolStripMenuItem
+            // 
+            this.defaultToolStripMenuItem.Name = "defaultToolStripMenuItem";
+            this.defaultToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.defaultToolStripMenuItem.Text = "Default";
+            this.defaultToolStripMenuItem.Click += new System.EventHandler(this.defaultToolStripMenuItem_Click);
+            // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // bindingSource1
-            // 
-            this.bindingSource1.DataSource = typeof(ImageViewer.Models.Import.SourceFolderModel);
             // 
             // FormAddImageSource
             // 
@@ -723,7 +904,6 @@
             this.panel1.PerformLayout();
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -740,12 +920,12 @@
         private System.Windows.Forms.Label lblCombinedSize;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lblListViewMode;
         private System.Windows.Forms.MenuStrip menuMain;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem newCollectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openCollectionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newCollectionMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openCollectionMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem filesToolStripMenuItem;
@@ -776,7 +956,7 @@
         private System.Windows.Forms.ToolStripMenuItem addFolderRecursiveMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addFolderMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
-        private System.Windows.Forms.ToolStripMenuItem updateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem updateFolderMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.ListView listViewSource;
         private System.Windows.Forms.GroupBox groupBoxSummary;
@@ -790,6 +970,25 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.BindingSource bindingSource1;
+        private System.Windows.Forms.ToolStripMenuItem recentCollectionsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem file1ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem9;
+        private System.Windows.Forms.ToolStripMenuItem removeDuplicatesMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem8;
+        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setViewMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem largeIconToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem detailedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem smallIconToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem listToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem titleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem10;
+        private System.Windows.Forms.ToolStripMenuItem defaultToolStripMenuItem;
+        private System.Windows.Forms.ImageList imgListViewIcons;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
     }
 }

@@ -110,11 +110,17 @@ namespace ImageViewer.Models.Import
                 .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
                 .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullPath))
                 .ForMember(s => s.ParentFolderId, o => o.MapFrom(d => d.ParentFolderId))
+                .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
+                .ForMember(s => s.SortOrder, o => o.MapFrom(d => d.SortOrder))
                 .ForMember(s => s.ImageList, o => o.MapFrom(d => d.ImageList))
+                
                 .ReverseMap()
                 .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
                 .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
-                .ForMember(s => s.FullPath, o => o.MapFrom(d => d.FullName));
+                .ForMember(s => s.FullPath, o => o.MapFrom(d => d.FullName))
+                .ForMember(s => s.ParentFolderId, o => o.MapFrom(d => d.ParentFolderId))
+                .ForMember(s => s.Folders, o => o.MapFrom(d => d.Folders))
+                .ForMember(s => s.SortOrder, o => o.MapFrom(d => d.SortOrder));
         }
     }
 }
