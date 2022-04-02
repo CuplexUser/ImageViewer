@@ -2,14 +2,12 @@
 {
     public class GeneralEnums
     {
-       
     }
 
     public enum NotificationType
     {
-         OkCancelQuery,
-         Information,
-         Error,
+        OkCancelQuery,
+        Information,
+        Error
     }
-
 }

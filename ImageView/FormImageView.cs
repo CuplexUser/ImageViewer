@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -11,9 +10,9 @@ using ImageViewer.Events;
 using ImageViewer.Interfaces;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
-using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
+using ImageViewer.Utility;
 using Serilog;
 
 namespace ImageViewer
@@ -68,7 +67,7 @@ namespace ImageViewer
 
             ReloadSettings();
         }
-        
+
 
         private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
         {
@@ -81,9 +80,6 @@ namespace ImageViewer
 
         private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)
         {
-
-
-
         }
 
         private int FormId { get; }
@@ -105,6 +101,7 @@ namespace ImageViewer
             pictureBox.BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor;
             _mouseHoverInfo = _switchImgButtonsEnabled ? new MouseHoverInfo() : null;
         }
+
         public IDisposable Subscribe(IObserver<ImageViewFormInfoBase> observer)
         {
             // Check whether observer is already registered. If not, add it 
@@ -226,9 +223,9 @@ namespace ImageViewer
                 // the distance the mouse has been moved since mouse was pressed
                 int deltaY = mousePosNow.Y - _mouseDown.Y;
 
-                _imgx = (int)(_startX + deltaX / _zoom);
+                _imgx = (int) (_startX + deltaX / _zoom);
                 // calculate new offset of image based on the current zoom factor
-                _imgy = (int)(_startY + deltaY / _zoom);
+                _imgy = (int) (_startY + deltaY / _zoom);
 
                 pictureBox.Refresh();
             }
@@ -286,32 +283,32 @@ namespace ImageViewer
             switch (keyData)
             {
                 case Keys.Right:
-                    _imgx -= (int)(pictureBox.Width * 0.1F / _zoom);
+                    _imgx -= (int) (pictureBox.Width * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Left:
-                    _imgx += (int)(pictureBox.Width * 0.1F / _zoom);
+                    _imgx += (int) (pictureBox.Width * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Down:
-                    _imgy -= (int)(pictureBox.Height * 0.1F / _zoom);
+                    _imgy -= (int) (pictureBox.Height * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Up:
-                    _imgy += (int)(pictureBox.Height * 0.1F / _zoom);
+                    _imgy += (int) (pictureBox.Height * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.PageDown:
-                    _imgy -= (int)(pictureBox.Height * 0.90F / _zoom);
+                    _imgy -= (int) (pictureBox.Height * 0.90F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.PageUp:
-                    _imgy += (int)(pictureBox.Height * 0.90F / _zoom);
+                    _imgy += (int) (pictureBox.Height * 0.90F / _zoom);
                     pictureBox.Refresh();
                     break;
 
@@ -373,11 +370,11 @@ namespace ImageViewer
             int x = mousePosNow.X - pictureBox.Location.X; // Where location of the mouse in the pictureframe
             int y = mousePosNow.Y - pictureBox.Location.Y;
 
-            int oldimagex = (int)(x / oldzoom); // Where in the IMAGE is it now
-            int oldimagey = (int)(y / oldzoom);
+            int oldimagex = (int) (x / oldzoom); // Where in the IMAGE is it now
+            int oldimagey = (int) (y / oldzoom);
 
-            int newimagex = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
-            int newimagey = (int)(y / _zoom);
+            int newimagex = (int) (x / _zoom); // Where in the IMAGE will it be when the new zoom i made
+            int newimagey = (int) (y / _zoom);
 
             _imgx = newimagex - oldimagex + _imgx; // Where to move image to keep focus on one point
             _imgy = newimagey - oldimagey + _imgy;
@@ -402,8 +399,8 @@ namespace ImageViewer
             if (fitEntireImage)
             {
                 _zoom = Math.Min(
-                    (float)pictureBox.Height / _currentImage.Height * (_currentImage.VerticalResolution / g.DpiY),
-                    (float)pictureBox.Width / _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX)
+                    (float) pictureBox.Height / _currentImage.Height * (_currentImage.VerticalResolution / g.DpiY),
+                    (float) pictureBox.Width / _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX)
                 );
 
                 //_zoom = Math.Min(
@@ -427,7 +424,7 @@ namespace ImageViewer
             }
             else
             {
-                _zoom = pictureBox.Width / (float)_currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX);
+                _zoom = pictureBox.Width / (float) _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX);
             }
         }
 
@@ -458,7 +455,7 @@ namespace ImageViewer
                     }
 
                     int imgWidth = Convert.ToInt32(Math.Min(Resources.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
-                    float imgScale = (float)imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
+                    float imgScale = (float) imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
                     int imgMargin = (ChangeImagePanelWidth - imgWidth) / 2;
                     int imgYpos = ClientSize.Height / 2 - imgWidth / 2;
 
@@ -512,14 +509,7 @@ namespace ImageViewer
         private void openWithDefaultProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_imgRef == null) return;
-            try
-            {
-                Process.Start(_imgRef.CompletePath);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            ApplicationIOHelper.OpenImageInDefaultAplication(_imgRef.CompletePath);
         }
 
         private void FormImageView_Activated(object sender, EventArgs e)

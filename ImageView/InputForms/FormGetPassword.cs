@@ -47,6 +47,7 @@ namespace ImageViewer.InputForms
                 MessageBox.Show(this, "Invalid password");
                 return;
             }
+
             PasswordString = txtPassword.Text;
             PasswordVerified = true;
             Close();

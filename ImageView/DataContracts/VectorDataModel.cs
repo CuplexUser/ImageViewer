@@ -5,7 +5,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     ///   VectorDataModel
     /// </summary>
-    /// <seealso cref="ImageViewer.DataModels.PointDataModel" />
+    /// <seealso cref="ImageViewer.DataContracts" />
     [DataContract(Name = "VectorDataModel")]
     public class VectorDataModel : PointDataModel
     {

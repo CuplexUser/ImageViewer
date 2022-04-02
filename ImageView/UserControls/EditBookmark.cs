@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using GeneralToolkitLib.Converters;
 using ImageViewer.Models;
+using ImageViewer.Utility;
 
 namespace ImageViewer.UserControls
 {
@@ -42,20 +42,19 @@ namespace ImageViewer.UserControls
             {
                 FileInfo fi = new FileInfo(fileName);
                 _editModel.FileSize = fi.Length;
-                string template = $"{GeneralConverters.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
+                string template = $"{SystemIOHelper.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
                 lblFileInfo.Text = template;
             }
             else
             {
                 lblFileInfo.Text = @"File does not exist";
             }
-
         }
 
         private bool ValidateForm()
         {
             bool valid = txtName.Text.Length > 0;
-            valid = valid & txtFilename.Text.Length > 0 && File.Exists(txtFilename.Text);
+            valid = valid & (txtFilename.Text.Length > 0) && File.Exists(txtFilename.Text);
             return valid;
         }
 

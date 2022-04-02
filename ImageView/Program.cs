@@ -16,6 +16,7 @@ namespace ImageViewer
     {
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
+
         private static IContainer Container { get; set; }
 
 
@@ -31,6 +32,7 @@ namespace ImageViewer
                 SetProcessDPIAware();
 
             Application.EnableVisualStyles();
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.SetCompatibleTextRenderingDefault(true);
             bool debugMode = ApplicationBuildConfig.DebugMode;
             GlobalSettings.Settings.Initialize(Assembly.GetExecutingAssembly().GetName().Name, !debugMode);
@@ -56,7 +58,6 @@ namespace ImageViewer
                 Task.Delay(1000);
                 try
                 {
-                    
                     FormMain frmMain = scope.Resolve<FormMain>();
                     Application.Run(frmMain);
                 }
@@ -64,7 +65,6 @@ namespace ImageViewer
                 {
                     Log.Fatal(ex, "Main program failureException: {Message}", ex.Message);
                 }
-
 
 
                 //settingsService.SaveSettings();

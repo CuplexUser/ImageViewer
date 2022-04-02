@@ -31,7 +31,6 @@ namespace ImageViewer.Events
         /// </summary>
         public WorkParameters()
         {
-
         }
 
         /// <summary>
@@ -50,12 +49,14 @@ namespace ImageViewer.Events
     /// <param name="parameters">The parameters.</param>
     /// <returns></returns>
     public delegate bool MaintenanceDelegate(Func<WorkParameters, bool> parameters);
+
     /// <summary>
     /// 
     /// </summary>
     /// <param name="sender">The sender.</param>
     /// <param name="e">The <see cref="TransitionImageUpdateEventArgs"/> instance containing the event data.</param>
     public delegate void TransitionImageUpdateEventHandler(object sender, TransitionImageUpdateEventArgs e);
+
     /// <summary>
     /// 
     /// </summary>
@@ -188,6 +189,7 @@ namespace ImageViewer.Events
     /// </summary>
     /// <param name="DisposePictureBox">The dispose PictureBox.</param>
     public delegate void DisposePictureBoxDelegate(PictureBox DisposePictureBox);
+
     /// <summary>
     /// 
     /// </summary>
@@ -225,6 +227,7 @@ namespace ImageViewer.Events
             {
                 throw new ArgumentException(Resources.PictureBoxNullOrDisposed);
             }
+
             PictureBoxAwaitingDisposal = pictureBox;
         }
 
@@ -248,29 +251,35 @@ namespace ImageViewer.Events
         /// The created bookmark
         /// </summary>
         CreatedBookmark = 1,
+
         /// <summary>
         /// The created bookmark folder
         /// </summary>
         CreatedBookmarkFolder = 2,
+
         /// <summary>
         /// The deleted bookmark
         /// </summary>
         DeletedBookmark = 4,
+
         /// <summary>
         /// The deleted bookmark folder
         /// </summary>
         DeletedBookmarkFolder = 8,
+
         /// <summary>
         /// The edited bookmark
         /// </summary>
         EditedBookmark = 16,
+
         /// <summary>
         /// The edited bookmark folder
         /// </summary>
         EditedBookmarkFolder = 32,
+
         /// <summary>
         /// The loaded new data source
         /// </summary>
-        LoadedNewDataSource = 64,
+        LoadedNewDataSource = 64
     }
 }

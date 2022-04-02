@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using ImageViewer.Models;
 
 namespace ImageViewer.Delegates
 {
@@ -9,17 +8,15 @@ namespace ImageViewer.Delegates
 
     public class UpdatePicBoxEventArgs : EventArgs
     {
-        public PictureBox PictureBoxModel { get; }
+        public IList<PictureBox> PictureBoxModelList { get; }
 
-        public UpdatePicBoxEventArgs(PictureBox model)
+        public UpdatePicBoxEventArgs(IList<PictureBox> modelListList)
         {
-            PictureBoxModel = model;
+            PictureBoxModelList = modelListList;
         }
 
         public UpdatePicBoxEventArgs()
         {
-
         }
-
     }
 }

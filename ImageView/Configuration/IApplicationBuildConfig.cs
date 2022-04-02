@@ -11,6 +11,7 @@
         /// <param name="rollingFile">if set to <c>true</c> [rolling file].</param>
         /// <returns></returns>
         string ApplicationLogFilePath(bool rollingFile);
+
         /// <summary>
         /// Gets the user data path.
         /// </summary>
@@ -18,6 +19,7 @@
         /// The user data path.
         /// </value>
         string UserDataPath { get; }
+
         /// <summary>
         /// Gets a value indicating whether [debug mode].
         /// </summary>

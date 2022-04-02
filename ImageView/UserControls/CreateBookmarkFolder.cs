@@ -4,7 +4,6 @@ using ImageViewer.DataBinding;
 using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
 using ImageViewer.Managers;
-using ImageViewer.Models;
 using ImageViewer.Models.Enums;
 using ImageViewer.Properties;
 using ImageViewer.Services;
@@ -38,7 +37,7 @@ namespace ImageViewer.UserControls
             InitTreeView();
         }
 
-        #region  Init
+        #region Init
 
         private void InitBookmarksDataSource()
         {
@@ -86,7 +85,7 @@ namespace ImageViewer.UserControls
                 LabelText = "Name:",
                 WindowText = "Add new bookmark folder",
                 MinimumCharacters = 1,
-                MaximumCharacters = 50,
+                MaximumCharacters = 50
             };
             var formInputRow = new FormInputRow(inputFormData);
 

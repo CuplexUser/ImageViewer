@@ -92,14 +92,12 @@ namespace ImageViewer.Models
         {
             get
             {
-
                 if (_uniqueId == Guid.Empty)
                 {
                     UniqueId = Guid.NewGuid();
                 }
 
                 return _uniqueId;
-
             }
             private set => _uniqueId = value;
         }

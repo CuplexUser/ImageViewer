@@ -16,19 +16,22 @@ namespace ImageViewer.Storage
         /// The save to file delay
         /// </summary>
         private const int SaveToFileDelay = 1;
+
         /// <summary>
         /// The automatic reset event
         /// </summary>
         private readonly AutoResetEvent _autoResetEvent;
+
         /// <summary>
         /// The background worker
         /// </summary>
         private readonly BackgroundWorker _backgroundWorker;
+
         /// <summary>
         /// The file operation in progress
         /// </summary>
         private bool _fileOperationInProgress;
-        
+
         /// <summary>
         /// The last database save
         /// </summary>
@@ -36,7 +39,7 @@ namespace ImageViewer.Storage
 
         private readonly Timer _updateTimer;
 
-        
+
         private bool _isDirty;
 
         /// <summary>
@@ -61,6 +64,7 @@ namespace ImageViewer.Storage
                 _backgroundWorker.RunWorkerAsync();
             }
         }
+
         /// <summary>
         /// Gets or sets a value indicating whether [file operation in progress].
         /// </summary>
@@ -96,8 +100,7 @@ namespace ImageViewer.Storage
                 {
                     _updateTimer.Change(0, SaveToFileDelay * 60 * 1000);
                 }
-
-            } 
+            }
         }
 
         /// <inheritdoc />
@@ -116,6 +119,7 @@ namespace ImageViewer.Storage
         /// Occurs when [load settings completed].
         /// </summary>
         public virtual event EventHandler LoadSettingsCompleted;
+
         /// <summary>
         /// Occurs when [save settings completed].
         /// </summary>
@@ -131,6 +135,7 @@ namespace ImageViewer.Storage
             {
                 return false;
             }
+
             try
             {
                 FileOperationInProgress = true;
@@ -150,8 +155,10 @@ namespace ImageViewer.Storage
             {
                 FileOperationInProgress = false;
             }
+
             return result;
         }
+
         public bool SecureLoadDatabase()
         {
             bool result = false;
@@ -173,7 +180,6 @@ namespace ImageViewer.Storage
             catch (Exception e)
             {
                 Log.Error(e, "Exception in FileBasedProperyCollection: {Message}", e.Message);
-
             }
             finally
             {
@@ -203,6 +209,7 @@ namespace ImageViewer.Storage
         /// </summary>
         /// <returns></returns>
         protected abstract bool LoadFromFileDatabase();
+
         /// <summary>
         /// Saves the settings from database. Implemented by subclass
         /// </summary>
@@ -212,8 +219,6 @@ namespace ImageViewer.Storage
         /// <summary>
         /// Loads the local database.
         /// </summary>
-
-
         /// <summary>
         /// Models the updated.
         /// </summary>
@@ -230,18 +235,18 @@ namespace ImageViewer.Storage
         /// <param name="e">The <see cref="DoWorkEventArgs"/> instance containing the event data.</param>
         private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (IsDirty  && _lastDatabaseSave < DateTime.Now.AddMinutes(SaveToFileDelay))
+            if (IsDirty && _lastDatabaseSave < DateTime.Now.AddMinutes(SaveToFileDelay))
             {
                 if (_fileOperationInProgress)
                 {
                     return;
                 }
-                
+
                 try
                 {
                     FileOperationInProgress = true;
                     bool result = SaveToFileDatabase();
-                
+
                     if (result)
                     {
                         IsDirty = false;
@@ -249,14 +254,12 @@ namespace ImageViewer.Storage
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex,"FileBasedProperyCollection Exception: {Message}",ex.Message);
+                    Log.Error(ex, "FileBasedProperyCollection Exception: {Message}", ex.Message);
                 }
                 finally
                 {
-                    FileOperationInProgress = false;    
+                    FileOperationInProgress = false;
                 }
-              
-                
             }
         }
     }
@@ -270,10 +273,8 @@ namespace ImageViewer.Storage
             lock (_lockObj)
             {
                 return workAction.Invoke();
-
             }
         }
-
 
 
         public void Dispose()

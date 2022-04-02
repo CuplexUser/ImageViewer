@@ -13,8 +13,8 @@ namespace ImageViewer.Services
     {
         private readonly AppSettingsRepository _appSettingsRepository;
         private ApplicationSettingsModel _applicationSettings;
-        private const long MIN_CACHE_SIZE = (1024 * 1024 * 32);
-        private const long MAX_CACHE_SIZE = (1024 * 1024 * 1024);
+        private const long MIN_CACHE_SIZE = 1024 * 1024 * 32;
+        private const long MAX_CACHE_SIZE = 1024 * 1024 * 1024;
 
         public ApplicationSettingsService(AppSettingsRepository appSettingsRepository)
         {
@@ -28,11 +28,9 @@ namespace ImageViewer.Services
                     _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
                     _appSettingsRepository.SaveSettings(_applicationSettings);
                 }
-
             }
             catch (Exception ex)
             {
-
                 Log.Error(ex, "Fatal error encountered when accessing the registry settings");
                 throw new IOException("Application Settings could not be loaded and could not be set to default and saved");
             }
@@ -42,7 +40,6 @@ namespace ImageViewer.Services
 
         public void SetSettingsStateModified()
         {
-
         }
 
         public ApplicationSettingsModel Settings => _applicationSettings ?? (_applicationSettings = LoadLocalStorageSettings());
@@ -133,7 +130,6 @@ namespace ImageViewer.Services
                 result = _appSettingsRepository.SaveSettings(_applicationSettings);
                 if (result)
                     OnSettingsSaved?.Invoke(this, EventArgs.Empty);
-
             }
             catch (Exception ex)
             {

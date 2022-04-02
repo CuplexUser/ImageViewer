@@ -11,6 +11,7 @@ using AutoMapper;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
+using ImageViewer.Models.Import;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -63,7 +64,7 @@ namespace ImageViewer.Services
             get => _progressInterval;
             set
             {
-                if (value >= 10 && value <= 2500)
+                if (value is >= 10 and <= 2500)
                     _progressInterval = value;
             }
         }
@@ -85,7 +86,8 @@ namespace ImageViewer.Services
         public event ProgressUpdateEventHandler OnImportComplete;
         public event ImageRemovedEventHandler OnImageWasDeleted;
 
-    #region Image Import
+        #region Image Import
+
         private void DoImageImport()
         {
             try
@@ -97,6 +99,7 @@ namespace ImageViewer.Services
                     _imageReferenceList = GetAllImagesRecursive(_imageBaseDir);
                     IsRunningImport = false;
                 }
+
                 OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
             }
             catch (Exception ex)
@@ -143,6 +146,7 @@ namespace ImageViewer.Services
                     _totalNumberOfFiles = imgReferenceList.Count;
                     _imageReferenceList = imgReferenceList;
                 }
+
                 IsRunningImport = false;
                 OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
                 return true;
@@ -152,6 +156,7 @@ namespace ImageViewer.Services
                 Log.Error(ex, "ImageLoaderService.DoImageImportFromBookmarkedImages()");
                 IsRunningImport = false;
             }
+
             return false;
         }
 
@@ -191,6 +196,7 @@ namespace ImageViewer.Services
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -241,6 +247,7 @@ namespace ImageViewer.Services
             {
                 return await DoImageImportFromBookmarkedImages();
             }
+
             return false;
         }
 
@@ -261,6 +268,35 @@ namespace ImageViewer.Services
 
                 return true;
             }
+
+            return false;
+        }
+
+        public async Task<bool> RunIMageImportAsync(Func<List<ImageRefModel>> selectFunc)
+        {
+            if (!IsRunningImport)
+            {
+                _imageReferenceList = null;
+                _imageBaseDir = "";
+                IsRunningImport = true;
+                _filesLoaded = 0;
+
+                await Task.Factory.StartNew(() =>
+                {
+                    _runWorkerThread = true;
+                    var imgRefModels = selectFunc.Invoke();
+                    _filesLoaded = imgRefModels.Count;
+
+                    // Map from ImageRefferenceMoel toImageRefference
+                    List<ImageReference> imgRefList = _mapper.Map<List<ImageReference>>(imgRefModels);
+                    _imageReferenceList = imgRefList;
+                    IsRunningImport = false;
+                });
+
+                OnImportComplete?.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Complete, _imageReferenceList.Count, _totalNumberOfFiles));
+                return true;
+            }
+
             return false;
         }
 
@@ -269,7 +305,7 @@ namespace ImageViewer.Services
             _runWorkerThread = false;
         }
 
-    #endregion
+        #endregion
 
         internal bool PermanentlyRemoveFile(ImageReference imgRefElement)
         {
@@ -283,17 +319,19 @@ namespace ImageViewer.Services
                 {
                     File.Delete(imgRefElement.CompletePath);
                 }
+
                 removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
                 ImageReference imgReference = _mapper.Map<ImageReference>(imgRefElement);
                 imgRefElement = null;
 
                 // Delete from cache
-                OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count-1));
+                OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count - 1));
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "ImageLoaderService.PermanentlyRemoveFile {imgRefElement}", imgRefElement);
             }
+
             return removedItems > 0;
         }
 
@@ -356,6 +394,7 @@ namespace ImageViewer.Services
                     imgRefList.Add(element);
                 }
             }
+
             return imgRefList;
         }
 
@@ -380,13 +419,13 @@ namespace ImageViewer.Services
                 LastAccessTime = fileInfo.LastWriteTime,
                 Size = fileInfo.Length
             };
-            
+
             lock (_threadLock)
             {
                 bool createdNewImgRefList = false;
                 if (_imageReferenceList == null)
                 {
-                    _imageReferenceList= new List<ImageReference>();
+                    _imageReferenceList = new List<ImageReference>();
                     createdNewImgRefList = true;
                 }
 

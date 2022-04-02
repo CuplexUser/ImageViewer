@@ -9,7 +9,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using ImageProcessor;
 using ImageProcessor.Imaging.Formats;
@@ -24,15 +23,16 @@ namespace ImageViewer.Managers
     [UsedImplicitly]
     public class FileManager : ManagerBase, IDisposable
     {
-
         /// <summary>
         /// The file name
         /// </summary>
         private readonly string _fileName;
+
         /// <summary>
         /// The file stream
         /// </summary>
         private FileStream _fileStream;
+
         private readonly ImageFactory _imageFactory;
 
         private readonly object _fileOperationLock = new object();
@@ -41,14 +41,15 @@ namespace ImageViewer.Managers
         /// The temporary database filename
         /// </summary>
         private const string TemporaryDatabaseFilename = "temp.ibd";
+
         /// <summary>
         /// The database img data filename
         /// </summary>
         private const string DatabaseImgDataFilename = "thumbs.ibd";
+
         /// <summary>
         /// The image manager
         /// </summary>
-
         private readonly Dictionary<string, bool> _directoryAccessDictionary;
 
         //private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
@@ -157,6 +158,14 @@ namespace ImageViewer.Managers
             //else
             //    SaveToDisk();
 
+            await Task.Factory.StartNew(() =>
+            {
+                RecreateDatabase(thumbnailEntries);
+            });
+        }
+
+        private void RecreateDatabase(List<ThumbnailEntry> thumbnailEntries)
+        {
             var tempFileName = GeneralConverters.GetDirectoryNameFromPath(_fileName) + TemporaryDatabaseFilename;
 
             FileStream temporaryDatabaseFile = null;
@@ -211,7 +220,6 @@ namespace ImageViewer.Managers
                 }
             }
         }
-
 
 
         /// <summary>

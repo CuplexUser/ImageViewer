@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace ImageViewer.Models
 {
@@ -22,6 +23,7 @@ namespace ImageViewer.Models
         /// The size of the form.
         /// </value>
         public Size FormSize { get; set; }
+
         /// <summary>
         /// Gets or sets the form position.
         /// </summary>
@@ -29,6 +31,7 @@ namespace ImageViewer.Models
         /// The form position.
         /// </value>
         public Point FormPosition { get; set; }
+
         /// <summary>
         /// Gets or sets the state of the window.
         /// </summary>
@@ -36,6 +39,8 @@ namespace ImageViewer.Models
         /// The state of the window.
         /// </value>
         public FormState WindowState { get; set; }
+
+        public Dictionary<string,string> AdditionalParameters { get; set; }
 
         public bool Equals(FormStateModel other)
         {
@@ -54,9 +59,11 @@ namespace ImageViewer.Models
     public enum FormState
     {
         Normal = 0,
+
         /// <summary>A minimized window.</summary>
         Minimized = 1,
+
         /// <summary>A maximized window.</summary>
-        Maximized = 2,
+        Maximized = 2
     }
 }

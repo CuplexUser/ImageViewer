@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -54,6 +52,7 @@ namespace ImageViewer
             _bookmarkManager.OnBookmarksUpdate += Instance_OnBookmarksUpdate;
             bookmarksTree.AfterSelect += BookmarksTree_AfterSelect;
             InitBookmarksDataGridView();
+            bookmarksTree.Nodes.Clear();
             _treeViewDataContext = new TreeViewDataContext(bookmarksTree, _bookmarkManager.RootFolder);
             _overlayFormManager.HideImageDelay = 250;
             _overlayFormManager.ShowImageDelay = 500;
@@ -74,9 +73,9 @@ namespace ImageViewer
 
             if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
                 using (var formGetPassword = new FormGetPassword
-                {
-                    PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
-                })
+                       {
+                           PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
+                       })
                 {
                     if (formGetPassword.ShowDialog() == DialogResult.OK)
                     {
@@ -110,12 +109,10 @@ namespace ImageViewer
 
                 InitBookmarksDataSource();
             }
-
         }
 
         private void FormBookmarks_Shown(object sender, EventArgs e)
         {
-
         }
 
         private void FormBookmarks_FormClosing(object sender, FormClosingEventArgs e)
@@ -199,15 +196,8 @@ namespace ImageViewer
 
             DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
 
-            if (!(selectedRow?.DataBoundItem is Bookmark bookmark)) return;
-            try
-            {
-                Process.Start(bookmark.CompletePath);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Error in LoadImageFromSelectedRow()");
-            }
+            if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+            ApplicationIOHelper.OpenImageInDefaultAplication(bookmark.CompletePath);
         }
 
         private void LoadPreviewImageFromSelectedRow()
@@ -226,7 +216,7 @@ namespace ImageViewer
 
         private void bookmarksTree_DragDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetData(typeof(Bookmark)) is Bookmark bookmark)
+            if (e.Data?.GetData(typeof(Bookmark)) is Bookmark bookmark)
             {
                 // The mouse locations are relative to the screen, so they must be 
                 // converted to client coordinates.
@@ -248,12 +238,12 @@ namespace ImageViewer
 
         private void bookmarksTree_DragEnter(object sender, DragEventArgs e)
         {
-            e.Effect = e.Data.GetDataPresent(typeof(Bookmark)) ? DragDropEffects.Move : DragDropEffects.None;
+            e.Effect = e.Data!.GetDataPresent(typeof(Bookmark)) ? DragDropEffects.Move : DragDropEffects.None;
         }
 
         private void bookmarksTree_DragOver(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(typeof(Bookmark)))
+            if (e.Data!.GetDataPresent(typeof(Bookmark)))
                 e.Effect = e.AllowedEffect;
         }
 
@@ -499,7 +489,7 @@ namespace ImageViewer
                 }
                 else
                 {
-                    var currentSortOrder = (SortOrder)(int)column.Tag;
+                    var currentSortOrder = (SortOrder) (int) column.Tag;
                     column.Tag = currentSortOrder == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
                 }
 
@@ -510,7 +500,7 @@ namespace ImageViewer
                 if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return;
 
 
-                BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder)column.Tag);
+                BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder) column.Tag);
                 ReLoadBookmarks();
                 await _bookmarkService.SaveBookmarksAsync();
             }
@@ -554,28 +544,20 @@ namespace ImageViewer
                     using (Brush backbrush = new LinearGradientBrush(rowBounds, _gridViewGradientBackgroundColorStart, _gridViewGradientBackgroundColorStop, LinearGradientMode.Vertical))
                     {
                         e.Graphics.FillRectangle(backbrush, rowBounds);
-                        var p = new Pen(backbrush, 1) { Color = _gridViewSelectionBorderColor };
+                        var p = new Pen(backbrush, 1) {Color = _gridViewSelectionBorderColor};
                         e.Graphics.DrawRectangle(p, rowBounds);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Exception in bookmarksDataGridView_RowPrePaint()", ex);
+                Log.Error(ex, "Exception in bookmarksDataGridView_RowPrePaint()");
             }
         }
 
         #endregion
 
         #region MenuEventHandlers
-
-        private void setDefaultDriveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var formSetDefaultDrive = new FormSetDefaultDrive();
-            if (formSetDefaultDrive.ShowDialog(this) == DialogResult.OK)
-            {
-            }
-        }
 
         private void renameFolderMenuItem_Click(object sender, EventArgs e)
         {
@@ -732,7 +714,7 @@ namespace ImageViewer
             if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
 
             var editBookmark = new FormEditBookmark();
-            var model = new BookmarkEditModel { FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName };
+            var model = new BookmarkEditModel {FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName};
             editBookmark.InitEditForm(model, true);
 
             if (editBookmark.ShowDialog(this) == DialogResult.OK)

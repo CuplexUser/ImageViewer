@@ -24,10 +24,7 @@ namespace ImageViewer.Services
 
         public void ScheduleAndRunStartupJobs()
         {
-            Task.Factory.StartNew(async () =>
-            {
-                await RunStartupJobsAsync();
-            });
+            Task.Factory.StartNew(async () => { await RunStartupJobsAsync(); });
         }
 
         private async Task RunStartupJobsAsync()
@@ -80,10 +77,7 @@ namespace ImageViewer.Services
         private void UpdateProgramJob()
         {
             Log.Information("User selected ok on update request");
-            Task.Factory.StartNew(async () =>
-            {
-                await UpdateProgramJobAsync();
-            });
+            Task.Factory.StartNew(async () => { await UpdateProgramJobAsync(); });
         }
 
         [NotNull]
@@ -95,7 +89,7 @@ namespace ImageViewer.Services
         private async Task<bool> TestJob()
         {
             await Task.Delay(5000);
-            _interactionService.InformUser(new UserInteractionInformation {Buttons = MessageBoxButtons.OK,Icon = MessageBoxIcon.Asterisk,Message = "Hello this is  a test", Label = "Test"});
+            _interactionService.InformUser(new UserInteractionInformation {Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test"});
             return true;
         }
     }

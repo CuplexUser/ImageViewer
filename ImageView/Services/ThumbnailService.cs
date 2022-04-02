@@ -126,7 +126,7 @@ namespace ImageViewer.Services
 
             bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
-            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
+            progress?.Report(new ThumbnailScanProgress {TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true});
             return saveResult;
         }
 
@@ -135,7 +135,7 @@ namespace ImageViewer.Services
             var scannedFiles = 0;
             return await Task.Factory.StartNew(() =>
                 {
-                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
+                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress {IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount});
 
                     return scannedFiles;
                 }
@@ -145,12 +145,15 @@ namespace ImageViewer.Services
         private List<string> GetSubDirList(string path)
         {
             var dirList = new List<string>();
-            var directories = Directory.GetDirectories(path);
+            var dirInfo = new DirectoryInfo(path);
 
-            foreach (string directory in directories)
+            foreach (var directory in dirInfo.EnumerateDirectories())
             {
-                dirList.Add(directory);
-                dirList.AddRange(GetSubDirList(directory));
+                if ((directory.Attributes & FileAttributes.Hidden) == 0)
+                {
+                    dirList.Add(directory.Name);
+                    dirList.AddRange(GetSubDirList(directory.FullName));
+                }
             }
 
             return dirList;
@@ -246,7 +249,7 @@ namespace ImageViewer.Services
 
         public Image GetThumbnail(string filename)
         {
-            if (_thumbnailRepository.IsCached(filename)) 
+            if (_thumbnailRepository.IsCached(filename))
                 return _thumbnailRepository.GetThumbnailImage(filename);
 
             Image thumbnailImage = null;

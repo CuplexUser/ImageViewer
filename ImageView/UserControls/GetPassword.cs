@@ -6,6 +6,7 @@ namespace ImageViewer.UserControls
     public partial class GetPassword : UserControl
     {
         public string SelectedPassword { get; private set; }
+
         public GetPassword()
         {
             InitializeComponent();

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
 using ImageViewer.Services;
+using ImageViewer.Utility;
 using Serilog;
 
 namespace ImageViewer
@@ -10,6 +10,7 @@ namespace ImageViewer
     public partial class FormThumbnailSettings : Form
     {
         private readonly ThumbnailService _thumbnailService;
+
         public FormThumbnailSettings(ThumbnailService thumbnailService)
         {
             _thumbnailService = thumbnailService;
@@ -37,14 +38,14 @@ namespace ImageViewer
                 Log.Error(ex, "FormThumbnailSettings Load exception");
                 MessageBox.Show("Failed to Load Thumbnail Database", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
+
             UpdateInformationLabels();
             lblInfo.Text = "Progress Information.";
         }
 
         private void UpdateInformationLabels()
         {
-            lblCurrentDbSize.Text = GeneralConverters.FormatFileSizeToString(_thumbnailService.GetDatabaseSize());
+            lblCurrentDbSize.Text = SystemIOHelper.FormatFileSizeToString(_thumbnailService.GetDatabaseSize());
             int thumbnailItems = _thumbnailService.GetNumberOfCachedThumbnails();
             lblCachedItems.Text = thumbnailItems > 0 ? _thumbnailService.GetNumberOfCachedThumbnails().ToString() : "n/a";
         }
@@ -121,7 +122,6 @@ namespace ImageViewer
             {
                 MessageBox.Show(@"Can not update info values while a scan is running", @"Scan is running", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-
         }
     }
 }

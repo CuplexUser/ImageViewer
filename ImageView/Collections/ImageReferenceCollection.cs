@@ -2,7 +2,6 @@
 using System.Linq;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
-using ImageViewer.Models;
 using ImageViewer.Services;
 using Serilog;
 
@@ -30,7 +29,7 @@ namespace ImageViewer.Collections
             _randomImagePosList.Remove(index);
             Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
 
-            if (CurrentImage != null && CurrentImage == (ImageReference)e.ImageReference)
+            if (CurrentImage != null && CurrentImage == e.ImageReference)
             {
                 GetNextImage();
             }
@@ -68,7 +67,7 @@ namespace ImageViewer.Collections
             if (_randomImagePosList.Count == 0 || _imageLoaderService.ImageReferenceList.Count == 0)
                 return null;
 
-            ImageListPointer = ImageListPointer + 1;
+            ImageListPointer += 1;
             CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
             return CurrentImage;
         }
@@ -98,11 +97,13 @@ namespace ImageViewer.Collections
                 Log.Error("ImageReference Collection:SingleImageLoadedSetAsCurrent() Assert error _randomImagePosList==null");
                 return;
             }
+
             while (_randomImagePosList.Count < _imageLoaderService.ImageReferenceList.Count)
             {
                 int maxValue = _randomImagePosList.Max();
                 _randomImagePosList.Add(maxValue + 1);
             }
+
             ImageListPointer = _imageLoaderService.ImageReferenceList.Count - 1;
             CurrentImage = _imageLoaderService.ImageReferenceList[_randomImagePosList[ImageListPointer]];
         }

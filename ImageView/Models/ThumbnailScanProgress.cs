@@ -15,8 +15,9 @@ namespace ImageViewer.Models
                 int rate = 0;
                 if (TotalAmountOfFiles > 0)
                 {
-                    rate = Convert.ToInt32((double)ScannedFiles/TotalAmountOfFiles * 100);
+                    rate = Convert.ToInt32((double) ScannedFiles / TotalAmountOfFiles * 100);
                 }
+
                 return rate;
             }
         }

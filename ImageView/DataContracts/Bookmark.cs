@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
 {
     /// <summary>
     /// Bookmark Data Model
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "Bookmark")]
+    [Serializable, DataContract(Name = "Bookmark")]
     public class Bookmark
     {
         /// <summary>
@@ -106,6 +106,6 @@ namespace ImageViewer.DataContracts
         /// <value>
         /// The size formatted.
         /// </value>
-        public string SizeFormatted => GeneralToolkitLib.Converters.GeneralConverters.FormatFileSizeToString(Size);
+        public string SizeFormatted => SystemIOHelper.FormatFileSizeToString(Size);
     }
 }

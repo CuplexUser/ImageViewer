@@ -6,8 +6,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "BookmarkContainer", Namespace = "ImageView.DataContracts")]
+    [Serializable, DataContract(Name = "BookmarkContainer", Namespace = "ImageView.DataContracts")]
     public class BookmarkContainer
     {
         /// <summary>

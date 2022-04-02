@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
+using ImageViewer.Utility;
 using Serilog;
 
 namespace ImageViewer
@@ -66,8 +66,8 @@ namespace ImageViewer
                 driveInfoText += " [" + driveInfo.VolumeLabel + "]";
 
             driveInfoText += string.Format("{0} free of {1} [{2}, {3}]",
-                GeneralConverters.FormatFileSizeToString(driveInfo.TotalFreeSpace),
-                GeneralConverters.FormatFileSizeToString(driveInfo.TotalSize),
+                SystemIOHelper.FormatFileSizeToString(driveInfo.TotalFreeSpace),
+                SystemIOHelper.FormatFileSizeToString(driveInfo.TotalSize),
                 driveInfo.DriveType, driveInfo.DriveFormat);
 
             return driveInfoText;

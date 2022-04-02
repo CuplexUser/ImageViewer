@@ -48,7 +48,7 @@ namespace ImageViewer.Managers
             _overlayUserControl = new BookmarkPreviewOverlayUserControl();
             _formOverlayImage = FormFactory.CreateFloatingForm(_overlayUserControl, new Size(250, 250));
             _overlayUserControl.Dock = DockStyle.Fill;
-            _imageSourceState = new ImageSourceAndLocation { LastShownImageTime = DateTime.Today };
+            _imageSourceState = new ImageSourceAndLocation {LastShownImageTime = DateTime.Today};
 
             // Default value
             ShowImageDelay = 750;
@@ -109,7 +109,7 @@ namespace ImageViewer.Managers
             int maxWidth = Convert.ToInt32(screenBounds.Width / 1.3d);
             int maxHeight = Convert.ToInt32(screenBounds.Height / 1.2d);
 
-            double ratio = imageSize.Width / (double)imageSize.Height;
+            double ratio = imageSize.Width / (double) imageSize.Height;
 
             if (ratio < 1)
             {
@@ -126,7 +126,6 @@ namespace ImageViewer.Managers
             {
                 formRectangle.Width = Math.Max(maxWidth - mousePoint.X, maxWidth);
                 formRectangle.X = mousePoint.X - formRectangle.Width - 10;
-
             }
             else
             {

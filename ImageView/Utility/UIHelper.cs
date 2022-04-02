@@ -41,7 +41,7 @@ namespace ImageViewer.Utility
                 SystemColors.ActiveCaptionText,
                 SystemColors.ActiveCaption,
                 SystemColors.GradientInactiveCaption,
-                SystemColors.WindowText,
+                SystemColors.WindowText
             };
 
             return list;
@@ -73,7 +73,7 @@ namespace ImageViewer.Utility
                 Color.PapayaWhip,
                 Color.MidnightBlue,
                 Color.SteelBlue,
-                Color.LightSkyBlue,
+                Color.LightSkyBlue
             };
 
             return list;

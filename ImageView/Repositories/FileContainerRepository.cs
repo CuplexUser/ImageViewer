@@ -35,13 +35,11 @@ namespace ImageViewer.Repositories
 
         public virtual bool AddThumbnailEntry(string fullPath, ThumbnailEntry thumbnailEntry)
         {
-            var result=_thumbnailEntries.AddOrUpdate(fullPath, thumbnailEntry, (s, entry) => new ThumbnailEntry());
+            var result = _thumbnailEntries.AddOrUpdate(fullPath, thumbnailEntry, (s, entry) => new ThumbnailEntry());
             return true;
         }
 
         protected abstract bool LoadDatabase();
         public abstract bool SaveDatabase();
-
-
     }
 }

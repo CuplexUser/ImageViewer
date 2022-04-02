@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ImageViewer.Models;
 using JetBrains.Annotations;
+using Log = Serilog.Log;
 
 namespace ImageViewer.Services
 {
@@ -21,26 +22,40 @@ namespace ImageViewer.Services
         public async Task<bool> IsLatestVersion()
         {
             var latestVersion = await GetLatestVersion();
-            var currentVersion = ApplicationVersion.Parse(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version != null)
+            {
+                var currentVersion = ApplicationVersion.Parse(version.ToString());
 
-            return currentVersion.CompareTo(latestVersion) >= 0;
+                return currentVersion.CompareTo(latestVersion) >= 0;
+            }
+            return false;
         }
 
         public async Task DownloadAndRunLatestVersionInstaller()
         {
             string path = await DownloadLatestVersion();
-            Process.Start(path);
+            try
+            {
+                Process.Start(path);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "DownloadAndRunLatestVersionInstaller");
+            }
         }
 
         private async Task<ApplicationVersion> GetLatestVersion()
         {
             string url = Properties.Settings.Default.UpdateHistoryUrl;
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-
-            var response = await req.GetResponseAsync();
-            var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
-            var versions = ParseFromUpdateTextFile(streamReader);
-            versions.Sort();
+            List<ApplicationVersion> versions;
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.GetStreamAsync(url);
+                var streamReader = new StreamReader(response);
+                versions = ParseFromUpdateTextFile(streamReader);
+                versions.Sort();
+            }
 
             return versions.Count > 0 ? versions.Last() : null;
         }
@@ -61,9 +76,11 @@ namespace ImageViewer.Services
             if (File.Exists(downloadFilePath))
                 File.Delete(downloadFilePath);
 
-            using (WebClient client = new WebClient())
+            using (HttpClient client = new HttpClient())
             {
-                client.DownloadFile(url, downloadFilePath);
+                byte[] imageBytes = await client.GetByteArrayAsync(url);
+                await File.WriteAllBytesAsync(downloadFilePath, imageBytes);
+                //client.DownloadFile(url, downloadFilePath);
             }
 
             return downloadFilePath;
@@ -82,7 +99,7 @@ namespace ImageViewer.Services
                     var matches = _downloadUrlRegex.Match(line).Groups;
                     if (matches.Count > 0)
                     {
-                        downloadUrl = matches[matches.Count - 1].Value;
+                        downloadUrl = matches[^1].Value;
                     }
                 }
                 else if (line != null && _versionRegex.IsMatch(line))
@@ -90,7 +107,7 @@ namespace ImageViewer.Services
                     var matches = _versionRegex.Match(line).Groups;
                     if (matches.Count > 0)
                     {
-                        versions.Add(ApplicationVersion.Parse(matches[matches.Count - 1].Value, downloadUrl));
+                        versions.Add(ApplicationVersion.Parse(matches[^1].Value, downloadUrl));
                     }
                 }
             }

@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// ColorDataModel
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ColorDataModel")]
+    [Serializable, DataContract(Name = "ColorDataModel")]
     public class ColorDataModel
     {
         /// <summary>

@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "PointDataModel")]
+    [Serializable, DataContract(Name = "PointDataModel")]
     public class PointDataModel
     {
         /// <summary>
@@ -43,7 +42,6 @@ namespace ImageViewer.DataContracts
         /// </summary>
         public PointDataModel()
         {
-
         }
 
         /// <summary>
@@ -64,7 +62,7 @@ namespace ImageViewer.DataContracts
         /// <returns></returns>
         public static PointDataModel CreateFromPoint(Point point)
         {
-            return new PointDataModel { X = point.X, Y = point.Y };
+            return new PointDataModel {X = point.X, Y = point.Y};
         }
     }
 }

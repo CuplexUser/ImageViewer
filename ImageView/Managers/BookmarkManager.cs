@@ -9,7 +9,6 @@ using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
-using ImageViewer.Models;
 using ImageViewer.Utility;
 using JetBrains.Annotations;
 using Serilog;
@@ -549,12 +548,29 @@ namespace ImageViewer.Managers
             }
 
             int removedItems = removeQueue.Count;
+
             while (removeQueue.Count > 0)
             {
-                DeleteBookmark(removeQueue.Dequeue());
+                DeleteBookmarkQuick(removeQueue.Dequeue());
+            }
+
+            if (removedItems > 0)
+            {
+                ReindexSortOrder(false, true);
+                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
             }
 
             return removedItems;
+        }
+
+        private bool DeleteBookmarkQuick(Bookmark bookmark)
+        {
+            BookmarkFolder parentFolder = GetBookmarkFolderById(_bookmarkContainer.RootFolder, bookmark.ParentFolderId);
+
+            if (parentFolder == null)
+                return false;
+
+            return parentFolder.Bookmarks.Remove(bookmark);
         }
 
         private static IEnumerable<Bookmark> GetAllBookmarksIncludingSubfolders(BookmarkFolder rootFolder)

@@ -24,7 +24,6 @@ namespace ImageViewer.Library.Extensions
 
         public FixedBoundsAttribute(string errorMessage) : base(errorMessage)
         {
-
         }
 
         public override bool IsValid(object value)
@@ -45,7 +44,6 @@ namespace ImageViewer.Library.Extensions
                 }
 
                 isValid = true;
-
             }
 
             return isValid;
@@ -68,7 +66,5 @@ namespace ImageViewer.Library.Extensions
             Log.Warning("Validation failed for settings attrribute: " + validationContext.DisplayName);
             return new ValidationResult(ErrorMessageString);
         }
-      
     }
 }
-

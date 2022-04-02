@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using GeneralToolkitLib.Storage.Memory;
 
 namespace ImageViewer.Providers
 {
@@ -15,8 +16,8 @@ namespace ImageViewer.Providers
         private const int MaxBufferSize = 33554432; //32 Mb
         private const int MetadataLength = 112;
 
-        [SecurityCritical]
-        private static readonly byte[] SaltBytes = {
+        [SecurityCritical] private static readonly byte[] SaltBytes =
+        {
             0x0C, 0xF2, 0xC4, 0x59, 0x9E, 0x8A, 0x0D, 0x92, 0x17, 0x9A, 0xC4, 0x3D, 0xC8, 0xB1, 0x90, 0xF1,
             0x01, 0xB0, 0xDD, 0x4F, 0xB5, 0x4D, 0xED, 0xDC, 0xA7, 0x4D, 0x14, 0x77, 0x23, 0x20, 0x0C, 0x2C,
             0x99, 0x15, 0x16, 0x33, 0x94, 0x48, 0x40, 0x96, 0xAC, 0x46, 0xF4, 0xBE, 0x26, 0xC4, 0x9E, 0x63,
@@ -37,7 +38,7 @@ namespace ImageViewer.Providers
         [SecurityCritical]
         private byte[] EncodeKeyToByteArray(string key)
         {
-            return UTF8Encoding.UTF8.GetBytes(key);
+            return Encoding.UTF8.GetBytes(key);
         }
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace ImageViewer.Providers
         public byte[] EncryptBinaryData(ref byte[] data)
         {
             byte[] defaultKey = EncodeKeyToByteArray(DefaultKey);
-            var hashAlg = SHA256Cng.Create("SHA256");
+            var hashAlg = SHA256.Create("SHA256");
             hashAlg.Initialize();
             defaultKey = hashAlg.ComputeHash(defaultKey);
 
@@ -69,14 +70,14 @@ namespace ImageViewer.Providers
             var ms = new MemoryStream(data);
             var msEncodedData = new MemoryStream();
 
-            using (Aes aesAlg = AesCng.Create("AES"))
+            using (Aes aesAlg = Aes.Create("AES"))
             {
                 if (useExternalKey)
                     ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
 
                 if (aesAlg == null) return msEncodedData.ToArray();
 
-                var hashAlg = SHA512Cng.Create("SHA512");
+                var hashAlg = SHA512.Create("SHA512");
                 hashAlg.Initialize();
 
                 aesAlg.BlockSize = 128;
@@ -95,7 +96,7 @@ namespace ImageViewer.Providers
                     ProtectedMemory.Protect(encryptedKey, MemoryProtectionScope.SameProcess);
 
                 // Create the streams used for encryption.
-                int bufferSize = (int)Math.Min(MaxBufferSize, ms.Length);
+                int bufferSize = (int) Math.Min(MaxBufferSize, ms.Length);
                 var buffer = new byte[bufferSize];
                 ms.Position = 0;
 
@@ -138,7 +139,7 @@ namespace ImageViewer.Providers
         public byte[] DecryptBinaryDataInternal(ref byte[] data, out bool dataIsValid)
         {
             byte[] defaultKey = EncodeKeyToByteArray(DefaultKey);
-            var hashAlg = SHA256Cng.Create("SHA256");
+            var hashAlg = SHA256.Create("SHA256");
             hashAlg.Initialize();
             defaultKey = hashAlg.ComputeHash(defaultKey);
 
@@ -153,7 +154,7 @@ namespace ImageViewer.Providers
             var msEncrypted = new MemoryStream(data, MetadataLength - 1, data.Length - MetadataLength);
             var msMetadata = new MemoryStream(data, 0, MetadataLength);
 
-            using (Aes aesAlg = AesCng.Create("AES"))
+            using (Aes aesAlg = Aes.Create("AES"))
             {
                 if (useExternalKey)
                     ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
@@ -164,7 +165,7 @@ namespace ImageViewer.Providers
                     return null;
                 }
 
-                SHA512 hashAlg = SHA512Cng.Create("SHA512");
+                SHA512 hashAlg = SHA512.Create("SHA512");
                 hashAlg.Initialize();
 
 
@@ -245,7 +246,5 @@ namespace ImageViewer.Providers
                 return obj.GetHashCode();
             }
         }
-
-
     }
 }

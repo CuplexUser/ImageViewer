@@ -23,6 +23,7 @@ namespace ImageViewer.Models
         /// The name of the product.
         /// </value>
         public string ProductName { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the company.
         /// </summary>
@@ -49,7 +50,7 @@ namespace ImageViewer.Models
         {
             var regAppSettings = new RegistryAppSettings
             {
-                ProductName = productName, 
+                ProductName = productName,
                 InstallDate = DateTime.Now.ToLongDateString(),
                 CompanyName = companyName,
                 Version = Assembly.GetCallingAssembly().GetName().Version.ToString()

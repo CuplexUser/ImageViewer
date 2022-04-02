@@ -25,7 +25,7 @@ namespace ImageViewer.UserControls
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            var parentForm = this.ParentForm;
+            var parentForm = ParentForm;
             if (parentForm != null)
             {
                 parentForm.DialogResult = DialogResult.Cancel;
@@ -40,7 +40,7 @@ namespace ImageViewer.UserControls
             }
 
             SelectedPassword = txtPassword.Text;
-            var parentForm = this.ParentForm;
+            var parentForm = ParentForm;
             if (parentForm != null)
             {
                 parentForm.DialogResult = DialogResult.OK;

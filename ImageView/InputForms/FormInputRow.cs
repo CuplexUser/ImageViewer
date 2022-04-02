@@ -6,6 +6,7 @@ namespace ImageViewer.InputForms
     public partial class FormInputRow : Form
     {
         private readonly InputFormData _inputFormData;
+
         public FormInputRow(InputFormData inputFormData)
         {
             _inputFormData = inputFormData;
@@ -37,7 +38,7 @@ namespace ImageViewer.InputForms
             else
             {
                 MessageBox.Show($@"The selected name is invalid. Minimum {_inputFormData.MinimumCharacters} characters and maximum {_inputFormData.MaximumCharacters} characters", @"Invalid input", MessageBoxButtons.OK,
-                MessageBoxIcon.Exclamation);
+                    MessageBoxIcon.Exclamation);
             }
         }
 

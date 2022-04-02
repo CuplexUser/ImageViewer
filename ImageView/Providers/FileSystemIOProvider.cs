@@ -35,7 +35,7 @@ namespace ImageViewer.Providers
         {
             try
             {
-                T config= _storageManager.DeserializeObjectFromFile<T>(filePath, null);
+                T config = _storageManager.DeserializeObjectFromFile<T>(filePath, null);
 
                 return config;
             }
@@ -44,7 +44,6 @@ namespace ImageViewer.Providers
                 Log.Error(exception, "T LoadConfig<T> Exception");
                 return default(T);
             }
-
         }
 
         private bool SaveConfig(string filePath, object model)

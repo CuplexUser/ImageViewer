@@ -190,6 +190,7 @@ namespace ImageViewer
                     }
                 }
             }
+
             Focus();
         }
 
@@ -197,8 +198,8 @@ namespace ImageViewer
             int screenWidthOffset, Point windowPosition)
         {
             return new Rectangle(windowPosition,
-                new Size((screen.WorkingArea.Width + screenWidthOffset)/maxWindowsHorizontal,
-                    screen.WorkingArea.Height/maxWindowsVertical + 5));
+                new Size((screen.WorkingArea.Width + screenWidthOffset) / maxWindowsHorizontal,
+                    screen.WorkingArea.Height / maxWindowsVertical + 5));
         }
 
         private void btnHide_Click(object sender, EventArgs e)

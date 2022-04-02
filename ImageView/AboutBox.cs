@@ -36,6 +36,7 @@ namespace ImageViewer
                     if (!string.IsNullOrEmpty(titleAttribute.Title))
                         return titleAttribute.Title;
                 }
+
                 return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
             }
         }
@@ -46,7 +47,7 @@ namespace ImageViewer
         {
             get
             {
-                var attributes =Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
                 return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute) attributes[0]).Description;
             }
         }

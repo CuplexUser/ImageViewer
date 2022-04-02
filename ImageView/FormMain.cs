@@ -56,8 +56,8 @@ namespace ImageViewer
 
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
-                ImageLoaderService imageLoaderService,
-                ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
+            ImageLoaderService imageLoaderService,
+            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
@@ -75,7 +75,8 @@ namespace ImageViewer
             InitializeComponent();
             _imageViewFormList = new List<FormImageView>();
             _windowTitle = "Image Viewer - " + Application.ProductVersion;
-            ActiveFormList = new Dictionary<string, Form>(); ;
+            ActiveFormList = new Dictionary<string, Form>();
+            ;
         }
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
@@ -433,14 +434,8 @@ namespace ImageViewer
             if (ImageSourceDataAvailable)
             {
                 string currentFile = _imageReferenceCollection.CurrentImage.CompletePath;
-                try
-                {
-                    Process.Start(currentFile);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Error in MainForm open image in default app");
-                }
+                if (currentFile != null)
+                    ApplicationIOHelper.OpenImageInDefaultAplication(currentFile);
             }
         }
 
@@ -861,6 +856,14 @@ namespace ImageViewer
         #endregion Form Controls Events
 
         #region Main Menu Functions
+        private void openFileCollectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
+            if (form.ShowDialog(this) == DialogResult.OK)
+            {
+                HandleImportDataComplete();
+            }
+        }
 
         private void openInDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -935,7 +938,8 @@ namespace ImageViewer
 
         private void OpenFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var fileBrowser = _scope.Resolve<FileBrowser>();
+            //var fileBrowser = _scope.Resolve<FileBrowser>();
+            var fileBrowser = _formManager.GetFormInstance(typeof(FileBrowser));
             fileBrowser.ShowDialog(this);
         }
 
@@ -973,7 +977,8 @@ namespace ImageViewer
 
         private void openSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var frmSettings = _scope.Resolve<FormSettings>();
+            //var frmSettings = _scope.Resolve<FormSettings>();
+            var frmSettings = _formManager.GetFormInstance(typeof(FormSettings));
             frmSettings.ShowDialog(this);
 
             foreach (var imageView in _imageViewFormList)
@@ -1196,5 +1201,7 @@ namespace ImageViewer
         }
 
         #endregion Main Menu Functions
+
+
     }
 }

@@ -9,10 +9,7 @@ using System.Windows.Forms;
 
 namespace ImageViewer.UserControls
 {
-    [Designer("System.Windows.Forms.Design.DocumentDesigner, System.Windows.Forms.Design", typeof(IRootDesigner)), DesignerCategory("Form")]
-    [ComVisible(true)]
-    [ClassInterface(ClassInterfaceType.AutoDispatch)]
-    [Docking(DockingBehavior.Ask)]
+    [Designer("System.Windows.Forms.Design.DocumentDesigner, System.Windows.Forms.Design", typeof(IRootDesigner)), DesignerCategory("Form"), ComVisible(true), ClassInterface(ClassInterfaceType.AutoDispatch), Docking(DockingBehavior.Ask)]
     public partial class CustomPanel : UserControl
     {
         private readonly Size _defaultSize;
@@ -37,7 +34,7 @@ namespace ImageViewer.UserControls
 
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
-            _pen = new Pen(InnerBorderColor) { Width = BorderWidthInner };
+            _pen = new Pen(InnerBorderColor) {Width = BorderWidthInner};
 
             InnerBorderColorChanged += OnInnerBorderColorChanged;
             OuterBorderColorChanged += OnOuterBorderColorChanged;
@@ -50,12 +47,7 @@ namespace ImageViewer.UserControls
         }
 
 
-
-        [DispId(1)]
-        [Browsable(true)]
-        [DefaultValue(typeof(Color), "0x333333")]
-        [AttributeProvider(typeof(Color))]
-        [Description("The outmost border color"), Category("Appearance")]
+        [DispId(1), Browsable(true), DefaultValue(typeof(Color), "0x333333"), AttributeProvider(typeof(Color)), Description("The outmost border color"), Category("Appearance")]
         public Color OuterBorderColor
         {
             get => outerBorderColor;
@@ -65,17 +57,11 @@ namespace ImageViewer.UserControls
                 {
                     outerBorderColor = value;
                     OuterBorderColorChanged?.Invoke(this, new BorderChangedEventArgs(BorderChangedEventArgs.TypeOfBorderUpdate.OuterBorderColorChanged));
-
                 }
             }
         }
 
-        [DispId(2)]
-        [Browsable(true)]
-        [DefaultValue(typeof(Color), "0xCCCCCC")]
-        [AttributeProvider(typeof(Color))]
-
-        [Description("The inner border color"), Category("Appearance")]
+        [DispId(2), Browsable(true), DefaultValue(typeof(Color), "0xCCCCCC"), AttributeProvider(typeof(Color)), Description("The inner border color"), Category("Appearance")]
         public Color InnerBorderColor
         {
             get => innerBorderColor;
@@ -89,11 +75,7 @@ namespace ImageViewer.UserControls
             }
         }
 
-        [Description("The outer most border with inside the control"), Category("Appearance")]
-        [DispId(3)]
-        [Browsable(true)]
-        [AttributeProvider(typeof(int))]
-        [DefaultValue(typeof(int), "0")]
+        [Description("The outer most border with inside the control"), Category("Appearance"), DispId(3), Browsable(true), AttributeProvider(typeof(int)), DefaultValue(typeof(int), "0")]
         public int BorderWidthOuter
         {
             get => borderWidthOuter;
@@ -107,10 +89,7 @@ namespace ImageViewer.UserControls
             }
         }
 
-        [Description("The Inner border with after the outer border is painted"), Category("Appearance")]
-        [DispId(4)]
-        [DefaultValue(typeof(int), "0")]
-        [Browsable(true)]
+        [Description("The Inner border with after the outer border is painted"), Category("Appearance"), DispId(4), DefaultValue(typeof(int), "0"), Browsable(true)]
         public int BorderWidthInner
         {
             get { return borderWidthInner; }
@@ -124,10 +103,7 @@ namespace ImageViewer.UserControls
             }
         }
 
-        [Description("The Inner border with after the outer border is painted"), Category("Design")]
-        [DispId(5)]
-        [DefaultValue(typeof(int), "0")]
-        [Browsable(true)]
+        [Description("The Inner border with after the outer border is painted"), Category("Design"), DispId(5), DefaultValue(typeof(int), "0"), Browsable(true)]
         protected new BorderStyle BorderStyle { get; set; }
 
 
@@ -158,6 +134,7 @@ namespace ImageViewer.UserControls
         {
             Invalidate();
         }
+
         private void EnableDoubleBuffering()
         {
             // Set the value of the double-buffering style bits to true.
@@ -166,36 +143,35 @@ namespace ImageViewer.UserControls
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
-        {          
-
-            Rectangle drawRectangle = new Rectangle(-2, -2, this.Width+2, this.Height+2);
+        {
+            Rectangle drawRectangle = new Rectangle(-2, -2, Width + 2, Height + 2);
             //if (e.ClipRectangle.Width >= drawRectangle.Width && e.ClipRectangle.Height>= drawRectangle.Height)
-            
-                var g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                _pen.Color = BackColor;                
-                g.Clear(_pen.Color);
+
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            _pen.Color = BackColor;
+            g.Clear(_pen.Color);
 
 
-                if (BorderWidthOuter > 0)
-                {
-                    _pen.Color = outerBorderColor;
-                    _pen.Width = borderWidthOuter;
-                    _pen.Brush = new SolidBrush(OuterBorderColor);
-                    drawRectangle.Inflate(borderWidthInner * -1, borderWidthOuter * -1);
-                    drawRectangle.Height = Height;
-                    g.FillRectangle(_pen.Brush, drawRectangle);
-                }
+            if (BorderWidthOuter > 0)
+            {
+                _pen.Color = outerBorderColor;
+                _pen.Width = borderWidthOuter;
+                _pen.Brush = new SolidBrush(OuterBorderColor);
+                drawRectangle.Inflate(borderWidthInner * -1, borderWidthOuter * -1);
+                drawRectangle.Height = Height;
+                g.FillRectangle(_pen.Brush, drawRectangle);
+            }
 
-                if (BorderWidthInner > 0)
-                {
-                    drawRectangle.Inflate(BorderWidthInner * -1, -BorderWidthInner * -1);
-                    _pen.Color = innerBorderColor;
-                    _pen.Width = borderWidthInner;
-                    _pen.Brush = new SolidBrush(InnerBorderColor);
+            if (BorderWidthInner > 0)
+            {
+                drawRectangle.Inflate(BorderWidthInner * -1, -BorderWidthInner * -1);
+                _pen.Color = innerBorderColor;
+                _pen.Width = borderWidthInner;
+                _pen.Brush = new SolidBrush(InnerBorderColor);
 
-                    g.FillRectangle(_pen.Brush, drawRectangle);
-                }
+                g.FillRectangle(_pen.Brush, drawRectangle);
+            }
             //}
             //else
             //{
@@ -205,36 +181,37 @@ namespace ImageViewer.UserControls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            System.Drawing.Rectangle drawRectangle = new System.Drawing.Rectangle(-1, -1, this.Width+2, this.Height+2);
+            Rectangle drawRectangle = new Rectangle(-1, -1, Width + 2, Height + 2);
 
             //if (e.ClipRectangle.Width >= drawRectangle.Width && e.ClipRectangle.Height >= drawRectangle.Height)
             //{
-                drawRectangle.Width = e.ClipRectangle.Width;
-                drawRectangle.Height = e.ClipRectangle.Height;
-                drawRectangle.X = 0;
-                drawRectangle.Y = Math.Max(e.ClipRectangle.Y, this.Height);
+            drawRectangle.Width = e.ClipRectangle.Width;
+            drawRectangle.Height = e.ClipRectangle.Height;
+            drawRectangle.X = 0;
+            drawRectangle.Y = Math.Max(e.ClipRectangle.Y, Height);
 
-                var g = e.Graphics;
-                var container = g.BeginContainer();
+            var g = e.Graphics;
+            var container = g.BeginContainer();
 
-                //g.SetClip(drawRectangle);
+            //g.SetClip(drawRectangle);
 
-                _pen = new Pen(OuterBorderColor, BorderWidthOuter);
-                _pen.Brush = new SolidBrush(_pen.Color);
+            _pen = new Pen(OuterBorderColor, BorderWidthOuter);
+            _pen.Brush = new SolidBrush(_pen.Color);
 
 
-                g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                g.DrawRectangle(_pen, drawRectangle);
+            g.DrawRectangle(_pen, drawRectangle);
 
-                drawRectangle.Inflate(-1 * BorderWidthOuter, -1 * BorderWidthOuter);
-                _pen.Color = OuterBorderColor;
-                _pen.Width = BorderWidthInner;
+            drawRectangle.Inflate(-1 * BorderWidthOuter, -1 * BorderWidthOuter);
+            _pen.Color = OuterBorderColor;
+            _pen.Width = BorderWidthInner;
 
-                g.DrawRectangle(_pen, drawRectangle);
+            g.DrawRectangle(_pen, drawRectangle);
 
-                g.EndContainer(container); ;
-                g.Save();
+            g.EndContainer(container);
+            ;
+            g.Save();
             //}
             //else
             //{

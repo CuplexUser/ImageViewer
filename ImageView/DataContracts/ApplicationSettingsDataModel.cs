@@ -12,8 +12,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// All Application settings
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ApplicationSettingsDataModel")]
+    [Serializable, DataContract(Name = "ApplicationSettingsDataModel")]
     public class ApplicationSettingsDataModel
     {
         /// <summary>
@@ -25,22 +24,27 @@ namespace ImageViewer.DataContracts
             /// The none
             /// </summary>
             None = 0,
+
             /// <summary>
             /// The slide left
             /// </summary>
             SlideLeft = 1,
+
             /// <summary>
             /// The slide right
             /// </summary>
             SlideRight = 2,
+
             /// <summary>
             /// The slide down
             /// </summary>
             SlideDown = 3,
+
             /// <summary>
             /// The slide up
             /// </summary>
             SlideUp = 4,
+
             /// <summary>
             /// The fade in
             /// </summary>
@@ -56,10 +60,12 @@ namespace ImageViewer.DataContracts
             /// The near
             /// </summary>
             Near = 1,
+
             /// <summary>
             /// The normal
             /// </summary>
             Normal = 2,
+
             /// <summary>
             /// The far
             /// </summary>
@@ -82,10 +88,11 @@ namespace ImageViewer.DataContracts
                 NextImageAnimation = ChangeImageAnimation.None,
                 ImageTransitionTime = 1000,
                 SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
+                PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
-                ShowNextPrevControlsOnEnterWindow = false,
+                ShowNextPrevControlsOnEnterWindow = true,
+                ShowSwitchImageButtons = true,
                 ThumbnailSize = 256,
                 MaxThumbnails = 256,
                 ConfirmApplicationShutdown = true,
@@ -95,6 +102,7 @@ namespace ImageViewer.DataContracts
                 ToggleSlideshowWithThirdMouseButton = true,
                 AutoHideCursor = true,
                 AutoHideCursorDelay = 2000,
+                AppSettingsGuid = Guid.NewGuid()
             };
 
             return settings;
@@ -345,7 +353,7 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 30)]
         public bool ToggleSlideshowWithThirdMouseButton { get; set; }
 
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether [automatic hide cursor].
         /// </summary>
@@ -356,8 +364,8 @@ namespace ImageViewer.DataContracts
         public bool AutoHideCursor { get; set; }
 
 
-        [DataMember(Name = "AutoHideCursorDelay", Order = 32)]
-        [FixedBounds(minValue: GenericConstants.MinCursorDelayValue, maxValue: GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
+        [DataMember(Name = "AutoHideCursorDelay", Order = 32),
+         FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
 
         /// <summary>

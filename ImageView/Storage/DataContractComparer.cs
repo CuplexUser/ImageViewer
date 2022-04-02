@@ -11,6 +11,7 @@ namespace ImageViewer.Storage
     public class DataContractComparer<T> : IEqualityComparer<T> where T : class
     {
         private readonly T _compareBase;
+
         public DataContractComparer(T compareBase)
         {
             if (compareBase.GetType().GetAttribute<DataContractAttribute>().TypeId.ToString() != typeof(DataContractAttribute).FullName)
@@ -31,7 +32,6 @@ namespace ImageViewer.Storage
 
         public DataContractComparer()
         {
-
         }
 
 
@@ -77,7 +77,6 @@ namespace ImageViewer.Storage
                 {
                     return false;
                 }
-
             }
 
             return true;

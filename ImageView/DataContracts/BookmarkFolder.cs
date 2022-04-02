@@ -7,8 +7,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "BookmarkFolder")]
+    [Serializable, DataContract(Name = "BookmarkFolder")]
     public class BookmarkFolder
     {
         /// <summary>

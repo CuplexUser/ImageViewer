@@ -23,5 +23,5 @@ namespace ImageViewer.Library.Extensions
 
             return result.ToString();
         }
-    }   
+    }
 }

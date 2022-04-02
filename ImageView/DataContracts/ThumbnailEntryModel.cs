@@ -6,8 +6,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// 
     /// </summary>
-    [Serializable]
-    [DataContract(Name = "ThumbnailEntryModel")]
+    [Serializable, DataContract(Name = "ThumbnailEntryModel")]
     public class ThumbnailEntryModel
     {
         /// <summary>
@@ -20,6 +19,7 @@ namespace ImageViewer.DataContracts
                 UniqueId = Guid.NewGuid();
             }
         }
+
         /// <summary>
         /// Gets or sets the name of the file.
         /// </summary>

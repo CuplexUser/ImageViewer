@@ -1,10 +1,10 @@
 ﻿using System;
-using GeneralToolkitLib.Converters;
+using ImageViewer.Utility;
 
 namespace ImageViewer.Models
 {
     /// <summary>
-    /// 
+    /// ImageInformation
     /// </summary>
     public class ImageInformation
     {
@@ -31,7 +31,7 @@ namespace ImageViewer.Models
         /// <value>
         /// The size formatted.
         /// </value>
-        public string SizeFormatted => GeneralConverters.FormatFileSizeToString(Size);
+        public string SizeFormatted => SystemIOHelper.FormatFileSizeToString(Size);
 
         /// <summary>
         /// Gets or sets the name of the file.
@@ -64,6 +64,5 @@ namespace ImageViewer.Models
         /// The last modified date.
         /// </value>
         public DateTime LastModifiedDate { get; set; }
-        
     }
 }

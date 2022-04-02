@@ -1,10 +1,12 @@
-﻿using System;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts
 {
     /// <summary>
-    ///      FormStateDataModel
+    /// FormStateDataModel
     /// </summary>
     [DataContract(Name = "FormStateDataModel")]
     public class FormStateDataModel
@@ -44,5 +46,14 @@ namespace ImageViewer.DataContracts
         /// </value>
         [DataMember(Name = "WindowsState", Order = 4)]
         public int WindowsState { get; set; }
+
+        /// <summary>
+        /// Gets or sets the additional parameters.
+        /// </summary>
+        /// <value>
+        /// The additional parameters.
+        /// </value>
+        [DataMember(Name = "AdditionalParameters", Order = 5)]
+        public Dictionary<string,string> AdditionalParameters { get; set; }
     }
 }
