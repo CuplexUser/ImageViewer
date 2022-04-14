@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Autofac;
+using Microsoft.VisualBasic.Logging;
+using Serilog.Core;
+using Log = Serilog.Log;
 
 namespace ImageViewer.Managers
 {
@@ -80,15 +86,37 @@ namespace ImageViewer.Managers
                 FormInstances.Remove(frm.Name);
         }
 
+        public async Task<FormImageView> GetFormImageViewAsync(int id)
+        {
+            FormImageView form = await Task<FormImageView>.Factory.StartNew(() => CreateFormInstance(id));
+            return form;
+        }
+
+        private FormImageView CreateFormInstance(int id)
+        {
+            FormImageView form = _scope.Resolve<FormImageView>(new NamedParameter("id", id));
+            return form;
+        }
+
         /// <summary>
         /// Shows the form.
         /// </summary>
         /// <param name="formType">Type of the form.</param>
-        public void ShowForm(Type formType)
+        public bool ShowForm(Type formType)
         {
-            Form form = GetFormInstance(formType);
-            form.Show();
-            form.Focus();
+            try
+            {
+                Form form = GetFormInstance(formType);
+                form.Show();
+                form.Focus();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "failed to create an instance of the following form {Name}", formType.Name);
+            }
+
+            return false;
         }
     }
 }

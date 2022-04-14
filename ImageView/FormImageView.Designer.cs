@@ -109,6 +109,8 @@
             this.Deactivate += new System.EventHandler(this.FormImageView_Deactivate);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormImageView_FormClosed);
             this.Load += new System.EventHandler(this.FormImageView_Load);
+            this.SizeChanged += new System.EventHandler(this.FormImageView_SizeChanged);
+            this.Resize += new System.EventHandler(this.FormImageView_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);

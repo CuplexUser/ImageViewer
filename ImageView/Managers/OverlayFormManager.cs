@@ -14,7 +14,7 @@ namespace ImageViewer.Managers
         private readonly ImageSourceAndLocation _imageSourceState;
         private int _showImageDelay;
         private int _hideImageDelay;
-        private static readonly object LockObject = new object();
+        private static readonly object LockObject = new();
 
         public bool IsEnabled { get; set; }
         public int ActiveRow { get; set; }
@@ -149,7 +149,7 @@ namespace ImageViewer.Managers
 
         public async Task HideFormWithDelay()
         {
-            await Task.Delay(HideImageDelay);
+            await Task.Delay(HideImageDelay).ConfigureAwait(true);
             _formOverlayImage.Hide();
         }
 

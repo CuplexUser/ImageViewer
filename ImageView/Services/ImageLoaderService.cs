@@ -272,7 +272,7 @@ namespace ImageViewer.Services
             return false;
         }
 
-        public async Task<bool> RunIMageImportAsync(Func<List<ImageRefModel>> selectFunc)
+        public async Task<bool> RunImageImportAsync(Func<List<ImageRefModel>> selectFunc)
         {
             if (!IsRunningImport)
             {

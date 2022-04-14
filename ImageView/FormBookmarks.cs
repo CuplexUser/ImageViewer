@@ -54,7 +54,7 @@ namespace ImageViewer
             InitBookmarksDataGridView();
             bookmarksTree.Nodes.Clear();
             _treeViewDataContext = new TreeViewDataContext(bookmarksTree, _bookmarkManager.RootFolder);
-            _overlayFormManager.HideImageDelay = 250;
+            _overlayFormManager.HideImageDelay = 200;
             _overlayFormManager.ShowImageDelay = 500;
 
             var settings = _applicationSettingsService.Settings;

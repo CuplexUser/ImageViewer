@@ -223,9 +223,9 @@ namespace ImageViewer
                 // the distance the mouse has been moved since mouse was pressed
                 int deltaY = mousePosNow.Y - _mouseDown.Y;
 
-                _imgx = (int) (_startX + deltaX / _zoom);
+                _imgx = (int)(_startX + deltaX / _zoom);
                 // calculate new offset of image based on the current zoom factor
-                _imgy = (int) (_startY + deltaY / _zoom);
+                _imgy = (int)(_startY + deltaY / _zoom);
 
                 pictureBox.Refresh();
             }
@@ -283,32 +283,32 @@ namespace ImageViewer
             switch (keyData)
             {
                 case Keys.Right:
-                    _imgx -= (int) (pictureBox.Width * 0.1F / _zoom);
+                    _imgx -= (int)(pictureBox.Width * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Left:
-                    _imgx += (int) (pictureBox.Width * 0.1F / _zoom);
+                    _imgx += (int)(pictureBox.Width * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Down:
-                    _imgy -= (int) (pictureBox.Height * 0.1F / _zoom);
+                    _imgy -= (int)(pictureBox.Height * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.Up:
-                    _imgy += (int) (pictureBox.Height * 0.1F / _zoom);
+                    _imgy += (int)(pictureBox.Height * 0.1F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.PageDown:
-                    _imgy -= (int) (pictureBox.Height * 0.90F / _zoom);
+                    _imgy -= (int)(pictureBox.Height * 0.90F / _zoom);
                     pictureBox.Refresh();
                     break;
 
                 case Keys.PageUp:
-                    _imgy += (int) (pictureBox.Height * 0.90F / _zoom);
+                    _imgy += (int)(pictureBox.Height * 0.90F / _zoom);
                     pictureBox.Refresh();
                     break;
 
@@ -370,11 +370,11 @@ namespace ImageViewer
             int x = mousePosNow.X - pictureBox.Location.X; // Where location of the mouse in the pictureframe
             int y = mousePosNow.Y - pictureBox.Location.Y;
 
-            int oldimagex = (int) (x / oldzoom); // Where in the IMAGE is it now
-            int oldimagey = (int) (y / oldzoom);
+            int oldimagex = (int)(x / oldzoom); // Where in the IMAGE is it now
+            int oldimagey = (int)(y / oldzoom);
 
-            int newimagex = (int) (x / _zoom); // Where in the IMAGE will it be when the new zoom i made
-            int newimagey = (int) (y / _zoom);
+            int newimagex = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
+            int newimagey = (int)(y / _zoom);
 
             _imgx = newimagex - oldimagex + _imgx; // Where to move image to keep focus on one point
             _imgy = newimagey - oldimagey + _imgy;
@@ -399,9 +399,11 @@ namespace ImageViewer
             if (fitEntireImage)
             {
                 _zoom = Math.Min(
-                    (float) pictureBox.Height / _currentImage.Height * (_currentImage.VerticalResolution / g.DpiY),
-                    (float) pictureBox.Width / _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX)
+                    (float)pictureBox.Height / _currentImage.Height * (_currentImage.VerticalResolution / g.DpiY),
+                    (float)pictureBox.Width / _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX)
                 );
+
+                float zoomedWith = _currentImage.Width / _zoom;
 
                 //_zoom = Math.Min(
                 //    (float)pictureBox.Height / _currentImage.Height,
@@ -409,23 +411,19 @@ namespace ImageViewer
                 //);
 
                 // Center image
-                int zoomedWith = Convert.ToInt32(_currentImage.Width * _zoom);
-                if (pictureBox.Width > zoomedWith) // && _zoom > 1)
-                {
-                    if (_zoom > 1)
-                    {
-                        _imgx = Convert.ToInt32((pictureBox.Width - zoomedWith) / 2d / _zoom);
-                    }
-                    else
-                    {
-                        _imgx = Convert.ToInt32((pictureBox.Width - zoomedWith) / 4d / _zoom);
-                    }
-                }
+                //pictureBox.Scale(new SizeF(_currentImage.Width, _currentImage.Height));
+
+                _imgx = Convert.ToInt32((pictureBox.Width/ _zoom) / 2f - (zoomedWith / 2f)* _zoom);
+                if (_imgx < 0)
+                    _imgx = 0;
+
             }
             else
             {
-                _zoom = pictureBox.Width / (float) _currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX);
+                _zoom = pictureBox.Width / (float)_currentImage.Width * (_currentImage.HorizontalResolution / g.DpiX);
             }
+
+            pictureBox.Refresh();
         }
 
         private void pictureBox_Paint(object sender, PaintEventArgs e)
@@ -435,7 +433,7 @@ namespace ImageViewer
             try
             {
                 Graphics g = e.Graphics;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
                 g.ScaleTransform(_zoom, _zoom);
                 g.DrawImage(_currentImage, _imgx, _imgy);
 
@@ -455,7 +453,7 @@ namespace ImageViewer
                     }
 
                     int imgWidth = Convert.ToInt32(Math.Min(Resources.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
-                    float imgScale = (float) imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
+                    float imgScale = (float)imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
                     int imgMargin = (ChangeImagePanelWidth - imgWidth) / 2;
                     int imgYpos = ClientSize.Height / 2 - imgWidth / 2;
 
@@ -632,6 +630,21 @@ namespace ImageViewer
             {
                 StateChanged = false;
             }
+        }
+
+        private void FormImageView_Resize(object sender, EventArgs e)
+        {
+            if (_currentImage != null)
+            {
+                _imgx = 0;
+                _imgy = 0;
+                ResetZoom(true);
+            }
+        }
+
+        private void FormImageView_SizeChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
