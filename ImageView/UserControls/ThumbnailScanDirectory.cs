@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using ImageViewer.Models;
+﻿using ImageViewer.Models;
 using ImageViewer.Services;
 
 namespace ImageViewer.UserControls

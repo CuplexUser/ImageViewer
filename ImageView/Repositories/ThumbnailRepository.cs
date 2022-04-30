@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security;
-using System.Security.Cryptography;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Castle.Components.DictionaryAdapter;
 using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Converters;
@@ -19,6 +9,9 @@ using ImageViewer.Managers;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
+using System.Collections.Concurrent;
+using System.Security;
+using System.Security.Cryptography;
 
 namespace ImageViewer.Repositories
 {
@@ -457,9 +450,9 @@ namespace ImageViewer.Repositories
 
             //Check for duplicates
             var query = (from t in _thumbnailDatabase.ThumbnailEntries
-                group t by new {EntryFilePath = t.Directory + t.FileName}
+                         group t by new { EntryFilePath = t.Directory + t.FileName }
                 into g
-                select new {FilePath = g.Key, Count = g.Count()}).ToList();
+                         select new { FilePath = g.Key, Count = g.Count() }).ToList();
 
             var duplicateKeys = query.Where(x => x.Count > 1).Select(x => x.FilePath.EntryFilePath).ToList();
 

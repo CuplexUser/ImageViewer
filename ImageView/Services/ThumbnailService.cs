@@ -1,17 +1,12 @@
 ﻿using GeneralToolkitLib.Configuration;
+using ImageViewer.Events;
 using ImageViewer.Managers;
 using ImageViewer.Models;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using ImageViewer.Events;
 using ImageViewer.Repositories;
 using JetBrains.Annotations;
+using Serilog;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace ImageViewer.Services
 {
@@ -126,7 +121,7 @@ namespace ImageViewer.Services
 
             bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
-            progress?.Report(new ThumbnailScanProgress {TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true});
+            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
             return saveResult;
         }
 
@@ -135,7 +130,7 @@ namespace ImageViewer.Services
             var scannedFiles = 0;
             return await Task.Factory.StartNew(() =>
                 {
-                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress {IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount});
+                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
 
                     return scannedFiles;
                 }

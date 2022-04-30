@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using ImageViewer.DataContracts.Import;
 
 namespace ImageViewer.Models.Import
@@ -65,7 +63,6 @@ namespace ImageViewer.Models.Import
         /// The image list.
         /// </value>
         public List<ImageRefModel> ImageList { get; set; }
-
 
 
         /// <summary>

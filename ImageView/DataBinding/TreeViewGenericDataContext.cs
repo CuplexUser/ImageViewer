@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-
-namespace ImageViewer.DataBinding
+﻿namespace ImageViewer.DataBinding
 {
-    public class TreeViewGenericDataContext<T> where T : class , IExpandableNode
+    public class TreeViewGenericDataContext<T> where T : class, IExpandableNode
     {
         private readonly TreeView _treeView;
         private readonly T _rootFolder;
@@ -21,27 +17,27 @@ namespace ImageViewer.DataBinding
             treeView.ControlAdded += TreeView_ControlAdded;
         }
 
-        private void TreeView_ControlAdded(object? sender, ControlEventArgs e)
+        private void TreeView_ControlAdded(object sender, ControlEventArgs e)
         {
 
         }
 
-        private void TreeView_AfterExpand(object? sender, TreeViewEventArgs e)
-        {
-            e.Node?.Expand();
-        }
-
-        private void TreeView_AfterCollapse(object? sender, TreeViewEventArgs e)
-        {
-
-        }
-
-        private void TreeView_AfterSelect(object? sender, TreeViewEventArgs e)
+        private void TreeView_AfterExpand(object sender, TreeViewEventArgs e)
         {
             e.Node?.Expand();
         }
 
-        private void TreeView_AfterCheck(object? sender, TreeViewEventArgs e)
+        private void TreeView_AfterCollapse(object sender, TreeViewEventArgs e)
+        {
+
+        }
+
+        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            e.Node?.Expand();
+        }
+
+        private void TreeView_AfterCheck(object sender, TreeViewEventArgs e)
         {
             e.Node?.Expand();
         }
@@ -85,7 +81,7 @@ namespace ImageViewer.DataBinding
 
             foreach (var folderNode in rootFolder.GetChildNodes().OrderBy(x => x.SortOrder))
             {
-                var folder = (T) folderNode;
+                var folder = (T)folderNode;
                 var treeView = new TreeNode(folder.Name) { Tag = folder };
                 treeNodeList.Add(treeView);
 

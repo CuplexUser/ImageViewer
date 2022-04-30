@@ -1,5 +1,4 @@
-﻿using System;
-using GeneralToolkitLib.Storage;
+﻿using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
 using Serilog;

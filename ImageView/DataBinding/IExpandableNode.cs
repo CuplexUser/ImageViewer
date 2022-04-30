@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace ImageViewer.DataBinding
+﻿namespace ImageViewer.DataBinding
 {
     public interface IExpandableNode
     {
-        string Id { get;  }
+        string Id { get; }
         string Name { get; }
         int SortOrder { get; set; }
 

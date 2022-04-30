@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using ImageViewer.DataContracts;
+﻿using ImageViewer.DataContracts;
 
 namespace ImageViewer.DataBinding
 {
@@ -75,7 +72,7 @@ namespace ImageViewer.DataBinding
         public void BindData()
         {
             _treeView.Nodes.Clear();
-            var rootTreeNode = new TreeNode("Bookmarks") {Tag = _rootFolder};
+            var rootTreeNode = new TreeNode("Bookmarks") { Tag = _rootFolder };
             rootTreeNode.Nodes.AddRange(RecursiveAddTreeNodes(_rootFolder).ToArray());
             _treeView.Nodes.Add(rootTreeNode);
         }
@@ -86,7 +83,7 @@ namespace ImageViewer.DataBinding
 
             foreach (BookmarkFolder folder in rootFolder.BookmarkFolders.OrderBy(x => x.SortOrder))
             {
-                var treeView = new TreeNode(folder.Name) {Tag = folder};
+                var treeView = new TreeNode(folder.Name) { Tag = folder };
                 treeNodeList.Add(treeView);
 
                 if (folder.BookmarkFolders != null && folder.BookmarkFolders.Count > 0)

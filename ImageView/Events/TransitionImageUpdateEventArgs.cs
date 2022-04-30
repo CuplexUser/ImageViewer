@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace ImageViewer.Events
 {

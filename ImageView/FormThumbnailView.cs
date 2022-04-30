@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using ImageProcessor;
 using ImageViewer.DataContracts;
 using ImageViewer.Delegates;
@@ -19,6 +9,8 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 
 namespace ImageViewer
 {
@@ -139,7 +131,7 @@ namespace ImageViewer
 
         private IEnumerable<Control> GetControlTree(Control root)
         {
-            var controls = new List<Control> {root};
+            var controls = new List<Control> { root };
 
             if (!root.HasChildren) return controls;
             for (int i = 0; i < root.Controls.Count; i++)

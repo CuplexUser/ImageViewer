@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace ImageViewer.UserControls
+﻿namespace ImageViewer.UserControls
 {
     public partial class RenameBookmarkFolder : UserControl
     {

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ImageViewer.Models;
+using JetBrains.Annotations;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using ImageViewer.Models;
-using JetBrains.Annotations;
 using Log = Serilog.Log;
 
 namespace ImageViewer.Services

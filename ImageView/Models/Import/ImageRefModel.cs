@@ -1,7 +1,5 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using ImageViewer.DataContracts;
-using ImageViewer.DataContracts.Import;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using ImageViewer.Models.UserInteraction;
+﻿using ImageViewer.Models.UserInteraction;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -89,7 +85,7 @@ namespace ImageViewer.Services
         private async Task<bool> TestJob()
         {
             await Task.Delay(5000);
-            _interactionService.InformUser(new UserInteractionInformation {Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test"});
+            _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test" });
             return true;
         }
     }

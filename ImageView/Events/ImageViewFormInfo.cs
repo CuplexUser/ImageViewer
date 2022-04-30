@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace ImageViewer.Events
+﻿namespace ImageViewer.Events
 {
     public class ImageViewFormInfo : ImageViewFormInfoBase
     {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using ImageViewer.Events;
+﻿using ImageViewer.Events;
 using ImageViewer.Interfaces;
 using ImageViewer.Services;
 
@@ -98,8 +93,8 @@ namespace ImageViewer
         {
             foreach (object form in listBoxActiveWindows.SelectedItems)
             {
-                ((ImageWindowListItem) form).WindowRef.Show();
-                ((ImageWindowListItem) form).WindowRef.Focus();
+                ((ImageWindowListItem)form).WindowRef.Show();
+                ((ImageWindowListItem)form).WindowRef.Focus();
             }
         }
 

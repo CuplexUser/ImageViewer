@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace ImageViewer.UserControls
+﻿namespace ImageViewer.UserControls
 {
     public class ListItemDivider
     {
@@ -55,7 +52,7 @@ namespace ImageViewer.UserControls
             {
                 Color back = e.State == DrawItemState.Focus ? e.ForeColor : e.BackColor;
 
-                var backgrounRectangle = new Rectangle(0, e.Bounds.Top + DividerMargin * 2 + (int) DividerPen.Width,
+                var backgrounRectangle = new Rectangle(0, e.Bounds.Top + DividerMargin * 2 + (int)DividerPen.Width,
                     e.Bounds.Width, e.Bounds.Height - DividerMargin * 2);
                 e.Graphics.FillRectangle(new SolidBrush(back), backgrounRectangle);
 
@@ -63,9 +60,9 @@ namespace ImageViewer.UserControls
                     new Point(e.Bounds.Right, e.Bounds.Top + DividerMargin));
 
 
-                float fontTopPosition = (float) e.Bounds.Top + DividerMargin * 2 + e.Bounds.Height / 2f -
+                float fontTopPosition = (float)e.Bounds.Top + DividerMargin * 2 + e.Bounds.Height / 2f -
                                         userControl.Font.GetHeight() / 2f;
-                var textRectangle = new Rectangle(0, (int) fontTopPosition, e.Bounds.Width, e.Bounds.Height);
+                var textRectangle = new Rectangle(0, (int)fontTopPosition, e.Bounds.Width, e.Bounds.Height);
                 TextRenderer.DrawText(e.Graphics, Text, userControl.Font, textRectangle, userControl.ForeColor,
                     TextFormatFlags.Left);
             }

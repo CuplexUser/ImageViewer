@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Cryptography;
-using System.Security.Principal;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models.Import;
 using JetBrains.Annotations;
 using Serilog;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
+using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 namespace ImageViewer.Services
 {

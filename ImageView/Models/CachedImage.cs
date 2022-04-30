@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-
-namespace ImageViewer.Models
+﻿namespace ImageViewer.Models
 {
     /// <summary>
     /// CachedImage

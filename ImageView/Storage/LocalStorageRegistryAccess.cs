@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using GeneralToolkitLib.Configuration;
+﻿using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using GeneralToolkitLib.Storage.Registry;
@@ -130,7 +127,7 @@ namespace ImageViewer.Storage
         {
             try
             {
-                return (T) Convert.ChangeType(objToConvert, typeof(T));
+                return (T)Convert.ChangeType(objToConvert, typeof(T));
             }
             catch (Exception ex)
             {

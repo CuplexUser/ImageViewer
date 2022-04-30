@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using GeneralToolkitLib.WindowsApi;
+﻿using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
@@ -14,6 +9,7 @@ using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 using Serilog;
+using System.Drawing.Drawing2D;
 
 namespace ImageViewer
 {
@@ -413,7 +409,7 @@ namespace ImageViewer
                 // Center image
                 //pictureBox.Scale(new SizeF(_currentImage.Width, _currentImage.Height));
 
-                _imgx = Convert.ToInt32((pictureBox.Width/ _zoom) / 2f - (zoomedWith / 2f)* _zoom);
+                _imgx = Convert.ToInt32((pictureBox.Width / _zoom) / 2f - (zoomedWith / 2f) * _zoom);
                 if (_imgx < 0)
                     _imgx = 0;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ImageViewer.Models.Import
+﻿namespace ImageViewer.Models.Import
 {
     /// <summary>
     /// SourceCollectionBase

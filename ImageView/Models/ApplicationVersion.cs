@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ImageViewer.Models
+﻿namespace ImageViewer.Models
 {
     /// <summary>
     /// 
@@ -77,7 +75,7 @@ namespace ImageViewer.Models
 
         public static ApplicationVersion Parse(string version, string downloadUrl)
         {
-            var appVersion = new ApplicationVersion(version) {DownloadUrl = downloadUrl};
+            var appVersion = new ApplicationVersion(version) { DownloadUrl = downloadUrl };
             return appVersion;
         }
 
@@ -113,7 +111,7 @@ namespace ImageViewer.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((ApplicationVersion) obj);
+            return Equals((ApplicationVersion)obj);
         }
 
         public override int GetHashCode()

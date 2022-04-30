@@ -1,5 +1,4 @@
-﻿using System;
-using ImageViewer.Utility;
+﻿using ImageViewer.Utility;
 
 namespace ImageViewer.Models
 {

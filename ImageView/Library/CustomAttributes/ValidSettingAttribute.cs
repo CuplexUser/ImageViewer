@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ImageViewer.Library.CustomAttributes
+﻿namespace ImageViewer.Library.CustomAttributes
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     internal sealed class ValidRangeAttribute : Attribute

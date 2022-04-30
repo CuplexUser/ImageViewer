@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -23,6 +14,10 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
+using System.ComponentModel;
+using System.Diagnostics;
+
+// ReSharper disable All
 
 namespace ImageViewer
 {
@@ -1045,7 +1040,7 @@ namespace ImageViewer
 
         private void openBookmarksToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            var bookmarksForm=_formManager.GetFormInstance(typeof(FormBookmarks));
+            var bookmarksForm = _formManager.GetFormInstance(typeof(FormBookmarks));
             if (bookmarksForm.WindowState == FormWindowState.Minimized)
             {
                 bookmarksForm.WindowState = FormWindowState.Normal;

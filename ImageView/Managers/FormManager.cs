@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
-using Microsoft.VisualBasic.Logging;
-using Serilog.Core;
+﻿using Autofac;
 using Log = Serilog.Log;
 
 namespace ImageViewer.Managers
@@ -68,7 +60,7 @@ namespace ImageViewer.Managers
             }
 
             var formInstance = _scope.Resolve(formType);
-            ((Form) formInstance).Closed += FormManager_Closed;
+            ((Form)formInstance).Closed += FormManager_Closed;
             FormInstances.Add(formName, formInstance);
 
             return formInstance as Form;
@@ -81,7 +73,7 @@ namespace ImageViewer.Managers
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void FormManager_Closed(object sender, EventArgs e)
         {
-            Form frm = (Form) sender;
+            Form frm = (Form)sender;
             if (frm != null && FormInstances.ContainsKey(frm.Name))
                 FormInstances.Remove(frm.Name);
         }

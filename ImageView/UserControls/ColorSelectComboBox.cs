@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms;
+﻿using System.Drawing.Drawing2D;
 
 namespace ImageViewer.UserControls
 {
@@ -41,7 +39,7 @@ namespace ImageViewer.UserControls
                 return;
             }
 
-            var item = (Color) Items[e.Index];
+            var item = (Color)Items[e.Index];
             Pen p = new Pen(Color.Black);
 
             // Draw color rectangle border

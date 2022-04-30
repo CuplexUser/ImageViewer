@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts
 {
@@ -62,7 +60,7 @@ namespace ImageViewer.DataContracts
         /// <returns></returns>
         public static PointDataModel CreateFromPoint(Point point)
         {
-            return new PointDataModel {X = point.X, Y = point.Y};
+            return new PointDataModel { X = point.X, Y = point.Y };
         }
     }
 }

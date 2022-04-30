@@ -20,7 +20,7 @@ namespace ImageView.UnitTests
                 dataGridView1.Dock = DockStyle.Fill;
                 this.Controls.Add(dataGridView1);
                 this.Load += new EventHandler(DataGridViewRowPainting_Load);
-                this.Text = "DataGridView row painting demo";
+                //this.Text = "DataGridView row painting demo";
             }
 
             private void DataGridViewRowPainting_Load(object sender, EventArgs e)
@@ -65,7 +65,7 @@ namespace ImageView.UnitTests
                 string[] row5 = new string[] { "Chocolate Cheesecake", "Dessert", "cream cheese, unsweetened chocolate", "***" };
                 string[] row6 = new string[] { "Black Bean Dip", "Appetizer", "black beans, sour cream, salsa, chips", "***" };
                 object[] rows = new object[] { row1, row2, row3, row4, row5, row6 };
-                foreach (string[] rowArray in rows)
+                foreach (object[] rowArray in rows)
                 {
                     dataGridView1.Rows.Add(rowArray);
                 }
@@ -182,7 +182,7 @@ namespace ImageView.UnitTests
                 }
                 finally
                 {
-                    forebrush.Dispose();
+                    forebrush?.Dispose();
                 }
 
                 if (dataGridView1.CurrentCellAddress.Y == e.RowIndex)

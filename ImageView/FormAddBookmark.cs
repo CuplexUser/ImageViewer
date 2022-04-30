@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using ImageViewer.DataContracts;
+﻿using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
@@ -66,9 +62,9 @@ namespace ImageViewer
 
         private void InitFolderDropdownList()
         {
-            var bokmarkFoldersToBind = new List<BookmarkFolder> {_bookmarkManager.RootFolder};
+            var bokmarkFoldersToBind = new List<BookmarkFolder> { _bookmarkManager.RootFolder };
             bokmarkFoldersToBind.AddRange(_bookmarkManager.RootFolder.BookmarkFolders);
-            bokmarkFoldersToBind.Add(new BookmarkFolder {Name = "Chose another folder...", Id = "n/a", SortOrder = bokmarkFoldersToBind.Count});
+            bokmarkFoldersToBind.Add(new BookmarkFolder { Name = "Chose another folder...", Id = "n/a", SortOrder = bokmarkFoldersToBind.Count });
             bookmarkFolderBindingSource.DataSource = bokmarkFoldersToBind;
 
             if (comboBoxBookmarkFolders.Items.Count > 0)
@@ -134,7 +130,7 @@ namespace ImageViewer
 
         private void CreateTreeFolder()
         {
-            var createFolderUserControl = new CreateBookmarkFolder(_bookmarkService, _bookmarkManager, _imageReference) {DefaultBookmarkName = _imageReference.FileName};
+            var createFolderUserControl = new CreateBookmarkFolder(_bookmarkService, _bookmarkManager, _imageReference) { DefaultBookmarkName = _imageReference.FileName };
             var addFolderForm = FormFactory.CreateModalForm(createFolderUserControl);
 
             addFolderForm.ShowDialog(this);

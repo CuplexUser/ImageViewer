@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using GeneralToolkitLib.Storage.Memory;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
-using GeneralToolkitLib.Storage.Memory;
 
 namespace ImageViewer.Providers
 {
@@ -16,7 +12,8 @@ namespace ImageViewer.Providers
         private const int MaxBufferSize = 33554432; //32 Mb
         private const int MetadataLength = 112;
 
-        [SecurityCritical] private static readonly byte[] SaltBytes =
+        [SecurityCritical]
+        private static readonly byte[] SaltBytes =
         {
             0x0C, 0xF2, 0xC4, 0x59, 0x9E, 0x8A, 0x0D, 0x92, 0x17, 0x9A, 0xC4, 0x3D, 0xC8, 0xB1, 0x90, 0xF1,
             0x01, 0xB0, 0xDD, 0x4F, 0xB5, 0x4D, 0xED, 0xDC, 0xA7, 0x4D, 0x14, 0x77, 0x23, 0x20, 0x0C, 0x2C,
@@ -96,7 +93,7 @@ namespace ImageViewer.Providers
                     ProtectedMemory.Protect(encryptedKey, MemoryProtectionScope.SameProcess);
 
                 // Create the streams used for encryption.
-                int bufferSize = (int) Math.Min(MaxBufferSize, ms.Length);
+                int bufferSize = (int)Math.Min(MaxBufferSize, ms.Length);
                 var buffer = new byte[bufferSize];
                 ms.Position = 0;
 

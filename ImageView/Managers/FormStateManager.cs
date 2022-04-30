@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using ImageViewer.Models;
+﻿using ImageViewer.Models;
 using Serilog;
+using System.Collections.Concurrent;
 using Color = System.Drawing.Color;
 
 namespace ImageViewer.Managers
@@ -59,7 +53,7 @@ namespace ImageViewer.Managers
             return false;
         }
 
-        public static Dictionary<string,string> GetAdditionalParameters(ApplicationSettingsModel settings, Form form)
+        public static Dictionary<string, string> GetAdditionalParameters(ApplicationSettingsModel settings, Form form)
         {
             if (settings.FormStateModels.ContainsKey(form.Name))
             {

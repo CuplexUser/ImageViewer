@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using ImageViewer.Events;
+﻿using ImageViewer.Events;
 
 namespace ImageViewer
 {

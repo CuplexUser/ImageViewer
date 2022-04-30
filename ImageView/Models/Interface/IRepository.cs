@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace ImageViewer.Models.Interface
+﻿namespace ImageViewer.Models.Interface
 {
     public interface IRepository
     {

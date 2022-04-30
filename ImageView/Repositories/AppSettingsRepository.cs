@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using AutoMapper;
+﻿using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Providers;
 using Serilog;
+using System.Collections.Concurrent;
 
 namespace ImageViewer.Repositories
 {
@@ -38,7 +34,7 @@ namespace ImageViewer.Repositories
                 NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None,
                 ImageTransitionTime = 1000,
                 SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
+                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
                 ShowNextPrevControlsOnEnterWindow = false,
@@ -61,7 +57,7 @@ namespace ImageViewer.Repositories
 
         public ApplicationSettingsModel LoadSettings()
         {
-            if (_settingsModel is {IsLoadedFromDisk: true})
+            if (_settingsModel is { IsLoadedFromDisk: true })
             {
                 return _settingsModel;
             }
@@ -74,7 +70,7 @@ namespace ImageViewer.Repositories
                 if (_settingsModel == null)
                 {
                     var dataModel = ApplicationSettingsDataModel.CreateDefaultSettings();
-                    _settingsModel= _mapper.Map<ApplicationSettingsModel>(dataModel);
+                    _settingsModel = _mapper.Map<ApplicationSettingsModel>(dataModel);
                     Log.Warning("Failed to Deserialize Settings file");
                 }
 

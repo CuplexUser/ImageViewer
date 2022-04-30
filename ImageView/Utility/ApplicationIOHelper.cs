@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using ImageViewer.Models.Import;
+﻿using ImageViewer.Models.Import;
 using JetBrains.Annotations;
 using Serilog;
+using System.Diagnostics;
 
 namespace ImageViewer.Utility
 {
@@ -72,7 +68,7 @@ namespace ImageViewer.Utility
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "OpenImageInDefaultAplication: {Message}",ex.Message);
+                Log.Error(ex, "OpenImageInDefaultAplication: {Message}", ex.Message);
                 return false;
             }
         }

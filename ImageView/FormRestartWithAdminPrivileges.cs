@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using GeneralToolkitLib.WindowsApi;
+﻿using GeneralToolkitLib.WindowsApi;
 using GeneralToolkitLib.WindowsApi.UserAccountControl;
 
 namespace ImageViewer
