@@ -1,7 +1,6 @@
 ﻿using System;
 using AutoMapper;
 using ImageViewer.DataContracts;
-using ImageViewer.DataContracts.Import;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import
@@ -93,6 +92,17 @@ namespace ImageViewer.Models.Import
                 .ReverseMap()
                 .ForMember(s => s.ImageType, o => o.MapFrom(d => SystemIOHelper.GetFileExtention(d.FileName)))
                 .ForMember(s => s.SortOrder, o => o.MapFrom((reference, model, arg3) => arg3));
+
+            expression.CreateMap<ImageRefModel, ImageReferenceDataModel>()
+                .ForMember(s => s.Size, o => o.MapFrom(d => d.FileSize))
+                .ForMember(s => s.FileName, o => o.MapFrom(d => d.FileName))
+                .ForMember(s => s.CompletePath, o => o.MapFrom(d => d.CompletePath))
+                .ForMember(s => s.CreationTime, o => o.MapFrom(d => d.CreationTime))
+                .ForMember(s => s.Directory, o => o.MapFrom(d => d.Directory))
+                .ForMember(s => s.LastAccessTime, o => o.Ignore())
+                .ForMember(s => s.LastWriteTime, o => o.MapFrom(d => d.LastModified))
+                .ReverseMap()
+                .ForMember(s => s.LastModified, o => o.MapFrom(d => d.LastWriteTime));
         }
     }
 }

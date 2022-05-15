@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,8 +9,10 @@ using System.Windows.Forms;
 using AutoMapper;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
+using ImageViewer.Models;
 using ImageViewer.Models.Import;
 using ImageViewer.Models.UserInteraction;
+using ImageViewer.Repositories;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 using Serilog;
@@ -23,34 +24,32 @@ namespace ImageViewer
     public partial class FormAddImageSource : Form
     {
         private readonly ApplicationSettingsService _applicationSettingsService;
-
-        private readonly ImageLoaderService _imageLoaderService;
-
-        private readonly UserInteractionService _interactionService;
-
-        private readonly IMapper _mapper;
-
-        private readonly NodeModelComparer _nodeModelComparer;
-
-        private readonly List<ListViewSourceModel> _importList;
-
         private readonly Dictionary<string, string> _controlStateDictionary;
+        private readonly ImageLoaderService _imageLoaderService;
+        private readonly List<OutputDirectoryModel> _outputDirList;
+        private readonly UserInteractionService _interactionService;
+        private readonly ImageCollectionRepository _imageCollectionRepository;
+        private readonly IMapper _mapper;
+        private readonly NodeModelComparer _nodeModelComparer;
+        private ImageCollectionFile _imageCollectionFile;
 
         //private const string ValidFileTypes = "*.jpg;*.jpeg;*.png;*.bmp";
-        private readonly string[] ValidFileTypes = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+        private readonly string[] ValidFileTypes = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
 
-        public FormAddImageSource(ApplicationSettingsService applicationSettingsService, IMapper mapper, ImageLoaderService imageLoaderService, UserInteractionService interactionService)
+        public FormAddImageSource(ApplicationSettingsService applicationSettingsService, IMapper mapper, ImageLoaderService imageLoaderService, UserInteractionService interactionService, ImageCollectionRepository imageCollectionRepository)
         {
             _applicationSettingsService = applicationSettingsService;
             _mapper = mapper;
             _imageLoaderService = imageLoaderService;
             _interactionService = interactionService;
+            _imageCollectionRepository = imageCollectionRepository;
 
             RootNodeChanged += FormAddImageSource_RootNodeChanged;
             InitializeComponent();
             _nodeModelComparer = new NodeModelComparer();
-            _importList = new List<ListViewSourceModel>();
+            _outputDirList = new List<OutputDirectoryModel>();
             _controlStateDictionary = new Dictionary<string, string>();
+            _imageCollectionFile = ImageCollectionFile.CreateNew();
         }
 
         private bool Initialized { get; set; }
@@ -67,20 +66,16 @@ namespace ImageViewer
 
             //Recent Files
             recentCollectionsMenuItem.DropDownItems.Clear();
-
             treeViewFileSystem.Nodes.Clear();
+            lblImageCount.Text = "Images:";
+            lblWorkingFileName.Text = "";
 
             // Restore previous form state
-            var settings = _applicationSettingsService.Settings;
+            ApplicationSettingsModel settings = _applicationSettingsService.Settings;
             FormStateManager.RestoreFormState(settings, this);
 
-            // Clear ListView
-            listViewSource.Columns.Clear();
-            listViewSource.Groups.Clear();
-            listViewSource.Items.Clear();
-
-            listViewSource.DataBindings.Add(new Binding("Name", _importList, "ImageList"));
-            listViewSource.DataBindings.DefaultDataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+            // Clear demo objects
+            treeViewImgCollection.Nodes.Clear();
 
             EnumerateDrives();
             treeViewFileSystem.AfterSelect += TreeViewFileSystem_AfterSelect;
@@ -101,14 +96,13 @@ namespace ImageViewer
                 }
             }
 
-            DriveModel selectedDrive = cbDrives.SelectedItem as DriveModel;
+            var selectedDrive = cbDrives.SelectedItem as DriveModel;
             RootNode = RootObjectModel.CreateRootObject(selectedDrive);
             RootNodeChanged?.Invoke(this, EventArgs.Empty);
             Initialized = true;
         }
 
         #endregion
-
 
         private void RecursiveNodeExpansion(ref TreeNode node, ref SourceFolderModel sourceFolder, int maxLevel)
         {
@@ -117,9 +111,9 @@ namespace ImageViewer
                 return;
             }
 
-            foreach (var folder in sourceFolder.Folders)
+            foreach (SourceFolderModel folder in sourceFolder.Folders)
             {
-                var tn = CreateTreeNode(folder);
+                TreeNode tn = CreateTreeNode(folder);
                 node.Nodes.Add(tn);
 
                 if (folder.Folders.Count > 0)
@@ -129,7 +123,6 @@ namespace ImageViewer
                 }
             }
         }
-
 
         private TreeNode CreateTreeNode(SourceFolderModel folder)
         {
@@ -158,10 +151,10 @@ namespace ImageViewer
         private void UpdateTreeViewWithNewRoot()
         {
             treeViewFileSystem.Nodes.Clear();
-            var treeView = treeViewFileSystem;
+            TreeView treeView = treeViewFileSystem;
 
 
-            var treeNode = CreateTopNode(RootNode);
+            TreeNode treeNode = CreateTopNode(RootNode);
             treeView.Nodes.Add(treeNode);
             treeView.TopNode = treeNode;
             treeView.TopNode.Expand();
@@ -169,20 +162,19 @@ namespace ImageViewer
             treeViewFileSystem.Sort();
         }
 
-
         private TreeNode CreateTopNode(RootObjectModel rootObject)
         {
-            TreeNode[] childNodes = new TreeNode[rootObject.Folders.Count];
-            int index = 0;
+            var childNodes = new TreeNode[rootObject.Folders.Count];
+            var index = 0;
 
-            foreach (var childNode in rootObject.Folders)
+            foreach (SourceFolderModel childNode in rootObject.Folders)
             {
                 childNodes[index] = CreateTreeNode(childNode);
                 childNodes[index].Tag = childNode;
 
                 if (childNode.Folders.Count > 0)
                 {
-                    foreach (var grandChildNode in childNode.Folders)
+                    foreach (SourceFolderModel grandChildNode in childNode.Folders)
                     {
                         TreeNode gcNode = CreateTreeNode(grandChildNode);
                         childNodes[index].Nodes.Add(gcNode);
@@ -203,12 +195,11 @@ namespace ImageViewer
             return topNode;
         }
 
-
         private void EnumerateDrives()
         {
             var driveModelList = new List<DriveModel>();
             var drives = DriveInfo.GetDrives();
-            foreach (var drive in drives)
+            foreach (DriveInfo drive in drives)
             {
                 if (!drive.IsReady)
                     continue;
@@ -225,7 +216,7 @@ namespace ImageViewer
             }
 
             cbDrives.Items.Clear();
-            foreach (var driveModel in driveModelList)
+            foreach (DriveModel driveModel in driveModelList)
             {
                 cbDrives.Items.Add(driveModel);
             }
@@ -234,10 +225,9 @@ namespace ImageViewer
                 cbDrives.SelectedIndex = 0;
         }
 
-
         private void UpdateFileSystemTreeRoot()
         {
-            DriveModel driveModel = cbDrives.SelectedItem as DriveModel;
+            var driveModel = cbDrives.SelectedItem as DriveModel;
             if (driveModel == null)
                 return;
 
@@ -250,12 +240,11 @@ namespace ImageViewer
                 _controlStateDictionary.Add("cbDrives.SelectedIndex", cbDrives.SelectedIndex.ToString());
             }
 
-            RootObjectModel rootObject = RootObjectModel.CreateRootObject(driveModel);
+            var rootObject = RootObjectModel.CreateRootObject(driveModel);
             treeViewFileSystem.Nodes.Clear();
             RootNode = RootObjectModel.CreateRootObject(driveModel);
             RootNodeChanged?.Invoke(this, EventArgs.Empty);
         }
-
 
         private void cbDrives_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -263,14 +252,434 @@ namespace ImageViewer
                 UpdateFileSystemTreeRoot();
         }
 
-
         private void FormAddImageSource_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var appSettings = _applicationSettingsService.Settings;
+            ApplicationSettingsModel appSettings = _applicationSettingsService.Settings;
             FormStateManager.SaveFormState(appSettings, this);
-            FormStateManager.UpdateAdditionallParameters(appSettings,this, _controlStateDictionary);
+            FormStateManager.UpdateAdditionallParameters(appSettings, this, _controlStateDictionary);
             _applicationSettingsService.SaveSettings();
             e.Cancel = false;
+        }
+        private void UpdateSelectionStats()
+        {
+            try
+            {
+                var imageRefModels = GetAllImageRefModelsRecursive(_outputDirList);
+
+                lblImages.Text = imageRefModels.Count.ToString();
+                lblRootFolders.Text = _outputDirList.Count.ToString();
+                lblFolders.Text = GetUniqueFolderCount(_outputDirList).ToString();
+                long fileSize = imageRefModels.Sum(x => x.FileSize);
+
+                if (fileSize > 0)
+                {
+                    lblCombinedSize.Text = SystemIOHelper.FormatFileSizeToString(fileSize);
+                }
+
+                lblDriveCount.Text = _outputDirList.Select(x => x.FullName).ToString()?[..3].Distinct().Count().ToString();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "UpdateSelectionStats");
+            }
+
+            btnLoad.Enabled = _outputDirList.Count > 0;
+        }
+
+        private List<ImageRefModel> GetAllImageRefModelsRecursive(List<OutputDirectoryModel> outputDirList)
+        {
+            List<ImageRefModel> imageRefModels = new List<ImageRefModel>();
+            foreach (var model in outputDirList)
+            {
+                imageRefModels.AddRange(model.ImageList);
+                if (model.SubFolders.Count > 0)
+                    imageRefModels.AddRange(GetAllImageRefModelsRecursive(model.SubFolders));
+            }
+
+            return imageRefModels;
+        }
+
+        private int GetUniqueFolderCount(ICollection<OutputDirectoryModel> importList)
+        {
+            return importList.Count + importList.Sum(model => GetUniqueFolderCount(model.SubFolders));
+        }
+
+        private void treeViewFileSystem_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            var node = e.Item as TreeNode;
+            if (e.Button == MouseButtons.Left)
+            {
+                if (node?.Tag is SourceFolderModel item)
+                {
+                    var dataModel = _mapper.Map<SourceFolderDataModel>(item);
+                    treeViewFileSystem.DoDragDrop(dataModel, DragDropEffects.Copy | DragDropEffects.Move);
+                }
+            }
+        }
+
+        private void AddOutputDirectoryToTreeView(OutputDirectoryModel sourceFolder, bool recursive = true)
+        {
+            if (_outputDirList.All(x => x.Id != sourceFolder.Id))
+            {
+                ApplicationIOHelper.EnumerateFiles(ref sourceFolder, ValidFileTypes, recursive);
+                _outputDirList.Add(sourceFolder);
+                if (recursive)
+                {
+                    treeViewImgCollection.Nodes.Add(CreateTreeNodeRecursive(sourceFolder));
+                }
+                else
+                {
+                    var node = new TreeNode
+                    {
+                        Name = sourceFolder.FullName,
+                        Text = sourceFolder.Name,
+                        Tag = sourceFolder
+                    };
+                    treeViewImgCollection.Nodes.Add(node);
+                }
+                UpdateSelectionStats();
+            }
+        }
+
+        TreeNode CreateTreeNodeRecursive(OutputDirectoryModel outputDir)
+        {
+            var node = new TreeNode(outputDir.Name)
+            {
+                Name = outputDir.FullName,
+                Text = outputDir.Name,
+                Tag = outputDir
+            };
+
+            if (outputDir.SubFolders != null)
+            {
+                foreach (var folder in outputDir.SubFolders)
+                {
+                    node.Nodes.Add(CreateTreeNodeRecursive(folder));
+                }
+            }
+
+            return node;
+        }
+
+        private IEnumerable<ImageRefModel> GetImageRefModels(OutputDirectoryModel rootModel)
+        {
+            var result = rootModel.ImageList;
+            foreach (OutputDirectoryModel folder in rootModel.SubFolders)
+            {
+                result.AddRange(folder.ImageList);
+                result.AddRange(GetImageRefModels(folder));
+            }
+
+            return result;
+        }
+
+        private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewImgCollection.Nodes.Clear();
+            _outputDirList.Clear();
+            lstBoxOutputFiles.Items.Clear();
+            UpdateSelectionStats();
+        }
+
+        private void toolStripMenuItemRemoveItem_Click(object sender, EventArgs e)
+        {
+            RemoveSelectedOutputDir();
+        }
+
+        private SourceFolderModel GetChildNode(string path, SourceCollectionBase rootNode)
+        {
+            foreach (SourceFolderModel folder in rootNode.Folders)
+            {
+                if (folder.FullPath == path)
+                {
+                    return folder;
+                }
+
+                SourceFolderModel subFolder = GetChildNodeRecursive(path, folder);
+                if (subFolder != null)
+                {
+                    return subFolder;
+                }
+            }
+
+            return null;
+        }
+
+        private SourceFolderModel GetChildNodeRecursive(string path, SourceCollectionBase rootNode)
+        {
+            foreach (SourceFolderModel folder in rootNode.Folders)
+            {
+                if (folder.FullPath == path)
+                {
+                    return folder;
+                }
+
+                SourceFolderModel subFolder = GetChildNodeRecursive(path, folder);
+
+                if (subFolder != null)
+                {
+                    return subFolder;
+                }
+            }
+
+            return null;
+        }
+        private void RemoveSelectedOutputDir()
+        {
+            var node = treeViewImgCollection.SelectedNode;
+            if (node != null)
+            {
+                OutputDirectoryModel model = (OutputDirectoryModel)node.Tag;
+                var nextNode = node.NextNode;
+                treeViewImgCollection.Nodes.Remove(node);
+
+                if (model.ParentDirectory == null)
+                {
+                    _outputDirList.Clear();
+                }
+                else
+                {
+                    var parent = model.ParentDirectory;
+                    parent.SubFolders.Remove(model);
+                }
+
+
+                if (_outputDirList.Count == 0)
+                    lstBoxOutputFiles.Items.Clear();
+
+                if (nextNode != null)
+                {
+                    treeViewImgCollection.Select();
+                    treeViewImgCollection.SelectedNode = nextNode;
+                    treeViewImgCollection.Update();
+                }
+
+                UpdateSelectionStats();
+            }
+        }
+
+        private void AddSourceFolder(string path, bool recursive)
+        {
+            if (Directory.Exists(path))
+            {
+                SourceFolderModel node = GetChildNode(path, RootNode);
+
+                if (node != null)
+                {
+                    try
+                    {
+                        var outputDirModel = _mapper.Map<OutputDirectoryModel>(node);
+                        if (!recursive)
+                            outputDirModel.SubFolders.Clear();
+
+                        ApplicationIOHelper.EnumerateFiles(ref outputDirModel, ValidFileTypes, recursive);
+
+                        AddOutputDirectoryToTreeView(outputDirModel, recursive);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "toolStripMenuItemAddFolder_Click exception");
+                    }
+                }
+            }
+        }
+        private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
+            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = folderBrowserDialog1.SelectedPath;
+                AddSourceFolder(path, false);
+            }
+        }
+
+        private void toolStripMenuItemAddFlderRecursive_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
+            folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
+
+            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = folderBrowserDialog1.SelectedPath;
+                folderBrowserDialog1.InitialDirectory = path;
+                AddSourceFolder(path, true);
+            }
+        }
+
+        private void toolStripMenuItemAddFiles_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Multiselect = true;
+            openFileDialog1.InitialDirectory = RootNode.RootDirectory;
+            openFileDialog1.RestoreDirectory = true;
+            string filter = string.Join('.', ValidFileTypes.Select(x => $"*{x};").ToArray());
+            filter = $"(Image Files)|{filter}|All Files (*.*)|*.*";
+            openFileDialog1.Filter = filter;
+            openFileDialog1.FileName = "";
+
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                // TODO Create ListViewSourceModel, append selected files and add to collection
+                for (var i = 0; i < openFileDialog1.FileNames.Length; i++)
+                {
+                    string fileName = openFileDialog1.FileNames[i];
+                    Debug.WriteLine($"Selected file: {fileName}");
+                }
+            }
+        }
+
+        private void SaveImageCollectionToFile(bool selectPath)
+        {
+            if (!_imageCollectionFile.IsSaved || selectPath)
+            {
+                saveFileDialog1.Filter = "ImageViewCollection(*.ivc)|*.ivc";
+                saveFileDialog1.FileName = _imageCollectionFile.FileName;
+                saveFileDialog1.DefaultExt = ".ivc";
+                saveFileDialog1.RestoreDirectory = true;
+
+                if (saveFileDialog1.ShowDialog(this) == DialogResult.OK)
+                {
+                    _imageCollectionFile.FullPath = saveFileDialog1.FileName;
+                    _imageCollectionFile.FileName = Path.GetFileName(saveFileDialog1.FileName);
+
+                    SaveImageCollection();
+                }
+            }
+            else
+            {
+                SaveImageCollection();
+            }
+        }
+
+        private void SaveImageCollection()
+        {
+            if (_outputDirList.Count > 0)
+            {
+                var container = new OutputDirectoryModel
+                {
+                    Name = "RootContainer",
+                    Id = Guid.NewGuid().ToString(),
+                    FullName = _imageCollectionFile.FullPath,
+                    SubFolders = _outputDirList
+                };
+                bool result = _imageCollectionRepository.SaveOutputDirectoryModel(_imageCollectionFile.FullPath, container);
+                if (result)
+                {
+                    _imageCollectionFile.IsSaved = true;
+                    _imageCollectionFile.IsChanged = false;
+                    lblWorkingFileName.Text = _imageCollectionFile.FileName;
+                    MessageBox.Show("Save was successful", "File Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Could not save file", "File save error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveImageCollectionToFile(false);
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveImageCollectionToFile(true);
+        }
+
+        private void newCollectionMenuItem_Click(object sender, EventArgs e)
+        {
+            _outputDirList.Clear();
+            lstBoxOutputFiles.Items.Clear();
+            UpdateSelectionStats();
+            _imageCollectionFile = ImageCollectionFile.CreateNew();
+            lblWorkingFileName.Text = "";
+        }
+
+        private void openCollectionMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_imageCollectionFile.IsChanged && !_imageCollectionFile.IsSaved && _outputDirList.Count > 0)
+            {
+                if (MessageBox.Show("Do you want to save the current file before opening a new?", "Save current?", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                {
+                    SaveImageCollectionToFile(string.IsNullOrEmpty(_imageCollectionFile.FullPath));
+                }
+            }
+
+            openFileDialog1.Filter = "ImageViewCollection(*.ivc)|*.ivc";
+            openFileDialog1.RestoreDirectory = true;
+            openFileDialog1.FileName = "";
+
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                _imageCollectionFile.FullPath = openFileDialog1.FileName;
+                _imageCollectionFile.FileName = Path.GetFileName(_imageCollectionFile.FullPath);
+                lblWorkingFileName.Text = _imageCollectionFile.FileName;
+
+                var outputDirRootModel = _imageCollectionRepository.LoadImageCollection(_imageCollectionFile.FullPath);
+
+                if (outputDirRootModel != null)
+                {
+                    _imageCollectionFile.IsChanged = false;
+                    _imageCollectionFile.IsSaved = true;
+
+                    _outputDirList.Clear();
+                    lstBoxOutputFiles.Items.Clear();
+                    treeViewImgCollection.Nodes.Clear();
+                    _outputDirList.AddRange(outputDirRootModel.SubFolders);
+
+                    //Reload treeViewImgCollection from data collection
+                    foreach (OutputDirectoryModel model in _outputDirList)
+                    {
+                        treeViewImgCollection.Nodes.Add(CreateTreeNodeRecursive(model));
+                    }
+                    UpdateSelectionStats();
+
+                }
+                else
+                {
+                    MessageBox.Show("Failed to open the selected file", "Could not open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void treeViewImgCollection_DragDrop(object sender, DragEventArgs e)
+        {
+            object sourceFolderDataModel = e.Data?.GetData(typeof(SourceFolderDataModel));
+            if (sourceFolderDataModel != null)
+            {
+                try
+                {
+                    var sourceFolder = _mapper.Map<OutputDirectoryModel>(sourceFolderDataModel);
+
+                    AddOutputDirectoryToTreeView(sourceFolder);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "DragDrop exception");
+                }
+            }
+        }
+
+        private void treeViewImgCollection_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(typeof(SourceFolderDataModel)))
+            {
+                if (e.Data?.GetData(typeof(SourceFolderDataModel)) is SourceFolderDataModel sourceFolderDataModel)
+                {
+                    if (_outputDirList.Any(x => x.Id == sourceFolderDataModel.Id || x.ParentDirectory?.FullName == sourceFolderDataModel.FullName) ||
+                        _outputDirList.Any(x => x.FullName == sourceFolderDataModel.FullName))
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+                }
+
+                e.Effect = DragDropEffects.Copy | DragDropEffects.Move;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
         }
 
         #region TreeView Events
@@ -279,7 +688,7 @@ namespace ImageViewer
         {
             Log.Information($"TreeViewFileSystem_BeforeExpand({e.Action}, {e.Node?.Name})");
 
-            var node = e.Node;
+            TreeNode node = e.Node;
             if (node == null)
                 return;
 
@@ -298,7 +707,7 @@ namespace ImageViewer
                     treeViewFileSystem.BeginUpdate();
                     foreach (SourceFolderModel folder in rootObject.Folders)
                     {
-                        var tn = CreateTreeNode(folder);
+                        TreeNode tn = CreateTreeNode(folder);
                         node.Nodes.Add(tn);
                     }
 
@@ -309,17 +718,16 @@ namespace ImageViewer
             }
         }
 
-
         // After expansion, Add next available colection of ChildNodes for each node at the new expanded level 
         private void TreeViewFileSystem_AfterExpand(object sender, TreeViewEventArgs e)
         {
-            Log.Information($"TreeViewFileSystem_AfterExpand({e.Action}, {e.Node?.Name})");
+            //Log.Information($"TreeViewFileSystem_AfterExpand({e.Action}, {e.Node?.Name})");
         }
 
         // Update internal State over Source IMage Path used OnAdd
         private void TreeViewFileSystem_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            Log.Information($"TreeViewFileSystem_AfterSelect({e.Action}, {e.Node?.Name})");
+            //Log.Information($"TreeViewFileSystem_AfterSelect({e.Action}, {e.Node?.Name})");
             TreeNode node = e.Node;
 
             if (node == null)
@@ -329,63 +737,27 @@ namespace ImageViewer
 
             if (!node.IsExpanded && node.Nodes.Count == 0)
             {
-                SourceFolderModel model = node.Tag as SourceFolderModel;
+                var model = node.Tag as SourceFolderModel;
                 RecursiveNodeExpansion(ref node, ref model, node.Level + 2);
                 //node.Expand();
             }
-            else
-            {
-                //node.Collapse(false);
-            }
+        }
+        private void treeViewImgCollection_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+
         }
 
         #endregion
-
-        private void UpdateSelectionStats()
-        {
-            try
-            {
-                List<ImageRefModel> imageRefModels = new List<ImageRefModel>();
-
-                foreach (var folderModel in _importList)
-                {
-                    imageRefModels.AddRange(getImageRefModels(folderModel));
-                }
-
-                lblImages.Text = imageRefModels.Count.ToString();
-                lblRootFolders.Text = _importList.Count.ToString();
-                lblFolders.Text = GetUniqueFolderCount(_importList).ToString();
-                long fileSize = imageRefModels.Sum(x => x.FileSize);
-
-                if (fileSize > 0)
-                {
-                    lblCombinedSize.Text = SystemIOHelper.FormatFileSizeToString(fileSize, 1);
-                }
-
-                lblDriveCount.Text = _importList.Select(x => x.FullName).ToString()?[..3].Distinct().Count().ToString();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "UpdateSelectionStats");
-            }
-
-            btnLoad.Enabled = _importList.Count > 0;
-        }
-
-        private int GetUniqueFolderCount(ICollection<ListViewSourceModel> importList)
-        {
-            return importList.Count + importList.Sum(model => GetUniqueFolderCount(model.Folders));
-        }
 
         #region Button Events
 
         private async void btnLoad_Click(object sender, EventArgs e)
         {
-            List<ImageRefModel> imageRefModels = new List<ImageRefModel>();
+            var imageRefModels = new List<ImageRefModel>();
 
-            foreach (var folderModel in _importList)
+            foreach (OutputDirectoryModel folderModel in _outputDirList)
             {
-                imageRefModels.AddRange(getImageRefModels(folderModel));
+                imageRefModels.AddRange(GetImageRefModels(folderModel));
             }
 
             //Load Image Collection and close
@@ -401,7 +773,7 @@ namespace ImageViewer
                 Close();
             }
 
-            btnLoad.Enabled = _importList.Count > 0;
+            btnLoad.Enabled = _outputDirList.Count > 0;
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -410,9 +782,6 @@ namespace ImageViewer
                 Close();
         }
 
-        private void lstBoxSourceImages_Click(object sender, EventArgs e)
-        {
-        }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -429,14 +798,14 @@ namespace ImageViewer
 
             if (e.Button == MouseButtons.Left)
             {
-                var node = treeViewFileSystem.SelectedNode;
+                TreeNode node = treeViewFileSystem.SelectedNode;
                 //node.Toggle();
             }
         }
 
         private void addFolderRecursiveMenuItem_Click(object sender, EventArgs e)
         {
-            var folder = treeViewFileSystem.SelectedNode;
+            TreeNode folder = treeViewFileSystem.SelectedNode;
 
             if (folder?.Tag is SourceFolderModel model)
             {
@@ -446,16 +815,17 @@ namespace ImageViewer
 
         private void addFolderMenuItem_Click(object sender, EventArgs e)
         {
-            var folder = treeViewFileSystem.SelectedNode;
+            TreeNode folder = treeViewFileSystem.SelectedNode;
 
             if (folder?.Tag is SourceFolderModel model)
             {
                 AddSourceFolder(model.FullPath, false);
             }
         }
+
         private void updateFolderMenuItem_Click(object sender, EventArgs e)
         {
-            var folder = treeViewFileSystem.SelectedNode;
+            TreeNode folder = treeViewFileSystem.SelectedNode;
 
             if (folder?.Tag is SourceFolderModel model)
             {
@@ -471,317 +841,37 @@ namespace ImageViewer
         {
             if (e.Button == MouseButtons.Left)
             {
-                var hittest = treeViewFileSystem.HitTest(e.Location);
+                TreeViewHitTestInfo hittest = treeViewFileSystem.HitTest(e.Location);
                 //hittest.Node?.Toggle();
             }
         }
 
         #endregion
 
-        private void treeViewFileSystem_ItemDrag(object sender, ItemDragEventArgs e)
+        private void treeViewImgCollection_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode node = e.Item as TreeNode;
-            if (e.Button == MouseButtons.Left)
+            var node = e.Node;
+            if (node != null)
             {
-                if (node?.Tag is SourceFolderModel item)
+                OutputDirectoryModel model = (OutputDirectoryModel)node.Tag;
+                lstBoxOutputFiles.BeginUpdate();
+                lstBoxOutputFiles.Items.Clear();
+
+                foreach (var imageRefModel in model.ImageList)
                 {
-                    var dataModel = _mapper.Map<SourceFolderDataModel>(item);
-                    treeViewFileSystem.DoDragDrop(dataModel, DragDropEffects.Copy | DragDropEffects.Move);
+                    lstBoxOutputFiles.Items.Add($"{imageRefModel.FileName}");
                 }
+                lstBoxOutputFiles.EndUpdate();
+                lblImageCount.Text = $"Images: {model.ImageList.Count.ToString()}";
             }
         }
 
-        private void lstBoxSourceImages_DragEnter(object sender, DragEventArgs e)
+        private void treeViewImgCollection_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Data != null && e.Data.GetDataPresent(typeof(SourceFolderDataModel)))
+            if (e.KeyCode == Keys.Delete && treeViewImgCollection.SelectedNode != null)
             {
-                if (e.Data?.GetData(typeof(SourceFolderDataModel)) is SourceFolderDataModel sourceFolderDataModel)
-                {
-                    if (_importList.Any(x => x.Id == sourceFolderDataModel.Id))
-                    {
-                        e.Effect = DragDropEffects.None;
-                        return;
-                    }
-                }
-
-                e.Effect = DragDropEffects.Copy | DragDropEffects.Move;
+                RemoveSelectedOutputDir();
             }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private void lstBoxSourceImages_DragDrop(object sender, DragEventArgs e)
-        {
-            var sourceFolderDataModel = e.Data?.GetData(typeof(SourceFolderDataModel));
-            if (sourceFolderDataModel != null)
-            {
-                try
-                {
-                    var sourceFolder = _mapper.Map<ListViewSourceModel>(sourceFolderDataModel);
-
-                    AddSourceFolderToListView(sourceFolder);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "DragDrop exception");
-                }
-            }
-
-        }
-
-        private void AddSourceFolderToListView(ListViewSourceModel sourceFolder, bool recursive = true)
-        {
-            if (_importList.All(x => x.Id != sourceFolder.Id))
-            {
-                ApplicationIOHelper.EnumerateFiles(sourceFolder, ValidFileTypes, recursive);
-                _importList.Add(sourceFolder);
-
-                var listViewItem = new ListViewItem
-                {
-                    Name = sourceFolder.FullName,
-                    Text = sourceFolder.Name,
-                    ImageIndex = 1,
-                    Tag = sourceFolder
-                };
-
-                foreach (var folder in sourceFolder.Folders)
-                {
-                    listViewItem.SubItems.Add(new ListViewItem.ListViewSubItem(listViewItem, folder.Name));
-                }
-
-                listViewSource.Items.Add(listViewItem);
-                UpdateSelectionStats();
-            }
-        }
-
-        private IEnumerable<ImageRefModel> getImageRefModels(ListViewSourceModel rootModel)
-        {
-            List<ImageRefModel> result = rootModel.ImageList;
-            foreach (var folder in rootModel.Folders)
-            {
-                result.AddRange(folder.ImageList);
-                result.AddRange(getImageRefModels(folder));
-            }
-
-            return result;
-        }
-
-
-
-
-        private void listViewSource_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.Items.Clear();
-            _importList.Clear();
-            UpdateSelectionStats();
-        }
-
-        private void toolStripMenuItemRemoveItem_Click(object sender, EventArgs e)
-        {
-            var selected = listViewSource.SelectedItems;
-            if (selected.Count > 0)
-            {
-                foreach (ListViewItem listViewItem in selected)
-                {
-                    listViewSource.Items.Remove(listViewItem);
-                    _importList.RemoveAll(x => x.Id == (listViewItem.Tag as ListViewSourceModel)?.Id);
-                }
-                UpdateSelectionStats();
-            }
-        }
-
-        private SourceFolderModel GetChildNode(string path, SourceCollectionBase rootNode)
-        {
-            foreach (var folder in rootNode.Folders)
-            {
-                if (folder.FullPath == path)
-                {
-                    return folder;
-                }
-
-                var subFolder = GetChildNodeRecursive(path, folder);
-                if (subFolder != null)
-                {
-                    return subFolder;
-                }
-
-            }
-
-            return null;
-        }
-
-        private SourceFolderModel GetChildNodeRecursive(string path, SourceCollectionBase rootNode)
-        {
-            foreach (var folder in rootNode.Folders)
-            {
-                if (folder.FullPath == path)
-                {
-                    return folder;
-                }
-
-                var subFolder = GetChildNodeRecursive(path, folder);
-
-                if (subFolder != null)
-                {
-                    return subFolder;
-                }
-            }
-
-            return null;
-        }
-
-        private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
-            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
-            {
-                string path = folderBrowserDialog1.SelectedPath;
-                AddSourceFolder(path, false);
-            }
-        }
-
-        private void AddSourceFolder(string path, bool recursive)
-        {
-            if (Directory.Exists(path))
-            {
-                var node = GetChildNode(path, RootNode);
-
-                if (node != null)
-                {
-                    try
-                    {
-                        ListViewSourceModel listViewSourceModel = _mapper.Map<ListViewSourceModel>(node);
-                        ApplicationIOHelper.EnumerateFiles(listViewSourceModel, ValidFileTypes, recursive);
-                        if (!recursive)
-                            listViewSourceModel.Folders.Clear();
-                        AddSourceFolderToListView(listViewSourceModel);
-                        UpdateSelectionStats();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "toolStripMenuItemAddFolder_Click exception");
-                    }
-                }
-            }
-        }
-
-        private void toolStripMenuItemAddFlderRecursive_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
-            if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
-            {
-                string path = folderBrowserDialog1.SelectedPath;
-                AddSourceFolder(path, true);
-            }
-        }
-
-        private void toolStripMenuItemAddFiles_Click(object sender, EventArgs e)
-        {
-            openFileDialog1.Multiselect = true;
-            openFileDialog1.InitialDirectory = RootNode.RootDirectory;
-            openFileDialog1.RestoreDirectory = true;
-            string filter = string.Join('.', ValidFileTypes.Select(x => $"*{x};").ToArray());
-            filter = $"(Image Files)|{filter}|All Files (*.*)|*.*";
-            openFileDialog1.Filter = filter;
-            openFileDialog1.FileName = "";
-
-            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
-            {
-                // TODO Create ListViewSourceModel, append selected files and add to collection
-                for (int i = 0; i < openFileDialog1.FileNames.Length; i++)
-                {
-                    string fileName = openFileDialog1.FileNames[i];
-                    Debug.WriteLine($"Selected file: {fileName}");
-                }
-
-            }
-        }
-
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_importList.Count > 0)
-            {
-                saveFileDialog1.FileName = "SourceCollection.sco";
-                saveFileDialog1.Filter = "SourceCollection(*.sco)|*.sco";
-
-                if (saveFileDialog1.ShowDialog(this) == DialogResult.OK)
-                {
-
-
-                    //if (!false)
-                    //{
-                    //    MessageBox.Show("File operation Failed", "Unable to save file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    //}
-                }
-            }
-        }
-
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void newCollectionMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void openCollectionMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void largeIconToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.LargeIcon;
-        }
-
-        private void detailedToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.Details;
-        }
-
-        private void smallIconToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.SmallIcon;
-        }
-
-        private void listToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.List;
-        }
-
-        private void titleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.Tile;
-        }
-
-        private void defaultToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            listViewSource.View = View.List;
-        }
-
-        private void listViewSource_DoubleClick(object sender, EventArgs e)
-        {
-            if (listViewSource.SelectedItems.Count==0)
-                return;
-
-
-            var item = listViewSource.SelectedItems[0];
-            item.UseItemStyleForSubItems = true;
-            Log.Debug("listViewSource_DoubleClick, Item: {Item}", item.Name);
-        }
-
-        private void listViewSource_StyleChanged(object sender, EventArgs e)
-        {
-            lblListViewMode.Text = listViewSource.View.ToString();
         }
     }
 }

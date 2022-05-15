@@ -22,16 +22,16 @@ namespace ImageViewer.Providers
 
         public ApplicationSettingsDataModel LoadApplicationSettings(string filename)
         {
-            var model = LoadConfig<ApplicationSettingsDataModel>(filename);
+            var model = DeserializeObject<ApplicationSettingsDataModel>(filename);
             return model;
         }
 
         public bool SaveApplicationSettings(string filename, ApplicationSettingsDataModel appSettings)
         {
-            return SaveConfig(filename, appSettings);
+            return SerializeObjectToFile(filename, appSettings);
         }
 
-        private T LoadConfig<T>(string filePath) where T : class
+        public T DeserializeObject<T>(string filePath) where T : class
         {
             try
             {
@@ -41,12 +41,12 @@ namespace ImageViewer.Providers
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "T LoadConfig<T> Exception");
+                Log.Error(exception, "T DeserializeObject<T> Exception");
                 return default(T);
             }
         }
 
-        private bool SaveConfig(string filePath, object model)
+        public bool SerializeObjectToFile(string filePath, object model)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace ImageViewer.Providers
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "Exception thrown in the internal SaveConfig function.");
+                Log.Error(exception, "Exception thrown in the internal SaveConfig function");
                 return false;
             }
         }

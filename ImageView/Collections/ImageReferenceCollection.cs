@@ -2,6 +2,7 @@
 using System.Linq;
 using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
+using ImageViewer.Models;
 using ImageViewer.Services;
 using Serilog;
 

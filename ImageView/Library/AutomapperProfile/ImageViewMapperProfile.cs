@@ -11,7 +11,7 @@ namespace ImageViewer.Library.AutoMapperProfile
             ThumbnailDatabase.CreateMapping(this);
             ThumbnailEntry.CreateMapping(this);
             SourceFolderModel.CreateMapping(this);
-            ListViewSourceModel.CreateMapping(this);
+            OutputDirectoryModel.CreateMapping(this);
             ImageRefModel.CreateMapping(this);
         }
     }

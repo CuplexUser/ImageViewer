@@ -4,6 +4,7 @@ using ImageViewer.DataBinding;
 using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
 using ImageViewer.Managers;
+using ImageViewer.Models;
 using ImageViewer.Models.Enums;
 using ImageViewer.Properties;
 using ImageViewer.Services;

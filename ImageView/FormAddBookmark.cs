@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using ImageViewer.DataContracts;
+using ImageViewer.Models;
 using ImageViewer.Managers;
 using ImageViewer.Services;
 using ImageViewer.UserControls;

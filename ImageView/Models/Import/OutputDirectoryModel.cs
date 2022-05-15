@@ -8,7 +8,7 @@ namespace ImageViewer.Models.Import
     /// <summary>
     /// ListViewSourceModel
     /// </summary>
-    public class ListViewSourceModel
+    public class OutputDirectoryModel
     {
         /// <summary>
         /// Gets or sets the identifier.
@@ -17,14 +17,6 @@ namespace ImageViewer.Models.Import
         /// The identifier.
         /// </value>
         public string Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the parent folder identifier.
-        /// </summary>
-        /// <value>
-        /// The parent folder identifier.
-        /// </value>
-        public string ParentFolderId { get; set; }
 
         /// <summary>
         /// Gets or sets the sort order.
@@ -51,12 +43,20 @@ namespace ImageViewer.Models.Import
         public string FullName { get; set; }
 
         /// <summary>
+        /// Gets or sets the Parent Directory if any
+        /// </summary>
+        /// <value>
+        /// Parent Directory.
+        /// </value>
+        public OutputDirectoryModel ParentDirectory { get; set; }
+
+        /// <summary>
         /// Gets or sets the folders.
         /// </summary>
         /// <value>
         /// The folders.
         /// </value>
-        public List<ListViewSourceModel> Folders { get; set; }
+        public List<OutputDirectoryModel> SubFolders { get; set; }
 
         /// <summary>
         /// Gets or sets the image list.
@@ -65,9 +65,7 @@ namespace ImageViewer.Models.Import
         /// The image list.
         /// </value>
         public List<ImageRefModel> ImageList { get; set; }
-
-
-
+        
         /// <summary>
         /// Converts to string.
         /// </summary>
@@ -84,16 +82,27 @@ namespace ImageViewer.Models.Import
         /// <param name="expression">The expression.</param>
         public static void CreateMapping(IProfileExpression expression)
         {
-            expression.CreateMap<ListViewSourceModel, SourceFolderDataModel>()
+            expression.CreateMap<OutputDirectoryModel, SourceFolderDataModel>()
                 .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
                 .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullName))
                 .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
-                .ForMember(s => s.Folders, o => o.MapFrom(d => d.Folders))
+                .ForMember(s => s.Folders, o => o.MapFrom(d => d.SubFolders))
                 .ReverseMap()
                 .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
                 .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
                 .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullName))
-                .ForMember(s => s.Folders, o => o.MapFrom(d => d.Folders));
+                .ForMember(s => s.SubFolders, o => o.MapFrom(d => d.Folders));
+
+            expression.CreateMap<OutputDirectoryModel, SourceFolderModel>()
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.FullPath, o => o.MapFrom(d => d.FullName))
+                .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
+                .ForMember(s => s.Folders, o => o.MapFrom(d => d.SubFolders))
+                .ReverseMap()
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.Name, o => o.MapFrom(d => d.Name))
+                .ForMember(s => s.FullName, o => o.MapFrom(d => d.FullPath))
+                .ForMember(s => s.SubFolders, o => o.MapFrom(d => d.Folders));
         }
     }
 }

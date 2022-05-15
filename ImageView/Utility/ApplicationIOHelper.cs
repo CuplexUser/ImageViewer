@@ -11,7 +11,7 @@ namespace ImageViewer.Utility
 {
     public static class ApplicationIOHelper
     {
-        public static void EnumerateFiles(ListViewSourceModel sourceFolder, string[] searchPattern, bool recursive = true)
+        public static void EnumerateFiles(ref OutputDirectoryModel sourceFolder, string[] searchPattern, bool recursive = true)
         {
             try
             {
@@ -23,6 +23,7 @@ namespace ImageViewer.Utility
                     .Where(file => searchPattern.Any(file.Extension.ToLower().Equals))
                     .ToList();
 
+                files.Sort((info, fileInfo) => string.Compare(info.Name, fileInfo.Name, StringComparison.Ordinal));
                 int index = 0;
                 foreach (var file in files)
                 {
@@ -41,11 +42,13 @@ namespace ImageViewer.Utility
                     sourceFolder.ImageList.Add(imgRef);
                 }
 
-                if (sourceFolder.Folders != null && recursive)
+                if (sourceFolder.SubFolders != null && recursive)
                 {
-                    foreach (var sourceFolderModel in sourceFolder.Folders)
+                    foreach (var sourceFolderModel in sourceFolder.SubFolders)
                     {
-                        EnumerateFiles(sourceFolderModel, searchPattern);
+                        var outputDirectoryModel = sourceFolderModel;
+                        outputDirectoryModel.ParentDirectory = sourceFolder;
+                        EnumerateFiles(ref outputDirectoryModel, searchPattern);
                     }
                 }
 

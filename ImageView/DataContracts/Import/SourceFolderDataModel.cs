@@ -70,7 +70,7 @@ namespace ImageViewer.DataContracts.Import
         /// The image list.
         /// </value>
         [DataMember(Name = "ImageList", Order = 7)]
-        public List<ImageRefModel> ImageList { get; set; }
+        public List<ImageReferenceDataModel> ImageList { get; set; }
 
         /// <summary>
         /// Converts to string.
