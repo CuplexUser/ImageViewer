@@ -25,16 +25,16 @@ namespace ImageViewer
     {
         private readonly ApplicationSettingsService _applicationSettingsService;
         private readonly Dictionary<string, string> _controlStateDictionary;
-        private readonly ImageLoaderService _imageLoaderService;
-        private readonly List<OutputDirectoryModel> _outputDirList;
-        private readonly UserInteractionService _interactionService;
         private readonly ImageCollectionRepository _imageCollectionRepository;
+        private readonly ImageLoaderService _imageLoaderService;
+        private readonly UserInteractionService _interactionService;
         private readonly IMapper _mapper;
         private readonly NodeModelComparer _nodeModelComparer;
-        private ImageCollectionFile _imageCollectionFile;
+        private readonly List<OutputDirectoryModel> _outputDirList;
 
         //private const string ValidFileTypes = "*.jpg;*.jpeg;*.png;*.bmp";
         private readonly string[] ValidFileTypes = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+        private ImageCollectionFile _imageCollectionFile;
 
         public FormAddImageSource(ApplicationSettingsService applicationSettingsService, IMapper mapper, ImageLoaderService imageLoaderService, UserInteractionService interactionService, ImageCollectionRepository imageCollectionRepository)
         {
@@ -76,6 +76,7 @@ namespace ImageViewer
 
             // Clear demo objects
             treeViewImgCollection.Nodes.Clear();
+            lblWorkingFileName.Text = _imageCollectionFile.FileName;
 
             EnumerateDrives();
             treeViewFileSystem.AfterSelect += TreeViewFileSystem_AfterSelect;
@@ -240,7 +241,7 @@ namespace ImageViewer
                 _controlStateDictionary.Add("cbDrives.SelectedIndex", cbDrives.SelectedIndex.ToString());
             }
 
-            var rootObject = RootObjectModel.CreateRootObject(driveModel);
+            //var rootObject = RootObjectModel.CreateRootObject(driveModel);
             treeViewFileSystem.Nodes.Clear();
             RootNode = RootObjectModel.CreateRootObject(driveModel);
             RootNodeChanged?.Invoke(this, EventArgs.Empty);
@@ -260,6 +261,7 @@ namespace ImageViewer
             _applicationSettingsService.SaveSettings();
             e.Cancel = false;
         }
+
         private void UpdateSelectionStats()
         {
             try
@@ -288,8 +290,8 @@ namespace ImageViewer
 
         private List<ImageRefModel> GetAllImageRefModelsRecursive(List<OutputDirectoryModel> outputDirList)
         {
-            List<ImageRefModel> imageRefModels = new List<ImageRefModel>();
-            foreach (var model in outputDirList)
+            var imageRefModels = new List<ImageRefModel>();
+            foreach (OutputDirectoryModel model in outputDirList)
             {
                 imageRefModels.AddRange(model.ImageList);
                 if (model.SubFolders.Count > 0)
@@ -337,11 +339,12 @@ namespace ImageViewer
                     };
                     treeViewImgCollection.Nodes.Add(node);
                 }
+
                 UpdateSelectionStats();
             }
         }
 
-        TreeNode CreateTreeNodeRecursive(OutputDirectoryModel outputDir)
+        private TreeNode CreateTreeNodeRecursive(OutputDirectoryModel outputDir)
         {
             var node = new TreeNode(outputDir.Name)
             {
@@ -352,7 +355,7 @@ namespace ImageViewer
 
             if (outputDir.SubFolders != null)
             {
-                foreach (var folder in outputDir.SubFolders)
+                foreach (OutputDirectoryModel folder in outputDir.SubFolders)
                 {
                     node.Nodes.Add(CreateTreeNodeRecursive(folder));
                 }
@@ -375,10 +378,7 @@ namespace ImageViewer
 
         private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            treeViewImgCollection.Nodes.Clear();
-            _outputDirList.Clear();
-            lstBoxOutputFiles.Items.Clear();
-            UpdateSelectionStats();
+            ClearCollection(false);
         }
 
         private void toolStripMenuItemRemoveItem_Click(object sender, EventArgs e)
@@ -424,23 +424,27 @@ namespace ImageViewer
 
             return null;
         }
+
         private void RemoveSelectedOutputDir()
         {
-            var node = treeViewImgCollection.SelectedNode;
+            TreeNode node = treeViewImgCollection.SelectedNode;
             if (node != null)
             {
-                OutputDirectoryModel model = (OutputDirectoryModel)node.Tag;
-                var nextNode = node.NextNode;
+                var model = (OutputDirectoryModel)node.Tag;
+                TreeNode nextNode = node.NextNode;
                 treeViewImgCollection.Nodes.Remove(node);
 
-                if (model.ParentDirectory == null)
+                if (_outputDirList.Count == 1 && _outputDirList[0] == model)
                 {
                     _outputDirList.Clear();
                 }
                 else
                 {
-                    var parent = model.ParentDirectory;
-                    parent.SubFolders.Remove(model);
+                    OutputDirectoryModel parent = model.ParentDirectory;
+                    if (parent == null)
+                        _outputDirList.Remove(model);
+                    else
+                        parent.SubFolders.Remove(model);
                 }
 
 
@@ -483,6 +487,7 @@ namespace ImageViewer
                 }
             }
         }
+
         private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
         {
             folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
@@ -588,11 +593,20 @@ namespace ImageViewer
 
         private void newCollectionMenuItem_Click(object sender, EventArgs e)
         {
+            ClearCollection(true);
+        }
+
+        private void ClearCollection(bool createNew)
+        {
             _outputDirList.Clear();
+            treeViewImgCollection.Nodes.Clear();
             lstBoxOutputFiles.Items.Clear();
             UpdateSelectionStats();
-            _imageCollectionFile = ImageCollectionFile.CreateNew();
-            lblWorkingFileName.Text = "";
+            if (createNew)
+            {
+                _imageCollectionFile = ImageCollectionFile.CreateNew();
+                lblWorkingFileName.Text = _imageCollectionFile.FileName;
+            }
         }
 
         private void openCollectionMenuItem_Click(object sender, EventArgs e)
@@ -615,7 +629,7 @@ namespace ImageViewer
                 _imageCollectionFile.FileName = Path.GetFileName(_imageCollectionFile.FullPath);
                 lblWorkingFileName.Text = _imageCollectionFile.FileName;
 
-                var outputDirRootModel = _imageCollectionRepository.LoadImageCollection(_imageCollectionFile.FullPath);
+                OutputDirectoryModel outputDirRootModel = _imageCollectionRepository.LoadImageCollection(_imageCollectionFile.FullPath);
 
                 if (outputDirRootModel != null)
                 {
@@ -632,8 +646,8 @@ namespace ImageViewer
                     {
                         treeViewImgCollection.Nodes.Add(CreateTreeNodeRecursive(model));
                     }
-                    UpdateSelectionStats();
 
+                    UpdateSelectionStats();
                 }
                 else
                 {
@@ -679,6 +693,33 @@ namespace ImageViewer
             else
             {
                 e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void treeViewImgCollection_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode node = e.Node;
+            if (node != null)
+            {
+                var model = (OutputDirectoryModel)node.Tag;
+                lstBoxOutputFiles.BeginUpdate();
+                lstBoxOutputFiles.Items.Clear();
+
+                foreach (ImageRefModel imageRefModel in model.ImageList)
+                {
+                    lstBoxOutputFiles.Items.Add($"{imageRefModel.FileName}");
+                }
+
+                lstBoxOutputFiles.EndUpdate();
+                lblImageCount.Text = $"Images: {model.ImageList.Count.ToString()}";
+            }
+        }
+
+        private void treeViewImgCollection_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete && treeViewImgCollection.SelectedNode != null)
+            {
+                RemoveSelectedOutputDir();
             }
         }
 
@@ -742,9 +783,9 @@ namespace ImageViewer
                 //node.Expand();
             }
         }
+
         private void treeViewImgCollection_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-
         }
 
         #endregion
@@ -847,31 +888,5 @@ namespace ImageViewer
         }
 
         #endregion
-
-        private void treeViewImgCollection_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            var node = e.Node;
-            if (node != null)
-            {
-                OutputDirectoryModel model = (OutputDirectoryModel)node.Tag;
-                lstBoxOutputFiles.BeginUpdate();
-                lstBoxOutputFiles.Items.Clear();
-
-                foreach (var imageRefModel in model.ImageList)
-                {
-                    lstBoxOutputFiles.Items.Add($"{imageRefModel.FileName}");
-                }
-                lstBoxOutputFiles.EndUpdate();
-                lblImageCount.Text = $"Images: {model.ImageList.Count.ToString()}";
-            }
-        }
-
-        private void treeViewImgCollection_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Delete && treeViewImgCollection.SelectedNode != null)
-            {
-                RemoveSelectedOutputDir();
-            }
-        }
     }
 }

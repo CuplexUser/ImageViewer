@@ -11,6 +11,7 @@ namespace ImageViewer.Repositories
     {
         private readonly FileSystemIOProvider _fileSystem;
         private readonly IMapper _mapper;
+        private const string _internalPwd = "a53fKn7XF6Zp&c^$LZt#gtY6fp*b^a3dkWZ&CpwgL4YF%^irJ8";
 
         public ImageCollectionRepository(FileSystemIOProvider fileSystem, IMapper mapper)
         {
@@ -22,7 +23,7 @@ namespace ImageViewer.Repositories
         {
             try
             {
-                SourceFolderDataModel dataModel = _fileSystem.DeserializeObject<SourceFolderDataModel>(fileName);
+                SourceFolderDataModel dataModel = _fileSystem.DeserializeObject<SourceFolderDataModel>(fileName, _internalPwd);
                 var outputDirContainer = _mapper.Map<OutputDirectoryModel>(dataModel);
 
                 return outputDirContainer;
@@ -40,7 +41,7 @@ namespace ImageViewer.Repositories
             try
             {
                 SourceFolderDataModel dataModel = _mapper.Map<SourceFolderDataModel>(outputDirectoryModel);
-                return _fileSystem.SerializeObjectToFile(filename, dataModel);
+                return _fileSystem.SerializeObjectToFile(filename, dataModel, _internalPwd);
             }
             catch (Exception ex)
             {
