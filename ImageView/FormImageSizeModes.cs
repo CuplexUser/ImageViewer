@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using ImageViewer.Services;
+﻿using ImageViewer.Services;
 using Serilog;
 
 namespace ImageViewer
@@ -49,7 +47,7 @@ namespace ImageViewer
         private void btnSave_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-            _applicationSettingsService.Settings.PrimaryImageSizeMode = (int) ImageSizeMode;
+            _applicationSettingsService.Settings.PrimaryImageSizeMode = (int)ImageSizeMode;
             _applicationSettingsService.SaveSettings();
             Close();
         }

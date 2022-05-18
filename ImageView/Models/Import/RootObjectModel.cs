@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ImageViewer.DataBinding;
+﻿using ImageViewer.DataBinding;
 
 namespace ImageViewer.Models.Import
 {

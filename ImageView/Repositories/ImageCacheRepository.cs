@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 using ImageProcessor.Imaging.Formats;
 using ImageViewer.Managers;
 using ImageViewer.Models;

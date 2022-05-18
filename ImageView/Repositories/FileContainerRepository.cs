@@ -1,8 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Threading;
-using AutoMapper;
+﻿using AutoMapper;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using System.Collections.Concurrent;
 
 namespace ImageViewer.Repositories
 {

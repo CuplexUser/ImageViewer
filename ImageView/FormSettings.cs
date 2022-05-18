@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using ImageViewer.InputForms;
+﻿using ImageViewer.InputForms;
 using ImageViewer.Models;
 using ImageViewer.Services;
 using ImageViewer.Utility;
@@ -140,7 +136,7 @@ namespace ImageViewer
             settings.ScreenMinXOffset = Convert.ToInt32(numericScreenMinOffset.Value);
             settings.ScreenWidthOffset = Convert.ToInt32(numericScreenWidthOffset.Value);
 
-            Color selectedColor = (Color) backgroundColorDropdownList.SelectedItem;
+            Color selectedColor = (Color)backgroundColorDropdownList.SelectedItem;
             settings.MainWindowBackgroundColor = selectedColor;
             settings.AutoHideCursorDelay = Convert.ToInt32(numericAutohideCursorDelay.Value);
 
@@ -207,7 +203,7 @@ namespace ImageViewer
             lblCacheItems.Text = _imageCacheService.CachedImages.ToString();
             lblUsedSpace.Text = SystemIOHelper.FormatFileSizeToString(cacheUsage, 2);
             lblFreeSpace.Text = SystemIOHelper.FormatFileSizeToString(cacheSize - cacheUsage);
-            pbarPercentUsed.Value = Convert.ToInt32((double) cacheUsage / cacheSize * 100d);
+            pbarPercentUsed.Value = Convert.ToInt32((double)cacheUsage / cacheSize * 100d);
 
             trackBarCacheSize.Minimum = Convert.ToInt32(minSize / TrackbarDivider);
             trackBarCacheSize.Maximum = Convert.ToInt32(maxSize / TrackbarDivider);

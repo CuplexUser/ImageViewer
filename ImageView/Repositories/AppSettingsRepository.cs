@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using AutoMapper;
+﻿using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Providers;
 using Serilog;
+using System.Collections.Concurrent;
 
 namespace ImageViewer.Repositories
 {

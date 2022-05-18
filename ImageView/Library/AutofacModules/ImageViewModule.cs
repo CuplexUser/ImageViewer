@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using AutoMapper;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
@@ -11,6 +8,7 @@ using ImageViewer.Managers;
 using ImageViewer.Providers;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
+using System.Reflection;
 using Module = Autofac.Module;
 
 namespace ImageViewer.Library.AutofacModules

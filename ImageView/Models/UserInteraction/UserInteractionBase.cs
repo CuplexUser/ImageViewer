@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-
-namespace ImageViewer.Models.UserInteraction
+﻿namespace ImageViewer.Models.UserInteraction
 {
     public abstract class UserInteractionBase
     {

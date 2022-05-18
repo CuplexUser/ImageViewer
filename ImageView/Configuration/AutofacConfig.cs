@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.ConfigHelper;
 using ImageViewer.Library.AutofacModules;
+using System.Reflection;
 
 namespace ImageViewer.Configuration
 {

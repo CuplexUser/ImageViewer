@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts
 {
@@ -54,6 +51,6 @@ namespace ImageViewer.DataContracts
         /// The additional parameters.
         /// </value>
         [DataMember(Name = "AdditionalParameters", Order = 5)]
-        public Dictionary<string,string> AdditionalParameters { get; set; }
+        public Dictionary<string, string> AdditionalParameters { get; set; }
     }
 }

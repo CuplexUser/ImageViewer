@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ImageViewer.Models.UserInteraction
+﻿namespace ImageViewer.Models.UserInteraction
 {
     public class UserInteractionQuestion : UserInteractionBase
     {

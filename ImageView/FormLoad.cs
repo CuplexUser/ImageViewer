@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using ImageViewer.Models.UserInteraction;
+﻿using ImageViewer.Models.UserInteraction;
 using ImageViewer.Services;
 
 namespace ImageViewer
@@ -90,7 +87,7 @@ namespace ImageViewer
 
             if (!result)
             {
-                _interactionService.InformUser(new UserInteractionInformation {Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error"});
+                _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
             }
 
             btnStart.Enabled = false;

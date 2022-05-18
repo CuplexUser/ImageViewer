@@ -1,17 +1,11 @@
 ﻿using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Converters;
+using ImageProcessor;
+using ImageProcessor.Imaging.Formats;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using ImageProcessor;
-using ImageProcessor.Imaging.Formats;
 
 namespace ImageViewer.Managers
 {

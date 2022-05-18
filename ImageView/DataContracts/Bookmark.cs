@@ -1,6 +1,5 @@
-﻿using System;
+﻿using ImageViewer.Utility;
 using System.Runtime.Serialization;
-using ImageViewer.Utility;
 
 namespace ImageViewer.DataContracts
 {

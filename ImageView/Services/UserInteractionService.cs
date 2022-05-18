@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ImageViewer.Models.UserInteraction;
+﻿using ImageViewer.Models.UserInteraction;
 using JetBrains.Annotations;
 
 namespace ImageViewer.Services

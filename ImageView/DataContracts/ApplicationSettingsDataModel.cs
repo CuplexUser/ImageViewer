@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
+using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts
 {
@@ -88,7 +84,7 @@ namespace ImageViewer.DataContracts
                 NextImageAnimation = ChangeImageAnimation.None,
                 ImageTransitionTime = 1000,
                 SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
+                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
                 ShowNextPrevControlsOnEnterWindow = true,

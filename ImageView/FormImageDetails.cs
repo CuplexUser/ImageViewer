@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace ImageViewer
+﻿namespace ImageViewer
 {
     public partial class FormImageDetails : Form
     {

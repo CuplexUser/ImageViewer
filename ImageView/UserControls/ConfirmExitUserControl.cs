@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using ImageViewer.Services;
+﻿using ImageViewer.Services;
 
 namespace ImageViewer.UserControls
 {

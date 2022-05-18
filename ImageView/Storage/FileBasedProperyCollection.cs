@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Serilog;
 using System.ComponentModel;
-using System.Threading;
-using Serilog;
+using Timer = System.Threading.Timer;
 
 namespace ImageViewer.Storage
 {

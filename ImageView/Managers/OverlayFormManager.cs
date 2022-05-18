@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using ImageViewer.UserControls;
+﻿using ImageViewer.UserControls;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Managers
@@ -14,7 +10,7 @@ namespace ImageViewer.Managers
         private readonly ImageSourceAndLocation _imageSourceState;
         private int _showImageDelay;
         private int _hideImageDelay;
-        private static readonly object LockObject = new object();
+        private static readonly object LockObject = new();
 
         public bool IsEnabled { get; set; }
         public int ActiveRow { get; set; }
@@ -48,7 +44,7 @@ namespace ImageViewer.Managers
             _overlayUserControl = new BookmarkPreviewOverlayUserControl();
             _formOverlayImage = FormFactory.CreateFloatingForm(_overlayUserControl, new Size(250, 250));
             _overlayUserControl.Dock = DockStyle.Fill;
-            _imageSourceState = new ImageSourceAndLocation {LastShownImageTime = DateTime.Today};
+            _imageSourceState = new ImageSourceAndLocation { LastShownImageTime = DateTime.Today };
 
             // Default value
             ShowImageDelay = 750;
@@ -109,7 +105,7 @@ namespace ImageViewer.Managers
             int maxWidth = Convert.ToInt32(screenBounds.Width / 1.3d);
             int maxHeight = Convert.ToInt32(screenBounds.Height / 1.2d);
 
-            double ratio = imageSize.Width / (double) imageSize.Height;
+            double ratio = imageSize.Width / (double)imageSize.Height;
 
             if (ratio < 1)
             {
@@ -149,7 +145,7 @@ namespace ImageViewer.Managers
 
         public async Task HideFormWithDelay()
         {
-            await Task.Delay(HideImageDelay);
+            await Task.Delay(HideImageDelay).ConfigureAwait(true);
             _formOverlayImage.Hide();
         }
 

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 
 namespace ImageViewer.InputForms
 {
@@ -56,7 +54,7 @@ namespace ImageViewer.InputForms
 
         private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyChar == (char) Keys.Enter)
+            if (e.KeyChar == (char)Keys.Enter)
             {
                 e.Handled = true;
                 HandleOkClick();

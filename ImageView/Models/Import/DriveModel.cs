@@ -1,5 +1,4 @@
-﻿using System.IO;
-using ImageViewer.Utility;
+﻿using ImageViewer.Utility;
 
 namespace ImageViewer.Models.Import
 {

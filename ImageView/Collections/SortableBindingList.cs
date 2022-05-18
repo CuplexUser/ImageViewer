@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -82,24 +79,27 @@ namespace ImageViewer.Collections
             ParameterExpression sourceParameter = Expression.Parameter(typeof(List<T>), "source");
             ParameterExpression lambdaParameter = Expression.Parameter(typeof(T), "lambdaParameter");
             PropertyInfo accesedMember = typeof(T).GetProperty(prop.Name);
-            LambdaExpression propertySelectorLambda =
-                Expression.Lambda(Expression.MakeMemberAccess(lambdaParameter,
-                    accesedMember), lambdaParameter);
-            MethodInfo orderByMethod = typeof(Enumerable)
-                .GetMethods()
-                .Single(a => a.Name == orderByMethodName && a.GetParameters().Length == 2)
-                .MakeGenericMethod(typeof(T), prop.PropertyType);
+            if (accesedMember != null)
+            {
+                LambdaExpression propertySelectorLambda =
+                    Expression.Lambda(Expression.MakeMemberAccess(lambdaParameter,
+                        accesedMember), lambdaParameter);
+                MethodInfo orderByMethod = typeof(Enumerable)
+                    .GetMethods()
+                    .Single(a => a.Name == orderByMethodName && a.GetParameters().Length == 2)
+                    .MakeGenericMethod(typeof(T), prop.PropertyType);
 
-            var orderByExpression = Expression.Lambda<Func<List<T>, IEnumerable<T>>>(
-                Expression.Call(orderByMethod,
-                    new Expression[]
-                    {
-                        sourceParameter,
-                        propertySelectorLambda
-                    }),
-                sourceParameter);
+                var orderByExpression = Expression.Lambda<Func<List<T>, IEnumerable<T>>>(
+                    Expression.Call(orderByMethod,
+                        new Expression[]
+                        {
+                            sourceParameter,
+                            propertySelectorLambda
+                        }),
+                    sourceParameter);
 
-            cachedOrderByExpressions.Add(cacheKey, orderByExpression.Compile());
+                cachedOrderByExpressions.Add(cacheKey, orderByExpression.Compile());
+            }
         }
 
         protected override void RemoveSortCore()

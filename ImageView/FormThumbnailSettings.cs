@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using ImageViewer.Services;
+﻿using ImageViewer.Services;
 using ImageViewer.Utility;
 using Serilog;
 

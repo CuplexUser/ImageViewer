@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-using ImageViewer.Properties;
+﻿using ImageViewer.Properties;
 
 namespace ImageViewer.Events
 {

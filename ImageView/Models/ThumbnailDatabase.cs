@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Castle.Components.DictionaryAdapter;
 using ImageViewer.DataContracts;
 
@@ -32,7 +31,7 @@ namespace ImageViewer.Models
         /// <returns></returns>
         public static ThumbnailDatabase Create(string filename)
         {
-            var db = new ThumbnailDatabase {ThumbnailEntries = new EditableList<ThumbnailEntry>(), LastUpdated = DateTime.Now, DatabaseId = Guid.NewGuid().ToString(), DataStoragePath = filename};
+            var db = new ThumbnailDatabase { ThumbnailEntries = new EditableList<ThumbnailEntry>(), LastUpdated = DateTime.Now, DatabaseId = Guid.NewGuid().ToString(), DataStoragePath = filename };
 
             return db;
         }

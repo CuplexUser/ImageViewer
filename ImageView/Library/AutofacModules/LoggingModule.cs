@@ -1,9 +1,9 @@
-﻿using System.Globalization;
-using Autofac;
+﻿using Autofac;
 using AutofacSerilogIntegration;
 using GeneralToolkitLib.Configuration;
 using Serilog;
 using Serilog.Events;
+using System.Globalization;
 
 namespace ImageViewer.Library.AutofacModules
 {

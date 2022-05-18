@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using ImageViewer.Library.EventHandlers;
+﻿using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;

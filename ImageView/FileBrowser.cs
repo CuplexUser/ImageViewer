@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using ImageViewer.Collections;
 using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.Utility;
+using System.ComponentModel;
 
 namespace ImageViewer
 {
@@ -226,11 +221,11 @@ namespace ImageViewer
                     openWithDefaultApplicationToolStripMenuItem.Visible = false;
                     break;
                 default:
-                {
-                    foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
-                        menuItem.Visible = true;
-                    break;
-                }
+                    {
+                        foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
+                            menuItem.Visible = true;
+                        break;
+                    }
             }
         }
 

@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Reflection;
-using System.Windows.Forms;
+﻿using System.Reflection;
 
 namespace ImageViewer
 {
@@ -25,6 +23,7 @@ namespace ImageViewer
 
         #region Assembly Attribute Accessors
 
+
         private string AssemblyTitle
         {
             get
@@ -32,23 +31,34 @@ namespace ImageViewer
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
                 if (attributes.Length > 0)
                 {
-                    var titleAttribute = (AssemblyTitleAttribute) attributes[0];
+                    var titleAttribute = (AssemblyTitleAttribute)attributes[0];
                     if (!string.IsNullOrEmpty(titleAttribute.Title))
                         return titleAttribute.Title;
                 }
-
-                return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return string.Empty;
             }
         }
 
-        private string AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        private string AssemblyVersion
+        {
+            get
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                if (version != null)
+                {
+                    return version.ToString();
+                }
+
+                return string.Empty;
+            }
+        }
 
         private string AssemblyDescription
         {
             get
             {
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute) attributes[0]).Description;
+                return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute)attributes[0]).Description;
             }
         }
 
@@ -57,7 +67,7 @@ namespace ImageViewer
             get
             {
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyProductAttribute) attributes[0]).Product;
+                return attributes.Length == 0 ? "" : ((AssemblyProductAttribute)attributes[0]).Product;
             }
         }
 
@@ -66,7 +76,7 @@ namespace ImageViewer
             get
             {
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyCopyrightAttribute) attributes[0]).Copyright;
+                return attributes.Length == 0 ? "" : ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
             }
         }
 
@@ -75,7 +85,7 @@ namespace ImageViewer
             get
             {
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyCompanyAttribute) attributes[0]).Company;
+                return attributes.Length == 0 ? "" : ((AssemblyCompanyAttribute)attributes[0]).Company;
             }
         }
 

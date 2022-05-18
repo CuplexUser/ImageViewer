@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ImageViewer.Models.Import;
 using System.Runtime.Serialization;
-using ImageViewer.Models.Import;
 
 namespace ImageViewer.DataContracts.Import
 {

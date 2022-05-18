@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
-namespace ImageViewer.Delegates
+﻿namespace ImageViewer.Delegates
 {
     public delegate void UpdatePicBoxListEventHandler(object sender, UpdatePicBoxEventArgs eventArgs);
 

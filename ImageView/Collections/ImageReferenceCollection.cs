@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using ImageViewer.DataContracts;
+﻿using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Services;

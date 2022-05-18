@@ -1,11 +1,8 @@
 ﻿using GeneralToolkitLib.Events;
-using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace ImageViewer.UserControls
 {
@@ -34,7 +31,7 @@ namespace ImageViewer.UserControls
 
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
-            _pen = new Pen(InnerBorderColor) {Width = BorderWidthInner};
+            _pen = new Pen(InnerBorderColor) { Width = BorderWidthInner };
 
             InnerBorderColorChanged += OnInnerBorderColorChanged;
             OuterBorderColorChanged += OnOuterBorderColorChanged;

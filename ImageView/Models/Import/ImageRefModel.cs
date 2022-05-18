@@ -1,5 +1,4 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using ImageViewer.DataContracts;
 using ImageViewer.Utility;
 

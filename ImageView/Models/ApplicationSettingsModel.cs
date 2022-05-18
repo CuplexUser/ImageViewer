@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using ImageViewer.Configuration;
+﻿using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
+using System.ComponentModel.DataAnnotations;
 
 namespace ImageViewer.Models
 {

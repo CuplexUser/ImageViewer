@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using ImageViewer.DataBinding;
+﻿using ImageViewer.DataBinding;
 using ImageViewer.DataContracts;
 using ImageViewer.InputForms;
 using ImageViewer.Managers;

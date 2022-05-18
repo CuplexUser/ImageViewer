@@ -1,14 +1,11 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageViewer.Configuration;
 using ImageViewer.Services;
 using Serilog;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace ImageViewer
 {

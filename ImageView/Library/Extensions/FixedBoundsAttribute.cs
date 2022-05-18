@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Serilog;
 using System.ComponentModel.DataAnnotations;
-using Serilog;
 
 namespace ImageViewer.Library.Extensions
 {

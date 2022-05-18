@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;

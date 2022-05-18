@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using ImageViewer.Utility;
+﻿using ImageViewer.Utility;
 using Serilog;
 
 namespace ImageViewer

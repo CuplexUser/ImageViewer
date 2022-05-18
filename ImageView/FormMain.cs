@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Autofac;
+﻿using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -23,6 +14,10 @@ using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
 using Serilog;
+using System.ComponentModel;
+using System.Diagnostics;
+
+// ReSharper disable All
 
 namespace ImageViewer
 {
@@ -52,8 +47,6 @@ namespace ImageViewer
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private readonly WindowStateModel _windowState;
-        private Dictionary<string, Form> ActiveFormList { get; }
-
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
             ImageLoaderService imageLoaderService,
@@ -75,8 +68,6 @@ namespace ImageViewer
             InitializeComponent();
             _imageViewFormList = new List<FormImageView>();
             _windowTitle = "Image Viewer - " + Application.ProductVersion;
-            ActiveFormList = new Dictionary<string, Form>();
-            ;
         }
 
         private bool ImageSourceDataAvailable => _dataReady && _imageLoaderService.ImageReferenceList != null;
@@ -445,6 +436,8 @@ namespace ImageViewer
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
+            cursorMovedTime = DateTime.Now;
+
             if (_windowState.CursorVisible)
             {
                 return;
@@ -1047,17 +1040,24 @@ namespace ImageViewer
 
         private void openBookmarksToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            _formManager.ShowForm(typeof(FormBookmarks));
+            var bookmarksForm = _formManager.GetFormInstance(typeof(FormBookmarks));
+            if (bookmarksForm.WindowState == FormWindowState.Minimized)
+            {
+                bookmarksForm.WindowState = FormWindowState.Normal;
+            }
+
+            bookmarksForm.Show();
+            bookmarksForm.Focus();
         }
 
-        private void newWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void newWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var imageViewForm = new FormImageView(_imageViewFormIdCnt++, _formAddBookmark, _bookmarkService.BookmarkManager, _applicationSettingsService, _imageCacheService, _imageLoaderService);
+            FormImageView imageViewForm = await _formManager.GetFormImageViewAsync(_imageViewFormIdCnt++);
             _imageViewFormList.Add(imageViewForm);
             imageViewForm.FormClosed += imageViewForm_FormClosed;
             imageViewForm.Show();
 
-            if (_formWindows != null && !_formWindows.IsDisposed)
+            if (_formWindows is { IsDisposed: false })
             {
                 _formWindows.Subscribe(imageViewForm);
             }

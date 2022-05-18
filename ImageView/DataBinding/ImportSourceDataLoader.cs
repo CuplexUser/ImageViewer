@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using ImageViewer.Models.Import;
 using System.Security;
-using ImageViewer.Models.Import;
 using Log = Serilog.Log;
 
 namespace ImageViewer.DataBinding

@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace ImageViewer.Models
+﻿namespace ImageViewer.Models
 {
     /// <summary>
     /// WindowStateModel
