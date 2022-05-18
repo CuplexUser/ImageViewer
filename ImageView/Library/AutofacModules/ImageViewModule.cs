@@ -5,6 +5,7 @@ using AutoMapper.Contrib.Autofac.DependencyInjection;
 using GeneralToolkitLib.Storage.Memory;
 using GeneralToolkitLib.Storage.Registry;
 using ImageViewer.Managers;
+using ImageViewer.Providers;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
 using System.Reflection;
@@ -36,6 +37,11 @@ namespace ImageViewer.Library.AutofacModules
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
+            builder.RegisterAssemblyTypes(typeof(ProviderBase).Assembly)
+                .AssignableTo<ProviderBase>()
+                .AsSelf()
+                .AsImplementedInterfaces()
+                .SingleInstance();
 
             builder.RegisterType<RegistryAccess>()
                 .As<IRegistryAccess>()

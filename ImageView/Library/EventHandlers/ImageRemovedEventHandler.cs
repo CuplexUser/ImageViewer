@@ -1,4 +1,6 @@
-﻿using ImageViewer.DataContracts;
+﻿using System;
+using ImageViewer.DataContracts;
+using ImageViewer.Models;
 
 namespace ImageViewer.Library.EventHandlers
 {

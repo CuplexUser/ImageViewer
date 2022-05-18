@@ -3,6 +3,7 @@ using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
+using ImageViewer.Models;
 using ImageViewer.Utility;
 using JetBrains.Annotations;
 using Serilog;

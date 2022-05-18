@@ -1,3 +1,0 @@
-﻿namespace ImageViewer.Delegates
-{
-}

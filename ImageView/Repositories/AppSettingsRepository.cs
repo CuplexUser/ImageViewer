@@ -15,6 +15,7 @@ namespace ImageViewer.Repositories
         private const string SettingsFilename = "ImageConverterSettings.bin";
         private readonly IMapper _mapper;
         private ApplicationSettingsModel _settingsModel;
+        private const string mockPwd = "kpGSuZwV2gvjnyHNDhS6q2*%nU7WB4F6xpyhWn%Nrhs49BZKeiFbee!fzh2MTQ%d";
 
         public AppSettingsRepository(IMapper mapper)
         {
@@ -64,10 +65,17 @@ namespace ImageViewer.Repositories
 
             if (File.Exists(appConfigSettingsFilePath))
             {
-                var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath);
-                _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
+                try
+                {
+                    var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath, mockPwd);
+                    _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "ApplicationSettingsModel:LoadSettings()");
+                }
 
-                if (_settingsModel == null)
+                if (_settingsModel == null || _settingsModel.AppSettingsGuid == Guid.Empty)
                 {
                     var dataModel = ApplicationSettingsDataModel.CreateDefaultSettings();
                     _settingsModel = _mapper.Map<ApplicationSettingsModel>(dataModel);
@@ -75,6 +83,7 @@ namespace ImageViewer.Repositories
                 }
 
                 _settingsModel.IsLoadedFromDisk = true;
+
             }
             else
             {
@@ -98,7 +107,7 @@ namespace ImageViewer.Repositories
         public bool SaveSettings(ApplicationSettingsModel settings)
         {
             ApplicationSettingsDataModel settingsDataModel = _mapper.Map<ApplicationSettingsModel, ApplicationSettingsDataModel>(settings);
-            bool result = _ioProvider.SaveApplicationSettings(appConfigSettingsFilePath, settingsDataModel);
+            bool result = _ioProvider.SaveApplicationSettings(appConfigSettingsFilePath, settingsDataModel, mockPwd);
             if (result)
             {
                 _settingsModel = settings;

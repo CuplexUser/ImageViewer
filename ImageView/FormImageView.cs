@@ -5,6 +5,7 @@ using ImageViewer.Events;
 using ImageViewer.Interfaces;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
+using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.Utility;

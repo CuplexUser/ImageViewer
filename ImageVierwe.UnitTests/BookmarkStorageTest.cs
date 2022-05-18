@@ -12,6 +12,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using ImageViewer.Models;
 
 namespace ImageView.UnitTests
 {
