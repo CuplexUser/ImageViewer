@@ -2,7 +2,6 @@
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
@@ -234,6 +233,9 @@ namespace ImageViewer
                 if (_imageLoaderService.ImageReferenceList.Count > 0)
                 {
                     _dataReady = true;
+
+                    // Open first image when collection is ready
+                    ChangeImage(true);
                 }
             }
         }

@@ -1,6 +1,5 @@
 ﻿using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.Interfaces;
 using ImageViewer.Library.EventHandlers;
@@ -174,13 +173,11 @@ namespace ImageViewer
                     observer.OnNext(_imageViewFormInfo);
                 }
 
-                Log.Verbose("New Image loaded in ImageViewForm FormId = " + FormId);
+                Log.Verbose("New Image loaded in ImageViewForm FormId = {FormId}", FormId);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, imageReference != null
-                    ? $"FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {imageReference.CompletePath} : {ex.Message}"
-                    : "imgRef was null in FormImageView.LoadNewImageFile()", ex);
+                Log.Error(ex, "FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {CompletePath}, Image Ref is null ({IsNull})", imageReference?.CompletePath, imageReference==null);
             }
         }
 
@@ -192,7 +189,7 @@ namespace ImageViewer
                 observer.OnNext(_imageViewFormInfo);
             }
 
-            Log.Verbose("ImageView Form with id=" + FormId + " closed");
+            Log.Verbose("ImageView Form with id={FormId} closed", FormId);
         }
 
         private void pictureBox_MouseDown(object sender, MouseEventArgs e)

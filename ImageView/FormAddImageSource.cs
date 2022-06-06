@@ -803,7 +803,7 @@ namespace ImageViewer
 
             //Load Image Collection and close
             btnLoad.Enabled = false;
-            bool result = await _imageLoaderService.RunIMageImportAsync(() => imageRefModels);
+            bool result = await _imageLoaderService.RunImageImportAsync(() => imageRefModels);
             if (!result)
             {
                 _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });

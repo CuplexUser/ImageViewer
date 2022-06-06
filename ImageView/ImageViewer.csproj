@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>\\WIN10-SERVER\Public\</PublishUrl>
@@ -228,8 +228,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <AssemblyVersion>2.0.1.1</AssemblyVersion>
-    <FileVersion>2.0.1.1</FileVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.1.2.0</FileVersion>
     <PackageLicenseFile>D:\Projects\ImageViewer\LICENSE.txt</PackageLicenseFile>
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
@@ -239,7 +239,7 @@
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>3.1.1.0</Version>
+    <Version>3.1.2.0</Version>
     <Company>Cuplex Org</Company>
     <PackageProjectUrl>https://apps.cuplex.se</PackageProjectUrl>
     <ImplicitUsings>enable</ImplicitUsings>
