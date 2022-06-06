@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Castle.Components.DictionaryAdapter;
 using ImageViewer.DataContracts;
+using Serilog;
+
 
 namespace ImageViewer.Models
 {
@@ -32,9 +34,32 @@ namespace ImageViewer.Models
         public static ThumbnailDatabase Create(string filename)
         {
             var db = new ThumbnailDatabase { ThumbnailEntries = new EditableList<ThumbnailEntry>(), LastUpdated = DateTime.Now, DatabaseId = Guid.NewGuid().ToString(), DataStoragePath = filename };
+            db.CreateDbIfMissing();
 
             return db;
         }
+
+        private void CreateDbIfMissing()
+        {
+            FileStream fs = null;
+            try
+            {
+                if (!File.Exists(DataStoragePath))
+                {
+                    fs = File.Create(DataStoragePath);
+                    fs.Flush(true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to write db file at {DataStoragePath}", DataStoragePath);
+            }
+            finally
+            {
+                fs?.Close();
+            }
+        }
+
 
         /// <summary>
         /// Gets or sets the database identifier.

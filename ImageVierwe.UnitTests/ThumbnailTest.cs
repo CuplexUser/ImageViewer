@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ImageView.UnitTests
 {
@@ -105,12 +106,17 @@ namespace ImageView.UnitTests
         {
             using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
+                string fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, "thumbs.db");
+
                 // Test database is already created by TestClassInit
                 var thumbnailService = scope.Resolve<ThumbnailService>();
 
                 // save Database first
                 thumbnailService.ClearDatabase();
                 thumbnailService.SaveThumbnailDatabase();
+
+                // Verify that the db file exists
+                Assert.IsTrue(File.Exists(fileName), $"Database file does not exist at {fileName}");
 
                 bool result = thumbnailService.LoadThumbnailDatabase();
                 Assert.IsTrue(result, "Load thumbnail database failed");
@@ -119,7 +125,7 @@ namespace ImageView.UnitTests
         }
 
         [TestMethod]
-        public async void ThumbnailOptimizeDatabaseAfterFileRemoval()
+        public void ThumbnailOptimizeDatabaseAfterFileRemoval()
         {
             using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
@@ -131,7 +137,7 @@ namespace ImageView.UnitTests
                 File.Delete(TestDirectory + TestImages[0]);
 
                 // Optimize DB
-                await thumbnailService.OptimizeDatabaseAsync();
+                Task.WaitAll(thumbnailService.OptimizeDatabaseAsync());
 
                 // Verify that one thumbnail was removed
                 Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length - 1, "The thumbnail service did not remove a cached item");

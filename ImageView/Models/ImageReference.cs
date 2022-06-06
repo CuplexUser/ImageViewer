@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ImageViewer.Models
+﻿namespace ImageViewer.Models
 {
     [Serializable]
     public class ImageReference

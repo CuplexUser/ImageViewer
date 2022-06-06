@@ -1,53 +1,43 @@
-﻿using GeneralToolkitLib.Configuration;
+﻿using System.Text.RegularExpressions;
+using GeneralToolkitLib.Configuration;
 using ImageViewer.Events;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Repositories;
 using JetBrains.Annotations;
 using Serilog;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 
 namespace ImageViewer.Services
 {
     [UsedImplicitly]
     public sealed class ThumbnailService : ServiceBase, IDisposable
     {
-        /// <summary>
-        //    ///     The image search pattern
-        //    /// </summary>
         private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$))";
+
+        private readonly ImageCacheService _cacheService;
+
+        private readonly ThumbnailDbManager _dbManager;
 
         /// <summary>
         ///     The file manager
         /// </summary>
         private readonly FileManager _fileManager;
 
-        private ThumbnailServiceState _serviceState;
-
         /// <summary>
         ///     The file name reg exp
         /// </summary>
-#pragma warning disable CS0169 // The field 'ThumbnailService._fileNameRegExp' is never used
         private readonly Regex _fileNameRegExp;
-#pragma warning restore CS0169 // The field 'ThumbnailService._fileNameRegExp' is never used
-
-        private readonly ThumbnailDbManager _dbManager;
 
         /// <summary>
         ///     The thumbnail repository
         /// </summary>
         private readonly ThumbnailRepository _thumbnailRepository;
 
-        private readonly ImageCacheService _cacheService;
-
 
         /// <summary>
         ///     The abort scan
         /// </summary>
-#pragma warning disable CS0414 // The field 'ThumbnailService._abortScan' is assigned but its value is never used
         private bool _abortScan;
-#pragma warning restore CS0414 // The field 'ThumbnailService._abortScan' is assigned but its value is never used
 
 
         public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager, ImageCacheService cacheService)
@@ -61,13 +51,9 @@ namespace ImageViewer.Services
             BasePath = databaseDirectory;
         }
 
-        public ThumbnailServiceState ServiceState
-        {
-            get => _serviceState;
-            private set => _serviceState = value;
-        }
+        public ThumbnailServiceState ServiceState { get; private set; }
 
-        public bool RunningThumbnailScan => (_serviceState & (ThumbnailServiceState.ScanningDirectory | ThumbnailServiceState.ScanningThumbnails)) > 0;
+        public bool RunningThumbnailScan => (ServiceState & (ThumbnailServiceState.ScanningDirectory | ThumbnailServiceState.ScanningThumbnails)) > 0;
 
         public string BasePath { get; }
 
@@ -75,19 +61,14 @@ namespace ImageViewer.Services
         {
         }
 
-#pragma warning disable CS0067 // The event 'ThumbnailService.StartedThumbnailScan' is never used
         public event EventHandler StartedThumbnailScan;
-#pragma warning restore CS0067 // The event 'ThumbnailService.StartedThumbnailScan' is never used
-
-#pragma warning disable CS0067 // The event 'ThumbnailService.CompletedThumbnailScan' is never used
         public event EventHandler CompletedThumbnailScan;
-#pragma warning restore CS0067 // The event 'ThumbnailService.CompletedThumbnailScan' is never used
 
         private async Task<bool> ScanDirectoryAsync(string path, bool scanSubdirectories)
         {
             if (RunningThumbnailScan)
             {
-                Log.Warning($"ScanDirectory was called when Service state was: {ServiceState}");
+                Log.Warning("ScanDirectory was called when Service state was: {ServiceState}", ServiceState);
                 return false;
             }
 
@@ -99,7 +80,7 @@ namespace ImageViewer.Services
         {
             if (ServiceState != ThumbnailServiceState.Idle)
             {
-                Log.Warning($"Aborting StartThumbnailScan because ServiceState = {ServiceState}");
+                Log.Warning("Aborting StartThumbnailScan because ServiceState = {ServiceState}", ServiceState);
                 return false;
             }
 
@@ -108,7 +89,7 @@ namespace ImageViewer.Services
 
             if (!Directory.Exists(path))
             {
-                Log.Warning("Aborting StartThumbnailScan because of trying to scan a non existing directory: " + path);
+                Log.Warning("Aborting StartThumbnailScan because of trying to scan a non existing directory: {path}", path);
                 return false;
             }
 
@@ -121,7 +102,7 @@ namespace ImageViewer.Services
 
             bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
-            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
+            progress?.Report(new ThumbnailScanProgress {TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true});
             return saveResult;
         }
 
@@ -130,7 +111,10 @@ namespace ImageViewer.Services
             var scannedFiles = 0;
             return await Task.Factory.StartNew(() =>
                 {
-                    if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
+                    if (progress != null && scannedFiles % 100 == 100)
+                    {
+                        progress.Report(new ThumbnailScanProgress {IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount});
+                    }
 
                     return scannedFiles;
                 }
@@ -142,7 +126,7 @@ namespace ImageViewer.Services
             var dirList = new List<string>();
             var dirInfo = new DirectoryInfo(path);
 
-            foreach (var directory in dirInfo.EnumerateDirectories())
+            foreach (DirectoryInfo directory in dirInfo.EnumerateDirectories())
             {
                 if ((directory.Attributes & FileAttributes.Hidden) == 0)
                 {
@@ -157,7 +141,10 @@ namespace ImageViewer.Services
         public int GetFileCount(IEnumerable<string> dirList)
         {
             var fileCount = 0;
-            foreach (string dir in dirList) fileCount += Directory.GetFiles(dir).Length;
+            foreach (string dir in dirList)
+            {
+                fileCount += Directory.GetFiles(dir).Length;
+            }
 
             return fileCount;
         }
@@ -168,11 +155,11 @@ namespace ImageViewer.Services
             if ((ServiceState & (ThumbnailServiceState.ScanningDirectory | ThumbnailServiceState.ScanningThumbnails)) != 0)
             {
                 _abortScan = true;
-                Log.Information($"Stopping thumbnail scan when ServiceState is: {ServiceState}");
+                Log.Information("Stopping thumbnail scan when ServiceState is: {ServiceState}", ServiceState);
             }
             else
             {
-                Log.Warning($"Failed call to StopThumbnailScan because ServiceState is: {ServiceState}");
+                Log.Warning("Failed call to StopThumbnailScan because ServiceState is: {ServiceState}", ServiceState);
             }
         }
 
@@ -180,11 +167,11 @@ namespace ImageViewer.Services
         {
             if (_thumbnailRepository.IsCached(fullPath))
             {
-                var imgFromCache = _thumbnailRepository.GetThumbnailImage(fullPath);
+                Image imgFromCache = _thumbnailRepository.GetThumbnailImage(fullPath);
                 return imgFromCache;
             }
 
-            var thumbnailImage = _fileManager.CreateThumbnail(fullPath, new Size(512, 512));
+            Image thumbnailImage = _fileManager.CreateThumbnail(fullPath, new Size(512, 512));
 
             return _thumbnailRepository.AddThumbnailImage(fullPath, thumbnailImage);
         }
@@ -197,14 +184,14 @@ namespace ImageViewer.Services
 
         public bool OptimizeDatabase()
         {
-            ConfiguredTaskAwaitable<bool> result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
+            var result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
             return result.GetAwaiter().GetResult();
         }
 
 
         public bool SaveThumbnailDatabase()
         {
-            bool result = false;
+            var result = false;
 
             if (ServiceState == ThumbnailServiceState.Idle)
             {
@@ -245,7 +232,9 @@ namespace ImageViewer.Services
         public Image GetThumbnail(string filename)
         {
             if (_thumbnailRepository.IsCached(filename))
+            {
                 return _thumbnailRepository.GetThumbnailImage(filename);
+            }
 
             Image thumbnailImage = null;
 
@@ -292,7 +281,7 @@ namespace ImageViewer.Services
         {
             if (ServiceState != ThumbnailServiceState.Idle)
             {
-                Log.Warning($"ThumbnailService RemoveAllNonAccessibleFilesFromDb was called when Service State was: {ServiceState}");
+                Log.Warning("ThumbnailService RemoveAllNonAccessibleFilesFromDb was called when Service State was: {ServiceState}", ServiceState);
                 return false;
             }
 
@@ -307,7 +296,7 @@ namespace ImageViewer.Services
         {
             if (ServiceState != ThumbnailServiceState.Idle)
             {
-                Log.Warning($"ThumbnailService TruncateCacheSize was called when Service State was: {ServiceState}");
+                Log.Warning("ThumbnailService TruncateCacheSize was called when Service State was: {ServiceState}", ServiceState);
                 return false;
             }
 
@@ -318,7 +307,7 @@ namespace ImageViewer.Services
         {
             if (ServiceState != ThumbnailServiceState.Idle)
             {
-                Log.Warning($"ThumbnailService Clear Database was called when Service State was: {ServiceState}");
+                Log.Warning("ThumbnailService Clear Database was called when Service State was: {ServiceState}", ServiceState);
                 return false;
             }
 
@@ -367,7 +356,7 @@ namespace ImageViewer.Services
         ScanningDirectory = 0x10,
 
         /// <summary>
-        /// Database maintenance state
+        ///     Database maintenance state
         /// </summary>
         DatabaseMaintenance = 0x20
     }

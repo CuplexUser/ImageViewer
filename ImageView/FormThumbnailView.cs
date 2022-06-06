@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using ImageProcessor;
-using ImageViewer.DataContracts;
 using ImageViewer.Delegates;
 using ImageViewer.Managers;
 using ImageViewer.Models;

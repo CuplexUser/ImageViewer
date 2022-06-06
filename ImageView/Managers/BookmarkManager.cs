@@ -15,14 +15,19 @@ namespace ImageViewer.Managers
     {
         private BookmarkContainer _bookmarkContainer;
 
+        public Guid BookmarkManagerId { get; init; }
+
         public BookmarkManager()
         {
             _bookmarkContainer = CreateBookmarkContainer();
-            RootFolder = _bookmarkContainer.RootFolder;
+            BookmarkManagerId = Guid.NewGuid();
             IsModified = false;
         }
 
-        public BookmarkFolder RootFolder { get; private set; }
+        public BookmarkFolder RootFolder
+        {
+            get { return _bookmarkContainer.RootFolder; }
+        }
 
         public bool IsModified { get; private set; }
 
@@ -30,10 +35,10 @@ namespace ImageViewer.Managers
 
         public event BookmarkUpdatedEventHandler OnBookmarksUpdate;
 
-        private void BookmarkUpdated(BookmarkUpdatedEventArgs e)
+        protected void BookmarkUpdated(object sender, BookmarkUpdatedEventArgs e)
         {
-            IsModified = true;
-            OnBookmarksUpdate?.Invoke(this, e);
+
+
         }
 
         private BookmarkContainer CreateBookmarkContainer()
@@ -82,7 +87,7 @@ namespace ImageViewer.Managers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "BookmarkManager.SaveToFile(string filename, string password) : " + ex.Message, ex);
+                Log.Error(ex, "BookmarkManager.SaveToFile(string filename, string password) : {Message}", ex.Message);
                 return false;
             }
         }
@@ -113,7 +118,6 @@ namespace ImageViewer.Managers
 
                 int changesMade = PrepareContainer(bookmarkContainer);
                 _bookmarkContainer = bookmarkContainer;
-                RootFolder = _bookmarkContainer.RootFolder;
                 if (changesMade > 0)
                 {
                     Log.Information("Loaded Bookmarks file which had {changesMade} number of issues like faulty links. Re-saving fixed file", changesMade);
@@ -126,7 +130,7 @@ namespace ImageViewer.Managers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "BookmarkManager.LoadFromFile(string filename, string password) : " + ex.Message, ex);
+                Log.Error(ex, "BookmarkManager.LoadFromFile(string filename, string password) : {Message}", ex.Message);
             }
 
             return false;
@@ -159,14 +163,13 @@ namespace ImageViewer.Managers
                 {
                     RecursiveAdd(_bookmarkContainer.RootFolder, bookmarkContainer.RootFolder);
                 }
-
-                RootFolder = _bookmarkContainer.RootFolder;
+                
                 IsModified = true;
                 return true;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "BookmarkManager.LoadFromFile(string filename, string password) : " + ex.Message);
+                Log.Error(ex, "BookmarkManager.LoadFromFile(string filename, string password) : {Message}", ex.Message);
             }
 
             return false;
@@ -318,7 +321,8 @@ namespace ImageViewer.Managers
             };
 
             parentFolder.BookmarkFolders.Add(folder);
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmarkFolder, typeof(BookmarkFolder)));
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmarkFolder, typeof(BookmarkFolder)));
+
             return folder;
         }
 
@@ -350,7 +354,8 @@ namespace ImageViewer.Managers
 
             parentFolder.BookmarkFolders.Add(folder);
             parentFolder.BookmarkFolders.Sort((f1, f2) => f1.SortOrder.CompareTo(f2.SortOrder));
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmarkFolder, typeof(BookmarkFolder)));
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmarkFolder, typeof(BookmarkFolder)));
+
             return folder;
         }
 
@@ -375,7 +380,9 @@ namespace ImageViewer.Managers
             };
 
             parentFolder.Bookmarks.Add(bookmark);
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmark, typeof(Bookmark)));
+            IsModified = true;
+
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmark, typeof(Bookmark)));
             return bookmark;
         }
 
@@ -410,7 +417,8 @@ namespace ImageViewer.Managers
 
             parentFolder.Bookmarks.Add(bookmark);
             parentFolder.Bookmarks.Sort((b1, b2) => b1.SortOrder.CompareTo(b2.SortOrder));
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmark, typeof(Bookmark)));
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.CreatedBookmark, typeof(Bookmark)));
+
             return bookmark;
         }
 
@@ -440,7 +448,7 @@ namespace ImageViewer.Managers
             if (success)
             {
                 ReindexSortOrder(false, true);
-                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
+                OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
             }
 
             return success;
@@ -454,7 +462,7 @@ namespace ImageViewer.Managers
             if (bookmarkToDelete == null) return false;
             bool success = parentFolder.Bookmarks.Remove(bookmarkToDelete);
             ReindexSortOrder(false, true);
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
 
             return success;
         }
@@ -470,7 +478,7 @@ namespace ImageViewer.Managers
             if (success)
             {
                 ReindexSortOrder(false, true);
-                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmarkFolder, typeof(Bookmark)));
+                OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmarkFolder, typeof(Bookmark)));
             }
 
             return success;
@@ -487,7 +495,7 @@ namespace ImageViewer.Managers
             bool result = parentFolder.BookmarkFolders.Remove(bookmarkFolder);
             ReindexSortOrder(true, false);
             if (result)
-                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmarkFolder, typeof(Bookmark)));
+                OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmarkFolder, typeof(Bookmark)));
 
             return result;
         }
@@ -552,7 +560,7 @@ namespace ImageViewer.Managers
             if (removedItems > 0)
             {
                 ReindexSortOrder(false, true);
-                BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
+                OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.DeletedBookmark, typeof(Bookmark)));
             }
 
             return removedItems;
@@ -582,7 +590,7 @@ namespace ImageViewer.Managers
 
         public void BookmarkDatasourceUpdated()
         {
-            BookmarkUpdated(new BookmarkUpdatedEventArgs(BookmarkActions.LoadedNewDataSource, typeof(Bookmark)));
+            OnBookmarksUpdate?.Invoke(this, new BookmarkUpdatedEventArgs(BookmarkActions.LoadedNewDataSource, typeof(Bookmark)));
         }
 
         public void VerifyIntegrityOfBookmarkFolder(BookmarkFolder folder)
@@ -693,6 +701,11 @@ namespace ImageViewer.Managers
         {
             _bookmarkContainer = CreateBookmarkContainer();
             IsModified = false;
+        }
+
+        public override string ToString()
+        {
+            return BookmarkManagerId.ToString();
         }
     }
 }

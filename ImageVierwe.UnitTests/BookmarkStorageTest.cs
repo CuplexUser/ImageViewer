@@ -45,8 +45,8 @@ namespace ImageView.UnitTests
             };
             _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
 
-            _container = ContainerFactory.CreateUnitTestContainer();
-            _lifetimeScope = _container.BeginLifetimeScope();
+            var container = ContainerFactory.CreateUnitTestContainer();
+            _lifetimeScope = container.BeginLifetimeScope();
         }
 
         [ClassCleanup]
@@ -63,7 +63,7 @@ namespace ImageView.UnitTests
         [TestInitialize]
         public void MyTestInitialize()
         {
-
+            
         }
 
         // Use TestCleanup to run code after each test has run
@@ -208,14 +208,14 @@ namespace ImageView.UnitTests
             using (var scope = _lifetimeScope.BeginLifetimeScope())
             {
                 var bookmarkService = scope.Resolve<BookmarkService>();
+                bookmarkService.BookmarkManager.ClearBookmarks();
                 var bookmarkManager = bookmarkService.BookmarkManager;
                 var rootFolder = bookmarkManager.RootFolder;
-                bookmarkManager.ClearBookmarks();
+                
 
                 Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager should not be modified");
+
                 bookmarkManager.AddBookmark(rootFolder.Id, "Bookmark1", _genericImageRef);
-
-
                 Assert.IsTrue(bookmarkManager.IsModified, "BookmarkManager should be modified");
                 bookmarkService.SaveBookmarks();
                 Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager should not be modified");

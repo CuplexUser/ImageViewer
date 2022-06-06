@@ -83,7 +83,7 @@ namespace ImageViewer.Managers
         {
             if (thumbnail.Length == 0)
             {
-                Log.Warning($"ReadImageFromDatabase for thumbnail '{thumbnail.FullPath}' was not possible because of 0 lengath");
+                Log.Warning("ReadImageFromDatabase for thumbnail '{FullPath}' was not possible because of 0 lengath", thumbnail.FullPath);
                 return null;
             }
 

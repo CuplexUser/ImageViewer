@@ -1,5 +1,4 @@
-﻿using ImageViewer.Models.Import;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts.Import
 {

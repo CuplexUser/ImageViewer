@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Log = Serilog.Log;
 
 namespace ImageViewer.Managers
 {
@@ -105,7 +104,7 @@ namespace ImageViewer.Managers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "failed to create an instance of the following form {Name}", formType.Name);
+                Serilog.Log.Error(ex, "failed to create an instance of the following form {Name}", formType.Name);
             }
 
             return false;

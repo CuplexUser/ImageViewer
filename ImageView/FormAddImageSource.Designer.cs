@@ -29,29 +29,29 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node1");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node13");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
-            treeNode2});
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Node11");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Node12");
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode3,
-            treeNode4,
-            treeNode5});
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Node1");
+            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Node13");
+            System.Windows.Forms.TreeNode treeNode16 = new System.Windows.Forms.TreeNode("Node10", new System.Windows.Forms.TreeNode[] {
+            treeNode15});
+            System.Windows.Forms.TreeNode treeNode17 = new System.Windows.Forms.TreeNode("Node11");
+            System.Windows.Forms.TreeNode treeNode18 = new System.Windows.Forms.TreeNode("Node12");
+            System.Windows.Forms.TreeNode treeNode19 = new System.Windows.Forms.TreeNode("Node0", new System.Windows.Forms.TreeNode[] {
+            treeNode14,
+            treeNode16,
+            treeNode17,
+            treeNode18});
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormAddImageSource));
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Folder1");
-            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Sub 1");
-            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Folder2", new System.Windows.Forms.TreeNode[] {
-            treeNode8});
-            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Subfolder 1");
-            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Subfolder 2");
-            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Subfolder 3");
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Folder 3", new System.Windows.Forms.TreeNode[] {
-            treeNode10,
-            treeNode11,
-            treeNode12});
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Folder1");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Sub 1");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Folder2", new System.Windows.Forms.TreeNode[] {
+            treeNode2});
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Subfolder 1");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Subfolder 2");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Subfolder 3");
+            System.Windows.Forms.TreeNode treeNode20 = new System.Windows.Forms.TreeNode("Folder 3", new System.Windows.Forms.TreeNode[] {
+            treeNode4,
+            treeNode5,
+            treeNode6});
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.treeViewFileSystem = new System.Windows.Forms.TreeView();
@@ -109,7 +109,7 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.recentCollectionsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openRecentCollectionsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.file1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -185,32 +185,32 @@
             this.treeViewFileSystem.ImageList = this.imgListIcons;
             this.treeViewFileSystem.Location = new System.Drawing.Point(0, 0);
             this.treeViewFileSystem.Name = "treeViewFileSystem";
-            treeNode1.ImageKey = "Folder";
-            treeNode1.Name = "Node1";
-            treeNode1.SelectedImageKey = "FolderSelected";
-            treeNode1.Text = "Node1";
-            treeNode2.ImageKey = "Folder";
-            treeNode2.Name = "Node13";
-            treeNode2.SelectedImageKey = "FolderSelected";
-            treeNode2.Text = "Node13";
-            treeNode3.ImageIndex = 1;
-            treeNode3.Name = "Node10";
-            treeNode3.SelectedImageKey = "FolderSelected";
-            treeNode3.Text = "Node10";
-            treeNode4.ImageKey = "Folder";
-            treeNode4.Name = "Node11";
-            treeNode4.SelectedImageKey = "FolderSelected";
-            treeNode4.Text = "Node11";
-            treeNode5.ImageKey = "Folder";
-            treeNode5.Name = "Node12";
-            treeNode5.SelectedImageKey = "FolderSelected";
-            treeNode5.Text = "Node12";
-            treeNode6.ImageKey = "Drive";
-            treeNode6.Name = "Node0";
-            treeNode6.SelectedImageKey = "Drive";
-            treeNode6.Text = "Node0";
+            treeNode14.ImageKey = "Folder";
+            treeNode14.Name = "Node1";
+            treeNode14.SelectedImageKey = "FolderSelected";
+            treeNode14.Text = "Node1";
+            treeNode15.ImageKey = "Folder";
+            treeNode15.Name = "Node13";
+            treeNode15.SelectedImageKey = "FolderSelected";
+            treeNode15.Text = "Node13";
+            treeNode16.ImageIndex = 1;
+            treeNode16.Name = "Node10";
+            treeNode16.SelectedImageKey = "FolderSelected";
+            treeNode16.Text = "Node10";
+            treeNode17.ImageKey = "Folder";
+            treeNode17.Name = "Node11";
+            treeNode17.SelectedImageKey = "FolderSelected";
+            treeNode17.Text = "Node11";
+            treeNode18.ImageKey = "Folder";
+            treeNode18.Name = "Node12";
+            treeNode18.SelectedImageKey = "FolderSelected";
+            treeNode18.Text = "Node12";
+            treeNode19.ImageKey = "Drive";
+            treeNode19.Name = "Node0";
+            treeNode19.SelectedImageKey = "Drive";
+            treeNode19.Text = "Node0";
             this.treeViewFileSystem.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode6});
+            treeNode19});
             this.treeViewFileSystem.SelectedImageIndex = 2;
             this.treeViewFileSystem.Size = new System.Drawing.Size(227, 537);
             this.treeViewFileSystem.TabIndex = 6;
@@ -355,35 +355,35 @@
             this.treeViewImgCollection.ImageList = this.imgListViewIcons;
             this.treeViewImgCollection.Location = new System.Drawing.Point(0, 0);
             this.treeViewImgCollection.Name = "treeViewImgCollection";
-            treeNode7.Name = "Node0";
-            treeNode7.SelectedImageKey = "Folder2";
-            treeNode7.Text = "Folder1";
-            treeNode8.ImageKey = "Folder";
-            treeNode8.Name = "Node6";
-            treeNode8.SelectedImageKey = "Folder2";
-            treeNode8.Text = "Sub 1";
-            treeNode9.Name = "Node1";
-            treeNode9.SelectedImageKey = "Folder2";
-            treeNode9.Text = "Folder2";
-            treeNode10.ImageKey = "Image";
-            treeNode10.Name = "Node3";
-            treeNode10.SelectedImageKey = "Folder2";
-            treeNode10.Text = "Subfolder 1";
-            treeNode11.ImageKey = "Image";
-            treeNode11.Name = "Node4";
-            treeNode11.SelectedImageKey = "Folder2";
-            treeNode11.Text = "Subfolder 2";
-            treeNode12.ImageIndex = 3;
-            treeNode12.Name = "Node5";
-            treeNode12.SelectedImageKey = "Folder2";
-            treeNode12.Text = "Subfolder 3";
-            treeNode13.Name = "Node2";
-            treeNode13.SelectedImageKey = "Folder2";
-            treeNode13.Text = "Folder 3";
+            treeNode1.Name = "Node0";
+            treeNode1.SelectedImageKey = "Folder2";
+            treeNode1.Text = "Folder1";
+            treeNode2.ImageKey = "Folder";
+            treeNode2.Name = "Node6";
+            treeNode2.SelectedImageKey = "Folder2";
+            treeNode2.Text = "Sub 1";
+            treeNode3.Name = "Node1";
+            treeNode3.SelectedImageKey = "Folder2";
+            treeNode3.Text = "Folder2";
+            treeNode4.ImageKey = "Image";
+            treeNode4.Name = "Node3";
+            treeNode4.SelectedImageKey = "Folder2";
+            treeNode4.Text = "Subfolder 1";
+            treeNode5.ImageKey = "Image";
+            treeNode5.Name = "Node4";
+            treeNode5.SelectedImageKey = "Folder2";
+            treeNode5.Text = "Subfolder 2";
+            treeNode6.ImageIndex = 3;
+            treeNode6.Name = "Node5";
+            treeNode6.SelectedImageKey = "Folder2";
+            treeNode6.Text = "Subfolder 3";
+            treeNode20.Name = "Node2";
+            treeNode20.SelectedImageKey = "Folder2";
+            treeNode20.Text = "Folder 3";
             this.treeViewImgCollection.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode7,
-            treeNode9,
-            treeNode13});
+            treeNode1,
+            treeNode3,
+            treeNode20});
             this.treeViewImgCollection.SelectedImageIndex = 1;
             this.treeViewImgCollection.Size = new System.Drawing.Size(319, 493);
             this.treeViewImgCollection.TabIndex = 0;
@@ -697,13 +697,13 @@
             this.toolStripMenuItem4,
             this.newCollectionMenuItem,
             this.openCollectionMenuItem,
+            this.openRecentCollectionsMenuItem,
             this.toolStripMenuItem3,
             this.toolStripMenuItem1,
             this.toolStripMenuItem2,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
             this.toolStripMenuItem5,
-            this.recentCollectionsMenuItem,
             this.toolStripMenuItem9,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -713,26 +713,26 @@
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(177, 6);
             // 
             // newCollectionMenuItem
             // 
             this.newCollectionMenuItem.Name = "newCollectionMenuItem";
-            this.newCollectionMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.newCollectionMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newCollectionMenuItem.Text = "New";
             this.newCollectionMenuItem.Click += new System.EventHandler(this.newCollectionMenuItem_Click);
             // 
             // openCollectionMenuItem
             // 
             this.openCollectionMenuItem.Name = "openCollectionMenuItem";
-            this.openCollectionMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.openCollectionMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openCollectionMenuItem.Text = "Open";
             this.openCollectionMenuItem.Click += new System.EventHandler(this.openCollectionMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
             // 
             // toolStripMenuItem1
             // 
@@ -740,7 +740,7 @@
             this.filesToolStripMenuItem,
             this.foldersToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
             this.toolStripMenuItem1.Text = "Add";
             // 
             // filesToolStripMenuItem
@@ -758,50 +758,50 @@
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsToolStripMenuItem.Text = "Save As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(177, 6);
             // 
-            // recentCollectionsMenuItem
+            // openRecentCollectionsMenuItem
             // 
-            this.recentCollectionsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openRecentCollectionsMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.file1ToolStripMenuItem});
-            this.recentCollectionsMenuItem.Name = "recentCollectionsMenuItem";
-            this.recentCollectionsMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.recentCollectionsMenuItem.Text = "Recent Collections";
+            this.openRecentCollectionsMenuItem.Name = "openRecentCollectionsMenuItem";
+            this.openRecentCollectionsMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.openRecentCollectionsMenuItem.Text = "Open Recent";
             // 
             // file1ToolStripMenuItem
             // 
             this.file1ToolStripMenuItem.Name = "file1ToolStripMenuItem";
-            this.file1ToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.file1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.file1ToolStripMenuItem.Text = "File 1";
             // 
             // toolStripMenuItem9
             // 
             this.toolStripMenuItem9.Name = "toolStripMenuItem9";
-            this.toolStripMenuItem9.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem9.Size = new System.Drawing.Size(177, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -821,36 +821,36 @@
             // removeDuplicatesMenuItem
             // 
             this.removeDuplicatesMenuItem.Name = "removeDuplicatesMenuItem";
-            this.removeDuplicatesMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.removeDuplicatesMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeDuplicatesMenuItem.Text = "Remove Duplicates";
             // 
             // toolStripMenuItem8
             // 
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(172, 6);
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(177, 6);
             // 
             // cutToolStripMenuItem
             // 
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
-            this.cutToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.cutToolStripMenuItem.Text = "Cut";
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             // 
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             // 
             // toolsToolStripMenuItem
@@ -878,7 +878,7 @@
             this.toolStripMenuItem10,
             this.defaultToolStripMenuItem});
             this.setViewMenuItem.Name = "setViewMenuItem";
-            this.setViewMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.setViewMenuItem.Size = new System.Drawing.Size(180, 22);
             this.setViewMenuItem.Text = "Set View";
             // 
             // largeIconToolStripMenuItem
@@ -1029,7 +1029,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ToolStripMenuItem recentCollectionsMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openRecentCollectionsMenuItem;
         private System.Windows.Forms.ToolStripMenuItem file1ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem9;
         private System.Windows.Forms.ToolStripMenuItem removeDuplicatesMenuItem;

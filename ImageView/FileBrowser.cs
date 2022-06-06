@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;

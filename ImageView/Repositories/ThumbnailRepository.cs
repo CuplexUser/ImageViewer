@@ -69,6 +69,8 @@ namespace ImageViewer.Repositories
             _fileManager = fileManager;
             _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>();
             DbReaderWriterLock = new ReaderWriterLockSlim();
+            string fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, DatabaseFilename);
+            _thumbnailDatabase = ThumbnailDatabase.Create(fileName);
         }
 
         [NotNull] private ReaderWriterLockSlim DbReaderWriterLock { get; }
@@ -221,9 +223,9 @@ namespace ImageViewer.Repositories
         {
             try
             {
-                var storageManager = CreateStorageManager();
                 try
                 {
+                    var storageManager = CreateStorageManager();
                     string fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, DatabaseFilename);
                     ThumbnailDatabaseModel thumbnailDb = storageManager.DeserializeObjectFromFile<ThumbnailDatabaseModel>(fileName, null);
                     _thumbnailDatabase = _mapper.Map<ThumbnailDatabaseModel, ThumbnailDatabase>(thumbnailDb);
@@ -379,14 +381,14 @@ namespace ImageViewer.Repositories
 
         public bool SaveThumbnailDatabase()
         {
-            var cancelToken = new CancellationToken(false);
+            var tokenSource = new CancellationTokenSource(2000);
+            var cancelToken = tokenSource.Token;
             var saveTask = Task.Factory.StartNew(SaveThumbnailDatabaseAsync, cancelToken);
 
-            cancelToken.WaitHandle.WaitOne(2000, false);
-            cancelToken.WaitHandle.Close();
             if (saveTask.IsCanceled)
             {
                 Log.Warning("SaveThumbnailDatabaseAsync timed out after 2000 ms");
+                return false;
             }
 
             return saveTask.Result.Result;
@@ -420,7 +422,7 @@ namespace ImageViewer.Repositories
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "ThumbnailManager.SaveThumbnailDatabase() : " + ex.Message, ex);
+                Log.Error(ex, "ThumbnailManager.SaveThumbnailDatabase() :{Message} ", ex.Message);
                 return false;
             }
             finally
@@ -482,6 +484,8 @@ namespace ImageViewer.Repositories
 
         #endregion
 
+        /*
+        [Obsolete]
         [SecuritySafeCritical]
         private void GetDatabaseKey(ref SecureString secureString)
         {
@@ -514,6 +518,39 @@ namespace ImageViewer.Repositories
                 secure.Dispose();
             }
         }
+        */
+
+        [SecuritySafeCritical]
+        private void GetDatabaseKey(ref SecureString secureString)
+        {
+            var saltBytes = GeneralConverters.HexStringToByteArray(Salt);
+
+
+            using (var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 5207, HashAlgorithmName.SHA512))
+            {
+                byte[] buffer = deriveBytes.GetBytes(512);
+
+
+                try
+                {
+                    secureString.Clear();
+                    buffer = SHA256.HashData(buffer);
+                    char[] buffer2 = new char[buffer.Length * 2];
+                    int size = Convert.ToBase64CharArray(buffer, 0, buffer.Length, buffer2, 0);
+
+                    for (int i = 0; i < size; i += 2)
+                    {
+                        secureString.AppendChar(buffer2[i]);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "GetDatabaseKey exception, message: {Message}", ex.Message);
+                }
+
+            }
+
+        }
 
         /// <summary>
         ///     Creates the storage manager.
@@ -522,23 +559,12 @@ namespace ImageViewer.Repositories
         private StorageManager CreateStorageManager()
         {
             StorageManager storageManager = null;
-            using (var secureStr = new SecureString())
-            {
-                var strCpy = secureStr.Copy();
-                GetDatabaseKey(ref strCpy);
-                secureStr.Clear();
+            var secureStr = new SecureString();
+            GetDatabaseKey(ref secureStr);
 
-                foreach (char c in strCpy.ToString())
-                {
-                    secureStr.AppendChar(c);
-                }
+            var settings = new StorageManagerSettings(true, Environment.ProcessorCount, true, secureStr.ToString());
+            storageManager = new StorageManager(settings);
 
-                strCpy.Clear();
-                strCpy.Dispose();
-
-                var settings = new StorageManagerSettings(true, Environment.ProcessorCount, true, secureStr.ToString());
-                storageManager = new StorageManager(settings);
-            }
 
             return storageManager;
         }

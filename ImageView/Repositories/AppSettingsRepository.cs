@@ -12,10 +12,10 @@ namespace ImageViewer.Repositories
     {
         private readonly FileSystemIOProvider _ioProvider;
         private readonly string appConfigSettingsFilePath;
-        private const string SettingsFilename = "ImageConverterSettings.bin";
+        private const string SettingsFilename = "ImageViewSettings.dat";
         private readonly IMapper _mapper;
         private ApplicationSettingsModel _settingsModel;
-        private const string mockPwd = "kpGSuZwV2gvjnyHNDhS6q2*%nU7WB4F6xpyhWn%Nrhs49BZKeiFbee!fzh2MTQ%d";
+        private const string MockPwd = "kpGSuZwV2gvjnyHNDhS6q2*%nU7WB4F6xpyhWn%Nrhs49BZKeiFbee!fzh2MTQ%d";
 
         public AppSettingsRepository(IMapper mapper)
         {
@@ -67,7 +67,7 @@ namespace ImageViewer.Repositories
             {
                 try
                 {
-                    var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath, mockPwd);
+                    var applicationConfig = _ioProvider.LoadApplicationSettings(appConfigSettingsFilePath, MockPwd);
                     _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
                 }
                 catch (Exception ex)
@@ -107,7 +107,7 @@ namespace ImageViewer.Repositories
         public bool SaveSettings(ApplicationSettingsModel settings)
         {
             ApplicationSettingsDataModel settingsDataModel = _mapper.Map<ApplicationSettingsModel, ApplicationSettingsDataModel>(settings);
-            bool result = _ioProvider.SaveApplicationSettings(appConfigSettingsFilePath, settingsDataModel, mockPwd);
+            bool result = _ioProvider.SaveApplicationSettings(appConfigSettingsFilePath, settingsDataModel, MockPwd);
             if (result)
             {
                 _settingsModel = settings;

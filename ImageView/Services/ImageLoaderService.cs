@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using ImageViewer.Collections;
-using ImageViewer.DataContracts;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Models.Import;

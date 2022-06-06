@@ -1,11 +1,6 @@
 ﻿#region Includes
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
 using AutoMapper;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
@@ -65,7 +60,7 @@ namespace ImageViewer
                 return;
 
             //Recent Files
-            recentCollectionsMenuItem.DropDownItems.Clear();
+            openRecentCollectionsMenuItem.DropDownItems.Clear();
             treeViewFileSystem.Nodes.Clear();
             lblImageCount.Text = "Images:";
             lblWorkingFileName.Text = "";
@@ -306,19 +301,6 @@ namespace ImageViewer
             return importList.Count + importList.Sum(model => GetUniqueFolderCount(model.SubFolders));
         }
 
-        private void treeViewFileSystem_ItemDrag(object sender, ItemDragEventArgs e)
-        {
-            var node = e.Item as TreeNode;
-            if (e.Button == MouseButtons.Left)
-            {
-                if (node?.Tag is SourceFolderModel item)
-                {
-                    var dataModel = _mapper.Map<SourceFolderDataModel>(item);
-                    treeViewFileSystem.DoDragDrop(dataModel, DragDropEffects.Copy | DragDropEffects.Move);
-                }
-            }
-        }
-
         private void AddOutputDirectoryToTreeView(OutputDirectoryModel sourceFolder, bool recursive = true)
         {
             if (_outputDirList.All(x => x.Id != sourceFolder.Id))
@@ -430,7 +412,7 @@ namespace ImageViewer
             TreeNode node = treeViewImgCollection.SelectedNode;
             if (node != null)
             {
-                var model = (OutputDirectoryModel)node.Tag;
+                var model = (OutputDirectoryModel) node.Tag;
                 TreeNode nextNode = node.NextNode;
                 treeViewImgCollection.Nodes.Remove(node);
 
@@ -487,6 +469,19 @@ namespace ImageViewer
                 }
             }
         }
+        private void ClearCollection(bool createNew)
+        {
+            _outputDirList.Clear();
+            treeViewImgCollection.Nodes.Clear();
+            lstBoxOutputFiles.Items.Clear();
+            UpdateSelectionStats();
+            if (createNew)
+            {
+                _imageCollectionFile = ImageCollectionFile.CreateNew();
+                lblWorkingFileName.Text = _imageCollectionFile.FileName;
+            }
+        }
+        #region Button Events
 
         private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
         {
@@ -581,6 +576,7 @@ namespace ImageViewer
             }
         }
 
+
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveImageCollectionToFile(false);
@@ -596,18 +592,7 @@ namespace ImageViewer
             ClearCollection(true);
         }
 
-        private void ClearCollection(bool createNew)
-        {
-            _outputDirList.Clear();
-            treeViewImgCollection.Nodes.Clear();
-            lstBoxOutputFiles.Items.Clear();
-            UpdateSelectionStats();
-            if (createNew)
-            {
-                _imageCollectionFile = ImageCollectionFile.CreateNew();
-                lblWorkingFileName.Text = _imageCollectionFile.FileName;
-            }
-        }
+
 
         private void openCollectionMenuItem_Click(object sender, EventArgs e)
         {
@@ -652,6 +637,24 @@ namespace ImageViewer
                 else
                 {
                     MessageBox.Show("Failed to open the selected file", "Could not open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        #endregion
+
+
+
+        #region TreeView Events
+        private void treeViewFileSystem_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            var node = e.Item as TreeNode;
+            if (e.Button == MouseButtons.Left)
+            {
+                if (node?.Tag is SourceFolderModel item)
+                {
+                    var dataModel = _mapper.Map<SourceFolderDataModel>(item);
+                    treeViewFileSystem.DoDragDrop(dataModel, DragDropEffects.Copy | DragDropEffects.Move);
                 }
             }
         }
@@ -701,7 +704,7 @@ namespace ImageViewer
             TreeNode node = e.Node;
             if (node != null)
             {
-                var model = (OutputDirectoryModel)node.Tag;
+                var model = (OutputDirectoryModel) node.Tag;
                 lstBoxOutputFiles.BeginUpdate();
                 lstBoxOutputFiles.Items.Clear();
 
@@ -723,11 +726,13 @@ namespace ImageViewer
             }
         }
 
-        #region TreeView Events
+
+
+
 
         private void TreeViewFileSystem_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            Log.Information($"TreeViewFileSystem_BeforeExpand({e.Action}, {e.Node?.Name})");
+            Log.Information("TreeViewFileSystem_BeforeExpand({Action}, {Name})", e.Action, e.Node?.Name);
 
             TreeNode node = e.Node;
             if (node == null)
@@ -788,9 +793,6 @@ namespace ImageViewer
         {
         }
 
-        #endregion
-
-        #region Button Events
 
         private async void btnLoad_Click(object sender, EventArgs e)
         {
