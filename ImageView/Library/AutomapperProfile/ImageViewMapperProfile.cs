@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ImageViewer.Models;
+using ImageViewer.Models.FormMenuHistory;
 using ImageViewer.Models.Import;
 
 namespace ImageViewer.Library.AutoMapperProfile
@@ -13,6 +14,8 @@ namespace ImageViewer.Library.AutoMapperProfile
             SourceFolderModel.CreateMapping(this);
             OutputDirectoryModel.CreateMapping(this);
             ImageRefModel.CreateMapping(this);
+            RecentFileModel.CreateMapping(this);
+            RecentFilesCollection.CreateMapping(this);
         }
     }
 }

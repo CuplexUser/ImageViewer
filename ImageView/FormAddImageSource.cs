@@ -120,6 +120,25 @@ namespace ImageViewer
             }
         }
 
+        private void ExpandNode(ref TreeNode node, ref SourceFolderModel sourceFolder)
+        {
+            node.Nodes.Clear();
+            foreach (SourceFolderModel folder in sourceFolder.Folders)
+            {
+                TreeNode tn = CreateTreeNode(folder);
+                node.Nodes.Add(tn);
+
+                if (folder.Folders.Count > 0)
+                {
+                    tn.Nodes.Clear();
+                    foreach (SourceFolderModel subFolder in folder.Folders)
+                    {
+                        tn.Nodes.Add(CreateTreeNode(subFolder));
+                    }
+                }
+            }
+        }
+
         private TreeNode CreateTreeNode(SourceFolderModel folder)
         {
             var node = new TreeNode(folder.Name)
@@ -182,7 +201,7 @@ namespace ImageViewer
 
             var topNode = new TreeNode(rootObject.Name, childNodes)
             {
-                Tag = rootObject.Id,
+                Tag = rootObject,
                 ImageKey = "Drive",
                 SelectedImageKey = "Drive"
             };
@@ -550,6 +569,16 @@ namespace ImageViewer
             }
         }
 
+        private string GetFullPathFromFileName(string fileName)
+        {
+            if (treeViewImgCollection.SelectedNode?.Tag is OutputDirectoryModel nodeData)
+            {
+                return Path.Join(nodeData.FullName, fileName);
+            }
+
+            return null;
+        }
+
         private void SaveImageCollection()
         {
             if (_outputDirList.Count > 0)
@@ -739,16 +768,12 @@ namespace ImageViewer
                 return;
 
 
-            if (node.Nodes.Count == 0)
+            switch (node.Tag)
             {
-                if (node.Tag is SourceFolderModel sourceFolder)
-                {
-                    RecursiveNodeExpansion(ref node, ref sourceFolder, node.Level + 3);
-                    treeViewFileSystem.BeginUpdate();
-                    treeViewFileSystem.Sort();
-                    treeViewFileSystem.EndUpdate();
-                }
-                else if (node.Tag is RootObjectModel rootObject)
+                case SourceFolderModel sourceFolder:
+                    ExpandNode(ref node, ref sourceFolder);
+                    break;
+                case RootObjectModel rootObject when node.Nodes.Count == 0:
                 {
                     treeViewFileSystem.BeginUpdate();
                     foreach (SourceFolderModel folder in rootObject.Folders)
@@ -760,8 +785,10 @@ namespace ImageViewer
 
                     treeViewFileSystem.Sort();
                     treeViewFileSystem.EndUpdate();
+                    break;
                 }
             }
+
         }
 
         // After expansion, Add next available colection of ChildNodes for each node at the new expanded level 
@@ -890,5 +917,14 @@ namespace ImageViewer
         }
 
         #endregion
+
+        private void lstBoxOutputFiles_DoubleClick(object sender, EventArgs e)
+        {
+            if (lstBoxOutputFiles.SelectedItem is string fileName)
+            {
+                var fullPath = GetFullPathFromFileName(fileName);
+                ApplicationIOHelper.OpenImageInDefaultAplication(fullPath);
+            }
+        }
     }
 }

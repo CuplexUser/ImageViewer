@@ -1,6 +1,7 @@
 ﻿using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
 using System.ComponentModel.DataAnnotations;
+using ImageViewer.Models.FormMenuHistory;
 
 namespace ImageViewer.Models
 {
@@ -324,5 +325,13 @@ namespace ImageViewer.Models
         ///   <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
         /// </value>
         public bool IsLoadedFromDisk { get; set; }
+
+        /// <summary>
+        /// Gets or sets the recent files.
+        /// </summary>
+        /// <value>
+        /// The recent files.
+        /// </value>
+        public RecentFilesCollection RecentFilesCollection { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using ImageViewer.Models;
 using ImageViewer.Providers;
 using Serilog;
 using System.Collections.Concurrent;
+using ImageViewer.Models.FormMenuHistory;
 
 namespace ImageViewer.Repositories
 {
@@ -50,7 +51,8 @@ namespace ImageViewer.Repositories
                 AutoHideCursorDelay = 2000,
                 AppSettingsGuid = Guid.NewGuid(),
                 IsLoadedFromDisk = false,
-                FormStateModels = new Dictionary<string, FormStateModel>()
+                FormStateModels = new Dictionary<string, FormStateModel>(),
+                RecentFilesCollection= new RecentFilesCollection(null)
             };
 
             return settings;
