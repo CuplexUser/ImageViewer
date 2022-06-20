@@ -1,6 +1,7 @@
 ﻿#region Includes
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
@@ -64,6 +65,7 @@ namespace ImageViewer
             treeViewFileSystem.Nodes.Clear();
             lblImageCount.Text = "Images:";
             lblWorkingFileName.Text = "";
+            lblAsyncStateInfo.Text = "";
 
             // Restore previous form state
             ApplicationSettingsModel settings = _applicationSettingsService.Settings;
@@ -488,6 +490,42 @@ namespace ImageViewer
                 }
             }
         }
+
+        private async Task<int> RemoveMissingFiles()
+        {
+            int fileCnt = 0;
+            CancellationToken token = new CancellationToken(false);
+
+            await Parallel.ForEachAsync(source: _outputDirList, body: async (item, cancellationToken) =>
+            {
+                int cnt = await Task<int>.Factory.StartNew(() => RemoveMissingItems(item, cancellationToken), cancellationToken);
+                fileCnt += cnt;
+            });
+
+            return fileCnt;
+        }
+
+        private int RemoveMissingItems(OutputDirectoryModel model, CancellationToken token)
+        {
+            int fileCnt = 0;
+            foreach (ImageRefModel imgRefModel in model.ImageList)
+            {
+                if (!File.Exists(imgRefModel.CompletePath))
+                {
+                    fileCnt++;
+                    imgRefModel.MarkedForDeletion = true;
+                    imgRefModel.FileSize = 0;
+                }
+            }
+
+            foreach (OutputDirectoryModel subFolder in model.SubFolders)
+            {
+                fileCnt += RemoveMissingItems(subFolder, token);
+            }
+
+            return fileCnt;
+        }
+
         private void ClearCollection(bool createNew)
         {
             _outputDirList.Clear();
@@ -755,10 +793,6 @@ namespace ImageViewer
             }
         }
 
-
-
-
-
         private void TreeViewFileSystem_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             Log.Information("TreeViewFileSystem_BeforeExpand({Action}, {Name})", e.Action, e.Node?.Name);
@@ -774,19 +808,19 @@ namespace ImageViewer
                     ExpandNode(ref node, ref sourceFolder);
                     break;
                 case RootObjectModel rootObject when node.Nodes.Count == 0:
-                {
-                    treeViewFileSystem.BeginUpdate();
-                    foreach (SourceFolderModel folder in rootObject.Folders)
                     {
-                        TreeNode tn = CreateTreeNode(folder);
-                        node.Nodes.Add(tn);
+                        treeViewFileSystem.BeginUpdate();
+                        foreach (SourceFolderModel folder in rootObject.Folders)
+                        {
+                            TreeNode tn = CreateTreeNode(folder);
+                            node.Nodes.Add(tn);
+                        }
+
+
+                        treeViewFileSystem.Sort();
+                        treeViewFileSystem.EndUpdate();
+                        break;
                     }
-
-
-                    treeViewFileSystem.Sort();
-                    treeViewFileSystem.EndUpdate();
-                    break;
-                }
             }
 
         }
@@ -924,6 +958,56 @@ namespace ImageViewer
             {
                 var fullPath = GetFullPathFromFileName(fileName);
                 ApplicationIOHelper.OpenImageInDefaultAplication(fullPath);
+            }
+        }
+
+        private async void removeMissingFilesMenuItem_Click(object sender, EventArgs e)
+        {
+            removeMissingFilesMenuItem.Enabled = false;
+            lblAsyncStateInfo.Text = "Awaiting background task";
+            int removedItems = await RemoveMissingFiles();
+
+            if (removedItems > 0)
+            {
+                await CleanupResultCollection();
+                UpdateSelectionStats();
+                lblAsyncStateInfo.Text = "Task Completed";
+                MessageBox.Show($"Removed {removedItems} files from the collection.", "Found missing files", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            lblAsyncStateInfo.Text = "";
+            removeMissingFilesMenuItem.Enabled = true;
+        }
+
+        private async Task CleanupResultCollection()
+        {
+            await Task.Factory.StartNew(() =>
+            {
+                foreach (var model in _outputDirList)
+                {
+                    var toBeRemoved = model.ImageList.Where(x => x.MarkedForDeletion).ToList();
+                    foreach (var item in toBeRemoved)
+                        model.ImageList.Remove(item);
+
+                    if (model.SubFolders.Count > 0)
+                    {
+                        RecursiveCleanupResultCollection(model.SubFolders);
+                    }
+                }
+
+            });
+        }
+
+        private void RecursiveCleanupResultCollection(IEnumerable<OutputDirectoryModel> subFolders)
+        {
+            foreach (var model in subFolders)
+            {
+                var toBeRemoved = model.ImageList.Where(x => x.MarkedForDeletion).ToList();
+                foreach (var item in toBeRemoved)
+                    model.ImageList.Remove(item);
+
+                if (model.SubFolders.Count > 0)
+                    RecursiveCleanupResultCollection(model.SubFolders);
             }
         }
     }

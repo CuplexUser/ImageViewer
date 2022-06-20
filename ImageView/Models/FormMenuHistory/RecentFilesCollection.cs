@@ -26,7 +26,16 @@ namespace ImageViewer.Models.FormMenuHistory
             }
         }
 
+        public Guid Id { get; private set; }
+
+        public string OwnerFormName { get; set; }
+
         public int Count => RecentFiles.Count;
+
+        public RecentFilesCollection()
+        {
+            Id = Guid.NewGuid();
+        }
 
         public RecentFilesCollection(ApplicationSettingsModel settings)
         {
@@ -36,6 +45,7 @@ namespace ImageViewer.Models.FormMenuHistory
             if (settings == null)
             {
                 RecentFiles = new List<RecentFileModel>();
+                Id = Guid.NewGuid();
                 return;
             }
 

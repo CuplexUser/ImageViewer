@@ -263,3 +263,4 @@ __pycache__/
 /Dotfuscated/Dotfuscated
 /ImageView.UnitTest/.upgrade-assistant
 /AnalysisReport.sarif
+/ImageView/Properties/PublishProfiles/ClickOnceProfile.pubxml

@@ -1110,6 +1110,12 @@ namespace ImageViewer
                     continue;
                 }
 
+                if (imageWindow.WindowState == FormWindowState.Minimized)
+                {
+                    imageWindow.WindowState=FormWindowState.Normal;
+                    imageWindow.Size = new Size(imageWindow.RestoreBounds.Width, imageWindow.RestoreBounds.Height);
+                }
+
                 imageWindow.Show();
                 imageWindow.Focus();
             }

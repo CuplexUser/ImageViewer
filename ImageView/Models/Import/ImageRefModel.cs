@@ -74,6 +74,15 @@ namespace ImageViewer.Models.Import
         /// </value>
         public int SortOrder { get; set; }
 
+        /// <summary>
+        /// Gets or sets a future delete flag usuallyt in a asynchronumous execution state in which the item
+        /// can be removed later in a single threaded recursive context.
+        /// </summary>
+        /// <value>
+        /// The sort order.
+        /// </value>
+        public bool MarkedForDeletion { get; set; }
+
 
         /// <summary>
         /// Creates the mapping.
@@ -89,6 +98,7 @@ namespace ImageViewer.Models.Import
                 .ForMember(s => s.CreationTime, o => o.MapFrom(d => d.CreationTime))
                 .ForMember(s => s.Directory, o => o.MapFrom(d => d.Directory))
                 .ReverseMap()
+                .ForMember(s => s.MarkedForDeletion, o => o.Ignore())
                 .ForMember(s => s.ImageType, o => o.MapFrom(d => SystemIOHelper.GetFileExtention(d.FileName)))
                 .ForMember(s => s.SortOrder, o => o.MapFrom((reference, model, arg3) => arg3));
 

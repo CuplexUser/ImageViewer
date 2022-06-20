@@ -11,9 +11,14 @@ namespace ImageViewer.Models.FormMenuHistory
         /// <summary>
         /// Initializes a new instance of the <see cref="RecentFileModel"/> class.
         /// </summary>
-        public RecentFileModel()
+        public static RecentFileModel CreateFileModel()
         {
-            Guid = Guid.NewGuid();
+            var rfm = new RecentFileModel
+            {
+                Guid = Guid.NewGuid()
+            };
+
+            return rfm;
         }
 
         /// <summary>
