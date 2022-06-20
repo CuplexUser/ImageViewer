@@ -974,6 +974,10 @@ namespace ImageViewer
                 lblAsyncStateInfo.Text = "Task Completed";
                 MessageBox.Show($"Removed {removedItems} files from the collection.", "Found missing files", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+            else
+            {
+                MessageBox.Show($"No missing files where found.", "No missing files found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
 
             lblAsyncStateInfo.Text = "";
             removeMissingFilesMenuItem.Enabled = true;
