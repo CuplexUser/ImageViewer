@@ -1055,6 +1055,9 @@ namespace ImageViewer
         private async void newWindowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FormImageView imageViewForm = await _formManager.GetFormImageViewAsync(_imageViewFormIdCnt++);
+
+            // Set default size for new windows created
+            imageViewForm.Size = new Size(400, 600);
             _imageViewFormList.Add(imageViewForm);
             imageViewForm.FormClosed += imageViewForm_FormClosed;
             imageViewForm.Show();

@@ -6,6 +6,7 @@ using AutoMapper;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using ImageViewer.Models.FormMenuHistory;
 using ImageViewer.Models.Import;
 using ImageViewer.Models.UserInteraction;
 using ImageViewer.Repositories;
@@ -94,10 +95,44 @@ namespace ImageViewer
                 }
             }
 
+            // Recent Files collection
+            if (settings.RecentFilesCollection == null)
+            {
+                settings.RecentFilesCollection = new RecentFilesCollection(settings)
+                {
+                    OwnerFormName = nameof(FormAddImageSource),
+                    MaxNoItems = 10,
+                };
+            }
+            else
+            {
+                openRecentCollectionsMenuItem.DropDownItems.Clear();
+                foreach (var recentFile in settings.RecentFilesCollection.RecentFiles)
+                {
+                    openRecentCollectionsMenuItem.DropDownItems.Add(recentFile.FullPath,null, OnRecentMenuItemClick);
+                }
+
+
+            }
+
             var selectedDrive = cbDrives.SelectedItem as DriveModel;
             RootNode = RootObjectModel.CreateRootObject(selectedDrive);
             RootNodeChanged?.Invoke(this, EventArgs.Empty);
             Initialized = true;
+        }
+
+        private void OnRecentMenuItemClick(object sender, EventArgs e)
+        {
+            if (sender is ToolStripDropDownItem menuItem)
+            {
+                string fullPath = menuItem.Text;
+                var settings = _applicationSettingsService.Settings;
+                var item = settings.RecentFilesCollection.RecentFiles.SingleOrDefault(x => x.FullPath == fullPath);
+                if (item != null)
+                {
+                    OpenFileCollection(item.FullPath);
+                }
+            }
         }
 
         #endregion
@@ -634,12 +669,73 @@ namespace ImageViewer
                     _imageCollectionFile.IsSaved = true;
                     _imageCollectionFile.IsChanged = false;
                     lblWorkingFileName.Text = _imageCollectionFile.FileName;
+                    UpdateRecentFiles(_imageCollectionFile.FullPath);
                     MessageBox.Show("Save was successful", "File Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
                     MessageBox.Show("Could not save file", "File save error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void UpdateRecentFiles(string fullPath)
+        {
+            if (fullPath == null)
+                return;
+
+            var settings = _applicationSettingsService.Settings;
+            if (settings.RecentFilesCollection.RecentFiles.All(x => x.FullPath != fullPath))
+            {
+                var fi = new FileInfo(fullPath);
+                var recent = new RecentFileModel
+                {
+                    CreatedDate = fi.CreationTime,
+                    FullPath = fi.FullName,
+                    Name = fi.Name,
+                    SortOrder = settings.RecentFilesCollection.Count + 1
+                };
+
+                settings.RecentFilesCollection.AddRecentFile(recent);
+                if (settings.RecentFilesCollection.Count > settings.RecentFilesCollection.MaxNoItems)
+                {
+                    var item = settings.RecentFilesCollection.RecentFiles.OrderBy(x => x.CreatedDate).First();
+                    settings.RecentFilesCollection.RecentFiles.Remove(item);
+                }
+                _applicationSettingsService.SaveSettings();
+            }
+        }
+
+        private void OpenFileCollection(string fullPath)
+        {
+            _imageCollectionFile.FullPath = fullPath;
+            _imageCollectionFile.FileName = Path.GetFileName(_imageCollectionFile.FullPath);
+            lblWorkingFileName.Text = _imageCollectionFile.FileName;
+
+            OutputDirectoryModel outputDirRootModel = _imageCollectionRepository.LoadImageCollection(_imageCollectionFile.FullPath);
+
+            if (outputDirRootModel != null)
+            {
+                _imageCollectionFile.IsChanged = false;
+                _imageCollectionFile.IsSaved = true;
+
+                _outputDirList.Clear();
+                lstBoxOutputFiles.Items.Clear();
+                treeViewImgCollection.Nodes.Clear();
+                _outputDirList.AddRange(outputDirRootModel.SubFolders);
+
+                //Reload treeViewImgCollection from data collection
+                foreach (OutputDirectoryModel model in _outputDirList)
+                {
+                    treeViewImgCollection.Nodes.Add(CreateTreeNodeRecursive(model));
+                }
+
+                UpdateSelectionStats();
+                UpdateRecentFiles(_imageCollectionFile.FullPath);
+            }
+            else
+            {
+                MessageBox.Show("Failed to open the selected file", "Could not open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -674,37 +770,15 @@ namespace ImageViewer
             openFileDialog1.Filter = "ImageViewCollection(*.ivc)|*.ivc";
             openFileDialog1.RestoreDirectory = true;
             openFileDialog1.FileName = "";
+            var settings = _applicationSettingsService.Settings;
+            if (settings.RecentFilesCollection.RecentFiles.Count > 0)
+            {
+                openFileDialog1.FileName = settings.RecentFilesCollection.RecentFiles.Last().Name;
+            }
 
             if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
-                _imageCollectionFile.FullPath = openFileDialog1.FileName;
-                _imageCollectionFile.FileName = Path.GetFileName(_imageCollectionFile.FullPath);
-                lblWorkingFileName.Text = _imageCollectionFile.FileName;
-
-                OutputDirectoryModel outputDirRootModel = _imageCollectionRepository.LoadImageCollection(_imageCollectionFile.FullPath);
-
-                if (outputDirRootModel != null)
-                {
-                    _imageCollectionFile.IsChanged = false;
-                    _imageCollectionFile.IsSaved = true;
-
-                    _outputDirList.Clear();
-                    lstBoxOutputFiles.Items.Clear();
-                    treeViewImgCollection.Nodes.Clear();
-                    _outputDirList.AddRange(outputDirRootModel.SubFolders);
-
-                    //Reload treeViewImgCollection from data collection
-                    foreach (OutputDirectoryModel model in _outputDirList)
-                    {
-                        treeViewImgCollection.Nodes.Add(CreateTreeNodeRecursive(model));
-                    }
-
-                    UpdateSelectionStats();
-                }
-                else
-                {
-                    MessageBox.Show("Failed to open the selected file", "Could not open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                OpenFileCollection(openFileDialog1.FileName);
             }
         }
 
