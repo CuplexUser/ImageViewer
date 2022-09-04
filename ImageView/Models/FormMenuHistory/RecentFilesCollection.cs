@@ -41,11 +41,11 @@ namespace ImageViewer.Models.FormMenuHistory
         {
             RecentFiles = new List<RecentFileModel>();
             _countMinMax = new ItemCountMinMax(1, 20);
+            Id = Guid.NewGuid();
 
             if (settings == null)
             {
                 RecentFiles = new List<RecentFileModel>();
-                Id = Guid.NewGuid();
                 return;
             }
 

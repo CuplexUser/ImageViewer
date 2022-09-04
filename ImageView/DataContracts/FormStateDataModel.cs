@@ -5,7 +5,7 @@ namespace ImageViewer.DataContracts
     /// <summary>
     /// FormStateDataModel
     /// </summary>
-    [DataContract(Name = "FormStateDataModel")]
+    [DataContract(Name = "FormStateDataModel", Namespace = "ImageViewer.DataContracts")]
     public class FormStateDataModel
     {
         /// <summary>
@@ -51,6 +51,7 @@ namespace ImageViewer.DataContracts
         /// The additional parameters.
         /// </value>
         [DataMember(Name = "AdditionalParameters", Order = 5)]
-        public Dictionary<string, string> AdditionalParameters { get; set; }
+        public HashSet<string> AdditionalParameters { get; set; }
+
     }
 }

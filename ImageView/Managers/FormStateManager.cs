@@ -162,6 +162,8 @@ namespace ImageViewer.Managers
                 form.WindowState = FormWindowState.Maximized;
                 form.BackColor = Color.Black;
                 windowState.IsFullscreen = true;
+                windowState.CursorVisible = false;
+                windowState.WindowState = FormWindowState.Normal;
             }
         }
     }

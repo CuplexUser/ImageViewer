@@ -1,7 +1,6 @@
 ﻿#region Includes
 
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using AutoMapper;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
@@ -53,6 +52,7 @@ namespace ImageViewer
         private RootObjectModel RootNode { get; set; }
 
         private event EventHandler RootNodeChanged;
+        private event EventHandler RecentFileCollectionChanged;
 
         #region Form Events
 
@@ -67,6 +67,7 @@ namespace ImageViewer
             lblImageCount.Text = "Images:";
             lblWorkingFileName.Text = "";
             lblAsyncStateInfo.Text = "";
+            RecentFileCollectionChanged += FormAddImageSource_RecentFileCollectionChanged;
 
             // Restore previous form state
             ApplicationSettingsModel settings = _applicationSettingsService.Settings;
@@ -103,22 +104,40 @@ namespace ImageViewer
                     OwnerFormName = nameof(FormAddImageSource),
                     MaxNoItems = 10,
                 };
+                openRecentCollectionsMenuItem.Enabled = false;
             }
             else
             {
-                openRecentCollectionsMenuItem.DropDownItems.Clear();
-                foreach (var recentFile in settings.RecentFilesCollection.RecentFiles)
-                {
-                    openRecentCollectionsMenuItem.DropDownItems.Add(recentFile.FullPath,null, OnRecentMenuItemClick);
-                }
-
-
+                SynchronizeRecentFileMenuList();
             }
 
             var selectedDrive = cbDrives.SelectedItem as DriveModel;
             RootNode = RootObjectModel.CreateRootObject(selectedDrive);
             RootNodeChanged?.Invoke(this, EventArgs.Empty);
             Initialized = true;
+        }
+
+        private void FormAddImageSource_RecentFileCollectionChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                SynchronizeRecentFileMenuList();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, ex.Message);
+            }
+        }
+
+        private void SynchronizeRecentFileMenuList()
+        {
+            var settings = _applicationSettingsService.Settings;
+            openRecentCollectionsMenuItem.Enabled = settings.RecentFilesCollection.RecentFiles.Count > 0;
+            openRecentCollectionsMenuItem.DropDownItems.Clear();
+            foreach (var recentFile in settings.RecentFilesCollection.RecentFiles)
+            {
+                openRecentCollectionsMenuItem.DropDownItems.Add(recentFile.FullPath, null, OnRecentMenuItemClick);
+            }
         }
 
         private void OnRecentMenuItemClick(object sender, EventArgs e)
@@ -529,7 +548,6 @@ namespace ImageViewer
         private async Task<int> RemoveMissingFiles()
         {
             int fileCnt = 0;
-            CancellationToken token = new CancellationToken(false);
 
             await Parallel.ForEachAsync(source: _outputDirList, body: async (item, cancellationToken) =>
             {
@@ -688,7 +706,7 @@ namespace ImageViewer
             if (settings.RecentFilesCollection.RecentFiles.All(x => x.FullPath != fullPath))
             {
                 var fi = new FileInfo(fullPath);
-                var recent = new RecentFileModel
+                var recent = new RecentFileModel()
                 {
                     CreatedDate = fi.CreationTime,
                     FullPath = fi.FullName,
@@ -703,6 +721,7 @@ namespace ImageViewer
                     settings.RecentFilesCollection.RecentFiles.Remove(item);
                 }
                 _applicationSettingsService.SaveSettings();
+                RecentFileCollectionChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 

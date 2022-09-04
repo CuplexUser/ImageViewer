@@ -341,7 +341,7 @@ namespace ImageViewer
             {
                 FormStateManager.ToggleFullscreen(_windowState, this);
                 menuStrip1.Visible = false;
-                //Cursor.Hide();
+                Cursor.Hide();
                 _windowState.CursorVisible = false;
                 ScreenSaver.Disable();
             }

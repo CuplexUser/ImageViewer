@@ -21,6 +21,21 @@ namespace ImageViewer.Models.FormMenuHistory
             return rfm;
         }
 
+        public  RecentFileModel(string name, int sortOrder, string fullPath)
+        {
+            Guid = Guid.NewGuid();
+            SortOrder = sortOrder;
+            FullPath = fullPath;
+            Name=name;
+            CreatedDate=DateTime.Now;
+        }
+
+        public RecentFileModel()
+        {
+            Guid = Guid.NewGuid();
+            CreatedDate= DateTime.Now;
+        }
+
         /// <summary>
         /// Gets the unique identifier.
         /// </summary>
