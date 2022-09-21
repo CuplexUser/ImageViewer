@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows7.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
 
     <IsPackable>false</IsPackable>
 
@@ -16,6 +16,21 @@
 
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <Compile Remove="Managers\**" />
+    <Compile Remove="Repositories\**" />
+    <Compile Remove="TestComponents\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <EmbeddedResource Remove="Managers\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="TestComponents\**" />
+    <None Remove="Helpers\**" />
+    <None Remove="Managers\**" />
+    <None Remove="Repositories\**" />
+    <None Remove="TestComponents\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.4.0" />
@@ -32,13 +47,6 @@
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
     <PackageReference Include="NSubstitute" Version="4.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-    <Folder Include="Managers\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="TestComponents\AppSettings\" />
   </ItemGroup>
 
   <ItemGroup>

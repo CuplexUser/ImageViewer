@@ -12,7 +12,7 @@ namespace ImageViewer.DataContracts
     public class ApplicationSettingsDataModel
     {
         /// <summary>
-        /// 
+        /// ChangeImageAnimation
         /// </summary>
         public enum ChangeImageAnimation
         {
@@ -48,7 +48,7 @@ namespace ImageViewer.DataContracts
         }
 
         /// <summary>
-        /// 
+        /// WindowDockProximity
         /// </summary>
         public enum WindowDockProximity
         {
@@ -84,7 +84,7 @@ namespace ImageViewer.DataContracts
                 NextImageAnimation = ChangeImageAnimation.None,
                 ImageTransitionTime = 1000,
                 SlideshowInterval = 5000,
-                PrimaryImageSizeMode = (int)PictureBoxSizeMode.Zoom,
+                PrimaryImageSizeMode = (int) PictureBoxSizeMode.Zoom,
                 PasswordProtectBookmarks = false,
                 PasswordDerivedString = "",
                 ShowNextPrevControlsOnEnterWindow = true,
@@ -98,7 +98,9 @@ namespace ImageViewer.DataContracts
                 ToggleSlideshowWithThirdMouseButton = true,
                 AutoHideCursor = true,
                 AutoHideCursorDelay = 2000,
-                AppSettingsGuid = Guid.NewGuid()
+                AppSettingsGuid = Guid.NewGuid(),
+                IsLoadedFromDisk = false,
+                RecentFilesCollection = new RecentFilesCollectionDataModel()
             };
 
             return settings;
@@ -360,6 +362,12 @@ namespace ImageViewer.DataContracts
         public bool AutoHideCursor { get; set; }
 
 
+        /// <summary>
+        /// Gets or sets the automatic hide cursor delay.
+        /// </summary>
+        /// <value>
+        /// The automatic hide cursor delay.
+        /// </value>
         [DataMember(Name = "AutoHideCursorDelay", Order = 32),
          FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
         public int AutoHideCursorDelay { get; set; }
@@ -373,14 +381,50 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "FormStateDataModels", Order = 33)]
         public IList<FormStateDataModel> FormStateDataModels { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [bookmarks show overlay window].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember(Name = "BookmarksShowOverlayWindow", Order = 34)]
         public bool BookmarksShowOverlayWindow { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [bookmarks show maximized image area].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
+        /// </value>
         [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 35)]
         public bool BookmarksShowMaximizedImageArea { get; set; }
 
+        /// <summary>
+        /// Gets or sets the application settings unique identifier.
+        /// </summary>
+        /// <value>
+        /// The application settings unique identifier.
+        /// </value>
         [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 36)]
         public Guid AppSettingsGuid { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is loaded from disk.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember(Name = "IsLoadedFromDisk", Order = 37, EmitDefaultValue = false, IsRequired = false)]
+        public bool IsLoadedFromDisk { get; set; }
+
+        /// <summary>
+        /// Gets or sets the recent files collection.
+        /// </summary>
+        /// <value>
+        /// The recent files collection.
+        /// </value>
+        [DataMember(Name = "RecentFilesCollection", Order = 38)]
+        public RecentFilesCollectionDataModel RecentFilesCollection { get; set; }
 
         /// <summary>
         /// Removes the duplicate entries with ignore case.

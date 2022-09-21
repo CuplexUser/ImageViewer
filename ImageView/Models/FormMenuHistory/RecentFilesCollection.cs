@@ -35,6 +35,8 @@ namespace ImageViewer.Models.FormMenuHistory
         public RecentFilesCollection()
         {
             Id = Guid.NewGuid();
+            RecentFiles = new List<RecentFileModel>();
+            _countMinMax = new ItemCountMinMax(1, 20);
         }
 
         public RecentFilesCollection(ApplicationSettingsModel settings)

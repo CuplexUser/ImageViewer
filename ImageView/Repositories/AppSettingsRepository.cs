@@ -90,6 +90,7 @@ namespace ImageViewer.Repositories
             else
             {
                 _settingsModel = GetDefaultApplicationSettings();
+                SaveSettings(_settingsModel);
                 Log.Warning("Failed to load settings from disk. {appConfigSettingsFilePath}", appConfigSettingsFilePath);
             }
 

@@ -40,6 +40,7 @@ namespace ImageViewer.Library.AutoMapperProfile
                 .ForMember(s => s.BookmarksShowMaximizedImageArea, o => o.MapFrom(d => d.BookmarksShowMaximizedImageArea))
                 .ForMember(s => s.AppSettingsGuid, o => o.MapFrom(d => d.AppSettingsGuid))
                 .ForMember(s => s.FormStateDataModels, o => o.MapFrom(d => d.FormStateModels.Values.ToList()))
+                .ForMember(s => s.RecentFilesCollection, o => o.MapFrom(d => d.RecentFilesCollection))
                 .ReverseMap()
                 .ForMember(s => s.FormStateModels, o => o.MapFrom(d => d.FormStateDataModels.ToDictionary(x => x.FormName)));
 

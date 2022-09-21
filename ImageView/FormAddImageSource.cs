@@ -715,6 +715,9 @@ namespace ImageViewer
                 };
 
                 settings.RecentFilesCollection.AddRecentFile(recent);
+                if (settings.RecentFilesCollection.MaxNoItems <= 0)
+                    settings.RecentFilesCollection.MaxNoItems = 10;
+
                 if (settings.RecentFilesCollection.Count > settings.RecentFilesCollection.MaxNoItems)
                 {
                     var item = settings.RecentFilesCollection.RecentFiles.OrderBy(x => x.CreatedDate).First();

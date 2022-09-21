@@ -51,7 +51,6 @@ namespace ImageViewer.DataContracts
         /// The additional parameters.
         /// </value>
         [DataMember(Name = "AdditionalParameters", Order = 5)]
-        public HashSet<string> AdditionalParameters { get; set; }
-
+        public Dictionary<string, string> AdditionalParameters { get; set; }
     }
 }
