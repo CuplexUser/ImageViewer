@@ -20,50 +20,51 @@ namespace ImageView.UnitTests
     [ExcludeFromCodeCoverage]
     public class BookmarkStorageTest
     {
-        private static ILifetimeScope _lifetimeScope;
-        private static IContainer _container;
-        private static ImageReference _genericImageRef;
+        private readonly ILifetimeScope _lifetimeScope;
+        private static TestContext _context;
+        
         private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
+        private ImageReference _imageReference = null;
+        private ImageReference _genericImageRef = null;
+
+
+        public BookmarkStorageTest(ILifetimeScope lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
+            ContainerFactory.CreateUnitTestContainer();
+
+   
+        }
 
         [ClassInitialize]
         public static void BookmarkStorageInitialize(TestContext testContext)
         {
+            _context = testContext;
             if (!Directory.Exists(TestDataPath))
                 Directory.CreateDirectory(TestDataPath);
 
             GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
-            _genericImageRef = new ImageReference
-            {
-                Directory = TestDataPath,
-                FileName = "testImage.jpg",
-                CreationTime = DateTime.Now,
-                Size = 1024,
-                LastAccessTime = DateTime.Now.Date,
-                LastWriteTime = DateTime.Now.Date
-            };
-            _genericImageRef.CompletePath = Path.Combine(_genericImageRef.Directory, _genericImageRef.FileName);
-
-            var container = ContainerFactory.CreateUnitTestContainer();
-            _lifetimeScope = container.BeginLifetimeScope();
         }
 
-        [ClassCleanup]
-        public static void BookmarkStorageCleanup()
-        {
-            var files = Directory.GetFiles(TestDataPath, "*.dat");
-            foreach (string filename in files) File.Delete(filename);
+        //[ClassCleanup]
+        //public static void BookmarkStorageCleanup()
+        //{
+        //    var files = Directory.GetFiles(TestDataPath, "*.dat");
+        //    foreach (string filename in files) File.Delete(filename);
 
-            _lifetimeScope.Dispose();
-            _container.Dispose();
-        }
+        //    _lifetimeScope.Dispose();
+        //    _container.Dispose();
+        //}
 
         // Use TestInitialize to run code before running each test 
         [TestInitialize]
         public void MyTestInitialize()
         {
-            
+            var testData = TestDataFactory.BuildTestImageList();
+            _imageReference = testData.First();
+            _genericImageRef = testData[1];
         }
 
         // Use TestCleanup to run code after each test has run
@@ -72,6 +73,8 @@ namespace ImageView.UnitTests
         {
 
         }
+
+        
 
 
         [TestMethod]

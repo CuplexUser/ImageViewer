@@ -26,7 +26,8 @@ namespace ImageViewer.Services
         /// <summary>
         ///     The file name reg exp
         /// </summary>
-        private readonly Regex _fileNameRegExp;
+        private readonly Regex _fileNameRegExp= new Regex(ImageSearchPattern,RegexOptions.Compiled);
+                
 
         /// <summary>
         ///     The thumbnail repository

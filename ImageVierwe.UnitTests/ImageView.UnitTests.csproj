@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
 
     <IsPackable>false</IsPackable>
@@ -15,6 +15,8 @@
     <Platforms>AnyCPU;x86;x64</Platforms>
 
     <Configurations>Debug;Release</Configurations>
+
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="D:\Data\Packages\microsoft.testplatform.testhost\17.3.1\build\netcoreapp2.1\x64\testhost.dll" />
+    <Content Remove="D:\Data\Packages\microsoft.testplatform.testhost\17.3.1\build\netcoreapp2.1\x64\testhost.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="6.4.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="AutofacSerilogIntegration" Version="5.0.0" />
@@ -41,7 +48,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="GeneralToolkitLib" Version="3.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
     <PackageReference Include="Microsoft.TestPlatform" Version="17.3.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
@@ -66,6 +72,38 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\\Microsoft.TestPlatform.AdapterUtilities.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\\Microsoft.TestPlatform.AdapterUtilities.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll" />
   </ItemGroup>
 
 </Project>

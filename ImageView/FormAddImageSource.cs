@@ -76,6 +76,7 @@ namespace ImageViewer
             // Clear demo objects
             treeViewImgCollection.Nodes.Clear();
             lblWorkingFileName.Text = _imageCollectionFile.FileName;
+            updateFileListMenuItem.Enabled = false;
 
             EnumerateDrives();
             treeViewFileSystem.AfterSelect += TreeViewFileSystem_AfterSelect;
@@ -376,6 +377,7 @@ namespace ImageViewer
             return importList.Count + importList.Sum(model => GetUniqueFolderCount(model.SubFolders));
         }
 
+        // Add dir to collection and Updates Stats.
         private void AddOutputDirectoryToTreeView(OutputDirectoryModel sourceFolder, bool recursive = true)
         {
             if (_outputDirList.All(x => x.Id != sourceFolder.Id))
@@ -519,6 +521,48 @@ namespace ImageViewer
             }
         }
 
+        // Updated the selected output directory with the current files located in the directory. If the dir no longer exists.
+        // Remove the dir, select closest parent node and inform user.
+        private void UpdateSelectedOutputDirectoryContent()
+        {
+            TreeNode node = treeViewImgCollection.SelectedNode;
+            if (node != null)
+            {
+                var model = (OutputDirectoryModel) node.Tag;
+                if (Directory.Exists(model.FullName))
+                {
+                    var outputDir = _outputDirList.FirstOrDefault(x => x.FullName == model.FullName);
+
+                    if (outputDir != null)
+                    {
+                        string path = outputDir.FullName;
+                        //_outputDirList.Remove(outputDir);
+                        outputDir.ImageList.Clear();
+                        ApplicationIOHelper.EnumerateFiles(ref outputDir, ValidFileTypes, false);
+
+                        LoadOutputFileListFromNode(node);
+                        UpdateSelectionStats();
+                    }
+                    else
+                    {
+                        // Imposible state during normal operation, because the selected treeNode doesnt actually exist.
+                        Log.Warning("Tried to update content of the directory '{path}'. But could not locate the dirctory in the output list!", model.FullName);
+                    }
+                }
+                else
+                {
+                    int removedItems = _outputDirList.RemoveAll(x => x.FullName == model.FullName);
+                    treeViewImgCollection.BeginUpdate();
+                    treeViewImgCollection.SelectedNode = node.PrevNode;
+                    treeViewImgCollection.Nodes.Remove(node);
+                    treeViewImgCollection.EndUpdate();
+                    LoadOutputFileListFromNode(treeViewImgCollection.SelectedNode);
+
+                    Log.Debug("Removed {removed} directories from outputcollection during source update",removedItems);
+                }
+            }
+        }
+
         private void AddSourceFolder(string path, bool recursive)
         {
             if (Directory.Exists(path))
@@ -591,6 +635,7 @@ namespace ImageViewer
                 lblWorkingFileName.Text = _imageCollectionFile.FileName;
             }
         }
+
         #region Button Events
 
         private void toolStripMenuItemAddFolder_Click(object sender, EventArgs e)
@@ -723,6 +768,7 @@ namespace ImageViewer
                     var item = settings.RecentFilesCollection.RecentFiles.OrderBy(x => x.CreatedDate).First();
                     settings.RecentFilesCollection.RecentFiles.Remove(item);
                 }
+
                 _applicationSettingsService.SaveSettings();
                 RecentFileCollectionChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -809,6 +855,7 @@ namespace ImageViewer
 
 
         #region TreeView Events
+
         private void treeViewFileSystem_ItemDrag(object sender, ItemDragEventArgs e)
         {
             var node = e.Item as TreeNode;
@@ -864,7 +911,11 @@ namespace ImageViewer
 
         private void treeViewImgCollection_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode node = e.Node;
+            bool result = LoadOutputFileListFromNode(e.Node);
+        }
+
+        private bool LoadOutputFileListFromNode(TreeNode node)
+        {
             if (node != null)
             {
                 var model = (OutputDirectoryModel) node.Tag;
@@ -878,9 +929,11 @@ namespace ImageViewer
 
                 lstBoxOutputFiles.EndUpdate();
                 lblImageCount.Text = $"Images: {model.ImageList.Count.ToString()}";
+                return true;
             }
-        }
 
+            return false;
+        }
         private void treeViewImgCollection_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete && treeViewImgCollection.SelectedNode != null)
@@ -935,9 +988,11 @@ namespace ImageViewer
 
             if (node == null)
             {
+                updateFileListMenuItem.Enabled = false;
                 return;
             }
 
+            updateFileListMenuItem.Enabled = true;
             if (!node.IsExpanded && node.Nodes.Count == 0)
             {
                 var model = node.Tag as SourceFolderModel;
@@ -1109,6 +1164,22 @@ namespace ImageViewer
                 if (model.SubFolders.Count > 0)
                     RecursiveCleanupResultCollection(model.SubFolders);
             }
+        }
+
+        private void UnpdateResultInTargetDirMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdateSelectedOutputDirectoryContent();
+        }
+
+        private void updateFileListMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeViewFileSystem.SelectedNode != null)
+                UpdateSelectedOutputDirectoryContent();
+        }
+
+        private void treeViewImgCollection_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+        {
+            updateFileListMenuItem.Enabled = treeViewFileSystem.SelectedNode != null;
         }
     }
 }

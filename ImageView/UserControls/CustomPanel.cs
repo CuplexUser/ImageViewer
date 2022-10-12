@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace ImageViewer.UserControls
 {
-    [Designer("System.Windows.Forms.Design.DocumentDesigner, System.Windows.Forms.Design", typeof(IRootDesigner)), DesignerCategory("Form"), ComVisible(true), ClassInterface(ClassInterfaceType.AutoDispatch), Docking(DockingBehavior.Ask)]
+    [Designer("System.Windows.Forms.Design.DocumentDesigner, System.Windows.Forms.Design", typeof(IRootDesigner)), DesignerCategory("Form"), ComVisible(true), Docking(DockingBehavior.Ask)]
     public partial class CustomPanel : UserControl
     {
         private readonly Size _defaultSize;

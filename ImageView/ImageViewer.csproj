@@ -26,7 +26,7 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>True</UseWindowsForms>
     <UseWPF>False</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <Platforms>AnyCPU;x64</Platforms>
@@ -38,7 +38,6 @@
     <LangVersion>10</LangVersion>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DefineConstants></DefineConstants>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
@@ -46,20 +45,7 @@
     <WarningLevel>1</WarningLevel>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <Deterministic>False</Deterministic>
-  </PropertyGroup>
-
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugType>none</DebugType>
-    <CodeAnalysisRuleSet>
-    </CodeAnalysisRuleSet>
-    <LangVersion>10</LangVersion>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DefineConstants></DefineConstants>
-    <WarningLevel>1</WarningLevel>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <Deterministic>False</Deterministic>
-  </PropertyGroup>
+  </PropertyGroup>  
 	<PropertyGroup>
     <ManifestCertificateThumbprint>EB689F59BC091065757DB92A85FCD68F213AADFB</ManifestCertificateThumbprint>
   </PropertyGroup>
@@ -77,7 +63,6 @@
     <StartupObject>ImageViewer.Program</StartupObject>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	  <DefineConstants></DefineConstants>
 	  <WarningLevel>1</WarningLevel>
 	  <Deterministic>True</Deterministic>
 	</PropertyGroup>
@@ -89,7 +74,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>1</WarningLevel>
-    <DefineConstants></DefineConstants>
     <Deterministic>True</Deterministic>
   </PropertyGroup>
   <ItemGroup>
@@ -148,16 +132,16 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.4.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="GeneralToolkitLib" Version="3.2.0" />
+    <PackageReference Include="GeneralToolkitLib" Version="3.3.0" />
     <PackageReference Include="ImageProcessor.Core" Version="1.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog" Version="2.11.0" />
+    <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.336902">
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
@@ -185,7 +169,7 @@
       <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.PeriodicBatching">
-      <Version>2.3.1</Version>
+      <Version>3.0.0</Version>
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.Trace">
       <Version>3.0.0</Version>
@@ -210,13 +194,8 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="GeneralToolkitLib">
-      <HintPath>..\Dependencies\GeneralToolkitLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 
-	<PropertyGroup>
+    <PropertyGroup>
     <PostBuildEvent Condition="'$(Configuration)' == 'Release'">
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
@@ -229,8 +208,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <AssemblyVersion>3.2.3.0</AssemblyVersion>
-    <FileVersion>3.2.3.0</FileVersion>
+    <AssemblyVersion>3.2.5.0</AssemblyVersion>
+    <FileVersion>3.2.5.0</FileVersion>
     <PackageLicenseFile>D:\Projects\ImageViewer\LICENSE.txt</PackageLicenseFile>
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
@@ -240,7 +219,7 @@
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>3.2.1.0</Version>
+    <Version>3.2.5.0</Version>
     <Company>Cuplex Org</Company>
     <PackageProjectUrl>https://apps.cuplex.se</PackageProjectUrl>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -250,5 +229,11 @@
     </PostBuildEvent>
     <ApplicationIcon>Claire-MonitorComputer-Matrix.ico</ApplicationIcon>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <Title>Image Viewer</Title>
 	</PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+      <Deterministic>False</Deterministic>
+    </PropertyGroup>
 </Project>
