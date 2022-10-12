@@ -389,7 +389,6 @@
             this.treeViewImgCollection.Size = new System.Drawing.Size(319, 493);
             this.treeViewImgCollection.TabIndex = 0;
             this.treeViewImgCollection.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewImgCollection_BeforeExpand);
-            this.treeViewImgCollection.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeViewImgCollection_BeforeSelect);
             this.treeViewImgCollection.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewImgCollection_AfterSelect);
             this.treeViewImgCollection.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeViewImgCollection_DragDrop);
             this.treeViewImgCollection.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewImgCollection_DragEnter);

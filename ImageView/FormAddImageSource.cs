@@ -350,6 +350,8 @@ namespace ImageViewer
                 }
 
                 lblDriveCount.Text = _outputDirList.Select(x => x.FullName).ToString()?[..3].Distinct().Count().ToString();
+
+                updateFileListMenuItem.Enabled = treeViewImgCollection.SelectedNode != null;
             }
             catch (Exception ex)
             {
@@ -929,6 +931,7 @@ namespace ImageViewer
 
                 lstBoxOutputFiles.EndUpdate();
                 lblImageCount.Text = $"Images: {model.ImageList.Count.ToString()}";
+                updateFileListMenuItem.Enabled = true;
                 return true;
             }
 
@@ -988,11 +991,9 @@ namespace ImageViewer
 
             if (node == null)
             {
-                updateFileListMenuItem.Enabled = false;
                 return;
             }
 
-            updateFileListMenuItem.Enabled = true;
             if (!node.IsExpanded && node.Nodes.Count == 0)
             {
                 var model = node.Tag as SourceFolderModel;
@@ -1003,6 +1004,7 @@ namespace ImageViewer
 
         private void treeViewImgCollection_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
+            updateFileListMenuItem.Enabled = true;
         }
 
 
@@ -1173,13 +1175,7 @@ namespace ImageViewer
 
         private void updateFileListMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeViewFileSystem.SelectedNode != null)
-                UpdateSelectedOutputDirectoryContent();
-        }
-
-        private void treeViewImgCollection_BeforeSelect(object sender, TreeViewCancelEventArgs e)
-        {
-            updateFileListMenuItem.Enabled = treeViewFileSystem.SelectedNode != null;
+            UpdateSelectedOutputDirectoryContent();
         }
     }
 }
