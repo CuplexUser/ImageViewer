@@ -1,11 +1,11 @@
 ﻿using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Converters;
-using ImageProcessor;
-using ImageProcessor.Imaging.Formats;
 using ImageViewer.Models;
 using JetBrains.Annotations;
 using Serilog;
 using System.Drawing.Imaging;
+using ImageProcessor;
+using ImageProcessor.Imaging.Formats;
 
 namespace ImageViewer.Managers
 {
@@ -186,7 +186,7 @@ namespace ImageViewer.Managers
                     lock (_fileOperationLock)
                     {
                         _fileStream.Position = entry.FilePosition;
-                        _fileStream.Read(buffer, 0, entry.Length);
+                        int bytesRead = _fileStream.Read(buffer, 0, entry.Length);
                     }
 
                     entry.FilePosition = temporaryDatabaseFile.Position;

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using ImageProcessor;
 using ImageViewer.Delegates;
 using ImageViewer.Managers;
 using ImageViewer.Models;
@@ -10,6 +9,7 @@ using ImageViewer.Utility;
 using Serilog;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using ImageProcessor;
 
 namespace ImageViewer
 {

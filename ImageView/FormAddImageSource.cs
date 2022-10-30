@@ -29,7 +29,7 @@ namespace ImageViewer
         private readonly List<OutputDirectoryModel> _outputDirList;
 
         //private const string ValidFileTypes = "*.jpg;*.jpeg;*.png;*.bmp";
-        private readonly string[] ValidFileTypes = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+        private readonly string[] ValidFileTypes = { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp" };
         private ImageCollectionFile _imageCollectionFile;
 
         public FormAddImageSource(ApplicationSettingsService applicationSettingsService, IMapper mapper, ImageLoaderService imageLoaderService, UserInteractionService interactionService, ImageCollectionRepository imageCollectionRepository)
@@ -135,7 +135,7 @@ namespace ImageViewer
             var settings = _applicationSettingsService.Settings;
             openRecentCollectionsMenuItem.Enabled = settings.RecentFilesCollection.RecentFiles.Count > 0;
             openRecentCollectionsMenuItem.DropDownItems.Clear();
-            foreach (var recentFile in settings.RecentFilesCollection.RecentFiles)
+            foreach (var recentFile in settings.RecentFilesCollection.RecentFiles.OrderByDescending(x => x.SortOrder))
             {
                 openRecentCollectionsMenuItem.DropDownItems.Add(recentFile.FullPath, null, OnRecentMenuItemClick);
             }
@@ -560,7 +560,7 @@ namespace ImageViewer
                     treeViewImgCollection.EndUpdate();
                     LoadOutputFileListFromNode(treeViewImgCollection.SelectedNode);
 
-                    Log.Debug("Removed {removed} directories from outputcollection during source update",removedItems);
+                    Log.Debug("Removed {removed} directories from outputcollection during source update", removedItems);
                 }
             }
         }
@@ -750,7 +750,9 @@ namespace ImageViewer
                 return;
 
             var settings = _applicationSettingsService.Settings;
-            if (settings.RecentFilesCollection.RecentFiles.All(x => x.FullPath != fullPath))
+            var currentItem = settings.RecentFilesCollection.RecentFiles.FirstOrDefault(x => x.FullPath.Equals(fullPath, StringComparison.CurrentCultureIgnoreCase));
+
+            if (currentItem == null)
             {
                 var fi = new FileInfo(fullPath);
                 var recent = new RecentFileModel()
@@ -769,6 +771,21 @@ namespace ImageViewer
                 {
                     var item = settings.RecentFilesCollection.RecentFiles.OrderBy(x => x.CreatedDate).First();
                     settings.RecentFilesCollection.RecentFiles.Remove(item);
+                }
+
+                _applicationSettingsService.SaveSettings();
+                RecentFileCollectionChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                // update sort order
+                int itemCount = settings.RecentFilesCollection.Count;
+                currentItem.SortOrder = itemCount + 1;
+
+                var items = settings.RecentFilesCollection.RecentFiles.OrderBy(x=>x.SortOrder).ToList();
+                for (int i = 0; i < items.Count; i++)
+                {
+                    items[i].SortOrder = i + 1;
                 }
 
                 _applicationSettingsService.SaveSettings();

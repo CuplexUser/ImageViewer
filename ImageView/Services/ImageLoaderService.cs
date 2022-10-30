@@ -26,7 +26,8 @@ namespace ImageViewer.Services
     {
         public delegate void ProgressUpdateEventHandler(object sender, ProgressEventArgs e);
 
-        private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$))";
+        // File types supported
+        private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$)|(.+\.webp$))";
         private readonly Regex _fileNameRegExp;
         private readonly RandomNumberGenerator _randomNumberGenerator;
         private readonly BookmarkService _bookmarkService;
