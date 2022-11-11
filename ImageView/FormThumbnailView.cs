@@ -9,7 +9,6 @@ using ImageViewer.Utility;
 using Serilog;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using ImageProcessor;
 
 namespace ImageViewer
 {
@@ -197,7 +196,7 @@ namespace ImageViewer
 
                     var picBox = CreatePictureBox(model);
 
-                    tasks[i] = Task<Image>.Factory.StartNew(() => LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize, new ImageFactory(MetaDataMode.None)), _thumbnailGenCancellationToken);
+                    tasks[i] = Task<Image>.Factory.StartNew(() => LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize), _thumbnailGenCancellationToken);
                     pictureBoxes[i] = picBox;
                     picBox.Image = await tasks[i];
                 }
@@ -213,6 +212,11 @@ namespace ImageViewer
 
             if (!formIsDisposing)
                 Invoke(new EventHandler(ThumbnailGenerationCompleted));
+        }
+
+        private Image LoadAndResizeImage(string imagePath, Size thumbnailSize)
+        {
+            return _thumbnailService.CreateThumbnail(imagePath, thumbnailSize);
         }
 
         //private async Task BindAndLoadThumbnailsAsync2()
@@ -257,12 +261,12 @@ namespace ImageViewer
         //        Invoke(new EventHandler(ThumbnailGenerationCompleted));
         //}
 
-        private static Image LoadAndResizeImage(string sourceImagePath, Size size, ImageFactory factory)
-        {
-            var img = factory.Load(sourceImagePath).Resize(size).Image.Clone() as Image;
-            factory.Dispose();
-            return img;
-        }
+        //private static Image LoadAndResizeImage(string sourceImagePath, Size size, ImageFactory factory)
+        //{
+        //    var img = factory.Load(sourceImagePath).Resize(size).Image.Clone() as Image;
+        //    factory.Dispose();
+        //    return img;
+        //}
 
         private PictureBox CreatePictureBox(PictureBoxModel model)
         {

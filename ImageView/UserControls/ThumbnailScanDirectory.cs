@@ -13,7 +13,7 @@ namespace ImageViewer.UserControls
         {
             InitializeComponent();
             _thumbnailService = thumbnailService;
-            _thumbnailService.CompletedThumbnailScan += _thumbnailService_CompletedThumbnailScan;
+            //_thumbnailService.CompletedThumbnailScan += _thumbnailService_CompletedThumbnailScan;
         }
 
         private void _thumbnailService_CompletedThumbnailScan(object sender, EventArgs e)

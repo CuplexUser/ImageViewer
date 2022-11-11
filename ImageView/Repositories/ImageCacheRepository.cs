@@ -1,10 +1,11 @@
 ﻿using GeneralToolkitLib.Converters;
-using ImageProcessor.Imaging.Formats;
+using ImageMagick;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Services;
 using JetBrains.Annotations;
 using Serilog;
+
 
 namespace ImageViewer.Repositories
 {
@@ -112,7 +113,7 @@ namespace ImageViewer.Repositories
             _cachedImages = new Dictionary<string, CachedImage>();
             CacheSize = settings.Settings.ImageCacheSize;
 
-            if (CacheSize < ImageCacheService.MinCacheSize || CacheSize > ImageCacheService.MaxCacheSize)
+            if (CacheSize is < ImageCacheService.MinCacheSize or > ImageCacheService.MaxCacheSize)
             {
                 CacheSize = ImageCacheService.DefaultCacheSize;
             }
@@ -245,7 +246,7 @@ namespace ImageViewer.Repositories
         /// <returns></returns>
         private byte[] ImageConverter(string fileName)
         {
-            byte[] imgByteArray = _fileManager.GetImageByteArray(fileName, new JpegFormat());
+            byte[] imgByteArray = _fileManager.GetImageByteArray(fileName, MagickFormat.Jpeg);
             return imgByteArray;
         }
 

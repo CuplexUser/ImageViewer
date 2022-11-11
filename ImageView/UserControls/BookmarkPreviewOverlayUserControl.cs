@@ -1,14 +1,17 @@
-﻿using Serilog;
+﻿using ImageViewer.Services;
+using Serilog;
 
 namespace ImageViewer.UserControls
 {
     public partial class BookmarkPreviewOverlayUserControl : UserControl
     {
+        private readonly ImageCacheService _imageCacheService;
         public int MaxHeight { get; set; }
         public int MaxWidth { get; set; }
 
-        public BookmarkPreviewOverlayUserControl()
+        public BookmarkPreviewOverlayUserControl(ImageCacheService imageCache)
         {
+            _imageCacheService = imageCache;
             InitializeComponent();
         }
 
@@ -16,7 +19,7 @@ namespace ImageViewer.UserControls
         {
             try
             {
-                OverlayPictureBox.Image = Image.FromFile(filename);
+                OverlayPictureBox.Image = _imageCacheService.GetImageFromCache(filename);
                 return true;
             }
             catch (Exception exception)

@@ -1,4 +1,5 @@
-﻿using ImageViewer.UserControls;
+﻿using ImageViewer.Services;
+using ImageViewer.UserControls;
 using ImageViewer.Utility;
 
 namespace ImageViewer.Managers
@@ -8,6 +9,8 @@ namespace ImageViewer.Managers
         private readonly Form _formOverlayImage;
         private readonly BookmarkPreviewOverlayUserControl _overlayUserControl;
         private readonly ImageSourceAndLocation _imageSourceState;
+        private readonly ImageCacheService _imageCacheService;
+
         private int _showImageDelay;
         private int _hideImageDelay;
         private static readonly object LockObject = new();
@@ -39,9 +42,10 @@ namespace ImageViewer.Managers
             }
         }
 
-        public OverlayFormManager()
+        public OverlayFormManager(ImageCacheService imageCache)
         {
-            _overlayUserControl = new BookmarkPreviewOverlayUserControl();
+            _imageCacheService = imageCache;
+            _overlayUserControl = new BookmarkPreviewOverlayUserControl(_imageCacheService);
             _formOverlayImage = FormFactory.CreateFloatingForm(_overlayUserControl, new Size(250, 250));
             _overlayUserControl.Dock = DockStyle.Fill;
             _imageSourceState = new ImageSourceAndLocation { LastShownImageTime = DateTime.Today };

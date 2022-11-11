@@ -30,12 +30,12 @@ namespace ImageViewer
         private object _valueFromMouseDown;
 
 
-        public FormBookmarks(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService)
+        public FormBookmarks(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService)
         {
             _bookmarkService = bookmarkService;
             _bookmarkManager = bookmarkManager;
             _applicationSettingsService = applicationSettingsService;
-            _overlayFormManager = new OverlayFormManager();
+            _overlayFormManager = new OverlayFormManager(imageCacheService);
             InitializeComponent();
         }
 

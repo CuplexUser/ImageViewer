@@ -1,7 +1,7 @@
 ﻿using ImageViewer.Library.EventHandlers;
-using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
+using ImageViewer.Providers;
 using ImageViewer.Repositories;
 using JetBrains.Annotations;
 using Serilog;
@@ -12,15 +12,17 @@ namespace ImageViewer.Services
     public class ImageCacheService : ServiceBase
     {
         private readonly ImageCacheRepository _imageCacheRepository;
+        private readonly ImageProvider _imageProvider;
 
         private static readonly object CacheLock = new();
         public const long DefaultCacheSize = 134217728; // 128 Mb
         public const long MinCacheSize = 16777216; //16 Mb
         public const long MaxCacheSize = 268435456; // 256 Mb
 
-        public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService)
+        public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService, ImageProvider imageProvider)
         {
             _imageCacheRepository = imageCacheRepository;
+            _imageProvider = imageProvider;
 
             if (_imageCacheRepository.CacheSize < MinCacheSize)
             {
@@ -84,7 +86,7 @@ namespace ImageViewer.Services
         {
             lock (CacheLock)
             {
-                var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(FileManager.GetImageFromByteArray);
+                var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(_imageProvider.RestoreImageFromCache);
 
                 // Exception was thrown and handled
                 if (image == null)

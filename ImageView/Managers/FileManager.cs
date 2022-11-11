@@ -2,10 +2,13 @@
 using GeneralToolkitLib.Converters;
 using ImageViewer.Models;
 using JetBrains.Annotations;
-using Serilog;
+using Serilog.Context;
 using System.Drawing.Imaging;
-using ImageProcessor;
-using ImageProcessor.Imaging.Formats;
+using ImageMagick;
+using ImageMagick.Formats;
+using ImageViewer.Providers;
+using Serilog;
+
 
 namespace ImageViewer.Managers
 {
@@ -27,7 +30,7 @@ namespace ImageViewer.Managers
         /// </summary>
         private FileStream _fileStream;
 
-        private readonly ImageFactory _imageFactory;
+        private readonly ImageProvider _imageProvider;
 
         private readonly object _fileOperationLock = new object();
 
@@ -51,9 +54,10 @@ namespace ImageViewer.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="FileManager"/> class.
         /// </summary>
-        public FileManager()
+        public FileManager(ImageProvider imageProvider)
         {
-            _imageFactory = new ImageFactory(MetaDataMode.All);
+            _imageProvider = imageProvider;
+
             _fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, DatabaseImgDataFilename);
         }
 
@@ -61,9 +65,11 @@ namespace ImageViewer.Managers
         /// Initializes a new instance of the <see cref="FileManager"/> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
-        public FileManager(string fileName)
+        /// <param name="imageProvider"></param>
+        public FileManager(string fileName, ImageProvider imageProvider)
         {
             _fileName = fileName;
+            _imageProvider = imageProvider;
             _directoryAccessDictionary = new Dictionary<string, bool>();
         }
 
@@ -96,9 +102,9 @@ namespace ImageViewer.Managers
 
             var sr = new BinaryReader(_fileStream);
 
-            var img = LoadFromByteArray(sr.ReadBytes(thumbnail.Length));
+            Image img = _imageProvider.LoadSystemImage(thumbnail.FullPath);
 
-            _fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
+            //_fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
 
             return img;
         }
@@ -295,32 +301,28 @@ namespace ImageViewer.Managers
 
         public Image CreateThumbnail(string fullPath, Size size)
         {
-            FileStream fs = null;
-
             try
             {
-                fs = File.OpenRead(fullPath);
+                // Open filePath image
+                // Resize to {size}
+                // return Image
 
-                _imageFactory.Load(fs);
-                _imageFactory.Resize(size);
-                return _imageFactory.Image;
+                Image img = _imageProvider.CreateThumbnail(fullPath, size);
+                return img;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, $"Create Thumbnail exception for file {fullPath}");
             }
-            finally
-            {
-                fs?.Close();
-            }
+   
 
             return null;
         }
 
         public Image LoadFromByteArray(byte[] readBytes)
         {
-            _imageFactory.Load(readBytes);
-            return _imageFactory.Image;
+            var image = _imageProvider.LoadFromByteArray(readBytes);
+            return image;
         }
 
 
@@ -340,51 +342,29 @@ namespace ImageViewer.Managers
             return rawImage;
         }
 
-        public byte[] GetImageByteArray(string fileName, ISupportedImageFormat imageFormat)
+        public byte[] GetImageByteArray(string fileName, MagickFormat encodeImageFormat)
         {
             try
             {
-                byte[] imgBytes;
-                _imageFactory.Load(fileName);
-                if (!Equals(_imageFactory.CurrentImageFormat, imageFormat))
+                using (var ms = new MemoryStream())
                 {
-                    _imageFactory.Format(imageFormat);
-                }
+                    _imageProvider.LoadImageFile(fileName).Write(ms, encodeImageFormat);
+                    byte[] imgBytes = ms.ToArray();
 
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    _imageFactory.Save(ms);
-                    ms.Flush();
-                    imgBytes = ms.ToArray();
+                    return imgBytes;
                 }
-
-                return imgBytes;
+                
             }
             catch (Exception exception)
             {
-                Log.Error(exception, $"GetImageByteArray Failed using filename: {fileName} and image format: {imageFormat}");
+                Log.Error(exception, $"GetImageByteArray Failed using filename: {fileName} and image format: {encodeImageFormat}");
                 return null;
             }
         }
 
-        public static Image GetImageFromByteArray(byte[] imgBytes)
-        {
-            try
-            {
-                ImageFactory imgImageFactory = new ImageFactory();
-                imgImageFactory.Load(imgBytes);
-                return imgImageFactory.Image;
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "GetImageFromByteArray failed");
-                return null;
-            }
-        }
 
         private void Dispose(bool finalize)
         {
-            _imageFactory?.Dispose();
             GC.SuppressFinalize(this);
         }
 

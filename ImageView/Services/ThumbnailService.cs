@@ -3,6 +3,7 @@ using GeneralToolkitLib.Configuration;
 using ImageViewer.Events;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using ImageViewer.Providers;
 using ImageViewer.Repositories;
 using JetBrains.Annotations;
 using Serilog;
@@ -18,6 +19,8 @@ namespace ImageViewer.Services
 
         private readonly ThumbnailDbManager _dbManager;
 
+        private readonly ImageProvider _imageProvider;
+
         /// <summary>
         ///     The file manager
         /// </summary>
@@ -26,8 +29,8 @@ namespace ImageViewer.Services
         /// <summary>
         ///     The file name reg exp
         /// </summary>
-        private readonly Regex _fileNameRegExp= new Regex(ImageSearchPattern,RegexOptions.Compiled);
-                
+        private readonly Regex _fileNameRegExp = new Regex(ImageSearchPattern, RegexOptions.Compiled);
+
 
         /// <summary>
         ///     The thumbnail repository
@@ -41,8 +44,9 @@ namespace ImageViewer.Services
         private bool _abortScan;
 
 
-        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager, ImageCacheService cacheService)
+        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager, ImageCacheService cacheService, ImageProvider imageProvider)
         {
+            _imageProvider = imageProvider;
             _fileManager = fileManager;
             _thumbnailRepository = thumbnailRepository;
             _dbManager = dbManager;
@@ -62,20 +66,20 @@ namespace ImageViewer.Services
         {
         }
 
-        public event EventHandler StartedThumbnailScan;
-        public event EventHandler CompletedThumbnailScan;
+        //public event EventHandler StartedThumbnailScan;
+        //public event EventHandler CompletedThumbnailScan;
 
-        private async Task<bool> ScanDirectoryAsync(string path, bool scanSubdirectories)
-        {
-            if (RunningThumbnailScan)
-            {
-                Log.Warning("ScanDirectory was called when Service state was: {ServiceState}", ServiceState);
-                return false;
-            }
+        //private async Task<bool> ScanDirectoryAsync(string path, bool scanSubdirectories)
+        //{
+        //    if (RunningThumbnailScan)
+        //    {
+        //        Log.Warning("ScanDirectory was called when Service state was: {ServiceState}", ServiceState);
+        //        return false;
+        //    }
 
 
-            return await ThumbnailDirectoryScan(path, null, scanSubdirectories);
-        }
+        //    return await ThumbnailDirectoryScan(path, null, scanSubdirectories);
+        //}
 
         public async Task<bool> ThumbnailDirectoryScan(string path, IProgress<ThumbnailScanProgress> progress, bool scanSubdirectories)
         {
@@ -103,18 +107,22 @@ namespace ImageViewer.Services
 
             bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
-            progress?.Report(new ThumbnailScanProgress {TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true});
+            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
             return saveResult;
         }
 
         private async Task<int> StartThumbnailDirectoryScan(List<string> dirList, int totalFileCount, IProgress<ThumbnailScanProgress> progress)
         {
             var scannedFiles = 0;
+
+            if (_abortScan)
+                return scannedFiles;
+
             return await Task.Factory.StartNew(() =>
                 {
                     if (progress != null && scannedFiles % 100 == 100)
                     {
-                        progress.Report(new ThumbnailScanProgress {IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount});
+                        progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
                     }
 
                     return scannedFiles;
@@ -323,6 +331,15 @@ namespace ImageViewer.Services
         public Image GetFullScaleImage(string filename)
         {
             return _cacheService.GetImageFromCache(filename);
+        }
+
+        public Image CreateThumbnail(string imagePath, Size size)
+        {
+            Image img = _cacheService.GetImageFromCache(imagePath);
+
+            return _imageProvider.CreateThumbnailFromImage(img, size);
+
+            //return _fileManager.CreateThumbnail(imagePath, size);
         }
     }
 
