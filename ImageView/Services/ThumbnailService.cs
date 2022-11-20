@@ -11,15 +11,14 @@ using Serilog;
 namespace ImageViewer.Services
 {
     [UsedImplicitly]
-    public sealed class ThumbnailService : ServiceBase, IDisposable
+    public sealed class ThumbnailService : ServiceBase
     {
-        private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$))";
-
+        //private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$))";
         private readonly ImageCacheService _cacheService;
 
-        private readonly ThumbnailDbManager _dbManager;
-
         private readonly ImageProvider _imageProvider;
+
+        private readonly Size _thumbnailSize;
 
         /// <summary>
         ///     The file manager
@@ -29,7 +28,7 @@ namespace ImageViewer.Services
         /// <summary>
         ///     The file name reg exp
         /// </summary>
-        private readonly Regex _fileNameRegExp = new Regex(ImageSearchPattern, RegexOptions.Compiled);
+        private readonly Regex _fileNameRegExp = new(ImageSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
 
         /// <summary>
@@ -44,13 +43,13 @@ namespace ImageViewer.Services
         private bool _abortScan;
 
 
-        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ThumbnailDbManager dbManager, ImageCacheService cacheService, ImageProvider imageProvider)
+        public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider)
         {
             _imageProvider = imageProvider;
             _fileManager = fileManager;
             _thumbnailRepository = thumbnailRepository;
-            _dbManager = dbManager;
             _cacheService = cacheService;
+            _thumbnailSize= new Size(512,512);
 
             string databaseDirectory = ApplicationBuildConfig.UserDataPath;
             BasePath = databaseDirectory;
@@ -61,25 +60,6 @@ namespace ImageViewer.Services
         public bool RunningThumbnailScan => (ServiceState & (ThumbnailServiceState.ScanningDirectory | ThumbnailServiceState.ScanningThumbnails)) > 0;
 
         public string BasePath { get; }
-
-        public void Dispose()
-        {
-        }
-
-        //public event EventHandler StartedThumbnailScan;
-        //public event EventHandler CompletedThumbnailScan;
-
-        //private async Task<bool> ScanDirectoryAsync(string path, bool scanSubdirectories)
-        //{
-        //    if (RunningThumbnailScan)
-        //    {
-        //        Log.Warning("ScanDirectory was called when Service state was: {ServiceState}", ServiceState);
-        //        return false;
-        //    }
-
-
-        //    return await ThumbnailDirectoryScan(path, null, scanSubdirectories);
-        //}
 
         public async Task<bool> ThumbnailDirectoryScan(string path, IProgress<ThumbnailScanProgress> progress, bool scanSubdirectories)
         {
@@ -174,15 +154,9 @@ namespace ImageViewer.Services
 
         public Image LoadThumbnailImage(string fullPath)
         {
-            if (_thumbnailRepository.IsCached(fullPath))
-            {
-                Image imgFromCache = _thumbnailRepository.GetThumbnailImage(fullPath);
-                return imgFromCache;
-            }
+            Image thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(fullPath,_thumbnailSize);
 
-            Image thumbnailImage = _fileManager.CreateThumbnail(fullPath, new Size(512, 512));
-
-            return _thumbnailRepository.AddThumbnailImage(fullPath, thumbnailImage);
+            return thumbnailImage;
         }
 
 
@@ -216,16 +190,6 @@ namespace ImageViewer.Services
         {
             await Task.Delay(10);
             return true;
-
-            //if (ServiceState == ThumbnailServiceState.Idle)
-            //{
-            //    ServiceState = ThumbnailServiceState.SavingDatabase;
-            //    bool result = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
-            //    ServiceState = ThumbnailServiceState.Idle;
-            //    return result;
-            //}
-
-            //return false;
         }
 
         public bool LoadThumbnailDatabase()
@@ -240,15 +204,8 @@ namespace ImageViewer.Services
 
         public Image GetThumbnail(string filename)
         {
-            if (_thumbnailRepository.IsCached(filename))
-            {
-                return _thumbnailRepository.GetThumbnailImage(filename);
-            }
-
-            Image thumbnailImage = null;
-
-            thumbnailImage = _fileManager.CreateThumbnail(filename, new Size(512, 512));
-            _thumbnailRepository.AddThumbnailImage(filename, thumbnailImage);
+            Image thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(filename, _thumbnailSize);
+            
 
             return thumbnailImage;
         }
@@ -294,7 +251,7 @@ namespace ImageViewer.Services
                 return false;
             }
 
-            return DoMaintenanceTask(_dbManager.RemoveAllNonAccessibleFiles, WorkParameters.Empty);
+            return false; // DoMaintenanceTask(_dbManager.RemoveAllNonAccessibleFiles, WorkParameters.Empty);
         }
 
         /// <summary>
@@ -309,7 +266,7 @@ namespace ImageViewer.Services
                 return false;
             }
 
-            return DoMaintenanceTask(_dbManager.ReduceCacheSize, new WorkParameters(maxSize));
+            return false; // DoMaintenanceTask(_dbManager.ReduceCacheSize, new WorkParameters(maxSize));
         }
 
         public bool ClearDatabase()
@@ -320,7 +277,7 @@ namespace ImageViewer.Services
                 return false;
             }
 
-            return DoMaintenanceTask(_dbManager.ClearDatabase, WorkParameters.Empty);
+            return false; // DoMaintenanceTask(_dbManager.ClearDatabase, WorkParameters.Empty);
         }
 
         public long GetDatabaseSize()

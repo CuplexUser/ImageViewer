@@ -345,48 +345,6 @@ namespace ImageViewer
             return modelList;
         }
 
-        //private List<Control> GenerateThumbnails()
-        //{
-        //    var backColor = AppSettings.MainWindowBackgroundColor;
-        //    var pictureBoxes = new List<Control>();
-        //    bool randomizeImageCollection = AppSettings.AutoRandomizeCollection;
-        //    var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
-        //    int items = 0;
-        //    foreach (ImageReference element in imgRefList)
-        //    {
-        //        var pictureBox = new PictureBox
-        //        {
-        //            Width = _thumbnailSize,
-        //            Height = _thumbnailSize,
-        //            BorderStyle = BorderStyle.FixedSingle,
-        //            SizeMode = PictureBoxSizeMode.Zoom,
-        //            BackColor = backColor,
-        //            Tag = element.CompletePath
-        //        };
-
-        //        //var x = new ImageFactory().Load(element.CompletePath).Resize(new Size(512, 512)).Image;
-        //        //Task<Image>.Factory.StartNew(() => _thumbnailService.GetThumbnail(element.CompletePath));
-        //        //pictureBox.Image =  _thumbnailService.GetThumbnail(element.CompletePath);
-        //        pictureBox.ControlRemoved += PictureBox_ControlRemoved;
-
-        //        if (pictureBox.Image == null)
-        //        {
-        //            pictureBox.Dispose();
-        //            continue;
-        //        }
-
-        //        pictureBox.MouseClick += PictureBox_MouseClick;
-        //        pictureBoxes.Add(pictureBox);
-
-
-        //        items++;
-        //        if (items > _maxThumbnails)
-        //            return pictureBoxes;
-        //    }
-
-        //    return pictureBoxes;
-        //}
-
         private void PictureBox_ControlRemoved(object sender, ControlEventArgs e)
         {
             if (sender is PictureBox pictureBox)
@@ -408,7 +366,7 @@ namespace ImageViewer
 
             if (pictureBox.Tag is string filename)
             {
-                Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename); //_imageCacheService.GetImageFromCache(filename);
+                Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename);
                 _maximizedImgFilename = filename;
                 picBoxMaximized.Image = fullScaleImage;
             }

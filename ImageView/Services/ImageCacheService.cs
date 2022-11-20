@@ -15,9 +15,9 @@ namespace ImageViewer.Services
         private readonly ImageProvider _imageProvider;
 
         private static readonly object CacheLock = new();
-        public const long DefaultCacheSize = 134217728; // 128 Mb
-        public const long MinCacheSize = 16777216; //16 Mb
-        public const long MaxCacheSize = 268435456; // 256 Mb
+        public const long DefaultCacheSize = 2^27; // 128 Mb
+        public const long MinCacheSize = 2^25; //32 Mb
+        public const long MaxCacheSize = 2^29; // 512 Mb
 
         public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService, ImageProvider imageProvider)
         {
@@ -37,8 +37,9 @@ namespace ImageViewer.Services
             imageLoaderService.OnImportComplete += ImageLoaderService_OnImportComplete;
         }
 
-        private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
+        protected virtual void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
         {
+
         }
 
         private void ImageLoaderService_OnImageWasDeleted(object sender, ImageRemovedEventArgs e)

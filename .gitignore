@@ -264,3 +264,4 @@ __pycache__/
 /ImageView.UnitTest/.upgrade-assistant
 /AnalysisReport.sarif
 /ImageView/Properties/PublishProfiles/ClickOnceProfile.pubxml
+/ImageView/Properties/PublishProfiles

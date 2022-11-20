@@ -25,9 +25,6 @@ namespace ImageViewer.Services
     public class ImageLoaderService : ServiceBase, IDisposable
     {
         public delegate void ProgressUpdateEventHandler(object sender, ProgressEventArgs e);
-
-        // File types supported
-        private const string ImageSearchPattern = @"^[a-zA-Z0-9_]((.+\.jpg$)|(.+\.png$)|(.+\.jpeg$)|(.+\.gif$)|(.+\.webp$))";
         private readonly Regex _fileNameRegExp;
         private readonly RandomNumberGenerator _randomNumberGenerator;
         private readonly BookmarkService _bookmarkService;
@@ -47,7 +44,7 @@ namespace ImageViewer.Services
         {
             _bookmarkService = bookmarkService;
             _mapper = mapper;
-            _fileNameRegExp = new Regex(ImageSearchPattern, RegexOptions.IgnoreCase);
+            _fileNameRegExp = new Regex(ImageSearchPattern, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
             _threadLock = new object();
             _progressInterval = 100;
             _randomNumberGenerator = RandomNumberGenerator.Create();
@@ -446,7 +443,7 @@ namespace ImageViewer.Services
             ImagesLoaded = imagesLoaded;
 
             if (totalNumberOfFiles > 0)
-                CompletionRate = imagesLoaded / (double)totalNumberOfFiles;
+                CompletionRate = imagesLoaded / (double) totalNumberOfFiles;
         }
 
         public ProgressStatusEnum ProgressStatus { get; private set; }

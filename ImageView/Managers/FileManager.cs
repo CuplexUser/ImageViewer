@@ -80,78 +80,38 @@ namespace ImageViewer.Managers
             Unchanged
         };
 
-        /// <summary>
-        /// Reads the image from database.
-        /// </summary>
-        /// <param name="thumbnail">The thumbnail.</param>
-        /// <returns></returns>
-        public Image ReadImage(ThumbnailEntry thumbnail)
-        {
-            if (thumbnail.Length == 0)
-            {
-                Log.Warning("ReadImageFromDatabase for thumbnail '{FullPath}' was not possible because of 0 lengath", thumbnail.FullPath);
-                return null;
-            }
+
+        //public Image ReadImage(ThumbnailEntryModel thumbnail)
+        //{
+        //    if (thumbnail.Length == 0)
+        //    {
+        //        Log.Warning("ReadImageFromDatabase for thumbnail '{FullPath}' was not possible because of 0 lengath", thumbnail.FullPath);
+        //        return null;
+        //    }
 
 
-            if (_fileStream == null)
-                _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        //    if (_fileStream == null)
+        //        _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            _fileStream.Lock(thumbnail.FilePosition, thumbnail.Length);
-            _fileStream.Position = thumbnail.FilePosition;
+        //    _fileStream.Lock(thumbnail.FilePosition, thumbnail.Length);
+        //    _fileStream.Position = thumbnail.FilePosition;
 
-            var sr = new BinaryReader(_fileStream);
+        //    var sr = new BinaryReader(_fileStream);
 
-            Image img = _imageProvider.LoadSystemImage(thumbnail.FullPath);
+        //    Image img = _imageProvider.LoadSystemImage(thumbnail.FullPath);
 
-            //_fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
+        //    //_fileStream.Unlock(thumbnail.FilePosition, thumbnail.Length);
 
-            return img;
-        }
+        //    return img;
+        //}
 
-        /// <summary>
-        /// Writes the image.
-        /// </summary>
-        /// <param name="img">The img.</param>
-        /// <returns></returns>
-        public FileEntry WriteImage(RawImage img)
-        {
-            if (_fileStream == null)
-                _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            _fileStream.Position = Math.Max(_fileStream.Length - 1, 0);
-            var position = _fileStream.Position;
-
-            try
-            {
-                _fileStream.Lock(0, _fileStream.Length + img.ImageData.Length);
-                _fileStream.Flush();
-                _fileStream.Seek(0, SeekOrigin.End);
-                _fileStream.Write(img.ImageData, 0, img.ImageData.Length);
-                _fileStream.Flush(true);
-                _fileStream.Unlock(0, _fileStream.Length);
-
-                var fileEntry = new FileEntry
-                {
-                    Position = position,
-                    Length = Convert.ToInt32(_fileStream.Position - position)
-                };
-
-                return fileEntry;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "WriteImage Exception: {Message}", ex.Message);
-            }
-
-            return null;
-        }
 
         /// <summary>
         /// Recreates the database.
         /// </summary>
         /// <param name="thumbnailEntries">The thumbnail entries.</param>
-        public async Task RecreateDatabaseAsync(List<ThumbnailEntry> thumbnailEntries)
+        public async Task RecreateDatabaseAsync(List<ThumbnailEntryModel> thumbnailEntries)
         {
             //if (_fileStream == null)
             //    _fileStream = File.Open(_fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -164,7 +124,7 @@ namespace ImageViewer.Managers
             });
         }
 
-        private void RecreateDatabase(List<ThumbnailEntry> thumbnailEntries)
+        private void RecreateDatabase(List<ThumbnailEntryModel> thumbnailEntries)
         {
             var tempFileName = GeneralConverters.GetDirectoryNameFromPath(_fileName) + TemporaryDatabaseFilename;
 
@@ -175,7 +135,7 @@ namespace ImageViewer.Managers
                     File.Delete(tempFileName);
 
                 // Verify
-                var deleteQueue = new Queue<ThumbnailEntry>();
+                var deleteQueue = new Queue<ThumbnailEntryModel>();
                 foreach (var thumbnailEntry in thumbnailEntries)
                 {
                     if (thumbnailEntry.Length <= 0 || !File.Exists(Path.Combine(thumbnailEntry.Directory, thumbnailEntry.FileName)))
@@ -227,14 +187,14 @@ namespace ImageViewer.Managers
         /// created.
         /// Assumes access to the directory
         /// </summary>
-        /// <param name="thumbnailEntry">The thumbnail entry.</param>
+        /// <param name="thumbnailEntryModel">The thumbnail entryModel.</param>
         /// <returns>
         /// True if the thumbnail is up to date and the original file exists
         /// </returns>
-        public static bool IsUpToDate(ThumbnailEntry thumbnailEntry)
+        public static bool IsUpToDate(ThumbnailEntryModel thumbnailEntryModel)
         {
-            var fileInfo = new FileInfo(thumbnailEntry.Directory + thumbnailEntry.FileName);
-            return fileInfo.Exists && fileInfo.LastWriteTime == thumbnailEntry.SourceImageDate;
+            var fileInfo = new FileInfo(thumbnailEntryModel.Directory + thumbnailEntryModel.FileName);
+            return fileInfo.Exists && fileInfo.LastWriteTime == thumbnailEntryModel.SourceImageDate;
         }
 
         /// <summary>
@@ -299,25 +259,27 @@ namespace ImageViewer.Managers
             return rawImage;
         }
 
-        public Image CreateThumbnail(string fullPath, Size size)
-        {
-            try
-            {
-                // Open filePath image
-                // Resize to {size}
-                // return Image
+        // Non direct call removed
 
-                Image img = _imageProvider.CreateThumbnail(fullPath, size);
-                return img;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Create Thumbnail exception for file {fullPath}");
-            }
+        //public Image CreateThumbnail(string fullPath, Size size)
+        //{
+        //    try
+        //    {
+        //        // Open filePath image
+        //        // Resize to {size}
+        //        // return Image
+
+        //        Image img = _imageProvider.CreateThumbnail(fullPath, size);
+        //        return img;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.Error(ex, $"Create Thumbnail exception for file {fullPath}");
+        //    }
    
 
-            return null;
-        }
+        //    return null;
+        //}
 
         public Image LoadFromByteArray(byte[] readBytes)
         {

@@ -9,8 +9,8 @@ namespace ImageViewer.Library.AutoMapperProfile
     {
         public ImageViewMapperProfile()
         {
-            ThumbnailDatabase.CreateMapping(this);
-            ThumbnailEntry.CreateMapping(this);
+            ThumbnailMetadataDbModel.CreateMapping(this);
+            ThumbnailEntryModel.CreateMapping(this);
             SourceFolderModel.CreateMapping(this);
             OutputDirectoryModel.CreateMapping(this);
             ImageRefModel.CreateMapping(this);

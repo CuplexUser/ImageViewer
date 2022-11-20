@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using AutoMapper;
+using System.Runtime.Serialization;
 
 namespace ImageViewer.DataContracts
 {

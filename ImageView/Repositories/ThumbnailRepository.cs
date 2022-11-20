@@ -23,11 +23,6 @@ namespace ImageViewer.Repositories
     public class ThumbnailRepository : RepositoryBase, IDisposable
     {
         /// <summary>
-        ///     The database filename
-        /// </summary>
-        private const string DatabaseFilename = "thumbs.db";
-
-        /// <summary>
         ///     The database key
         /// </summary>
         private const string DatabaseKeyComponent = "47A52E85-C6529739-8BACCABE-C3077AF5-5384756F-5BB722E3-9CD9F3CB-DED32159-755BFC1A-96C07A00-8D9CFA2C-94858843-BE9A016C-DD35D4CB-23FB3EE9-E714D7F7";
@@ -51,12 +46,15 @@ namespace ImageViewer.Repositories
         /// <summary>
         ///     The thumbnail database
         /// </summary>
-        private ThumbnailDatabase _thumbnailDatabase;
+        private ThumbnailMetadataDbModel _metadataDbModel;
+
+
+        private ConcurrentQueue<BinaryDiskOperationModel> _binaryDiskOperationQueue;
 
         /// <summary>
         ///     The thumbnail dictionary
         /// </summary>
-        private ConcurrentDictionary<string, ThumbnailEntry> _thumbnailDictionary;
+        private ConcurrentDictionary<string, ThumbnailEntryModel> _thumbnailDictionary;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ThumbnailRepository" /> class.
@@ -67,7 +65,7 @@ namespace ImageViewer.Repositories
         {
             _mapper = mapper;
             _fileManager = fileManager;
-            _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>();
+            _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntryModel>();
             DbReaderWriterLock = new ReaderWriterLockSlim();
             string fileName = Path.Combine(ApplicationBuildConfig.UserDataPath, DatabaseFilename);
             _thumbnailDatabase = ThumbnailDatabase.Create(fileName);
@@ -89,23 +87,6 @@ namespace ImageViewer.Repositories
 
         #region Public Methods
 
-        //public bool RemoveAllEntriesNotLocatedOnDisk()
-        //{
-        //    var nonExistingFiles = new Queue<ThumbnailEntry>();
-
-        //    if (nonExistingFiles.Count > 0)
-        //    {
-        //        _fileManager.LockDatabase();
-        //        while (nonExistingFiles.Count > 0)
-        //        {
-        //            var item = nonExistingFiles.Dequeue();
-        //        }
-
-        //        _fileManager.UnlockDatabase();
-        //    }
-
-        //    return true;
-        //}
 
         /// <summary>
         ///     Adds the thumbnail image.
@@ -127,16 +108,16 @@ namespace ImageViewer.Repositories
         /// <summary>
         ///     Adds the thumbnail item.
         /// </summary>
-        /// <param name="thumbnailEntry">The thumbnail entry.</param>
-        public void AddThumbnailItem(ThumbnailEntry thumbnailEntry)
+        /// <param name="thumbnailEntryModel">The thumbnail entryModel.</param>
+        public void AddThumbnailItem(ThumbnailEntryModel thumbnailEntryModel)
         {
-            if (!_thumbnailDictionary.ContainsKey(thumbnailEntry.FullPath))
+            if (!_thumbnailDictionary.ContainsKey(thumbnailEntryModel.FullPath))
             {
                 _thumbnailDatabase.ThumbnailEntries.BeginEdit();
-                _thumbnailDatabase.ThumbnailEntries.Add(thumbnailEntry);
+                _thumbnailDatabase.ThumbnailEntries.Add(thumbnailEntryModel);
                 _thumbnailDatabase.ThumbnailEntries.EndEdit();
 
-                while (!_thumbnailDictionary.ContainsKey(thumbnailEntry.FullPath) && !_thumbnailDictionary.TryAdd(thumbnailEntry.FullPath, thumbnailEntry)) Task.Delay(10);
+                while (!_thumbnailDictionary.ContainsKey(thumbnailEntryModel.FullPath) && !_thumbnailDictionary.TryAdd(thumbnailEntryModel.FullPath, thumbnailEntryModel)) Task.Delay(10);
             }
         }
 
@@ -151,20 +132,20 @@ namespace ImageViewer.Repositories
         /// <returns></returns>
         public int GetFileCacheCount()
         {
-            return _thumbnailDatabase.ThumbnailEntries.Count;
+            return _metadataDbModel.ThumbnailEntries.Count;
         }
 
         /// <summary>
-        ///     Ges the thumbnail entry.
+        ///     Ges the thumbnail entryModel.
         /// </summary>
         /// <param name="fullPath">The full path.</param>
         /// <returns></returns>
-        public ThumbnailEntryModel GeThumbnailEntry(string fullPath)
+        public ThumbnailEntryDataModel GeThumbnailEntry(string fullPath)
         {
-            ThumbnailEntry entry = GetThumbnailEntryFromCache(fullPath);
-            ThumbnailEntryModel model = _mapper.Map<ThumbnailEntryModel>(entry);
+            ThumbnailEntryModel entryModel = GetThumbnailEntryFromCache(fullPath);
+            ThumbnailEntryDataModel dataModel = _mapper.Map<ThumbnailEntryDataModel>(entryModel);
 
-            return model;
+            return dataModel;
         }
 
         /// <summary>
@@ -173,47 +154,46 @@ namespace ImageViewer.Repositories
         /// <returns></returns>
         private long GetThumbnailDiskSize()
         {
-            return _thumbnailDatabase.ThumbnailEntries.Select(x => x.Length).Sum();
+            return _metadataDbModel.ThumbnailEntries.Select(x => x.Length).Sum();
         }
 
         /// <summary>
-        ///     Gets the thumbnail entry from cache.
+        ///     Gets the thumbnail entryModel from cache.
         /// </summary>
         /// <param name="fullPath">The full path.</param>
         /// <returns></returns>
-        public ThumbnailEntry GetThumbnailEntryFromCache(string fullPath)
+        public ThumbnailEntryModel GetThumbnailEntryFromCache(string fullPath)
         {
             return _thumbnailDictionary.ContainsKey(fullPath) ? _thumbnailDictionary[fullPath] : null;
         }
 
-        /// <summary>
-        ///     Gets the thumbnail image.
-        /// </summary>
-        /// <param name="fullPath">The full path.</param>
-        /// <returns></returns>
-        public Image GetThumbnailImage(string fullPath)
+
+        public async Task<Image> GetOrCreateThumbnailImageAsync(string fullPath, Size size)
         {
-            if (IsCached(fullPath))
+            if (_thumbnailDictionary.ContainsKey(fullPath))
             {
-                return _fileManager.ReadImage(_thumbnailDictionary[fullPath]);
+                var entry = _thumbnailDictionary[fullPath];
+                if (entry.ThumbnailSize == size)
+                {
+
+                    var img = ReadBinaryBlobDataAsync(entry.BinaryStartPosition, entry.Length);
+
+                }
             }
 
-            Image img = Image.FromFile(fullPath);
+            
             var result = CreateThumbnailEntry(fullPath, img);
             return result.Item2;
         }
 
-        /// <summary>
-        ///     Determines whether the specified full path is cached.
-        /// </summary>
-        /// <param name="fullPath">The full path.</param>
-        /// <returns>
-        ///     <c>true</c> if the specified full path is cached; otherwise, <c>false</c>.
-        /// </returns>
-        public bool IsCached(string fullPath)
+        private async Task<byte[]> ReadBinaryBlobDataAsync(long pos, int length)
         {
-            return _thumbnailDictionary.ContainsKey(fullPath);
+            
+
+
+
         }
+
 
         /// <summary>
         ///     Loads the thumbnail database.
@@ -245,7 +225,7 @@ namespace ImageViewer.Repositories
                     return false;
                 }
 
-                if (_thumbnailDatabase.ThumbnailEntries == null) _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>();
+                if (_thumbnailDatabase.ThumbnailEntries == null) _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntryModel>();
 
                 IsModified = false;
 
@@ -265,7 +245,7 @@ namespace ImageViewer.Repositories
         {
             try
             {
-                var thumbnailsToRemove = new Queue<ThumbnailEntry>();
+                var thumbnailsToRemove = new Queue<ThumbnailEntryModel>();
                 _fileManager.ClearDirectoryAccessCache();
                 foreach (var entry in _thumbnailDatabase.ThumbnailEntries)
                 {
@@ -283,10 +263,10 @@ namespace ImageViewer.Repositories
 
                 //Remove possible duplicates due to data corruption.
                 _thumbnailDatabase.ThumbnailEntries =
-                    new EditableList<ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToList());
+                    new EditableList<ThumbnailEntryModel>(_thumbnailDatabase.ThumbnailEntries.ToList());
 
                 await _fileManager.RecreateDatabaseAsync(_thumbnailDatabase.ThumbnailEntries).ConfigureAwait(true);
-                _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));
+                _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntryModel>(_thumbnailDatabase.ThumbnailEntries.ToDictionary(x => x.Directory + x.FileName, x => x));
 
                 return await SaveThumbnailDatabaseAsync();
             }
@@ -316,8 +296,8 @@ namespace ImageViewer.Repositories
                 DbReaderWriterLock.EnterWriteLock();
 
                 // Update SourceImageLength is a new property and needs to be calculated post process when it is zero
-                var filesToProcess = _thumbnailDictionary.Values.Where(x => x.SourceImageLength == 0).Select(x => x.FullPath).ToList();
-                var concurrentQueue = new ConcurrentQueue<ThumbnailEntry>();
+                var filesToProcess = _thumbnailDictionary.Values.Where(x => x.Length == 0).Select(x => x.OriginalImageModel.CompletePath).ToList();
+                var concurrentQueue = new ConcurrentQueue<ThumbnailEntryModel>();
                 foreach (string fileName in filesToProcess)
                     if (!_thumbnailDictionary.TryRemove(fileName, out var entry))
                         concurrentQueue.Enqueue(entry);
@@ -326,7 +306,7 @@ namespace ImageViewer.Repositories
                 {
                     if (concurrentQueue.TryDequeue(out var thumbnailEntry))
                     {
-                        if (!_thumbnailDictionary.TryRemove(thumbnailEntry.FullPath, out var entry))
+                        if (!_thumbnailDictionary.TryRemove(thumbnailEntry.OriginalImageModel.CompletePath, out var entry))
                         {
                             concurrentQueue.Enqueue(thumbnailEntry);
                         }
@@ -337,7 +317,7 @@ namespace ImageViewer.Repositories
                     }
                 }
 
-                var fileEntryList = _thumbnailDictionary.Values.OrderBy(x => x.SourceImageLength).ToList();
+                var fileEntryList = _thumbnailDictionary.Values.OrderBy(x => x.Length).ToList();
                 long currentSize = fileEntryList.Sum(x => x.Length);
 
                 while (currentSize > maxFileSize)
@@ -354,7 +334,7 @@ namespace ImageViewer.Repositories
                     }
                 }
 
-                _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntry>(fileEntryList.ToDictionary(x => x.Directory + x.FileName, x => x));
+                _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntryModel>(fileEntryList.ToDictionary(x => x.OriginalImageModel.CompletePath, x => x));
 
                 _thumbnailDatabase.ThumbnailEntries.Clear();
                 _thumbnailDatabase.ThumbnailEntries.AddRange(_thumbnailDictionary.Values);
@@ -438,49 +418,49 @@ namespace ImageViewer.Repositories
         ///     Validates the thumbnail database.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> ValidateThumbnailDatabaseAsync()
-        {
-            bool updateToDisk = false;
+        //public async Task<bool> ValidateThumbnailDatabaseAsync()
+        //{
+        //    bool updateToDisk = false;
 
-            if (_thumbnailDatabase.ThumbnailEntries == null)
-            {
-                _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntry>();
-                return true;
-            }
+        //    if (_thumbnailDatabase.ThumbnailEntries == null)
+        //    {
+        //        _thumbnailDatabase.ThumbnailEntries = new EditableList<ThumbnailEntryModel>();
+        //        return true;
+        //    }
 
-            int itemsRemovedTotal = 0;
+        //    int itemsRemovedTotal = 0;
 
-            //Check for duplicates
-            var query = (from t in _thumbnailDatabase.ThumbnailEntries
-                         group t by new { EntryFilePath = t.Directory + t.FileName }
-                into g
-                         select new { FilePath = g.Key, Count = g.Count() }).ToList();
+        //    //Check for duplicates
+        //    var query = (from t in _thumbnailDatabase.ThumbnailEntries
+        //                 group t by new { EntryFilePath = t.Directory + t.FileName }
+        //        into g
+        //                 select new { FilePath = g.Key, Count = g.Count() }).ToList();
 
-            var duplicateKeys = query.Where(x => x.Count > 1).Select(x => x.FilePath.EntryFilePath).ToList();
+        //    var duplicateKeys = query.Where(x => x.Count > 1).Select(x => x.FilePath.EntryFilePath).ToList();
 
-            if (duplicateKeys.Count > 0) updateToDisk = true;
+        //    if (duplicateKeys.Count > 0) updateToDisk = true;
 
-            foreach (string duplicateKey in duplicateKeys)
-            {
-                var removeItemsList = _thumbnailDatabase.ThumbnailEntries.Where(x => x.Directory + x.FileName == duplicateKey).ToList();
+        //    foreach (string duplicateKey in duplicateKeys)
+        //    {
+        //        var removeItemsList = _thumbnailDatabase.ThumbnailEntries.Where(x => x.Directory + x.FileName == duplicateKey).ToList();
 
-                itemsRemovedTotal += removeItemsList.Count - 1;
-                removeItemsList.RemoveAt(0);
-                foreach (var removableItem in removeItemsList)
-                {
-                    _thumbnailDatabase.ThumbnailEntries.Remove(removableItem);
-                }
-            }
+        //        itemsRemovedTotal += removeItemsList.Count - 1;
+        //        removeItemsList.RemoveAt(0);
+        //        foreach (var removableItem in removeItemsList)
+        //        {
+        //            _thumbnailDatabase.ThumbnailEntries.Remove(removableItem);
+        //        }
+        //    }
 
-            if (itemsRemovedTotal > 0) Log.Information("Removed {itemsRemovedTotal} duplicate items from the thumbnail cache", itemsRemovedTotal);
+        //    if (itemsRemovedTotal > 0) Log.Information("Removed {itemsRemovedTotal} duplicate items from the thumbnail cache", itemsRemovedTotal);
 
-            if (updateToDisk)
-            {
-                await SaveThumbnailDatabaseAsync().ConfigureAwait(true);
-            }
+        //    if (updateToDisk)
+        //    {
+        //        await SaveThumbnailDatabaseAsync().ConfigureAwait(true);
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
         #endregion
 
@@ -570,14 +550,14 @@ namespace ImageViewer.Repositories
         }
 
         /// <summary>
-        ///     Creates the thumbnail entry.
+        ///     Creates the thumbnail entryModel.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="thumbnail">The thumbnail.</param>
         /// <returns></returns>
-        private Tuple<ThumbnailEntry, Image> CreateThumbnailEntry(string fileName, Image thumbnail)
+        private Tuple<ThumbnailEntryModel, Image> CreateThumbnailEntry(string fileName, Image thumbnail)
         {
-            var entry = new ThumbnailEntry
+            var entry = new ThumbnailEntryModel
             {
                 FullPath = fileName,
                 Directory = GeneralConverters.GetDirectoryNameFromPath(fileName, false)
@@ -596,7 +576,7 @@ namespace ImageViewer.Repositories
             var rawImage = _fileManager.CreateRawImage(image);
             _fileManager.WriteImage(rawImage);
 
-            return new Tuple<ThumbnailEntry, Image>(entry, image);
+            return new Tuple<ThumbnailEntryModel, Image>(entry, image);
         }
 
         #region IDisposable Support
@@ -632,5 +612,10 @@ namespace ImageViewer.Repositories
         }
 
         #endregion
+
+        public Image GetOrCreateThumbnailImage(string fullPath, Size size)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
