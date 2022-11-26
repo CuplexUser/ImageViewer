@@ -165,21 +165,21 @@ namespace ImageViewer.Services
             return await _thumbnailRepository.OptimizeDatabaseAsync();
         }
 
-        public bool OptimizeDatabase()
-        {
-            var result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
-            return result.GetAwaiter().GetResult();
-        }
+        //public bool OptimizeDatabase()
+        //{
+        //    var result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
+        //    return result.GetAwaiter().GetResult();
+        //}
 
 
-        public bool SaveThumbnailDatabase()
+        public async Task<bool> SaveThumbnailDatabase()
         {
             var result = false;
 
             if (ServiceState == ThumbnailServiceState.Idle)
             {
                 ServiceState = ThumbnailServiceState.SavingDatabase;
-                result = _thumbnailRepository.SaveThumbnailDatabase();
+                result = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
                 ServiceState = ThumbnailServiceState.Idle;
             }
 
@@ -192,9 +192,9 @@ namespace ImageViewer.Services
             return true;
         }
 
-        public bool LoadThumbnailDatabase()
+        public async Task<bool> LoadThumbnailDatabase()
         {
-            return _thumbnailRepository.LoadThumbnailDatabase();
+            return await _thumbnailRepository.InitDatabase();
         }
 
         public int GetNumberOfCachedThumbnails()
@@ -211,7 +211,7 @@ namespace ImageViewer.Services
         }
 
 
-        private bool DoMaintenanceTask(Func<WorkParameters, bool> maintenanceMethod, WorkParameters parameters)
+        private async Task<bool> DoMaintenanceTask(Func<WorkParameters, bool> maintenanceMethod, WorkParameters parameters)
         {
             bool result;
             try
@@ -221,7 +221,7 @@ namespace ImageViewer.Services
                 if (result)
                 {
                     ServiceState |= ThumbnailServiceState.SavingDatabase;
-                    result = SaveThumbnailDatabase();
+                    result = await SaveThumbnailDatabase();
                     if (!result)
                     {
                         Log.Error("DoMaintenanceTask failed to save database");

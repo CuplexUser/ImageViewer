@@ -28,7 +28,7 @@ namespace ImageViewer
         {
             try
             {
-                _thumbnailService.LoadThumbnailDatabase();
+                Task.Factory.FromAsync(_thumbnailService.LoadThumbnailDatabase(), delegate(IAsyncResult result) { });
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>\\WIN10-SERVER\Public\</PublishUrl>
     <Install>false</Install>
@@ -58,10 +58,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>Release;Debug</DefineConstants>
+    <NoWarn>1701;1702;SYSLIB0045</NoWarn>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 	  <DebugType>full</DebugType>
 	  <DefineConstants>Release;Debug</DefineConstants>
+	  <NoWarn>1701;1702;SYSLIB0045</NoWarn>
 	</PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -72,6 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
     <DefineConstants>Release;Debug</DefineConstants>
+    <NoWarn>1701;1702;SYSLIB0045</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Library\Converters\**" />
@@ -187,7 +190,7 @@
     <PostBuildEvent Condition="'$(Configuration)' == 'Release'">
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
     <SignAssembly>False</SignAssembly>
@@ -216,7 +219,7 @@
     <OutputType>WinExe</OutputType>
     <PackAsTool>True</PackAsTool>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
     <IsPublishable>True</IsPublishable>
     <StartupObject>ImageViewer.Program</StartupObject>
 	</PropertyGroup>
@@ -224,5 +227,6 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       <DebugType>full</DebugType>
       <DefineConstants>Release;Debug</DefineConstants>
+      <NoWarn>1701;1702;SYSLIB0045</NoWarn>
     </PropertyGroup>
 </Project>

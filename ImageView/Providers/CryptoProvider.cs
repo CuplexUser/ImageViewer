@@ -3,6 +3,7 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 
+
 namespace ImageViewer.Providers
 {
     [SecurityCritical]
@@ -47,7 +48,7 @@ namespace ImageViewer.Providers
         public byte[] EncryptBinaryData(ref byte[] data)
         {
             byte[] defaultKey = EncodeKeyToByteArray(DefaultKey);
-            var hashAlg = SHA256.Create("SHA256");
+            var hashAlg = SHA256.Create();
             hashAlg.Initialize();
             defaultKey = hashAlg.ComputeHash(defaultKey);
 
@@ -67,23 +68,23 @@ namespace ImageViewer.Providers
             var ms = new MemoryStream(data);
             var msEncodedData = new MemoryStream();
 
-            using (Aes aesAlg = Aes.Create("AES"))
+            using (Aes aesAlg = Aes.Create())
             {
                 if (useExternalKey)
                     ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
 
-                if (aesAlg == null) return msEncodedData.ToArray();
-
-                var hashAlg = SHA512.Create("SHA512");
-                hashAlg.Initialize();
+                
+                var hashAlg = SHA512.Create();
 
                 aesAlg.BlockSize = 128;
                 aesAlg.KeySize = 256;
                 aesAlg.Padding = PaddingMode.PKCS7;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.GenerateIV();
-                Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(encryptedKey, SaltBytes, 1000, HashAlgorithmName.SHA256);
-                byte[] key = rfc2898DeriveBytes.CryptDeriveKey("AES", "SHA256", 256, aesAlg.IV);
+                //Rfc2898DeriveBytes rfc2898DeriveBytes = new Rfc2898DeriveBytes(encryptedKey, SaltBytes, 1000, HashAlgorithmName.SHA256);
+                //byte[] key = rfc2898DeriveBytes.CryptDeriveKey("AES", "SHA256", 256, aesAlg.IV);
+                PasswordDeriveBytes derivedBytes = new PasswordDeriveBytes(encryptedKey, SaltBytes, "SHA256", 1001);
+                byte[] key = derivedBytes.CryptDeriveKey("AES-GCM", "SHA256", 256, aesAlg.IV);
 
                 // Create AES Crypto Transform to be used in the CryptoStream transform function 
                 ICryptoTransform cryptoTransform = aesAlg.CreateEncryptor(key, aesAlg.IV);
@@ -105,7 +106,7 @@ namespace ImageViewer.Providers
                 msEncodedData.Write(hashBuffer, 0, hashBuffer.Length);
 
                 // Write 32 byte of entropy
-                hashBuffer = rfc2898DeriveBytes.GetBytes(32);
+                hashBuffer = derivedBytes.GetBytes(32);
                 msEncodedData.Write(hashBuffer, 0, hashBuffer.Length);
 
                 using (var csEncrypt = new CryptoStream(msEncodedData, cryptoTransform, CryptoStreamMode.Write))
@@ -120,7 +121,7 @@ namespace ImageViewer.Providers
                     msEncodedData.Flush();
                 }
 
-                rfc2898DeriveBytes.Dispose();
+                derivedBytes.Dispose();
             }
 
             return msEncodedData.ToArray();
@@ -136,7 +137,7 @@ namespace ImageViewer.Providers
         public byte[] DecryptBinaryDataInternal(ref byte[] data, out bool dataIsValid)
         {
             byte[] defaultKey = EncodeKeyToByteArray(DefaultKey);
-            var hashAlg = SHA256.Create("SHA256");
+            var hashAlg = SHA256.Create();
             hashAlg.Initialize();
             defaultKey = hashAlg.ComputeHash(defaultKey);
 
@@ -151,20 +152,13 @@ namespace ImageViewer.Providers
             var msEncrypted = new MemoryStream(data, MetadataLength - 1, data.Length - MetadataLength);
             var msMetadata = new MemoryStream(data, 0, MetadataLength);
 
-            using (Aes aesAlg = Aes.Create("AES"))
+            using (Aes aesAlg = Aes.Create())
             {
                 if (useExternalKey)
                     ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
 
-                if (aesAlg == null)
-                {
-                    dataIsValid = false;
-                    return null;
-                }
 
-                SHA512 hashAlg = SHA512.Create("SHA512");
-                hashAlg.Initialize();
-
+                SHA512 hashAlg = SHA512.Create();
 
                 byte[] initVector = new byte[16];
                 msMetadata.Read(initVector, 0, initVector.Length);
@@ -183,8 +177,8 @@ namespace ImageViewer.Providers
                 aesAlg.Padding = PaddingMode.PKCS7;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.IV = initVector;
-                var rfc2898DeriveBytes = new Rfc2898DeriveBytes(encryptedKey, SaltBytes, 1000, HashAlgorithmName.SHA256);
-                byte[] key = rfc2898DeriveBytes.CryptDeriveKey("AES", "SHA256", 256, aesAlg.IV);
+                PasswordDeriveBytes derivedBytes = new PasswordDeriveBytes(encryptedKey, SaltBytes, "SHA256", 1001);
+                byte[] key = derivedBytes.CryptDeriveKey("AES-GCM", "SHA256", 256, aesAlg.IV);
 
                 // Create AES Crypto Transform to be used in the CryptoStream transform function 
                 ICryptoTransform cryptoTransform = aesAlg.CreateDecryptor(key, initVector);
@@ -210,7 +204,7 @@ namespace ImageViewer.Providers
 
                 byte[] validationHash = hashAlg.ComputeHash(msDecrypted);
                 dataIsValid = validationHash.AsEnumerable().SequenceEqual(hashBuffer);
-                rfc2898DeriveBytes.Dispose();
+                derivedBytes.Dispose();
                 msEncrypted.Dispose();
                 msMetadata.Dispose();
             }

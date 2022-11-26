@@ -138,7 +138,7 @@ namespace ImageViewer.Managers
                 var deleteQueue = new Queue<ThumbnailEntryModel>();
                 foreach (var thumbnailEntry in thumbnailEntries)
                 {
-                    if (thumbnailEntry.Length <= 0 || !File.Exists(Path.Combine(thumbnailEntry.Directory, thumbnailEntry.FileName)))
+                    if (thumbnailEntry.Length <= 0 || !File.Exists(thumbnailEntry.OriginalImageModel.CompletePath))
                         deleteQueue.Enqueue(thumbnailEntry);
                 }
 
@@ -193,8 +193,8 @@ namespace ImageViewer.Managers
         /// </returns>
         public static bool IsUpToDate(ThumbnailEntryModel thumbnailEntryModel)
         {
-            var fileInfo = new FileInfo(thumbnailEntryModel.Directory + thumbnailEntryModel.FileName);
-            return fileInfo.Exists && fileInfo.LastWriteTime == thumbnailEntryModel.SourceImageDate;
+            var fileInfo = new FileInfo(thumbnailEntryModel.OriginalImageModel.CompletePath);
+            return fileInfo.Exists && fileInfo.LastWriteTime == thumbnailEntryModel.OriginalImageModel.LastModified;
         }
 
         /// <summary>

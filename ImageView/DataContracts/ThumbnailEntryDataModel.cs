@@ -8,7 +8,7 @@ namespace ImageViewer.DataContracts
         [DataMember(Name = "EntryId", Order = 1)]
         public Guid EntryId { get; set; }
 
-        [DataMember(Name = "BinaryStartPosition", Order = 2)]
+        [DataMember(Name = "FilePosition", Order = 2)]
         public long BinaryStartPosition { get; set; }
 
         [DataMember(Name = "Length", Order = 3)]

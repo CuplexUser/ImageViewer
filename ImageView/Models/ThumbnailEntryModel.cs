@@ -19,7 +19,7 @@ namespace ImageViewer.Models
 
         public Guid EntryId { get; protected set; }
 
-        public long BinaryStartPosition { get; set; }
+        public long FilePosition { get; set; }
 
         public int Length { get; set; }
 
@@ -38,7 +38,7 @@ namespace ImageViewer.Models
         {
             expression.CreateMap<ThumbnailEntryModel, ThumbnailEntryDataModel>()
                 .ForMember(d => d.EntryId, o => o.MapFrom(s => s.EntryId))
-                .ForMember(d => d.BinaryStartPosition, o => o.MapFrom(s => s.BinaryStartPosition))
+                .ForMember(d => d.BinaryStartPosition, o => o.MapFrom(s => s.FilePosition))
                 .ForMember(d => d.Length, o => o.MapFrom(s => s.Length))
                 .ForMember(d => d.CreateDate, o => o.MapFrom(s => s.CreateDate))
                 .ForMember(d => d.OriginalImageModel, o => o.MapFrom(s => s.OriginalImageModel))

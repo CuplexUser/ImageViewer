@@ -1,4 +1,5 @@
 ﻿using ImageViewer.Models;
+using ImageViewer.Models.Interface;
 using ImageViewer.Repositories;
 using ImageViewer.Utility;
 using Serilog;
@@ -13,6 +14,7 @@ namespace ImageViewer.Services
         private const long MIN_CACHE_SIZE = 1024 * 1024 * 32;
         private const long MAX_CACHE_SIZE = 1024 * 1024 * 1024;
 
+        
         public ApplicationSettingsService(AppSettingsRepository appSettingsRepository)
         {
             _appSettingsRepository = appSettingsRepository;
@@ -34,7 +36,7 @@ namespace ImageViewer.Services
 
             _appSettingsRepository.LoadSettingsCompleted += _appSettingsFileRepository_LoadSettingsCompleted;
         }
-
+        
         public void SetSettingsStateModified()
         {
         }

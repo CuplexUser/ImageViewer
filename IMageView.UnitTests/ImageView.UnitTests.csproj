@@ -1,0 +1,125 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+
+    <IsPackable>false</IsPackable>
+
+    <OutputType>Library</OutputType>
+
+    <UseWindowsForms>True</UseWindowsForms>
+
+    <IsPublishable>False</IsPublishable>
+
+    <Platforms>AnyCPU;x86;x64</Platforms>
+
+    <Configurations>Debug;Release</Configurations>
+
+    <StartupObject></StartupObject>
+
+    <Win32Resource>D:\Projects\ImageViewer\ImageVierwe.UnitTests\Properties\unitTest.res</Win32Resource>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <Compile Remove="Managers\**" />
+    <Compile Remove="Repositories\**" />
+    <Compile Remove="TestComponents\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <EmbeddedResource Remove="Managers\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="TestComponents\**" />
+    <None Remove="Helpers\**" />
+    <None Remove="Managers\**" />
+    <None Remove="Repositories\**" />
+    <None Remove="TestComponents\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="D:\Data\Packages\microsoft.testplatform.testhost\17.3.1\build\netcoreapp2.1\x64\testhost.dll" />
+    <Content Remove="D:\Data\Packages\microsoft.testplatform.testhost\17.3.1\build\netcoreapp2.1\x64\testhost.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.5.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Autofac.Extras.Moq" Version="6.1.0" />
+    <PackageReference Include="AutofacSerilogIntegration" Version="5.0.0" />
+    <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="7.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="Microsoft.TestPlatform" Version="17.4.0" />
+    <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="System.Resources.Reader" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageView\ImageViewer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\\Microsoft.TestPlatform.AdapterUtilities.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\\Microsoft.TestPlatform.AdapterUtilities.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="rem resgen" />
+  </Target>
+
+</Project>

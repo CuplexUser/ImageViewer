@@ -6,10 +6,11 @@ using ImageViewer.Providers;
 using Serilog;
 using System.Collections.Concurrent;
 using ImageViewer.Models.FormMenuHistory;
+using ImageViewer.Models.Interface;
 
 namespace ImageViewer.Repositories
 {
-    public class AppSettingsRepository : RepositoryBase
+    public class AppSettingsRepository : RepositoryBase, IAppSettingsRepository
     {
         private readonly FileSystemIOProvider _ioProvider;
         private readonly string appConfigSettingsFilePath;
@@ -135,7 +136,7 @@ namespace ImageViewer.Repositories
         /// <summary>
         /// Called when [load settings completed].
         /// </summary>
-        protected void OnLoadSettingsCompleted()
+        public void OnLoadSettingsCompleted()
         {
             LoadSettingsCompleted?.Invoke(this, EventArgs.Empty);
         }
