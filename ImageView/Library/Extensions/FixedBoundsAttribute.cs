@@ -12,7 +12,7 @@ namespace ImageViewer.Library.Extensions
 
         public int InitialValue { get; set; }
 
-        public string DIsplayName { get; set; }
+        public string DisplayName { get; set; }
 
         public FixedBoundsAttribute(int minValue, int maxValue, int initialValue, string errorMessage) : base(errorMessage)
         {
@@ -27,36 +27,25 @@ namespace ImageViewer.Library.Extensions
 
         public override bool IsValid(object value)
         {
-            if (value != null)
+            if (value == null)
                 return false;
-
-            bool isValid = false;
-
             // Asumes int value
-            if (value is Int32)
+
+            int propertyVal = Convert.ToInt32(value);
+
+            if (propertyVal < MinValue || propertyVal > MaxValue)
             {
-                int propertyVal = Convert.ToInt32(value);
-
-                if (propertyVal < MinValue || propertyVal > MaxValue)
-                {
-                    return false;
-                }
-
-                isValid = true;
+                return false;
             }
 
-            return isValid;
+            return true;
         }
 
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            FixedBoundsAttribute attribute = value as FixedBoundsAttribute;
-            if (attribute == null)
-            {
-                return new ValidationResult(ErrorMessage);
-            }
-
-            int propertyVal = Convert.ToInt32(value);
+            string propName = validationContext.MemberName;
+            Log.Debug("Validating Settings Property: {name}",propName);
+            
             bool validStatus = IsValid(value);
 
             if (validStatus)

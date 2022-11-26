@@ -76,7 +76,7 @@ namespace ImageViewer.Services
         private void ValidateSettings()
         {
             var defSettings = AppSettingsRepository.GetDefaultApplicationSettings();
-            ModelValidator validator = new ModelValidator(_applicationSettings);
+            ModelValidator validator = CreateModelValidator(_applicationSettings);
             if (!validator.ValidateModel())
             {
                 Log.Warning("Loaded application settings are invalid. {ErrorMessage}", validator.ValidationResults.First().ErrorMessage);
@@ -105,7 +105,7 @@ namespace ImageViewer.Services
         {
             if (_applicationSettings != null)
             {
-                _applicationSettings = new ApplicationSettingsModel();
+                _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
             }
         }
 

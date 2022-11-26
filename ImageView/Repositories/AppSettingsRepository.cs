@@ -59,7 +59,7 @@ namespace ImageViewer.Repositories
             return settings;
         }
 
-        public ApplicationSettingsModel LoadSettings()
+        public virtual ApplicationSettingsModel LoadSettings()
         {
             if (_settingsModel is { IsLoadedFromDisk: true })
             {

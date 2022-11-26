@@ -3,9 +3,7 @@ using GeneralToolkitLib.Encryption;
 using ImageViewer.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Data.SqlTypes;
 using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
 using System.Text;
 
 namespace ImageView.UnitTests

@@ -8,7 +8,7 @@
         /// <summary>
         /// The minimum cursor delay value
         /// </summary>
-        public const int MinCursorDelayValue = 500;
+        public const int MinCursorDelayValue = 250;
         /// <summary>
         /// The maximum cursor delay value
         /// </summary>

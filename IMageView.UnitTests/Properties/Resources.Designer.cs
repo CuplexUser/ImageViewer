@@ -75,7 +75,7 @@ namespace ImageView.UnitTests.Properties {
         /// </summary>
         public static System.Drawing.Bitmap _8_bit_City {
             get {
-                object obj = ResourceManager.GetObject("_8_bit_City", resourceCulture);
+                object obj = ResourceManager.GetObject("8_bit_City", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,9 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap anonymus {
+        public static System.Drawing.Bitmap anonymus1 {
             get {
-                object obj = ResourceManager.GetObject("anonymus", resourceCulture);
+                object obj = ResourceManager.GetObject("anonymus1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap Blocks {
+        public static System.Drawing.Bitmap Blocks1 {
             get {
-                object obj = ResourceManager.GetObject("Blocks", resourceCulture);
+                object obj = ResourceManager.GetObject("Blocks1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,9 +103,9 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap Dys_ovoXcAERzFA {
+        public static System.Drawing.Bitmap Dys_ovoXcAERzFA1 {
             get {
-                object obj = ResourceManager.GetObject("Dys_ovoXcAERzFA", resourceCulture);
+                object obj = ResourceManager.GetObject("Dys_ovoXcAERzFA1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -113,19 +113,9 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap ficklampa {
+        public static System.Drawing.Bitmap ficklampa1 {
             get {
-                object obj = ResourceManager.GetObject("ficklampa", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap Hosico {
-            get {
-                object obj = ResourceManager.GetObject("Hosico", resourceCulture);
+                object obj = ResourceManager.GetObject("ficklampa1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -143,6 +133,16 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap Hosico1 {
+            get {
+                object obj = ResourceManager.GetObject("Hosico1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap Logitechg403_81N4u3_86kL__SL1500_ {
             get {
                 object obj = ResourceManager.GetObject("Logitechg403_81N4u3_86kL__SL1500_", resourceCulture);
@@ -153,9 +153,9 @@ namespace ImageView.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap NAOS_7000_5_Transparent_BG__05961_1390398529_1280_1280 {
+        public static System.Drawing.Bitmap NAOS_7000_5_Transparent {
             get {
-                object obj = ResourceManager.GetObject("NAOS_7000_5_Transparent_BG__05961_1390398529_1280_1280", resourceCulture);
+                object obj = ResourceManager.GetObject("NAOS_7000_5_Transparent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

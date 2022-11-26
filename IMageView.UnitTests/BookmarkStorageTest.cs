@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Autofac;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
@@ -12,31 +13,26 @@ using System.IO;
 using System.Linq;
 using AutoMapper;
 using ImageViewer.Models;
-using ImageViewer.Models.Interface;
 using Moq;
+using Serilog;
 
 namespace ImageView.UnitTests
 {
     [TestClass]
     public class BookmarkStorageTest
     {
+        private static readonly string TestDataPath = ConfigHelper.TestDataPath;
         private readonly ILifetimeScope _lifetimeScope;
-        private readonly IContainer _testContainer;
         private static TestContext _context;
         private IMapper _mapper;
-
-        
-        private static readonly string TestDataPath = Path.Combine(Path.GetTempPath(), "ImageViewerUT");
         private ImageReference _imageReference = null;
         private ImageReference _genericImageRef = null;
 
-
         public BookmarkStorageTest()
         {
-            _testContainer = ContainerFactory.CreateUnitTestContainer();
-            _lifetimeScope = _testContainer.BeginLifetimeScope();
+            IContainer testContainer = ContainerFactory.CreateUnitTestContainer();
+            _lifetimeScope = testContainer.BeginLifetimeScope();
             _mapper = _lifetimeScope.Resolve<IMapper>();
-            //GetApplicationSettingsService();
         }
 
         [ClassInitialize]
@@ -49,29 +45,43 @@ namespace ImageView.UnitTests
             GlobalSettings.Settings.UnitTestInitialize(TestDataPath);
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
+
+            TestDataFactory factory = new TestDataFactory();
+            var testData = factory.BuildTestImageList();
+            _context.Properties.Add("TestImageRefList", testData);
         }
 
-        //[ClassCleanup]
-        //public static void BookmarkStorageCleanup()
-        //{
-        //    var files = Directory.GetFiles(TestDataPath, "*.dat");
-        //    foreach (string filename in files) File.Delete(filename);
+        [ClassCleanup]
+        public static void BookmarkStorageCleanup()
+        {
+            _context.Properties.Clear();
+            var files = Directory.GetFiles(TestDataPath, "*", SearchOption.AllDirectories);
 
-        //    _lifetimeScope.Dispose();
-        //    _container.Dispose();
-        //}
+            try
+            {
+                foreach (string filename in files)
+                    File.Delete(filename);
+
+                DirectoryInfo dirInfo = new DirectoryInfo(TestDataPath);
+                dirInfo.Delete(true);
+                Log.Information("Testdata directory successfully deleted");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Fail testclass cleanup");
+            }
+        }
 
         // Use TestInitialize to run code before running each test 
         [TestInitialize]
         public void MyTestInitialize()
         {
+            Random random = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
             _mapper = _lifetimeScope.Resolve<IMapper>();
-            TestDataFactory factory = new TestDataFactory();
+            List<ImageReference> imgReferences = (List<ImageReference>)_context.Properties["TestImageRefList"];
+            _genericImageRef = (imgReferences ?? throw new InvalidOperationException()).First();
+            _imageReference = imgReferences[random.Next(imgReferences.Count - 1)];
 
-
-            var testData = factory.BuildTestImageList();
-            _imageReference = testData.First();
-            _genericImageRef = testData[1];
         }
 
         // Use TestCleanup to run code after each test has run
@@ -81,7 +91,7 @@ namespace ImageView.UnitTests
 
         }
 
-        
+
 
 
         [TestMethod]
@@ -221,7 +231,7 @@ namespace ImageView.UnitTests
                 bookmarkService.BookmarkManager.ClearBookmarks();
                 var bookmarkManager = bookmarkService.BookmarkManager;
                 var rootFolder = bookmarkManager.RootFolder;
-                
+
 
                 Assert.IsFalse(bookmarkManager.IsModified, "BookmarkManager should not be modified");
 
@@ -232,42 +242,42 @@ namespace ImageView.UnitTests
             }
         }
 
+        [TestMethod]
+        public void TestBookmarkStateSettings()
+        {
+            // The real test =)
+            var settingsService = GetApplicationSettingsService();
+            settingsService.LoadSettings();
+            
+
+            //Assert on a handfull of properties
+            var settings = settingsService.Settings;
+            Assert.IsFalse(settings.BookmarksShowMaximizedImageArea);
+            Assert.IsFalse(settings.BookmarksShowOverlayWindow);
+            Assert.IsFalse(settings.PasswordProtectBookmarks);
+
+        }
+
         private ApplicationSettingsService GetApplicationSettingsService()
         {
             ApplicationSettingsModel appSettings = AppSettingsRepository.GetDefaultApplicationSettings();
             appSettings.DefaultKey = "EkNxG2vH27y4xezfzyEJpHGenOtgLJ1x";
-            var defaultSettings = ApplicationSettingsDataModel.CreateDefaultSettings();
 
-            var repo = new Mock<AppSettingsRepository>();
-            //repo.Setup(x => x.LoadSettings()).Returns(appSettings);
+            var repo = new Mock<AppSettingsRepository>(MockBehavior.Default, _mapper);
+            repo.Setup(x =>x.LoadSettings()).Returns(appSettings);
             
-
-
-
             try
             {
                 var settings = repo.Object.LoadSettings();
                 Assert.IsNotNull(settings);
-                
+
             }
             catch (Exception ex)
             {
                 _context.WriteLine(ex.Message);
             }
 
-
             var settingsService = new ApplicationSettingsService(repo.Object);
-                //Substitute.For<ApplicationSettingsService>(appSettingsRepository);
-
-
-
-            //MediaTypeNames.Application.CompanyName.Returns("Cuplex");
-
-            //ApplicationSettingsService.CompanyName.Returns("Cuplex");
-
-            //MediaTypeNames.Application.ProductName.Returns("ImageViewer");
-
-     
 
             return settingsService;
         }

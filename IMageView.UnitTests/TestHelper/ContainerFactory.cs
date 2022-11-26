@@ -6,7 +6,7 @@ namespace ImageView.UnitTests.TestHelper
 {
     public static class ContainerFactory
     {
-        private static readonly string TestDirectory = Path.Combine(Path.GetTempPath(), "ImageViewTestdata");
+        private static readonly string TestDirectory = ConfigHelper.TestDataPath;
         public const string CompanyName = "UnitTestForImageViewer";
         public const string ProductName = "ImageViewer";
         public const string ThumbnailIndexFilename = "thumbs.ibd";
@@ -15,9 +15,7 @@ namespace ImageView.UnitTests.TestHelper
         {
             IContainer container= AutofacConfig.CreateContainer();
 
-
             return container;
-
         }
 
         public static string GetTestDirectory()
