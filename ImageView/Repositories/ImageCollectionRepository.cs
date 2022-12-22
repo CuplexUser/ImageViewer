@@ -1,53 +1,50 @@
-﻿using AutoMapper;
-using ImageViewer.DataContracts.Import;
+﻿using ImageViewer.DataContracts.Import;
 using ImageViewer.Models.Import;
 using ImageViewer.Providers;
-using Serilog;
 
-namespace ImageViewer.Repositories
+namespace ImageViewer.Repositories;
+
+public class ImageCollectionRepository : RepositoryBase
 {
-    public class ImageCollectionRepository : RepositoryBase
+    private const string InternalPwd = "a53fKn7XF6Zp&c^$LZt#gtY6fp*b^a3dkWZ&CpwgL4YF%^irJ8";
+    private readonly FileSystemIOProvider _fileSystem;
+    private readonly IMapper _mapper;
+
+    public ImageCollectionRepository(FileSystemIOProvider fileSystem, IMapper mapper)
     {
-        private readonly FileSystemIOProvider _fileSystem;
-        private readonly IMapper _mapper;
-        private const string InternalPwd = "a53fKn7XF6Zp&c^$LZt#gtY6fp*b^a3dkWZ&CpwgL4YF%^irJ8";
+        _fileSystem = fileSystem;
+        _mapper = mapper;
+    }
 
-        public ImageCollectionRepository(FileSystemIOProvider fileSystem, IMapper mapper)
+    public OutputDirectoryModel LoadImageCollection(string fileName)
+    {
+        try
         {
-            _fileSystem = fileSystem;
-            _mapper = mapper;
+            var dataModel = _fileSystem.DeserializeObject<SourceFolderDataModel>(fileName, InternalPwd);
+            var outputDirContainer = _mapper.Map<OutputDirectoryModel>(dataModel);
+
+            return outputDirContainer;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "LoadImageCollection failed");
         }
 
-        public OutputDirectoryModel LoadImageCollection(string fileName)
+        return null;
+    }
+
+    public bool SaveOutputDirectoryModel(string filename, OutputDirectoryModel outputDirectoryModel)
+    {
+        try
         {
-            try
-            {
-                SourceFolderDataModel dataModel = _fileSystem.DeserializeObject<SourceFolderDataModel>(fileName, InternalPwd);
-                var outputDirContainer = _mapper.Map<OutputDirectoryModel>(dataModel);
-
-                return outputDirContainer;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "LoadImageCollection failed");
-            }
-
-            return null;
+            SourceFolderDataModel dataModel = _mapper.Map<SourceFolderDataModel>(outputDirectoryModel);
+            return _fileSystem.SerializeObjectToFile(filename, dataModel, InternalPwd);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "SaveOutputDirectoryModel failed");
         }
 
-        public bool SaveOutputDirectoryModel(string filename, OutputDirectoryModel outputDirectoryModel)
-        {
-            try
-            {
-                SourceFolderDataModel dataModel = _mapper.Map<SourceFolderDataModel>(outputDirectoryModel);
-                return _fileSystem.SerializeObjectToFile(filename, dataModel, InternalPwd);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "SaveOutputDirectoryModel failed");
-            }
-            return false;
-        }
-
+        return false;
     }
 }

@@ -1,12 +1,11 @@
 ﻿using ImageViewer.Configuration;
 
-namespace ImageViewer.Services
+namespace ImageViewer.Services;
+
+/// <summary>
+///     Class ServiceBase.
+/// </summary>
+public abstract class ServiceBase
 {
-    /// <summary>
-    /// Class ServiceBase.
-    /// </summary>
-    public abstract class ServiceBase
-    {
-        protected const string ImageSearchPattern = GenericConstants.ImageSearchPattern;
-    }
+    protected const string ImageSearchPattern = GenericConstants.ImageSearchPattern;
 }

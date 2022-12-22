@@ -1,8 +1,7 @@
-﻿namespace ImageViewer.Interfaces
+﻿namespace ImageViewer.Interfaces;
+
+public interface IMageViewFormWindow
 {
-    public interface IMageViewFormWindow
-    {
-        void ResetZoomAndRepaint();
-        void ReloadSettings();
-    }
+    void ResetZoomAndRepaint();
+    void ReloadSettings();
 }

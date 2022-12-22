@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using System.IO;
 using AutofacConfig = ImageView.UnitTests.Configuration.AutofacConfig;
 
 namespace ImageView.UnitTests.TestHelper
@@ -13,7 +12,7 @@ namespace ImageView.UnitTests.TestHelper
 
         public static IContainer CreateUnitTestContainer()
         {
-            IContainer container= AutofacConfig.CreateContainer();
+            IContainer container = AutofacConfig.CreateContainer();
 
             return container;
         }

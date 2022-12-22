@@ -1,6 +1,5 @@
-﻿namespace ImageViewer.Managers
+﻿namespace ImageViewer.Managers;
+
+public abstract class ManagerBase
 {
-    public abstract class ManagerBase
-    {
-    }
 }

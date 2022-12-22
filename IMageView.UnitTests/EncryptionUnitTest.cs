@@ -122,7 +122,7 @@ namespace ImageView.UnitTests
 
             PasswordDeriveBytes pDeriveBytes = new PasswordDeriveBytes(password, salt, "SHA256", 1000);
             PasswordDeriveBytes pDeriveBytes2 = new PasswordDeriveBytes(password, salt, "SHA256", 1000);
-            
+
             //byte[] key = derivedBytes.CryptDeriveKey("AES-GSM", "SHA256", 256, aesAlg.IV);
 
             string a1 = GeneralConverters.ByteArrayToHexString(pDeriveBytes.GetBytes(16));

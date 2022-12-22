@@ -38,7 +38,7 @@ namespace ImageView.UnitTests.Configuration
         //{
         //    var builder = new ContainerBuilder();
         //    var thisAssembly = GetUnitTestAssembly();
-            
+
         //    mockLogger.SetupAllProperties();
 
         //    builder.RegisterAssemblyModules(thisAssembly);

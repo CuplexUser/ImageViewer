@@ -2,13 +2,13 @@
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageView.UnitTests.TestHelper;
+using ImageViewer.Models;
+using ImageViewer.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
-using ImageViewer.Models;
-using ImageViewer.Services;
 
 
 namespace ImageView.UnitTests

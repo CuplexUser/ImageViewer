@@ -1,13 +1,13 @@
-﻿using System;
+﻿using ImageView.UnitTests.Properties;
+using ImageViewer.Models;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Resources;
-using ImageView.UnitTests.Properties;
-using ImageViewer.Models;
-using Serilog;
 
 
 namespace ImageView.UnitTests.TestHelper
@@ -29,7 +29,7 @@ namespace ImageView.UnitTests.TestHelper
 
         public TestDataFactory()
         {
-        
+
         }
 
         // Read img data from resorces

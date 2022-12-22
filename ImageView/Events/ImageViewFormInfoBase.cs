@@ -1,12 +1,11 @@
-﻿namespace ImageViewer.Events
-{
-    public abstract class ImageViewFormInfoBase
-    {
-        protected ImageViewFormInfoBase(Form formReference)
-        {
-            FormReference = formReference;
-        }
+﻿namespace ImageViewer.Events;
 
-        public Form FormReference { get; }
+public abstract class ImageViewFormInfoBase
+{
+    protected ImageViewFormInfoBase(Form formReference)
+    {
+        FormReference = formReference;
     }
+
+    public Form FormReference { get; }
 }

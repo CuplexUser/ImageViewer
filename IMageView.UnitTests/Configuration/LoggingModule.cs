@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using AutofacSerilogIntegration;
-using Serilog.Events;
 using Serilog;
+using Serilog.Events;
 using System.Globalization;
 using System.IO;
 
@@ -13,7 +13,7 @@ namespace ImageView.UnitTests.Configuration
 
         protected override void Load(ContainerBuilder builder)
         {
-          
+
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console(LogEventLevel.Debug, standardErrorFromLevel: LogEventLevel.Error, formatProvider: CultureInfo.InvariantCulture)
                 .WriteTo.File(TestLogFile,

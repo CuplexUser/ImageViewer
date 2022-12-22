@@ -1,39 +1,38 @@
 ﻿using ImageViewer.Events;
 
-namespace ImageViewer
+namespace ImageViewer;
+
+public partial class FormSetSlideshowInterval : Form
 {
-    public partial class FormSetSlideshowInterval : Form
+    private int _timerInterval;
+
+    public FormSetSlideshowInterval(int timerInterval)
     {
-        private int _timerInterval;
+        _timerInterval = timerInterval;
+        InitializeComponent();
+    }
 
-        public FormSetSlideshowInterval(int timerInterval)
-        {
-            _timerInterval = timerInterval;
-            InitializeComponent();
-        }
+    private void FormSetSlideshowInterval_Load(object sender, EventArgs e)
+    {
+        numericUDInterval.Text = _timerInterval.ToString();
+    }
 
-        private void FormSetSlideshowInterval_Load(object sender, EventArgs e)
-        {
-            numericUDInterval.Text = _timerInterval.ToString();
-        }
+    public event IntervalChangedDelegate OnIntervalChanged;
 
-        public event IntervalChangedDelegate OnIntervalChanged;
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+        _timerInterval = Convert.ToInt32(numericUDInterval.Value);
+        OnIntervalChanged?.Invoke(this, new IntervalEventArgs(_timerInterval));
+        Close();
+    }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            _timerInterval = Convert.ToInt32(numericUDInterval.Value);
-            OnIntervalChanged?.Invoke(this, new IntervalEventArgs(_timerInterval));
-            Close();
-        }
+    private void btnCancel_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void txtInterval_Validated(object sender, EventArgs e)
-        {
-            btnOk.Focus();
-        }
+    private void txtInterval_Validated(object sender, EventArgs e)
+    {
+        btnOk.Focus();
     }
 }

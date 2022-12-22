@@ -1,12 +1,11 @@
-﻿namespace ImageViewer.Models.UserInteraction
-{
-    public class UserQuestionEventArgs : EventArgs
-    {
-        public UserQuestionEventArgs(UserInteractionQuestion userQuestion)
-        {
-            UserQuestion = userQuestion;
-        }
+﻿namespace ImageViewer.Models.UserInteraction;
 
-        public UserInteractionQuestion UserQuestion { get; }
+public class UserQuestionEventArgs : EventArgs
+{
+    public UserQuestionEventArgs(UserInteractionQuestion userQuestion)
+    {
+        UserQuestion = userQuestion;
     }
+
+    public UserInteractionQuestion UserQuestion { get; }
 }

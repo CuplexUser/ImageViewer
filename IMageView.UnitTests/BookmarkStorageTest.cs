@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
+using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
 using ImageView.UnitTests.TestHelper;
 using ImageViewer.DataContracts;
 using ImageViewer.Managers;
+using ImageViewer.Models;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System.Linq;
-using AutoMapper;
-using ImageViewer.Models;
 using Moq;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace ImageView.UnitTests
 {
@@ -248,9 +248,9 @@ namespace ImageView.UnitTests
             // The real test =)
             var settingsService = GetApplicationSettingsService();
             settingsService.LoadSettings();
-            
 
-            //Assert on a handfull of properties
+
+            //Assert on a handful of properties
             var settings = settingsService.Settings;
             Assert.IsFalse(settings.BookmarksShowMaximizedImageArea);
             Assert.IsFalse(settings.BookmarksShowOverlayWindow);
@@ -264,8 +264,8 @@ namespace ImageView.UnitTests
             appSettings.DefaultKey = "EkNxG2vH27y4xezfzyEJpHGenOtgLJ1x";
 
             var repo = new Mock<AppSettingsRepository>(MockBehavior.Default, _mapper);
-            repo.Setup(x =>x.LoadSettings()).Returns(appSettings);
-            
+            repo.Setup(x => x.LoadSettings()).Returns(appSettings);
+
             try
             {
                 var settings = repo.Object.LoadSettings();

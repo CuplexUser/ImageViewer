@@ -1,40 +1,34 @@
 ﻿using System.Drawing.Imaging;
 using ImageMagick;
 
-namespace ImageViewer.Providers
+namespace ImageViewer.Providers;
+
+public class ImageTypeConverter : ProviderBase
 {
-    public class ImageTypeConverter : ProviderBase
+    public Image ConvertToSystemImage(MagickImage source)
     {
-        public ImageTypeConverter()
+        using (var ms = new MemoryStream())
         {
+            source.Write(ms, MagickFormat.Jpeg);
+            ms.Position = 0;
+            Image img = Image.FromStream(ms, true, true);
 
+            return img;
         }
+    }
 
-        public Image ConvertToSystemImage(MagickImage source)
+    public MagickImage ConvertFromSystemImage(Image source)
+    {
+        using (var ms = new MemoryStream())
         {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                source.Write(ms, MagickFormat.Jpeg);
-                ms.Position = 0;
-                var img = Image.FromStream(ms, true, true);
+            ms.Position = 0;
+            source.Save(ms, ImageFormat.Jpeg);
 
-                return img;
-            }
-        }
+            ms.Position = 0;
+            MagickImage img = new MagickImage(ms, MagickFormat.Jpeg);
+            ms.Flush();
 
-        public MagickImage ConvertFromSystemImage(Image source)
-        {
-            using (var ms = new MemoryStream())
-            {
-                ms.Position = 0;
-                source.Save(ms, ImageFormat.Jpeg);
-
-                ms.Position = 0;
-                MagickImage img = new MagickImage(ms, MagickFormat.Jpeg);
-                ms.Flush();
-
-                return img;
-            }
+            return img;
         }
     }
 }

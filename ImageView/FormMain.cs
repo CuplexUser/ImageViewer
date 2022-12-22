@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -12,9 +14,6 @@ using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
-using Serilog;
-using System.ComponentModel;
-using System.Diagnostics;
 
 // ReSharper disable All
 
@@ -26,14 +25,16 @@ namespace ImageViewer
         private readonly ApplicationSettingsService _applicationSettingsService;
         private readonly BookmarkService _bookmarkService;
         private readonly FormAddBookmark _formAddBookmark;
+        private readonly FormManager _formManager;
         private readonly ImageCacheService _imageCacheService;
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
         private readonly PictureBox _pictureBoxAnimation = new();
-        private readonly FormManager _formManager;
         private readonly ILifetimeScope _scope;
+        private readonly WindowStateModel _windowState;
         private readonly string _windowTitle;
+        private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private bool _dataReady;
         private FormWindows _formWindows;
         private int _hideCursorDelay;
@@ -44,8 +45,6 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
-        private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
-        private readonly WindowStateModel _windowState;
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
             ImageLoaderService imageLoaderService,
@@ -851,6 +850,7 @@ namespace ImageViewer
         #endregion Form Controls Events
 
         #region Main Menu Functions
+
         private void openFileCollectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
@@ -1115,7 +1115,7 @@ namespace ImageViewer
 
                 if (imageWindow.WindowState == FormWindowState.Minimized)
                 {
-                    imageWindow.WindowState=FormWindowState.Normal;
+                    imageWindow.WindowState = FormWindowState.Normal;
                     imageWindow.Size = new Size(imageWindow.RestoreBounds.Width, imageWindow.RestoreBounds.Height);
                 }
 
@@ -1212,7 +1212,5 @@ namespace ImageViewer
         }
 
         #endregion Main Menu Functions
-
-
     }
 }

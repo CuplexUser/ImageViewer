@@ -1,12 +1,11 @@
-﻿namespace ImageViewer.Models.UserInteraction
-{
-    public class UserInteractionInformation : UserInteractionBase
-    {
-        public event EventHandler OnQueryCompleted;
+﻿namespace ImageViewer.Models.UserInteraction;
 
-        public void Execute()
-        {
-            OnQueryCompleted?.Invoke(this, new EventArgs());
-        }
+public class UserInteractionInformation : UserInteractionBase
+{
+    public event EventHandler OnQueryCompleted;
+
+    public void Execute()
+    {
+        OnQueryCompleted?.Invoke(this, new EventArgs());
     }
 }

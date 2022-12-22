@@ -1,32 +1,31 @@
-﻿namespace ImageViewer
+﻿namespace ImageViewer;
+
+public partial class FormInputText : Form
 {
-    public partial class FormInputText : Form
+    public FormInputText()
     {
-        public FormInputText()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        public void InitFormData(string name, string question, string textBoxText, string groupBoxText,
-            Func<string> validationFunc)
-        {
-        }
+    public void InitFormData(string name, string question, string textBoxText, string groupBoxText,
+        Func<string> validationFunc)
+    {
+    }
 
 
-        private void FormInputText_Load(object sender, EventArgs e)
-        {
-        }
+    private void FormInputText_Load(object sender, EventArgs e)
+    {
+    }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.OK;
-            Close();
-        }
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.OK;
+        Close();
+    }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.Cancel;
-            Close();
-        }
+    private void btnCancel_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.Cancel;
+        Close();
     }
 }

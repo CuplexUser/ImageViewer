@@ -24,7 +24,7 @@ namespace ImageView.UnitTests.Configuration
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .CreateLogger();
-            
+
 
             return _logger;
 

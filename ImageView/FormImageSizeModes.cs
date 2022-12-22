@@ -1,55 +1,53 @@
 ﻿using ImageViewer.Services;
-using Serilog;
 
-namespace ImageViewer
+namespace ImageViewer;
+
+public partial class FormImageSizeModes : Form
 {
-    public partial class FormImageSizeModes : Form
+    private readonly ApplicationSettingsService _applicationSettingsService;
+
+    public FormImageSizeModes(ApplicationSettingsService applicationSettingsService)
     {
-        private readonly ApplicationSettingsService _applicationSettingsService;
+        _applicationSettingsService = applicationSettingsService;
+        InitializeComponent();
+    }
 
-        public FormImageSizeModes(ApplicationSettingsService applicationSettingsService)
+    public PictureBoxSizeMode ImageSizeMode { get; private set; }
+
+    private void FormImageSizeModes_Load(object sender, EventArgs e)
+    {
+        comboBoxImageSizeModes.DataSource = Enum.GetValues(typeof(PictureBoxSizeMode));
+        int sizeMode = _applicationSettingsService.Settings.PrimaryImageSizeMode;
+
+        try
         {
-            _applicationSettingsService = applicationSettingsService;
-            InitializeComponent();
+            comboBoxImageSizeModes.SelectedIndex = sizeMode;
         }
-
-        public PictureBoxSizeMode ImageSizeMode { get; private set; }
-
-        private void FormImageSizeModes_Load(object sender, EventArgs e)
+        catch (Exception ex)
         {
-            comboBoxImageSizeModes.DataSource = Enum.GetValues(typeof(PictureBoxSizeMode));
-            int sizeMode = _applicationSettingsService.Settings.PrimaryImageSizeMode;
-
-            try
-            {
-                comboBoxImageSizeModes.SelectedIndex = sizeMode;
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Invalid image Size mode in app settings. Actual value:{sizeMode}", sizeMode);
-                _applicationSettingsService.Settings.PrimaryImageSizeMode = 0;
-            }
+            Log.Error(ex, "Invalid image Size mode in app settings. Actual value:{sizeMode}", sizeMode);
+            _applicationSettingsService.Settings.PrimaryImageSizeMode = 0;
         }
+    }
 
-        private void comboBoxImageSizeModes_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ImageSizeMode =
-                (PictureBoxSizeMode)
-                Enum.Parse(typeof(PictureBoxSizeMode), comboBoxImageSizeModes.SelectedIndex.ToString());
-        }
+    private void comboBoxImageSizeModes_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ImageSizeMode =
+            (PictureBoxSizeMode)
+            Enum.Parse(typeof(PictureBoxSizeMode), comboBoxImageSizeModes.SelectedIndex.ToString());
+    }
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.Abort;
-            Close();
-        }
+    private void btnCancel_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.Abort;
+        Close();
+    }
 
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.OK;
-            _applicationSettingsService.Settings.PrimaryImageSizeMode = (int)ImageSizeMode;
-            _applicationSettingsService.SaveSettings();
-            Close();
-        }
+    private void btnSave_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.OK;
+        _applicationSettingsService.Settings.PrimaryImageSizeMode = (int)ImageSizeMode;
+        _applicationSettingsService.SaveSettings();
+        Close();
     }
 }

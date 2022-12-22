@@ -1,7 +1,7 @@
 {
-  "profiles": {
-    "ImageViewer": {
-      "commandName": "Project"
+    "profiles": {
+        "ImageViewer": {
+            "commandName": "Project"
+        }
     }
-  }
 }

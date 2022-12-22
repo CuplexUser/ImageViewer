@@ -1,23 +1,21 @@
 ﻿using GeneralToolkitLib.Converters;
 
-namespace ImageViewer.Models
-{
-    public class BookmarkEditModel
-    {
-        public string Name { get; set; }
-        public string FileName { get; set; }
-        public string CompletePath { get; set; }
-        public long FileSize { get; set; }
+namespace ImageViewer.Models;
 
-        public string Directory
+public class BookmarkEditModel
+{
+    public string Name { get; set; }
+    public string FileName { get; set; }
+    public string CompletePath { get; set; }
+    public long FileSize { get; set; }
+
+    public string Directory
+    {
+        get
         {
-            get
-            {
-                if (!string.IsNullOrEmpty(CompletePath))
-                    return GeneralConverters.GetDirectoryNameFromPath(CompletePath, false);
-                else
-                    return string.Empty;
-            }
+            if (!string.IsNullOrEmpty(CompletePath))
+                return GeneralConverters.GetDirectoryNameFromPath(CompletePath, false);
+            return string.Empty;
         }
     }
 }
