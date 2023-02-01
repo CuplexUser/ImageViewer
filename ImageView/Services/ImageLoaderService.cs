@@ -86,11 +86,13 @@ public class ImageLoaderService : ServiceBase, IDisposable
             if (exists) File.Delete(imgRefElement.CompletePath);
 
             removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
-            ImageReference imgReference = _mapper.Map<ImageReference>(imgRefElement);
+            var imgReference = _mapper.Map<ImageReference>(imgRefElement);
             imgRefElement = null;
 
             // Delete from cache
-            OnImageWasDeleted?.Invoke(this, new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count - 1));
+            var args = new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count - 1);
+            OnImageWasDeleted?.Invoke(this, args);
+            ImageWasDeleted(this, args);
         }
         catch (Exception ex)
         {
@@ -98,6 +100,11 @@ public class ImageLoaderService : ServiceBase, IDisposable
         }
 
         return removedItems > 0;
+    }
+    
+    protected virtual void ImageWasDeleted(object sender, ImageRemovedEventArgs e)
+    {
+
     }
 
     private List<int> GetRandomImagePositionList()
@@ -109,7 +116,9 @@ public class ImageLoaderService : ServiceBase, IDisposable
         var candidates = new List<int>();
 
         for (var i = 0; i < ImageReferenceList.Count; i++)
+        {
             candidates.Add(i);
+        }
 
         while (candidates.Count > 0)
         {
@@ -134,7 +143,9 @@ public class ImageLoaderService : ServiceBase, IDisposable
         {
             randomImagePosList = new List<int>();
             for (var i = 0; i < ImageReferenceList.Count; i++)
+            {
                 randomImagePosList.Add(i);
+            }
         }
 
         var imageReferenceCollection = new ImageReferenceCollection(randomImagePosList, this);
@@ -156,7 +167,7 @@ public class ImageLoaderService : ServiceBase, IDisposable
         }
         else
         {
-            foreach (ImageReference element in _imageReferenceList) imgRefList.Add(element);
+            imgRefList.AddRange(_imageReferenceList);
         }
 
         return imgRefList;
@@ -246,7 +257,7 @@ public class ImageLoaderService : ServiceBase, IDisposable
                 imgReferenceList = query.ToList();
             });
 
-            // Use thread lock when updating the image refference datasource
+            // Use thread lock when updating the image reference data-source
             lock (_threadLock)
             {
                 _totalNumberOfFiles = imgReferenceList.Count;
@@ -294,10 +305,12 @@ public class ImageLoaderService : ServiceBase, IDisposable
         AuthorizationRuleCollection authorizationRuleCollection = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
         foreach (FileSystemAccessRule fsAccessRules in authorizationRuleCollection)
+        {
             if (_winId.UserClaims.Any(c => c.Value == fsAccessRules.IdentityReference.Value) &&
                 fsAccessRules.FileSystemRights.HasFlag(FileSystemRights.ListDirectory) &&
                 fsAccessRules.AccessControlType == AccessControlType.Allow)
                 return true;
+        }
 
         return false;
     }
@@ -307,16 +320,22 @@ public class ImageLoaderService : ServiceBase, IDisposable
         var imageReferenceList = new List<ImageReference>();
 
         if (!_runWorkerThread)
+        {
             return imageReferenceList;
+        }
 
         var currentDirectory = new DirectoryInfo(baseDir);
 
         if (!UserHasReadAccessToDirectory(currentDirectory))
+        {
             return imageReferenceList;
+        }
 
         var fileInfoArray = currentDirectory.GetFiles();
-        foreach (FileInfo fileInfo in fileInfoArray)
+        foreach (var fileInfo in fileInfoArray)
+        {
             if (_fileNameRegExp.IsMatch(fileInfo.Name))
+            {
                 imageReferenceList.Add(new ImageReference
                 {
                     FileName = fileInfo.Name,
@@ -327,6 +346,8 @@ public class ImageLoaderService : ServiceBase, IDisposable
                     LastAccessTime = fileInfo.LastWriteTime,
                     Size = fileInfo.Length
                 });
+            }
+        }
 
         _filesLoaded += imageReferenceList.Count;
         if (OnProgressUpdate != null && Environment.TickCount > _tickCount + _progressInterval)
@@ -335,8 +356,10 @@ public class ImageLoaderService : ServiceBase, IDisposable
             OnProgressUpdate.Invoke(this, new ProgressEventArgs(ProgressStatusEnum.Running, _filesLoaded, _totalNumberOfFiles));
         }
 
-        foreach (DirectoryInfo directory in currentDirectory.GetDirectories())
+        foreach (var directory in currentDirectory.GetDirectories())
+        {
             imageReferenceList.AddRange(GetAllImagesRecursive(directory.FullName));
+        }
 
         return imageReferenceList;
     }
@@ -384,8 +407,8 @@ public class ImageLoaderService : ServiceBase, IDisposable
                 var imgRefModels = selectFunc.Invoke();
                 _filesLoaded = imgRefModels.Count;
 
-                // Map from ImageRefferenceMoel toImageRefference
-                List<ImageReference> imgRefList = _mapper.Map<List<ImageReference>>(imgRefModels);
+                // Map from ImageReferenceModel toImageReference
+                var imgRefList = _mapper.Map<List<ImageReference>>(imgRefModels);
                 _imageReferenceList = imgRefList;
                 IsRunningImport = false;
             });

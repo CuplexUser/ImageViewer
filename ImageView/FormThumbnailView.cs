@@ -27,8 +27,8 @@ public partial class FormThumbnailView : Form, IDisposable
 
 
     // Flag: Has Dispose already been called?
-    private bool disposed;
-    private bool formIsDisposing;
+    private bool _disposed;
+    private bool _formIsDisposing;
 
     public FormThumbnailView(ApplicationSettingsService applicationSettings, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
     {
@@ -46,7 +46,7 @@ public partial class FormThumbnailView : Form, IDisposable
         _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
         _maxThumbnails = AppSettings.MaxThumbnails;
         _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
-        //_thumbnailService.LoadThumbnailDatabase();
+        
 
         InitializeComponent();
     }
@@ -62,12 +62,13 @@ public partial class FormThumbnailView : Form, IDisposable
         picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
     }
 
-    private void FormThumbnailView_Load(object sender, EventArgs e)
+    private async void FormThumbnailView_Load(object sender, EventArgs e)
     {
         if (DesignMode)
             return;
 
         FormStateManager.RestoreFormState(AppSettings, this);
+        await _thumbnailService.LoadThumbnailDatabaseAsync();
 
         SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
         flowLayoutPanel1.BackColor = AppSettings.MainWindowBackgroundColor;
@@ -85,7 +86,7 @@ public partial class FormThumbnailView : Form, IDisposable
 
         Hide();
 
-        formIsDisposing = true;
+        _formIsDisposing = true;
         ApplicationSettingsModel appSettings = AppSettings;
         FormStateManager.SaveFormState(appSettings, this);
         _applicationSettings.SaveSettings();
@@ -168,13 +169,13 @@ public partial class FormThumbnailView : Form, IDisposable
             Task[] activeTasks = tasks.Take(taskCount).ToArray();
             Task.WaitAll(activeTasks);
 
-            if (formIsDisposing)
+            if (_formIsDisposing)
                 break;
 
             Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
         }
 
-        if (!formIsDisposing)
+        if (!_formIsDisposing)
             Invoke(new EventHandler(ThumbnailGenerationCompleted));
     }
 
@@ -458,12 +459,12 @@ public partial class FormThumbnailView : Form, IDisposable
     // Protected implementation of Dispose pattern.
     protected override void Dispose(bool disposing)
     {
-        if (disposed)
+        if (_disposed)
             return;
 
         if (disposing)
         {
-            formIsDisposing = true;
+            _formIsDisposing = true;
             _state.IsDisposing = true;
             // Free any other managed objects here.
             //
@@ -472,7 +473,7 @@ public partial class FormThumbnailView : Form, IDisposable
         // Free any unmanaged objects here.
         //
 
-        disposed = true;
+        _disposed = true;
 
         // Call base class implementation.
         base.Dispose(disposing);

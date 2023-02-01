@@ -43,9 +43,16 @@ public class ImageReferenceCollection
         // Remove highest imgRefIndex
         int index = e.ImgRefIndexToRemove;
         _randomImagePosList.Remove(index);
+        
         Log.Debug("ImageReference Collection removed highest index from _randomImagePosList. index: {index}", index);
 
-        if (CurrentImage != null && CurrentImage == e.ImageReference) GetNextImage();
+        // to Prevent Argument out of Range Exception in method GetNextImage(), decrement the maximum value in _randomImagePosList by 1
+        int maxValue = _randomImagePosList.MaxBy(x => x);
+        int i = _randomImagePosList.IndexOf(maxValue);
+        _randomImagePosList[i]--;
+
+        if (CurrentImage != null && CurrentImage == e.ImageReference) 
+            GetNextImage();
     }
 
     private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)

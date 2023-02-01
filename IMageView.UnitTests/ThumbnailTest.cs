@@ -118,7 +118,7 @@ namespace ImageView.UnitTests
                 // Verify that the db file exists
                 Assert.IsTrue(File.Exists(fileName), $"Database file does not exist at {fileName}");
 
-                bool result = thumbnailService.LoadThumbnailDatabase().Result;
+                bool result = thumbnailService.LoadThumbnailDatabaseAsync().Result;
                 Assert.IsTrue(result, "Load thumbnail database failed");
                 Assert.AreEqual(thumbnailService.GetNumberOfCachedThumbnails(), 3, "Database did not contain 3 items");
             }

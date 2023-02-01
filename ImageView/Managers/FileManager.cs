@@ -244,17 +244,7 @@ public class FileManager : ManagerBase, IDisposable
         return 0;
     }
 
-    /// <summary>
-    ///     Creates the raw image.
-    /// </summary>
-    /// <param name="image">The image.</param>
-    /// <returns></returns>
-    public RawImage CreateRawImage(Image image)
-    {
-        RawImage rawImage = CreateRawImageFromImage(image);
 
-        return rawImage;
-    }
 
     // Non direct call removed
 

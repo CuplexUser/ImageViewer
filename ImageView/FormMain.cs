@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using Autofac;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -354,17 +353,19 @@ namespace ImageViewer
             }
 
             var screen = Screen.PrimaryScreen;
-            int widthPerScreen = screen.WorkingArea.Width / _imageViewFormList.Count;
-            int offset = 0;
+            int widthPerWindow = screen.WorkingArea.Width / _imageViewFormList.Count;
+            widthPerWindow += 20;
+            int offset = -6;
 
             foreach (var formImage in _imageViewFormList)
             {
-                formImage.Width = widthPerScreen;
-                formImage.Height = screen.WorkingArea.Height;
+                formImage.Size = new Size(widthPerWindow, screen.WorkingArea.Height + 15);
+                //formImage.Width = widthPerWindow + 15;
+                //formImage.Height = screen.WorkingArea.Height;
                 formImage.Left = offset;
                 formImage.Top = 0;
                 formImage.Focus();
-                offset += widthPerScreen;
+                offset += formImage.Width - 20;
                 formImage.ResetZoomAndRepaint();
             }
         }

@@ -118,5 +118,16 @@ public class ImageRefModel
             .ForMember(s => s.LastWriteTime, o => o.MapFrom(d => d.LastModified))
             .ReverseMap()
             .ForMember(s => s.LastModified, o => o.MapFrom(d => d.LastWriteTime));
+
+        expression.CreateMap<ImageRefModel, FileInfo>()
+            .ForMember(s => s.Length, o => o.MapFrom(d => d.FileSize))
+            .ForMember(s => s.DirectoryName, o => o.MapFrom(d => d.Directory))
+            .ForMember(s => s.Name, o => o.MapFrom(d => d.FileName))
+            .ForMember(s => s.FullName, o => o.MapFrom(d => d.CompletePath))
+            .ForMember(s => s.CreationTime, o => o.MapFrom(d => d.CreationTime))
+            .ForMember(s => s.LastWriteTime, o => o.MapFrom(d => d.LastModified))
+            .ReverseMap()
+            .ForMember(s => s.ImageType, o => o.MapFrom(d => d.Extension));
+
     }
 }

@@ -6,6 +6,7 @@ using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using ImageViewer.Models.Import;
 using ImageViewer.Providers;
 
 namespace ImageViewer.Repositories;
@@ -91,13 +92,18 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     {
         string blobDbPath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), BinaryBlobFileName);
         string filePath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
-
+        bool requireSave = false;
+        
         try
         {
             if (File.Exists(filePath))
                 _metadataDb = await _storageManager.DeserializeObjectFromFileAsync<ThumbnailMetadataDbModel>(filePath, null);
             else
+            {
                 _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
+                requireSave = true;
+            }
+                
         }
         catch (Exception ex)
         {
@@ -107,10 +113,14 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         if (_metadataDb == null)
         {
             if (File.Exists(filePath))
-                File.Decrypt(filePath);
+                File.Delete(filePath);
 
             _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
+            requireSave = true;
         }
+
+        if (requireSave)
+             await SaveThumbnailDatabaseAsync();
 
         Initialized = true;
         return true;
@@ -125,7 +135,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "SaveThumbnailDatabaseAsync exeption. Message: {message}", ex.Message);
+            Log.Error(ex, "SaveThumbnailDatabaseAsync exception. Message: {message}", ex.Message);
         }
 
         return false;
@@ -133,13 +143,72 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
     public Image GetOrCreateThumbnailImage(FileInfo file, Size size)
     {
-        return _imageProvider.CreateThumbnail(file, size);
+        if (_thumbnailDictionary.ContainsKey(file.FullName))
+        {
+            var item = _thumbnailDictionary[file.FullName];
+            if (file.LastWriteTime == item.OriginalImageModel.LastModified && file.Length==item.OriginalImageModel.FileSize)
+            {
+                // return cached thumbnail
+                
+            }
+
+
+        }
+        
+        var image = _imageProvider.CreateThumbnail(file, size);
+        
+        // Add Thumbnail to cache
+        AddThumbnailImgToCache(image, file);
+        
+
+        return image;
+    }
+
+    private void AddThumbnailImgToCache(Image image, FileInfo fileInfo)
+    {
+        if (_thumbnailDictionary.ContainsKey(fileInfo.FullName))
+        {
+            var entry = _thumbnailDictionary[fileInfo.FullName];
+            if (entry != null)
+            {
+                entry.Length = Convert.ToInt32( fileInfo.Length);
+                entry.CreateDate= DateTime.Now;
+                entry.ThumbnailSize = image.Size;
+
+                var model = _mapper.Map<ImageRefModel>(fileInfo);
+                entry.OriginalImageModel = model;
+
+
+                var rawImage = _fileManager.CreateRawImageFromImage(image);
+                entry.FilePosition = AddDataToBlobStorage(rawImage);
+                entry.Length = rawImage.ImageData.Length;
+
+            }
+        }
+        else
+        {
+            
+        }
+    }
+
+    private long AddDataToBlobStorage(RawImage rawImage)
+    {
+        throw new NotImplementedException();
+    }
+
+
+
+    private ThumbnailEntryModel AddValueFactory(Image image, string filePath)
+    {
+        throw new NotImplementedException();
     }
 
 
     public async Task<bool> OptimizeDatabaseAsync()
     {
-        throw new NotImplementedException();
+        // TODO
+        return await Task<bool>.Factory.StartNew(() => false);
+
     }
 
     #region Public Methods

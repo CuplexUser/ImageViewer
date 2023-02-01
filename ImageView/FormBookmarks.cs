@@ -64,9 +64,9 @@ public partial class FormBookmarks : Form
         if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
         {
             using (var formGetPassword = new FormGetPassword
-                   {
-                       PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
-                   })
+            {
+                PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
+            })
             {
                 if (formGetPassword.ShowDialog() == DialogResult.OK)
                 {
@@ -283,9 +283,18 @@ public partial class FormBookmarks : Form
     {
         if (_overlayFormManager.IsEnabled && e.RowIndex >= 0 && _overlayFormManager.ActiveRow != e.RowIndex)
         {
-            _overlayFormManager.ActiveRow = e.RowIndex;
-            DataGridViewRow row = bookmarksDataGridView.Rows[e.RowIndex];
-            if (row.DataBoundItem is Bookmark dataItem) _overlayFormManager.LoadImageAndDisplayForm(dataItem.CompletePath, Cursor.Position);
+            try
+            {
+                _overlayFormManager.ActiveRow = e.RowIndex;
+                DataGridViewRow row = bookmarksDataGridView.Rows[e.RowIndex];
+                if (row.DataBoundItem is Bookmark dataItem)
+                    _overlayFormManager.LoadImageAndDisplayForm(dataItem.CompletePath, Cursor.Position);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Show bookmark overlay exception");
+                _overlayFormManager.HideForm();
+            }
         }
     }
 
@@ -337,7 +346,7 @@ public partial class FormBookmarks : Form
             }
         }
         else
-            // Reset the rectangle if the mouse is not over an item in the ListBox.
+        // Reset the rectangle if the mouse is not over an item in the ListBox.
         {
             _dragBoxFromMouseDown = Rectangle.Empty;
         }
@@ -573,7 +582,7 @@ public partial class FormBookmarks : Form
             {
                 string filename = saveFileDialog1.FileName;
                 _bookmarkManager.SaveToFile(filename, password);
-                MessageBox.Show(@"Save was sussessful", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(@"Save was successful", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }
@@ -597,7 +606,7 @@ public partial class FormBookmarks : Form
         if (_bookmarkManager.LoadFromFileAndAppendBookmarks(filename, password))
         {
             _bookmarkManager.BookmarkDatasourceUpdated();
-            MessageBox.Show(@"Bookmarksfile was loaded and appended to current bookmarks", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(@"Bookmarks-file was loaded and appended to current bookmarks", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
             ReLoadBookmarks();
             InitBookmarksDataSource();
         }
@@ -621,7 +630,7 @@ public partial class FormBookmarks : Form
             _bookmarkManager.BookmarkDatasourceUpdated();
             ReLoadBookmarks();
             InitBookmarksDataSource();
-            MessageBox.Show(@"Bookmarksfile was loaded succesfully", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(@"Bookmarks-file was loaded successfully", @"Bookmarks", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         else
         {
@@ -631,12 +640,10 @@ public partial class FormBookmarks : Form
 
     private void deleteFolderToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        if (!(bookmarksTree.SelectedNode?.Tag is BookmarkFolder treeNode))
+        if (bookmarksTree.SelectedNode?.Tag is not BookmarkFolder treeNode)
             return;
 
-        if (
-            MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_,
-                MessageBoxButtons.YesNo) == DialogResult.Yes)
+        if (MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_, MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
             _bookmarkManager.DeleteBookmarkFolder(treeNode);
             AlterTreeViewState(TreeViewFolderStateChange.FolderRemoved, treeNode);
@@ -645,7 +652,7 @@ public partial class FormBookmarks : Form
 
     private void renameToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
+        var selectedRow = bookmarksDataGridView.CurrentRow;
         if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
 
         var editBookmark = new FormEditBookmark();

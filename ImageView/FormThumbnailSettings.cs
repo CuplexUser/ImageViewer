@@ -27,7 +27,7 @@ public partial class FormThumbnailSettings : Form
     {
         try
         {
-            Task.Factory.FromAsync(_thumbnailService.LoadThumbnailDatabase(), delegate { });
+            Task.Factory.FromAsync(_thumbnailService.LoadThumbnailDatabaseAsync(), delegate { });
         }
         catch (Exception ex)
         {

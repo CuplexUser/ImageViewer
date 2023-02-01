@@ -64,14 +64,17 @@
         <Compile Remove="Managers\**" />
         <Compile Remove="Repositories\**" />
         <Compile Remove="TestComponents\**" />
+        <Compile Remove="TestData\**" />
         <EmbeddedResource Remove="Helpers\**" />
         <EmbeddedResource Remove="Managers\**" />
         <EmbeddedResource Remove="Repositories\**" />
         <EmbeddedResource Remove="TestComponents\**" />
+        <EmbeddedResource Remove="TestData\**" />
         <None Remove="Helpers\**" />
         <None Remove="Managers\**" />
         <None Remove="Repositories\**" />
         <None Remove="TestComponents\**" />
+        <None Remove="TestData\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -149,10 +152,6 @@
 
     <ItemGroup>
         <None Remove="D:\Data\Packages\mstest.testadapter\2.2.10\build\net5.0\..\_common\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="TestData\" />
     </ItemGroup>
 
 

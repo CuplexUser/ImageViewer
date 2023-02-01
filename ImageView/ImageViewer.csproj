@@ -172,8 +172,8 @@
     <Copyright>Martin Dahl 2022</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>3.3.0.0</AssemblyVersion>
-    <FileVersion>3.3.0.0</FileVersion>
+    <AssemblyVersion>3.3.1.0</AssemblyVersion>
+    <FileVersion>3.3.1.0</FileVersion>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
     <UserSecretsId>e6e05188-b9c5-4534-8987-4b493e5b7544</UserSecretsId>
@@ -181,7 +181,7 @@
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>3.3.0.0</Version>
+    <Version>3.3.1.0</Version>
     <Company>Cuplex Org</Company>
     <PackageProjectUrl>https://apps.cuplex.se</PackageProjectUrl>
     <ImplicitUsings>enable</ImplicitUsings>

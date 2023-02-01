@@ -234,7 +234,7 @@ public sealed class ThumbnailService : ServiceBase
         return true;
     }
 
-    public async Task<bool> LoadThumbnailDatabase()
+    public async Task<bool> LoadThumbnailDatabaseAsync()
     {
         return await _thumbnailRepository.InitDatabase();
     }
