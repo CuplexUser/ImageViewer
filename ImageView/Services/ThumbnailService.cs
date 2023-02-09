@@ -13,6 +13,7 @@ public sealed class ThumbnailService : ServiceBase
 {
     //public const string ImageSearchPattern = @"^.+((\.jpe?g$)|(\.webp$)|(\.gif$)|(\.bmp$)|(\.png$))";
     private readonly ImageCacheService _cacheService;
+    private readonly BlobStorageProvider _blobStorageProvider;
 
     /// <summary>
     ///     The file manager
@@ -41,15 +42,20 @@ public sealed class ThumbnailService : ServiceBase
     private bool _abortScan;
 
 
-    public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider)
+    public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider, BlobStorageProvider blobStorageProvider)
     {
         _imageProvider = imageProvider;
+        _blobStorageProvider = blobStorageProvider;
         _fileManager = fileManager;
         _thumbnailRepository = thumbnailRepository;
         _cacheService = cacheService;
         _thumbnailSize = new Size(512, 512);
 
+        // Init database
+        Task.Run(thumbnailRepository.InitDatabase).Wait();
+
         string databaseDirectory = ApplicationBuildConfig.UserDataPath;
+        ServiceState = ThumbnailServiceState.Idle;
         BasePath = databaseDirectory;
     }
 
@@ -99,7 +105,8 @@ public sealed class ThumbnailService : ServiceBase
 
         return await Task.Factory.StartNew(() =>
             {
-                if (progress != null && scannedFiles % 100 == 100) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
+                if (progress != null && scannedFiles % 100 == 100)
+                    progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
 
                 ParallelLoopResult result = Parallel.ForEach(dirList, (directoryPath, state, index) =>
                 {
@@ -107,25 +114,22 @@ public sealed class ThumbnailService : ServiceBase
                     {
                         var files = new DirectoryInfo(directoryPath).GetFiles().Where(x => _fileNameRegExp.IsMatch(x.Name)).ToList();
 
-
                         // process files in parallel
                         var taskCount = 8;
                         if (files.Count < taskCount)
                             taskCount = files.Count;
 
                         var tasks = new Task[taskCount];
-                        var taskIndex = 0;
-                        var needWait = false;
 
-                        foreach (FileInfo file in files)
+                        foreach (var fileInfo in files)
                         {
-                            Task t = Task.Factory.StartNew(() =>
+                            var t = Task.Factory.StartNew(() =>
                                 {
-                                    Image img = _thumbnailRepository.GetOrCreateThumbnailImage(file, _thumbnailSize);
+                                    var img = _thumbnailRepository.GetOrCreateThumbnailImage(fileInfo, _thumbnailSize);
                                 }
                             );
 
-                            taskIndex = -1;
+                            int taskIndex = -1;
                             for (var i = 0; i < taskCount; i++)
                                 if (tasks[i] == null)
                                 {
@@ -163,21 +167,20 @@ public sealed class ThumbnailService : ServiceBase
         var dirInfo = new DirectoryInfo(path);
 
         foreach (DirectoryInfo directory in dirInfo.EnumerateDirectories())
+        {
             if ((directory.Attributes & FileAttributes.Hidden) == 0)
             {
                 dirList.Add(directory.Name);
                 dirList.AddRange(GetSubDirList(directory.FullName));
             }
+        }
 
         return dirList;
     }
 
     public int GetFileCount(IEnumerable<string> dirList)
     {
-        var fileCount = 0;
-        foreach (string dir in dirList) fileCount += Directory.GetFiles(dir).Length;
-
-        return fileCount;
+        return dirList.Sum(dir => Directory.GetFiles(dir).Length);
     }
 
 
@@ -246,8 +249,7 @@ public sealed class ThumbnailService : ServiceBase
 
     public Image GetThumbnail(string filename)
     {
-        Image thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(new FileInfo(filename), _thumbnailSize);
-
+        var thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(new FileInfo(filename), _thumbnailSize);
 
         return thumbnailImage;
     }
@@ -331,10 +333,8 @@ public sealed class ThumbnailService : ServiceBase
 
     public Image CreateThumbnail(string imagePath, Size size)
     {
-        Image img = _cacheService.GetImageFromCache(imagePath);
+        var img = _cacheService.GetImageFromCache(imagePath);
 
         return _imageProvider.CreateThumbnailFromImage(img, size);
-
-        //return _fileManager.CreateThumbnail(imagePath, size);
     }
 }

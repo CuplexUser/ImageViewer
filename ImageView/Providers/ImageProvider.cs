@@ -4,6 +4,7 @@ using Serilog;
 
 namespace ImageViewer.Providers;
 
+[UsedImplicitly]
 public class ImageProvider : ProviderBase
 {
     private readonly ImageTypeConverter _imgConverter;
@@ -11,10 +12,10 @@ public class ImageProvider : ProviderBase
     public ImageProvider(ImageTypeConverter imgConverter)
     {
         _imgConverter = imgConverter;
-        InitMagickNET();
+        InitMagickNet();
     }
 
-    private void InitMagickNET()
+    private void InitMagickNet()
     {
         var configFiles = ConfigurationFiles.Default;
         configFiles.Policy.Data = @"
@@ -37,7 +38,7 @@ public class ImageProvider : ProviderBase
 
     public Image CreateThumbnail(FileInfo imgFileInfo, Size size)
     {
-        var image = LoadImageFile(imgFileInfo);
+        MagickImage image = LoadImageFile(imgFileInfo);
         image.Resize(size.Width, size.Height);
         return _imgConverter.ConvertToSystemImage(image);
     }

@@ -25,7 +25,7 @@ public class ImageTypeConverter : ProviderBase
             source.Save(ms, ImageFormat.Jpeg);
 
             ms.Position = 0;
-            MagickImage img = new MagickImage(ms, MagickFormat.Jpeg);
+            var img = new MagickImage(ms, MagickFormat.Jpeg);
             ms.Flush();
 
             return img;

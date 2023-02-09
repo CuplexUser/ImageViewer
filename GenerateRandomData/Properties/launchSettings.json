@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GenerateRandomData": {
+      "commandName": "Project",
+      "commandLineArgs": "32"
+    }
+  }
+}

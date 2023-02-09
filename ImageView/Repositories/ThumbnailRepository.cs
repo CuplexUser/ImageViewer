@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
+using ImageViewer.DataContracts;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.Import;
@@ -23,7 +24,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
     private readonly FileManager _fileManager;
     private readonly ImageProvider _imageProvider;
-    [NotNull] private readonly IMapper _mapper;
+    private readonly IMapper _mapper;
     private readonly StorageManager _storageManager;
     private readonly ConcurrentDictionary<string, ThumbnailEntryModel> _thumbnailDictionary;
     private bool _isModified;
@@ -93,7 +94,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         string blobDbPath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), BinaryBlobFileName);
         string filePath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
         bool requireSave = false;
-        
+
         try
         {
             if (File.Exists(filePath))
@@ -103,7 +104,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
                 _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
                 requireSave = true;
             }
-                
+
         }
         catch (Exception ex)
         {
@@ -120,7 +121,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         }
 
         if (requireSave)
-             await SaveThumbnailDatabaseAsync();
+            await SaveThumbnailDatabaseAsync();
 
         Initialized = true;
         return true;
@@ -131,7 +132,10 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         try
         {
             string filePath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
-            return await _storageManager.SerializeObjectToFileAsync(_metadataDb, filePath, null);
+
+            // Save Data model
+            var dataModel = _mapper.Map<ThumbnailMetadataDbDataModel>(_metadataDb);
+            return await _storageManager.SerializeObjectToFileAsync(dataModel, filePath, null);
         }
         catch (Exception ex)
         {
@@ -146,63 +150,56 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         if (_thumbnailDictionary.ContainsKey(file.FullName))
         {
             var item = _thumbnailDictionary[file.FullName];
-            if (file.LastWriteTime == item.OriginalImageModel.LastModified && file.Length==item.OriginalImageModel.FileSize)
+            if (file.LastWriteTime == item.OriginalImageModel.LastModified && file.Length == item.OriginalImageModel.FileSize)
             {
                 // return cached thumbnail
                 
+
             }
 
 
         }
-        
+
         var image = _imageProvider.CreateThumbnail(file, size);
-        
+
         // Add Thumbnail to cache
         AddThumbnailImgToCache(image, file);
-        
+
 
         return image;
     }
 
     private void AddThumbnailImgToCache(Image image, FileInfo fileInfo)
     {
-        if (_thumbnailDictionary.ContainsKey(fileInfo.FullName))
+        if (!_thumbnailDictionary.ContainsKey(fileInfo.FullName))
         {
-            var entry = _thumbnailDictionary[fileInfo.FullName];
-            if (entry != null)
+            var thumbModel = new ThumbnailEntryModel
             {
-                entry.Length = Convert.ToInt32( fileInfo.Length);
-                entry.CreateDate= DateTime.Now;
-                entry.ThumbnailSize = image.Size;
+                Length = Convert.ToInt32(fileInfo.Length),
+                CreateDate = DateTime.Now,
+                ThumbnailSize = image.Size
+            };
 
-                var model = _mapper.Map<ImageRefModel>(fileInfo);
-                entry.OriginalImageModel = model;
+            var model = _mapper.Map<ImageRefModel>(fileInfo);
+            thumbModel.OriginalImageModel = model;
 
 
-                var rawImage = _fileManager.CreateRawImageFromImage(image);
-                entry.FilePosition = AddDataToBlobStorage(rawImage);
-                entry.Length = rawImage.ImageData.Length;
+            var rawImage = _fileManager.CreateRawImageFromImage(image);
+            thumbModel.FilePosition = AddDataToBlobStorage(rawImage);
+            thumbModel.Length = rawImage.ImageData.Length;
 
-            }
+            if (!_thumbnailDictionary.TryAdd(fileInfo.FullName, thumbModel))
+                Log.Warning("Failed to add thumbnail model to dictionary. fileName: {name}", fileInfo.FullName);
         }
-        else
-        {
-            
-        }
+
     }
 
     private long AddDataToBlobStorage(RawImage rawImage)
     {
-        throw new NotImplementedException();
+        return 1;
+
+
     }
-
-
-
-    private ThumbnailEntryModel AddValueFactory(Image image, string filePath)
-    {
-        throw new NotImplementedException();
-    }
-
 
     public async Task<bool> OptimizeDatabaseAsync()
     {
@@ -375,16 +372,16 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
     #region IDisposable Support
 
-    private bool disposedValue; // To detect redundant calls
+    private bool hasBeenDisposed; // To detect redundant calls
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!hasBeenDisposed)
         {
             if (disposing) _thumbnailDictionary.Clear();
 
 
-            disposedValue = true;
+            hasBeenDisposed = true;
             GC.Collect(GC.GetGeneration(new WeakReference(this)), GCCollectionMode.Optimized);
         }
     }

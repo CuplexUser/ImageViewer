@@ -38,7 +38,10 @@ public class StartupService : ServiceBase
             }
 
         //taskList.Add(TestJob());
-        foreach (Task task in taskList) task.Start();
+        foreach (Task task in taskList)
+        {
+            task.Start();
+        }
 
         await Task.WhenAll(taskList).ConfigureAwait(false);
     }
