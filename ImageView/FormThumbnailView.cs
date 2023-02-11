@@ -1,7 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Speech.Synthesis.TtsEngine;
+using System.Threading.Tasks.Dataflow;
 using Autofac;
+using ImageMagick;
 using ImageViewer.Delegates;
+using ImageViewer.Library.Extensions;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
@@ -20,7 +25,7 @@ public partial class FormThumbnailView : Form, IDisposable
     private readonly ThumbnailService _thumbnailService;
     private string _maximizedImgFilename;
     private int _maxThumbnails;
-    private CancellationToken _thumbnailGenCancellationToken;
+    private CancellationTokenSource _tokenSource;
     private ThumbnailScanDirectory _thumbnailScan;
     private int _thumbnailSize;
     private UpdatePicBoxListEventHandler _updatePicBoxList;
@@ -37,7 +42,7 @@ public partial class FormThumbnailView : Form, IDisposable
         _imageLoaderService = imageLoaderService;
         _scope = scope;
         _updatePicBoxList += UpdatePicBoxList;
-
+        _tokenSource = new CancellationTokenSource();
 
         if (applicationSettings == null) throw new NullReferenceException(Resources.AppApplicationSettingsServiceNull);
 
@@ -46,7 +51,7 @@ public partial class FormThumbnailView : Form, IDisposable
         _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
         _maxThumbnails = AppSettings.MaxThumbnails;
         _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
-        
+
 
         InitializeComponent();
     }
@@ -86,6 +91,11 @@ public partial class FormThumbnailView : Form, IDisposable
 
         Hide();
 
+        Task.Factory.StartNew(async () =>
+        {
+            await _thumbnailService.SaveThumbnailDatabase();
+        }).Wait();
+
         _formIsDisposing = true;
         ApplicationSettingsModel appSettings = AppSettings;
         FormStateManager.SaveFormState(appSettings, this);
@@ -116,16 +126,27 @@ public partial class FormThumbnailView : Form, IDisposable
             return;
         }
 
+        if (btnGenerate.Tag is CancellationTokenSource source)
+        {
+            source.Token.WaitHandle.WaitOne(500, true);
+            btnGenerate.Tag = null;
+            btnGenerate.Enabled = false;
+            return;
+        }
+        if (_state.IsGeneratingThumbnails)
+        {
+            return;
+        }
+
         HideMaximizedView();
         SetUpdateDatabaseEnabledState(false);
         flowLayoutPanel1.Controls.Clear();
 
-        btnGenerate.Enabled = false;
         _state.StartingThumbnailScan();
 
         try
         {
-            await BindAndLoadThumbnailsAsync();
+            await BindAndLoadThumbnailsAsync().ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -134,104 +155,80 @@ public partial class FormThumbnailView : Form, IDisposable
         }
 
         btnGenerate.Enabled = true;
+        if (_tokenSource.IsCancellationRequested)
+            _tokenSource.TryReset();
+
+        
+        await _thumbnailService.SaveThumbnailDatabase();
+
         Refresh();
         GC.Collect(0, GCCollectionMode.Optimized);
     }
 
     private async Task BindAndLoadThumbnailsAsync()
     {
-        var modelList = GenerateThumbnailModels();
-        int maxThreads = Environment.ProcessorCount;
-        var pictureBoxModels = new ConcurrentQueue<PictureBoxModel>(modelList);
-        var pictureBoxes = new PictureBox[maxThreads];
+        var modelList = GenerateThumbnailModels().ToList();
 
-        _thumbnailGenCancellationToken = new CancellationToken(false);
-        var tasks = new Task<Image>[maxThreads];
-
-        // Generate thumbnails
-        while (pictureBoxModels.Count > 0)
+        // Generate thumbnails while keeping the UI 100% responsive
+        await Task.Factory.StartNew(async () =>
         {
-            var taskCount = 0;
-            for (var i = 0; i < tasks.Length; i++)
+            try
             {
-                taskCount++;
-                pictureBoxModels.TryDequeue(out PictureBoxModel model);
-                if (model == null)
-                    break;
+                ParallelOptions options = new ParallelOptions
+                {
+                    CancellationToken = _tokenSource.Token,
+                    MaxDegreeOfParallelism = Environment.ProcessorCount * 4
+                };
+                await Parallel.ForEachAsync(modelList, options, async (model, token) =>
+                {
+                    PictureBox picBox = CreatePictureBox(model);
+                    picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(true);
+                    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
 
-                PictureBox picBox = CreatePictureBox(model);
+                    if (!_tokenSource.IsCancellationRequested)
+                    {
+                        
+                    }
+                });
+  
 
-                tasks[i] = Task<Image>.Factory.StartNew(() => LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize), _thumbnailGenCancellationToken);
-                pictureBoxes[i] = picBox;
-                picBox.Image = await tasks[i];
+                //foreach (var model in modelList)
+                //{
+                //    PictureBox picBox = CreatePictureBox(model);
+                //    if (state.ShouldExitCurrentIteration)
+                //        state.Stop();
+
+                //    if (_tokenSource.IsCancellationRequested)
+                //    {
+                //        state.Stop();
+                //    }
+                //    picBox.Image = await LoadAndResizeImage(model.SourceImagePath)
+                //    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
+
+                //    //task.ConfigureAwait(true).GetAwaiter().OnCompleted(() => 
+                //    //{
+                //    //     = task.Result;
+                //    //    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
+                //    //});
+                //});
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "BindAndLoadThumbnailsAsync was interrupted");
+
             }
 
-            Task[] activeTasks = tasks.Take(taskCount).ToArray();
-            Task.WaitAll(activeTasks);
-
-            if (_formIsDisposing)
-                break;
-
-            Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
-        }
+        }, _tokenSource.Token);
 
         if (!_formIsDisposing)
             Invoke(new EventHandler(ThumbnailGenerationCompleted));
     }
 
-    private Image LoadAndResizeImage(string imagePath, Size thumbnailSize)
+    private async Task<Image> LoadAndResizeImage(string imagePath)
     {
-        return _thumbnailService.CreateThumbnail(imagePath, thumbnailSize);
+        var image = await _thumbnailService.GetThumbnailAsync(imagePath);
+        return image;
     }
-
-    //private async Task BindAndLoadThumbnailsAsync2()
-    //{
-    //    var modelList = GenerateThumbnailModels();
-    //    int maxThreads = Environment.ProcessorCount;
-    //    object lockObj = new object();
-    //    List<PictureBox> pictureBoxes = new List<PictureBox>();
-    //    IEnumerable<PictureBoxModel> pictureBoxModels = modelList.ToList();
-
-    //    await Task.Factory.StartNew(() =>
-    //    {
-    //        foreach (var model in pictureBoxModels)
-    //        {
-    //            var picBox = CreatePictureBox(model);
-    //            picBox.Image = LoadAndResizeImage(model.SourceImagePath, model.ThumbnailSize, new ImageFactory(MetaDataMode.None));
-    //            pictureBoxes.Add(picBox);
-
-    //            if (pictureBoxes.Count >= maxThreads)
-    //            {
-    //                lock(lockObj)
-    //                {
-    //                    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
-    //                    pictureBoxes.Clear();
-    //                }
-    //            }
-    //        }
-
-    //        if (pictureBoxes.Count > 0)
-    //        {
-    //            lock (lockObj)
-    //            {
-    //                Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(pictureBoxes));
-    //                pictureBoxes.Clear();
-    //            }
-    //        }
-
-
-    //    }, _thumbnailGenCancellationToken);
-
-    //    if (!formIsDisposing)
-    //        Invoke(new EventHandler(ThumbnailGenerationCompleted));
-    //}
-
-    //private static Image LoadAndResizeImage(string sourceImagePath, Size size, ImageFactory factory)
-    //{
-    //    var img = factory.Load(sourceImagePath).Resize(size).Image.Clone() as Image;
-    //    factory.Dispose();
-    //    return img;
-    //}
 
     private PictureBox CreatePictureBox(PictureBoxModel model)
     {
@@ -260,10 +257,10 @@ public partial class FormThumbnailView : Form, IDisposable
 
     private void UpdatePicBoxList(object sender, UpdatePicBoxEventArgs e)
     {
-        if (e?.PictureBoxModelList != null)
+        if (e?.PictureBoxModel != null)
         {
             flowLayoutPanel1.SuspendLayout();
-            flowLayoutPanel1.Controls.AddRange(e.PictureBoxModelList.Select(x => x as Control).ToArray());
+            flowLayoutPanel1.Controls.Add(e.PictureBoxModel);
 
             flowLayoutPanel1.ResumeLayout(true);
         }
@@ -273,6 +270,19 @@ public partial class FormThumbnailView : Form, IDisposable
     {
         btnOptimize.Enabled = enabled;
         btnScanDirectory.Enabled = enabled;
+
+        if (enabled)
+        {
+            btnGenerate.Text = "Generate";
+            btnGenerate.Tag = null;
+            btnGenerate.Enabled = true;
+        }
+        else
+        {
+            btnGenerate.Text = "Cancel";
+            btnGenerate.Tag = _tokenSource;
+            btnGenerate.Enabled = true;
+        }
     }
 
     private void OptimizeDatabaseComplete(object sender, EventArgs e)
@@ -384,6 +394,8 @@ public partial class FormThumbnailView : Form, IDisposable
         _thumbnailScan = new ThumbnailScanDirectory(_thumbnailService);
         Form frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
         frmDirectoryScan.FormClosed += FrmDirectoryScan_FormClosed;
+
+
 
         frmDirectoryScan.ShowDialog(this);
         frmDirectoryScan.Dispose();

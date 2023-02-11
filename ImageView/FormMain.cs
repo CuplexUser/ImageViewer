@@ -30,6 +30,7 @@ namespace ImageViewer
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
         private readonly PictureBox _pictureBoxAnimation = new();
+        private readonly ThumbnailService _thumbnailService;
         private readonly ILifetimeScope _scope;
         private readonly WindowStateModel _windowState;
         private readonly string _windowTitle;
@@ -47,7 +48,7 @@ namespace ImageViewer
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
             ImageLoaderService imageLoaderService,
-            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
+            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager, ThumbnailService thumbnailService)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
@@ -60,6 +61,7 @@ namespace ImageViewer
             _scope = scope;
             _interactionService = interactionService;
             _formManager = formManager;
+            _thumbnailService = thumbnailService;
             _windowState = new WindowStateModel();
 
             InitializeComponent();
@@ -434,6 +436,10 @@ namespace ImageViewer
 
         private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
         {
+            Task.Factory.StartNew(async () =>
+            {
+                await _thumbnailService.SaveThumbnailDatabase();
+            }).Wait();
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)

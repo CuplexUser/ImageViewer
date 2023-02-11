@@ -8,6 +8,7 @@ public partial class ThumbnailScanDirectory : UserControl
     private readonly ThumbnailService _thumbnailService;
     private bool _directorySelected;
     private bool _scanningDirectory;
+    private CancellationTokenSource _cancelTokenSource;
 
     public ThumbnailScanDirectory(ThumbnailService thumbnailService)
     {
@@ -19,6 +20,7 @@ public partial class ThumbnailScanDirectory : UserControl
     private void _thumbnailService_CompletedThumbnailScan(object sender, EventArgs e)
     {
         _scanningDirectory = false;
+        _cancelTokenSource = null;
         UpdateButtonState();
     }
 
@@ -37,14 +39,15 @@ public partial class ThumbnailScanDirectory : UserControl
         }
     }
 
-    private async void btnScan_Click(object sender, EventArgs e)
+    private void btnScan_Click(object sender, EventArgs e)
     {
         progressBar.Value = 0;
         _scanningDirectory = true;
         UpdateButtonState();
         var progress = new Progress<ThumbnailScanProgress>(Handler);
-
-        await _thumbnailService.ThumbnailDirectoryScan(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked);
+        _cancelTokenSource = new CancellationTokenSource();
+        
+        _thumbnailService.ThumbnailDirectoryScan(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked, _cancelTokenSource.Token).WaitAsync(_cancelTokenSource.Token);
     }
 
     private void Handler(ThumbnailScanProgress thumbnailScanProgress)
@@ -92,11 +95,17 @@ public partial class ThumbnailScanDirectory : UserControl
 
     private void CancelScan()
     {
+        _cancelTokenSource?.CancelAfter(TimeSpan.FromSeconds(5));
         _thumbnailService.StopThumbnailScan();
     }
 
     public void OnFormClosed()
     {
+        Task.Factory.StartNew(async () =>
+        {
+            await _thumbnailService.SaveThumbnailDatabase();
+        }).Wait();
+
         if (_scanningDirectory)
             CancelScan();
     }

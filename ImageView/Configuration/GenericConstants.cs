@@ -24,5 +24,5 @@ public static class GenericConstants
     ///     The image search pattern
     ///     Regular Expression used program wide to identify compatible image files
     /// </summary>
-    public const string ImageSearchPattern = @"^.+((\.jpe?g$)|(\.webp$)|(\.gif$)|(\.bmp$)|(\.png$))";
+    public const string ImageSearchPattern = @"^.+((\.jpeg$)|(\.jpg$)|(\.webp$)|(\.gif$)|(\.bmp$)|(\.png$))";
 }

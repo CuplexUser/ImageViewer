@@ -13,7 +13,9 @@ public class ThumbnailEntryModel
 
     public Guid EntryId { get; protected set; }
 
-    public long FilePosition { get; set; }
+    public string FullName { get; set; }
+
+    public int FilePosition { get; set; }
 
     public int Length { get; set; }
 
@@ -42,6 +44,7 @@ public class ThumbnailEntryModel
             .ForMember(d => d.CreateDate, o => o.MapFrom(s => s.CreateDate))
             .ForMember(d => d.OriginalImageModel, o => o.MapFrom(s => s.OriginalImageModel))
             .ForMember(d => d.Size, o => o.MapFrom(s => SizeDataModel.CreateFromSize(s.ThumbnailSize)))
+            .ForMember(d => d.FullName, o => o.MapFrom(s =>s.FullName))
             .ReverseMap()
             .ForMember(d => d.ThumbnailSize, o => o.MapFrom(s => s.Size.ToSize()));
     }

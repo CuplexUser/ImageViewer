@@ -11,7 +11,7 @@ public class ImageTypeConverter : ProviderBase
         {
             source.Write(ms, MagickFormat.Jpeg);
             ms.Position = 0;
-            Image img = Image.FromStream(ms, true, true);
+            Image img = Image.FromStream(ms, true, true).Clone() as Image;
 
             return img;
         }

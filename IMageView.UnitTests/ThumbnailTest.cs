@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using ImageView.UnitTests.Properties;
 
@@ -115,16 +116,25 @@ namespace ImageView.UnitTests
                 GlobalSettings.Settings.UnitTestInitialize("ImageViewTest");
 
                 var thumbnailService = scope.Resolve<ThumbnailService>();
+                thumbnailService.LoadThumbnailDatabaseAsync().Wait(5000);
 
-                bool result = thumbnailService.ThumbnailDirectoryScan(TestDataPath, new Progress<ThumbnailScanProgress>(), false).Result;
+                bool result = false;
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+                //tokenSource.CancelAfter(2500);
 
-                var thumbNailImage = thumbnailService.GetThumbnail(TestDataPath + TestImages[0]);
+                var scanTask= thumbnailService.ThumbnailDirectoryScan(TestDataPath, new Progress<ThumbnailScanProgress>(),true, tokenSource.Token);
+                Task[] tasks = new Task[1];
+                tasks[0] = scanTask;
+                Task.WaitAll(tasks);
+                result = scanTask.Result;
+
+                var thumbNailImage = thumbnailService.GetThumbnailAsync(Path.Join(TestDataPath, TestImages[0]));
                 Assert.IsNotNull(thumbNailImage, "Thumbnail image 1 was null");
 
-                thumbNailImage = thumbnailService.GetThumbnail(TestDataPath + TestImages[1]);
+                thumbNailImage = thumbnailService.GetThumbnailAsync(Path.Join(TestDataPath, TestImages[1]));
                 Assert.IsNotNull(thumbNailImage, "Thumbnail image 2 was null");
 
-                thumbNailImage = thumbnailService.GetThumbnail(TestDataPath + TestImages[2]);
+                thumbNailImage = thumbnailService.GetThumbnailAsync(Path.Join(TestDataPath, TestImages[2]));
                 Assert.IsNotNull(thumbNailImage, "Thumbnail image 3 was null");
             }
         }
@@ -140,10 +150,11 @@ namespace ImageView.UnitTests
 
             // save Database first
             thumbnailService.ClearDatabase();
-            bool saveResult = thumbnailService.SaveThumbnailDatabase().Result;
+            var saveResult = thumbnailService.SaveThumbnailDatabase();
+            saveResult.Wait(CancellationToken.None);
 
             // Verify return value
-            Assert.IsTrue(saveResult, "SaveThumbnailDatabase was not successful");
+            Assert.IsTrue(saveResult.Result, "SaveThumbnailDatabase was not successful");
 
             // Verify that the db file exists
             Assert.IsTrue(File.Exists(fileName), $"Database file does not exist at {fileName}");
@@ -164,7 +175,7 @@ namespace ImageView.UnitTests
                     string filePath = Path.Join(TestDataPath, testImage);
 
                     // Also includes thumbnail caching
-                    var thumbnail = thumbnailService.GetThumbnail(filePath);
+                    var thumbnail = thumbnailService.GetThumbnailAsync(filePath).Result;
                 }
 
                 // Verify that there are testImages.Length thumbnails created

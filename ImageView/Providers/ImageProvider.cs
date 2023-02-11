@@ -1,6 +1,5 @@
 ﻿using ImageMagick;
 using ImageMagick.Configuration;
-using Serilog;
 
 namespace ImageViewer.Providers;
 
@@ -35,6 +34,13 @@ public class ImageProvider : ProviderBase
         return img;
     }
 
+    private byte[] ImageToBytes(Image image)
+    {
+        var magicImage = _imgConverter.ConvertFromSystemImage(image);
+
+        return magicImage.ToByteArray(MagickFormat.Jpeg);
+
+    }
 
     public Image CreateThumbnail(FileInfo imgFileInfo, Size size)
     {
@@ -78,11 +84,18 @@ public class ImageProvider : ProviderBase
         return null;
     }
 
-    public Image CreateThumbnailFromImage(Image image, Size size)
+    public MagickImage CreateThumbnailFromImage(Image image, Size size)
     {
         MagickImage img = _imgConverter.ConvertFromSystemImage(image);
         img.Resize(size.Width, size.Height);
 
-        return _imgConverter.ConvertToSystemImage(img);
+        return img;
+    }
+
+    public byte[] CreateThumbnailToByteArray(FileInfo fi, Size thumbnailSize)
+    {
+        MagickImage image = LoadImageFile(fi.FullName);
+        image.Resize(thumbnailSize.Width, thumbnailSize.Height);
+        return image.ToByteArray(MagickFormat.Jpeg);
     }
 }

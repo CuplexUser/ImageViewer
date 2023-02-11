@@ -152,7 +152,7 @@ public class FileManager : ManagerBase, IDisposable
                     int bytesRead = _fileStream.Read(buffer, 0, entry.Length);
                 }
 
-                entry.FilePosition = temporaryDatabaseFile.Position;
+                entry.FilePosition = Convert.ToInt32(temporaryDatabaseFile.Position);
                 temporaryDatabaseFile.Write(buffer, 0, entry.Length);
             }
 
@@ -283,7 +283,8 @@ public class FileManager : ManagerBase, IDisposable
         RawImage rawImage;
         using (var ms = new MemoryStream())
         {
-            image.Save(ms, ImageFormat.Jpeg);
+            Bitmap bitmap = new Bitmap(image);
+            bitmap.Save(ms, ImageFormat.Jpeg);
             ms.Flush();
             rawImage = new RawImage(ms.ToArray());
         }

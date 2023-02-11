@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using GeneralToolkitLib.Configuration;
+using ImageMagick;
 using ImageViewer.Events;
 using ImageViewer.Managers;
 using ImageViewer.Models;
@@ -13,7 +14,7 @@ public sealed class ThumbnailService : ServiceBase
 {
     //public const string ImageSearchPattern = @"^.+((\.jpe?g$)|(\.webp$)|(\.gif$)|(\.bmp$)|(\.png$))";
     private readonly ImageCacheService _cacheService;
-    private readonly BlobStorageProvider _blobStorageProvider;
+
 
     /// <summary>
     ///     The file manager
@@ -33,6 +34,8 @@ public sealed class ThumbnailService : ServiceBase
     /// </summary>
     private readonly ThumbnailRepository _thumbnailRepository;
 
+    private CancellationTokenSource _tokenSource;
+
     private readonly Size _thumbnailSize;
 
 
@@ -42,14 +45,15 @@ public sealed class ThumbnailService : ServiceBase
     private bool _abortScan;
 
 
-    public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider, BlobStorageProvider blobStorageProvider)
+    public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider)
     {
         _imageProvider = imageProvider;
-        _blobStorageProvider = blobStorageProvider;
         _fileManager = fileManager;
         _thumbnailRepository = thumbnailRepository;
         _cacheService = cacheService;
         _thumbnailSize = new Size(512, 512);
+        _tokenSource = new CancellationTokenSource();
+        _tokenSource.Token.Register(CancelScanCallback);
 
         // Init database
         Task.Run(thumbnailRepository.InitDatabase).Wait();
@@ -65,8 +69,9 @@ public sealed class ThumbnailService : ServiceBase
 
     public string BasePath { get; }
 
-    public async Task<bool> ThumbnailDirectoryScan(string path, IProgress<ThumbnailScanProgress> progress, bool scanSubdirectories)
+    public async Task<bool> ThumbnailDirectoryScan(string path, IProgress<ThumbnailScanProgress> progress, bool scanSubdirectories, CancellationToken token)
     {
+        bool saveResult = false;
         if (ServiceState != ThumbnailServiceState.Idle)
         {
             Log.Warning("Aborting StartThumbnailScan because ServiceState = {ServiceState}", ServiceState);
@@ -83,83 +88,87 @@ public sealed class ThumbnailService : ServiceBase
             return false;
         }
 
-        var dirList = scanSubdirectories ? GetSubDirList(path) : new List<string>();
-        dirList.Add(path);
+        try
+        {
+            var dirList = scanSubdirectories ? GetSubDirList(path) : new List<string>();
+            dirList.Add(path);
 
-        //int scannedFiles = dirList.TakeWhile(directory => !_abortScan).Sum(directory => PerformThumbnailScan(directory, progress));
-        int totalFileCount = GetFileCount(dirList);
-        int scannedFiles = await StartThumbnailDirectoryScan(dirList, totalFileCount, progress);
+            if (_tokenSource.IsCancellationRequested)
+            {
+                _tokenSource = new CancellationTokenSource();
+                _tokenSource.Token.Register(CancelScanCallback);
+            }
+            
 
-        bool saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
+            //int scannedFiles = dirList.TakeWhile(directory => !_abortScan).Sum(directory => PerformThumbnailScan(directory, progress));
+            int totalFileCount = GetFileCount(dirList);
+            int scannedFiles = await StartThumbnailDirectoryScan(dirList, totalFileCount, progress, token);
 
-        progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
+            saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
+
+            progress?.Report(new ThumbnailScanProgress { TotalAmountOfFiles = scannedFiles, ScannedFiles = scannedFiles, IsComplete = true });
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "ThumbnailDirectoryScan exception for path {path}", path);
+        }
+
         return saveResult;
     }
 
-    private async Task<int> StartThumbnailDirectoryScan(List<string> dirList, int totalFileCount, IProgress<ThumbnailScanProgress> progress)
+    private Task<int> StartThumbnailDirectoryScan(List<string> dirList, int totalFileCount, IProgress<ThumbnailScanProgress> progress, CancellationToken token)
     {
-        var scannedFiles = 0;
+        int scannedFiles = 0;
 
         if (_abortScan)
-            return scannedFiles;
+            return Task.FromResult(scannedFiles);
 
-        return await Task.Factory.StartNew(() =>
+        
+
+        foreach (string dir in dirList)
+        {
+            var files = new DirectoryInfo(dir).GetFiles().Where(x => _fileNameRegExp.IsMatch(x.Name)).ToList();
+
+            async void Body(FileInfo fileInfo, ParallelLoopState state, long index)
             {
-                if (progress != null && scannedFiles % 100 == 100)
-                    progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
-
-                ParallelLoopResult result = Parallel.ForEach(dirList, (directoryPath, state, index) =>
+                try
                 {
-                    try
-                    {
-                        var files = new DirectoryInfo(directoryPath).GetFiles().Where(x => _fileNameRegExp.IsMatch(x.Name)).ToList();
+                    //var tasks = new Task[taskCount];
+                    Image img = null;
+                    img = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
 
-                        // process files in parallel
-                        var taskCount = 8;
-                        if (files.Count < taskCount)
-                            taskCount = files.Count;
-
-                        var tasks = new Task[taskCount];
-
-                        foreach (var fileInfo in files)
-                        {
-                            var t = Task.Factory.StartNew(() =>
-                                {
-                                    var img = _thumbnailRepository.GetOrCreateThumbnailImage(fileInfo, _thumbnailSize);
-                                }
-                            );
-
-                            int taskIndex = -1;
-                            for (var i = 0; i < taskCount; i++)
-                                if (tasks[i] == null)
-                                {
-                                    taskIndex = i;
-                                    break;
-                                }
-
-                            if (taskIndex >= 0)
-                            {
-                                tasks[taskIndex] = t;
-                            }
-                            else
-                            {
-                                taskIndex = Task.WaitAny(tasks);
-                                tasks[taskIndex] = t;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, " Parallel.ForEach exception on Path: {path}", directoryPath);
-                        state.Break();
-                    }
-                });
+                    if (progress != null && scannedFiles % 20 == 0)
+                        progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
 
 
-                return scannedFiles;
+                    if (img == null)
+                        throw new InvalidDataException("GetOrCreateThumbnailImage() Returned image was null");
+
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, " Parallel.ForEach exception in dir: {path}, for file {file}", dir, fileInfo.Name);
+                }
+
+                Interlocked.Increment(ref scannedFiles);
             }
-        );
+
+            ParallelLoopResult result = Parallel.ForEach(files, Body);
+
+        }
+
+        if (progress != null)
+            progress.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = totalFileCount, TotalAmountOfFiles = totalFileCount });
+
+
+        return Task.FromResult(scannedFiles);
     }
+
+    private void CancelScanCallback()
+    {
+        ServiceState = ThumbnailServiceState.Idle;
+    }
+
 
     private List<string> GetSubDirList(string path)
     {
@@ -189,6 +198,7 @@ public sealed class ThumbnailService : ServiceBase
         if ((ServiceState & (ThumbnailServiceState.ScanningDirectory | ThumbnailServiceState.ScanningThumbnails)) != 0)
         {
             _abortScan = true;
+            _tokenSource.CancelAfter(250);
             Log.Information("Stopping thumbnail scan when ServiceState is: {ServiceState}", ServiceState);
         }
         else
@@ -197,24 +207,11 @@ public sealed class ThumbnailService : ServiceBase
         }
     }
 
-    //public Image LoadThumbnailImage(string fullPath)
-    //{
-    //    Image thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(fullPath,_thumbnailSize);
-
-    //    return thumbnailImage;
-    //}
-
 
     public async Task<bool> OptimizeDatabaseAsync()
     {
         return await _thumbnailRepository.OptimizeDatabaseAsync();
     }
-
-    //public bool OptimizeDatabase()
-    //{
-    //    var result = _thumbnailRepository.OptimizeDatabaseAsync().ConfigureAwait(true);
-    //    return result.GetAwaiter().GetResult();
-    //}
 
 
     public async Task<bool> SaveThumbnailDatabase()
@@ -247,11 +244,14 @@ public sealed class ThumbnailService : ServiceBase
         return _thumbnailRepository.GetFileCacheCount();
     }
 
-    public Image GetThumbnail(string filename)
+    public Image GetThumbnail(string filename, int timeout)
     {
-        var thumbnailImage = _thumbnailRepository.GetOrCreateThumbnailImage(new FileInfo(filename), _thumbnailSize);
+        return GetThumbnailAsync(filename).WaitAsync(TimeSpan.FromMilliseconds(timeout)).Result;
+    }
 
-        return thumbnailImage;
+    public async Task<Image> GetThumbnailAsync(string filename)
+    {
+        return await _thumbnailRepository.GetOrCreateThumbnailImage(new FileInfo(filename), _thumbnailSize);
     }
 
 
@@ -331,10 +331,12 @@ public sealed class ThumbnailService : ServiceBase
         return _cacheService.GetImageFromCache(filename);
     }
 
-    public Image CreateThumbnail(string imagePath, Size size)
+    public MagickImage CreateThumbnail(string imagePath, Size size)
     {
         var img = _cacheService.GetImageFromCache(imagePath);
 
-        return _imageProvider.CreateThumbnailFromImage(img, size);
+        var result = _imageProvider.CreateThumbnailFromImage(img, size);
+
+        return result;
     }
 }

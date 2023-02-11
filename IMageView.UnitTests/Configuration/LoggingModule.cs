@@ -22,6 +22,7 @@ namespace ImageView.UnitTests.Configuration
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     buffered: false,
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.ff} [{Level}] {Message}{NewLine}{Exception}{Data}")
+                .WriteTo.Debug(LogEventLevel.Debug)
                 .Enrich.FromLogContext()
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)

@@ -2,14 +2,14 @@
 
 public class UpdatePicBoxEventArgs : EventArgs
 {
-    public UpdatePicBoxEventArgs(IList<PictureBox> modelListList)
+    public UpdatePicBoxEventArgs(PictureBox pictureBox)
     {
-        PictureBoxModelList = modelListList;
+        PictureBoxModel = pictureBox;
     }
 
     public UpdatePicBoxEventArgs()
     {
     }
 
-    public IList<PictureBox> PictureBoxModelList { get; }
+    public PictureBox PictureBoxModel { get; }
 }
