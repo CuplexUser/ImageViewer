@@ -1,64 +1,63 @@
 ﻿using GeneralToolkitLib.Converters;
 
-namespace ImageViewer.InputForms
+namespace ImageViewer.InputForms;
+
+public partial class FormGetPassword : Form
 {
-    public partial class FormGetPassword : Form
+    public FormGetPassword()
     {
-        public FormGetPassword()
-        {
-            InitializeComponent();
-            PasswordVerified = false;
-        }
+        InitializeComponent();
+        PasswordVerified = false;
+    }
 
-        public string PasswordDerivedString { get; set; }
-        public string PasswordString { get; private set; }
-        public bool PasswordVerified { get; private set; }
+    public string PasswordDerivedString { get; set; }
+    public string PasswordString { get; private set; }
+    public bool PasswordVerified { get; private set; }
 
-        private void FormGetPassword_Shown(object sender, EventArgs e)
-        {
-            txtPassword.Focus();
-        }
+    private void FormGetPassword_Shown(object sender, EventArgs e)
+    {
+        txtPassword.Focus();
+    }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+        HandleOkClick();
+    }
+
+    private void btnCancel_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
+
+    private void FormGetPassword_KeyUp(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.Escape)
+            Close();
+
+        if (e.KeyCode == Keys.Enter)
             HandleOkClick();
+    }
+
+    private void HandleOkClick()
+    {
+        if (PasswordDerivedString != GeneralConverters.GeneratePasswordDerivedString(txtPassword.Text))
+        {
+            MessageBox.Show(this, "Invalid password");
+            return;
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        PasswordString = txtPassword.Text;
+        PasswordVerified = true;
+        Close();
+        DialogResult = DialogResult.OK;
+    }
+
+    private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
+    {
+        if (e.KeyChar == (char)Keys.Enter)
         {
-            Close();
-        }
-
-        private void FormGetPassword_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-                Close();
-
-            if (e.KeyCode == Keys.Enter)
-                HandleOkClick();
-        }
-
-        private void HandleOkClick()
-        {
-            if (PasswordDerivedString != GeneralConverters.GeneratePasswordDerivedString(txtPassword.Text))
-            {
-                MessageBox.Show(this, "Invalid password");
-                return;
-            }
-
-            PasswordString = txtPassword.Text;
-            PasswordVerified = true;
-            Close();
-            DialogResult = DialogResult.OK;
-        }
-
-        private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                e.Handled = true;
-                HandleOkClick();
-            }
+            e.Handled = true;
+            HandleOkClick();
         }
     }
 }

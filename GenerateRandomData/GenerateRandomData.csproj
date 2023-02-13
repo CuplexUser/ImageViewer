@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <StartupObject>GenerateRandomData.Program</StartupObject>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Copyright>Martin Dahl 2023</Copyright>
+    <Description>Output is a pastable random byte array</Description>
+    <Company>Martin Dahl 2023</Company>
+    <Authors>Martin Dahl</Authors>
+    <Title>Generate Random byte[]</Title>
+  </PropertyGroup>
+
+</Project>

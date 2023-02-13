@@ -1,20 +1,17 @@
-﻿namespace ImageViewer.UserControls
+﻿namespace ImageViewer.UserControls;
+
+public partial class FolderListView : UserControl
 {
-    public partial class FolderListView : UserControl
+    public FolderListView()
     {
-        public FolderListView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void customPanel1_Load(object sender, EventArgs e)
-        {
+    private void customPanel1_Load(object sender, EventArgs e)
+    {
+    }
 
-        }
-
-        private void FolderListView_Load(object sender, EventArgs e)
-        {
-
-        }
+    private void FolderListView_Load(object sender, EventArgs e)
+    {
     }
 }

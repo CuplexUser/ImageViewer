@@ -1,69 +1,53 @@
-﻿using Serilog;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace ImageViewer.Library.Extensions
+namespace ImageViewer.Library.Extensions;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class FixedBoundsAttribute : ValidationAttribute
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class FixedBoundsAttribute : ValidationAttribute
+    public FixedBoundsAttribute(int minValue, int maxValue, int initialValue, string errorMessage) : base(errorMessage)
     {
-        public int MinValue { get; set; }
+        MinValue = minValue;
+        MaxValue = maxValue;
+        InitialValue = initialValue;
+    }
 
-        public int MaxValue { get; set; }
+    public FixedBoundsAttribute(string errorMessage) : base(errorMessage)
+    {
+    }
 
-        public int InitialValue { get; set; }
+    public int MinValue { get; set; }
 
-        public string DIsplayName { get; set; }
+    public int MaxValue { get; set; }
 
-        public FixedBoundsAttribute(int minValue, int maxValue, int initialValue, string errorMessage) : base(errorMessage)
-        {
-            MinValue = minValue;
-            MaxValue = maxValue;
-            InitialValue = initialValue;
-        }
+    public int InitialValue { get; set; }
 
-        public FixedBoundsAttribute(string errorMessage) : base(errorMessage)
-        {
-        }
+    public string DisplayName { get; set; }
 
-        public override bool IsValid(object value)
-        {
-            if (value != null)
-                return false;
+    public override bool IsValid(object value)
+    {
+        if (value == null)
+            return false;
+        // Assumes int value
 
-            bool isValid = false;
+        var propertyVal = Convert.ToInt32(value);
 
-            // Asumes int value
-            if (value is Int32)
-            {
-                int propertyVal = Convert.ToInt32(value);
+        if (propertyVal < MinValue || propertyVal > MaxValue) return false;
 
-                if (propertyVal < MinValue || propertyVal > MaxValue)
-                {
-                    return false;
-                }
+        return true;
+    }
 
-                isValid = true;
-            }
+    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    {
+        string propName = validationContext.MemberName;
+        Log.Debug("Validating Settings Property: {name}", propName);
 
-            return isValid;
-        }
+        bool validStatus = IsValid(value);
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        {
-            FixedBoundsAttribute attribute = value as FixedBoundsAttribute;
-            if (attribute == null)
-            {
-                return new ValidationResult(ErrorMessage);
-            }
+        if (validStatus)
+            return ValidationResult.Success;
 
-            int propertyVal = Convert.ToInt32(value);
-            bool validStatus = IsValid(value);
-
-            if (validStatus)
-                return ValidationResult.Success;
-
-            Log.Warning("Validation failed for settings attrribute: " + validationContext.DisplayName);
-            return new ValidationResult(ErrorMessageString);
-        }
+        Log.Warning("Validation failed for settings attrribute: " + validationContext.DisplayName);
+        return new ValidationResult(ErrorMessageString);
     }
 }

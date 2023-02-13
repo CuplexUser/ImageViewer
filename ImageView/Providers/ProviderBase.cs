@@ -1,6 +1,5 @@
-﻿namespace ImageViewer.Providers
+﻿namespace ImageViewer.Providers;
+
+public abstract class ProviderBase
 {
-    public abstract class ProviderBase
-    {
-    }
 }

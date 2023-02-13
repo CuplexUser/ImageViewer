@@ -1,18 +1,17 @@
-﻿namespace ImageViewer
+﻿namespace ImageViewer;
+
+public partial class FormImageDetails : Form
 {
-    public partial class FormImageDetails : Form
+    private readonly string _filename;
+
+    public FormImageDetails(string filename)
     {
-        private readonly string _filename;
+        _filename = filename;
+        InitializeComponent();
+    }
 
-        public FormImageDetails(string filename)
-        {
-            _filename = filename;
-            InitializeComponent();
-        }
-
-        private void FormImageDetails_Load(object sender, EventArgs e)
-        {
-            ImgInfoGroupBox.Text = $"Image information about {_filename}";
-        }
+    private void FormImageDetails_Load(object sender, EventArgs e)
+    {
+        ImgInfoGroupBox.Text = $"Image information about {_filename}";
     }
 }

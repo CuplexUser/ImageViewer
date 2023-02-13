@@ -1,9 +1,8 @@
-﻿namespace ImageViewer.Repositories
+﻿namespace ImageViewer.Repositories;
+
+/// <summary>
+///     Marker class
+/// </summary>
+public abstract class RepositoryBase
 {
-    /// <summary>
-    /// Marker class
-    /// </summary>
-    public abstract class RepositoryBase
-    {
-    }
 }

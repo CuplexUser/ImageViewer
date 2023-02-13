@@ -1,9 +1,8 @@
 ﻿using ImageViewer.Library.EventHandlers;
 
-namespace ImageViewer.Interfaces
+namespace ImageViewer.Interfaces;
+
+public interface IExceptionEventHandler
 {
-    public interface IExceptionEventHandler
-    {
-        event ExceptionEventHandler OtherExceptionEventHandler;
-    }
+    event ExceptionEventHandler OtherExceptionEventHandler;
 }

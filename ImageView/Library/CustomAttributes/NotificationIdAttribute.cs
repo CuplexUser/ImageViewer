@@ -1,32 +1,28 @@
-﻿namespace ImageViewer.Library.CustomAttributes
+﻿namespace ImageViewer.Library.CustomAttributes;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NotificationIdAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class NotificationIdAttribute : Attribute
+    public NotificationIdAttribute(string name) : this(name, Guid.NewGuid())
     {
-        public NotificationIdAttribute(string name) : this(name, Guid.NewGuid())
-        {
-            Name = name;
-        }
+        Name = name;
+    }
 
-        public NotificationIdAttribute(string name, Guid notificationId)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("Name must be specified");
-            }
+    public NotificationIdAttribute(string name, Guid notificationId)
+    {
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name must be specified");
 
 
-            Name = name;
-            NotificationId = notificationId;
-        }
+        Name = name;
+        NotificationId = notificationId;
+    }
 
-        public override string ToString()
-        {
-            return $"Name: {Name}, NotificationId: {NotificationId}";
-        }
+    public string Name { get; }
 
-        public string Name { get; }
+    public Guid NotificationId { get; }
 
-        public Guid NotificationId { get; }
+    public override string ToString()
+    {
+        return $"Name: {Name}, NotificationId: {NotificationId}";
     }
 }

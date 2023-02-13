@@ -1,6 +1,8 @@
-﻿namespace ImageViewer.Models.Interface
+﻿namespace ImageViewer.Models.Interface;
+
+public interface IAppSettingsRepository
 {
-    public interface IAppSettingsRepository
-    {
-    }
+    ApplicationSettingsModel LoadSettings();
+
+    bool SaveSettings(ApplicationSettingsModel settings);
 }

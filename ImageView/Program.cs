@@ -1,79 +1,78 @@
-﻿using Autofac;
-using GeneralToolkitLib.ConfigHelper;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using GeneralToolkitLib.Configuration;
 using ImageViewer.Configuration;
 using ImageViewer.Services;
-using Serilog;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
-namespace ImageViewer
+namespace ImageViewer;
+
+internal static class Program
 {
-    internal static class Program
+    private static IContainer Container { get; set; }
+
+    [DllImport("user32.dll")]
+    private static extern bool SetProcessDPIAware();
+
+
+    /// <summary>
+    ///     The main entryModel point for the application.
+    /// </summary>
+    [STAThread]
+    private static void Main()
     {
-        [DllImport("user32.dll")]
-        private static extern bool SetProcessDPIAware();
+        InitializeAutofac();
 
-        private static IContainer Container { get; set; }
+        if (Environment.OSVersion.Version.Major >= 6)
+            SetProcessDPIAware();
 
+        Application.EnableVisualStyles();
+        Application.SetHighDpiMode(HighDpiMode.SystemAware);
+        Application.SetCompatibleTextRenderingDefault(true);
+        bool debugMode = ApplicationBuildConfig.DebugMode;
+        GlobalSettings.Settings.Initialize(Assembly.GetExecutingAssembly().GetName().Name, !debugMode);
 
-        /// <summary>
-        ///     The main entryModel point for the application.
-        /// </summary>
-        [STAThread]
-        private static void Main()
+        Log.Verbose("Application started");
+
+        using (var scope = Container.BeginLifetimeScope())
         {
-            InitializeAutofac();
+            // Begin startup async jobs
+            ApplicationSettingsService settingsService = scope.Resolve<ApplicationSettingsService>();
+            var startupService = scope.Resolve<StartupService>();
 
-            if (Environment.OSVersion.Version.Major >= 6)
-                SetProcessDPIAware();
+            bool readSuccessful = settingsService.LoadSettings();
 
-            Application.EnableVisualStyles();
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.SetCompatibleTextRenderingDefault(true);
-            bool debugMode = ApplicationBuildConfig.DebugMode;
-            GlobalSettings.Settings.Initialize(Assembly.GetExecutingAssembly().GetName().Name, !debugMode);
-
-            Log.Verbose("Application started");
-
-            using (var scope = Container.BeginLifetimeScope())
+            if (!readSuccessful)
             {
-                // Begin startup async jobs
-                ApplicationSettingsService settingsService = scope.Resolve<ApplicationSettingsService>();
-                var startupService = scope.Resolve<StartupService>();
+                string userDataPath = GlobalSettings.Settings.GetUserDataDirectoryPath();
+                Log.Error("Failed to load application settings on program load. User data path {userDataPath}", userDataPath);
 
-                bool readSuccessful = settingsService.LoadSettings();
-
-                if (!readSuccessful)
-                {
-                    string userDataPath = GlobalSettings.Settings.GetUserDataDirectoryPath();
-                    Log.Error("Failed to load application settings on program load. User data path {userDataPath}", userDataPath);
-                }
-
-
-                startupService.ScheduleAndRunStartupJobs();
-                Task.Delay(1000);
-                try
-                {
-                    FormMain frmMain = scope.Resolve<FormMain>();
-                    Application.Run(frmMain);
-                }
-                catch (Exception ex)
-                {
-                    Log.Fatal(ex, "Main program failureException: {Message}", ex.Message);
-                }
-
-
-                //settingsService.SaveSettings();
+                // Use Default Application Settings and save them to disk
+                settingsService.RestoreSettingsToDefault();
             }
 
-            //Application.Run(new FormMain());
-            Log.Information("Application ended");
+
+            startupService.ScheduleAndRunStartupJobs();
+            Task.Delay(1000);
+            try
+            {
+                FormMain frmMain = scope.Resolve<FormMain>();
+                Application.Run(frmMain);
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Main program failureException: {Message}", ex.Message);
+            }
+
+
+            //settingsService.SaveSettings();
         }
 
-        private static void InitializeAutofac()
-        {
-            Container = AutofacConfig.CreateContainer();
-        }
+        //Application.Run(new FormMain());
+        Log.Information("Application ended");
+    }
+
+    private static void InitializeAutofac()
+    {
+        Container = AutofacConfig.CreateContainer();
     }
 }

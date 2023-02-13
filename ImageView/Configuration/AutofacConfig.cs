@@ -1,40 +1,33 @@
-﻿using Autofac;
-using GeneralToolkitLib.ConfigHelper;
-using ImageViewer.Library.AutofacModules;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace ImageViewer.Configuration
+namespace ImageViewer.Configuration;
+
+public static class AutofacConfig
 {
-    public static class AutofacConfig
+    public static IContainer CreateContainer()
     {
-        public static IContainer CreateContainer()
-        {
-            var builder = new ContainerBuilder();
-            var thisAssembly = GetMainAssembly();
+        var builder = new ContainerBuilder();
+        Assembly thisAssembly = GetMainAssembly();
 
 
-            Assembly[] coreAssemblies = new Assembly[2];
-            var generalToolKitAssembly = AssemblyHelper.GetAssembly();
+        var coreAssemblies = new Assembly[2];
+        Assembly generalToolKitAssembly = AssemblyHelper.GetAssembly();
 
-            coreAssemblies[0] = thisAssembly;
-            coreAssemblies[1] = generalToolKitAssembly;
+        coreAssemblies[0] = thisAssembly;
+        coreAssemblies[1] = generalToolKitAssembly;
 
-            if (generalToolKitAssembly != null)
-            {
-                builder.RegisterAssemblyModules(generalToolKitAssembly);
-            }
+        if (generalToolKitAssembly != null) builder.RegisterAssemblyModules(generalToolKitAssembly);
 
-            builder.RegisterAssemblyModules(thisAssembly);
-            var container = builder.Build();
+        builder.RegisterAssemblyModules(thisAssembly);
+        var container = builder.Build();
 
 
-            return container;
-        }
+        return container;
+    }
 
 
-        public static Assembly GetMainAssembly()
-        {
-            return typeof(ImageViewModule).Assembly;
-        }
+    public static Assembly GetMainAssembly()
+    {
+        return typeof(ImageViewModule).Assembly;
     }
 }

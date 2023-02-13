@@ -1,25 +1,21 @@
-﻿namespace ImageViewer.Models
+﻿namespace ImageViewer.Models;
+
+public class ThumbnailScanProgress
 {
-    public class ThumbnailScanProgress
+    public int TotalAmountOfFiles { get; set; }
+
+    public int ScannedFiles { get; set; }
+
+    public int PercentComplete
     {
-        public int TotalAmountOfFiles { get; set; }
-
-        public int ScannedFiles { get; set; }
-
-        public int PercentComplete
+        get
         {
-            get
-            {
-                int rate = 0;
-                if (TotalAmountOfFiles > 0)
-                {
-                    rate = Convert.ToInt32((double)ScannedFiles / TotalAmountOfFiles * 100);
-                }
+            var rate = 0;
+            if (TotalAmountOfFiles > 0) rate = Convert.ToInt32((double)ScannedFiles / TotalAmountOfFiles * 100);
 
-                return rate;
-            }
+            return rate;
         }
-
-        public bool IsComplete { get; set; }
     }
+
+    public bool IsComplete { get; set; }
 }

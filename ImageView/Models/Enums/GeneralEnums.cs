@@ -1,13 +1,5 @@
-﻿namespace ImageViewer.Models.Enums
-{
-    public class GeneralEnums
-    {
-    }
+﻿namespace ImageViewer.Models.Enums;
 
-    public enum NotificationType
-    {
-        OkCancelQuery,
-        Information,
-        Error
-    }
+public class GeneralEnums
+{
 }

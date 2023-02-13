@@ -1,26 +1,25 @@
 ﻿using ImageViewer.Models;
 
-namespace ImageViewer
+namespace ImageViewer;
+
+public partial class FormEditBookmark : Form
 {
-    public partial class FormEditBookmark : Form
+    public FormEditBookmark()
     {
-        public FormEditBookmark()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void FormEditBookmark_Load(object sender, EventArgs e)
-        {
-        }
+    private void FormEditBookmark_Load(object sender, EventArgs e)
+    {
+    }
 
-        public void InitEditForm(BookmarkEditModel model, bool editFilename)
-        {
-            editBookmark1.InitControl(model, editFilename);
-        }
+    public void InitEditForm(BookmarkEditModel model, bool editFilename)
+    {
+        editBookmark1.InitControl(model, editFilename);
+    }
 
-        public BookmarkEditModel GetBookmarkEditModel()
-        {
-            return editBookmark1.GetEditModel();
-        }
+    public BookmarkEditModel GetBookmarkEditModel()
+    {
+        return editBookmark1.GetEditModel();
     }
 }

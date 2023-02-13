@@ -1,18 +1,3 @@
-﻿namespace ImageViewer.Delegates
-{
-    public delegate void UpdatePicBoxListEventHandler(object sender, UpdatePicBoxEventArgs eventArgs);
+﻿namespace ImageViewer.Delegates;
 
-    public class UpdatePicBoxEventArgs : EventArgs
-    {
-        public IList<PictureBox> PictureBoxModelList { get; }
-
-        public UpdatePicBoxEventArgs(IList<PictureBox> modelListList)
-        {
-            PictureBoxModelList = modelListList;
-        }
-
-        public UpdatePicBoxEventArgs()
-        {
-        }
-    }
-}
+public delegate void UpdatePicBoxListEventHandler(object sender, UpdatePicBoxEventArgs eventArgs);

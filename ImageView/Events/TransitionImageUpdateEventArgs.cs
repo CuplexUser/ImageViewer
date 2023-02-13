@@ -1,10 +1,9 @@
 ﻿using JetBrains.Annotations;
 
-namespace ImageViewer.Events
+namespace ImageViewer.Events;
+
+[UsedImplicitly]
+public class TransitionImageUpdateEventArgs : EventArgs
 {
-    [UsedImplicitly]
-    public class TransitionImageUpdateEventArgs : EventArgs
-    {
-        public Image TransitionImage { get; set; }
-    }
+    public Image TransitionImage { get; set; }
 }

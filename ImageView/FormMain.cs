@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -12,9 +13,6 @@ using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
-using Serilog;
-using System.ComponentModel;
-using System.Diagnostics;
 
 // ReSharper disable All
 
@@ -26,14 +24,17 @@ namespace ImageViewer
         private readonly ApplicationSettingsService _applicationSettingsService;
         private readonly BookmarkService _bookmarkService;
         private readonly FormAddBookmark _formAddBookmark;
+        private readonly FormManager _formManager;
         private readonly ImageCacheService _imageCacheService;
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
         private readonly PictureBox _pictureBoxAnimation = new();
-        private readonly FormManager _formManager;
+        private readonly ThumbnailService _thumbnailService;
         private readonly ILifetimeScope _scope;
+        private readonly WindowStateModel _windowState;
         private readonly string _windowTitle;
+        private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private bool _dataReady;
         private FormWindows _formWindows;
         private int _hideCursorDelay;
@@ -44,12 +45,10 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
-        private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
-        private readonly WindowStateModel _windowState;
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
             ImageLoaderService imageLoaderService,
-            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager)
+            ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager, ThumbnailService thumbnailService)
         {
             _formAddBookmark = formAddBookmark;
             _bookmarkService = bookmarkService;
@@ -62,6 +61,7 @@ namespace ImageViewer
             _scope = scope;
             _interactionService = interactionService;
             _formManager = formManager;
+            _thumbnailService = thumbnailService;
             _windowState = new WindowStateModel();
 
             InitializeComponent();
@@ -355,17 +355,19 @@ namespace ImageViewer
             }
 
             var screen = Screen.PrimaryScreen;
-            int widthPerScreen = screen.WorkingArea.Width / _imageViewFormList.Count;
-            int offset = 0;
+            int widthPerWindow = screen.WorkingArea.Width / _imageViewFormList.Count;
+            widthPerWindow += 20;
+            int offset = -6;
 
             foreach (var formImage in _imageViewFormList)
             {
-                formImage.Width = widthPerScreen;
-                formImage.Height = screen.WorkingArea.Height;
+                formImage.Size = new Size(widthPerWindow, screen.WorkingArea.Height + 15);
+                //formImage.Width = widthPerWindow + 15;
+                //formImage.Height = screen.WorkingArea.Height;
                 formImage.Left = offset;
                 formImage.Top = 0;
                 formImage.Focus();
-                offset += widthPerScreen;
+                offset += formImage.Width - 20;
                 formImage.ResetZoomAndRepaint();
             }
         }
@@ -434,6 +436,10 @@ namespace ImageViewer
 
         private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
         {
+            Task.Factory.StartNew(async () =>
+            {
+                await _thumbnailService.SaveThumbnailDatabase();
+            }).Wait();
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
@@ -851,6 +857,7 @@ namespace ImageViewer
         #endregion Form Controls Events
 
         #region Main Menu Functions
+
         private void openFileCollectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var form = _formManager.GetFormInstance(typeof(FormAddImageSource));
@@ -1115,7 +1122,7 @@ namespace ImageViewer
 
                 if (imageWindow.WindowState == FormWindowState.Minimized)
                 {
-                    imageWindow.WindowState=FormWindowState.Normal;
+                    imageWindow.WindowState = FormWindowState.Normal;
                     imageWindow.Size = new Size(imageWindow.RestoreBounds.Width, imageWindow.RestoreBounds.Height);
                 }
 
@@ -1212,7 +1219,5 @@ namespace ImageViewer
         }
 
         #endregion Main Menu Functions
-
-
     }
 }

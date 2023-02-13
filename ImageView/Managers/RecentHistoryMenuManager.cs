@@ -1,14 +1,11 @@
-﻿namespace ImageViewer.Managers
+﻿namespace ImageViewer.Managers;
+
+public class RecentHistoryMenuManager : ManagerBase
 {
-    public class RecentHistoryMenuManager : ManagerBase
+    private readonly MenuStrip _mainFormMenu;
+
+    public RecentHistoryMenuManager(MenuStrip mainFormMenu)
     {
-        private readonly MenuStrip _mainFormMenu;
-
-        public RecentHistoryMenuManager(MenuStrip mainFormMenu)
-        {
-            _mainFormMenu = mainFormMenu;
-
-            
-        }
+        _mainFormMenu = mainFormMenu;
     }
 }

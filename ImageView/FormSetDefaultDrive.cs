@@ -1,71 +1,63 @@
 ﻿using ImageViewer.Utility;
-using Serilog;
 
-namespace ImageViewer
+namespace ImageViewer;
+
+public partial class FormSetDefaultDrive : Form
 {
-    public partial class FormSetDefaultDrive : Form
+    private List<DriveInfo> availableDriveInfos;
+
+    public FormSetDefaultDrive()
     {
-        private List<DriveInfo> availableDriveInfos;
+        InitializeComponent();
+    }
 
-        public FormSetDefaultDrive()
+    public string SelectedDrive { get; set; }
+
+    private void FormSetDefaultDrive_Load(object sender, EventArgs e)
+    {
+        availableDriveInfos = new List<DriveInfo>();
+        try
         {
-            InitializeComponent();
+            var driveInfos = DriveInfo.GetDrives();
+            foreach (DriveInfo driveInfo in driveInfos.Where(driveInfo => driveInfo.IsReady)) availableDriveInfos.Add(driveInfo);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error in FormSetDefaultDrive_Load()");
         }
 
-        public string SelectedDrive { get; set; }
+        foreach (DriveInfo availableDriveInfo in availableDriveInfos) cbDriveList.Items.Add(GetDriveInfoListItemText(availableDriveInfo));
 
-        private void FormSetDefaultDrive_Load(object sender, EventArgs e)
-        {
-            availableDriveInfos = new List<DriveInfo>();
-            try
-            {
-                var driveInfos = DriveInfo.GetDrives();
-                foreach (DriveInfo driveInfo in driveInfos.Where(driveInfo => driveInfo.IsReady))
-                {
-                    availableDriveInfos.Add(driveInfo);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Error in FormSetDefaultDrive_Load()");
-            }
+        if (cbDriveList.Items.Count > 0)
+            cbDriveList.SelectedIndex = 0;
+    }
 
-            foreach (DriveInfo availableDriveInfo in availableDriveInfos)
-            {
-                cbDriveList.Items.Add(GetDriveInfoListItemText(availableDriveInfo));
-            }
+    private void btnOk_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.OK;
+        SelectedDrive = availableDriveInfos[cbDriveList.SelectedIndex].Name;
+        Close();
+    }
 
-            if (cbDriveList.Items.Count > 0)
-                cbDriveList.SelectedIndex = 0;
-        }
+    private void btnCancel_Click(object sender, EventArgs e)
+    {
+        DialogResult = DialogResult.Cancel;
+        Close();
+    }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.OK;
-            SelectedDrive = availableDriveInfos[cbDriveList.SelectedIndex].Name;
-            Close();
-        }
+    private string GetDriveInfoListItemText(DriveInfo driveInfo)
+    {
+        string driveInfoText = driveInfo.VolumeLabel ?? "";
+        if (!string.IsNullOrEmpty(driveInfo.Name))
+            driveInfoText += string.Format(" ({0}) ", driveInfo.Name.Replace("\\", ""));
+        else
+            driveInfoText += " [" + driveInfo.VolumeLabel + "]";
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            DialogResult = DialogResult.Cancel;
-            Close();
-        }
+        driveInfoText += string.Format("{0} free of {1} [{2}, {3}]",
+            SystemIOHelper.FormatFileSizeToString(driveInfo.TotalFreeSpace),
+            SystemIOHelper.FormatFileSizeToString(driveInfo.TotalSize),
+            driveInfo.DriveType, driveInfo.DriveFormat);
 
-        private string GetDriveInfoListItemText(DriveInfo driveInfo)
-        {
-            string driveInfoText = driveInfo.VolumeLabel ?? "";
-            if (!string.IsNullOrEmpty(driveInfo.Name))
-                driveInfoText += string.Format(" ({0}) ", driveInfo.Name.Replace("\\", ""));
-            else
-                driveInfoText += " [" + driveInfo.VolumeLabel + "]";
-
-            driveInfoText += string.Format("{0} free of {1} [{2}, {3}]",
-                SystemIOHelper.FormatFileSizeToString(driveInfo.TotalFreeSpace),
-                SystemIOHelper.FormatFileSizeToString(driveInfo.TotalSize),
-                driveInfo.DriveType, driveInfo.DriveFormat);
-
-            return driveInfoText;
-        }
+        return driveInfoText;
     }
 }
