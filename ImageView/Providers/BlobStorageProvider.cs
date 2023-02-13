@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using GeneralToolkitLib.Hashing;
 
 namespace ImageViewer.Providers;
@@ -168,7 +167,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
 
             _blobDataFileStream.Position = position;
 
-            bytesRead = await _blobDataFileStream.ReadAsync(buffer, position, length);
+            bytesRead = await _blobDataFileStream.ReadAsync(buffer, 0, length);
         }
         catch (Exception ex)
         {
@@ -235,8 +234,6 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
             //      _readerWriterLock.ExitWriteLock();
 
         }
-
-        return false;
     }
 
     public long GetFileSize()

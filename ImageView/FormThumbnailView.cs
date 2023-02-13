@@ -168,49 +168,33 @@ public partial class FormThumbnailView : Form, IDisposable
     private async Task BindAndLoadThumbnailsAsync()
     {
         var modelList = GenerateThumbnailModels().ToList();
+        var collection = new SynchronizedCollection<PictureBoxModel>();
+        foreach (var model in modelList)
+        {
+            collection.Add(model);
+        }
+        
 
         // Generate thumbnails while keeping the UI 100% responsive
-        await Task.Factory.StartNew(async () =>
+        await Task.Factory.StartNew( async() =>
         {
             try
             {
                 ParallelOptions options = new ParallelOptions
                 {
                     CancellationToken = _tokenSource.Token,
-                    MaxDegreeOfParallelism = Environment.ProcessorCount * 4
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
-                await Parallel.ForEachAsync(modelList, options, async (model, token) =>
+                await Parallel.ForEachAsync(collection, options, async (model, token) =>
                 {
-                    PictureBox picBox = CreatePictureBox(model);
-                    picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(true);
-                    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
-
-                    if (!_tokenSource.IsCancellationRequested)
+                    if (!token.IsCancellationRequested)
                     {
-                        
+                        PictureBox picBox = CreatePictureBox(model);
+                        picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(true);
+                        Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
                     }
                 });
-  
 
-                //foreach (var model in modelList)
-                //{
-                //    PictureBox picBox = CreatePictureBox(model);
-                //    if (state.ShouldExitCurrentIteration)
-                //        state.Stop();
-
-                //    if (_tokenSource.IsCancellationRequested)
-                //    {
-                //        state.Stop();
-                //    }
-                //    picBox.Image = await LoadAndResizeImage(model.SourceImagePath)
-                //    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
-
-                //    //task.ConfigureAwait(true).GetAwaiter().OnCompleted(() => 
-                //    //{
-                //    //     = task.Result;
-                //    //    Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
-                //    //});
-                //});
             }
             catch (Exception ex)
             {
@@ -218,7 +202,10 @@ public partial class FormThumbnailView : Form, IDisposable
 
             }
 
-        }, _tokenSource.Token);
+            Task.Yield();
+
+        }, _tokenSource.Token).ConfigureAwait(true);
+        
 
         if (!_formIsDisposing)
             Invoke(new EventHandler(ThumbnailGenerationCompleted));

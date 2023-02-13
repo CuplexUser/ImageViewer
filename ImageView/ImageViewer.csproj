@@ -57,10 +57,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;SYSLIB0045</NoWarn>
+    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 	  <DebugType>full</DebugType>
 	  <NoWarn>1701;1702;SYSLIB0045</NoWarn>
+	  <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -71,6 +73,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
     <NoWarn>1701;1702;SYSLIB0045</NoWarn>
+    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Library\Converters\**" />
@@ -201,5 +204,6 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       <DebugType>full</DebugType>
       <NoWarn>1701;1702;SYSLIB0045</NoWarn>
+      <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
     </PropertyGroup>
 </Project>
