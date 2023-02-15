@@ -56,12 +56,17 @@ public partial class FormThumbnailSettings : Form
 
     private void btnClearDatabase_Click(object sender, EventArgs e)
     {
-        if (MessageBox.Show(@"Are you sure you want to completely remove the thumbnail cache?", @"Confirm delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+        if (MessageBox.Show(@"Are you sure you want to completely remove the thumbnail cache?", @"Confirm delete", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) ==
+            DialogResult.OK)
         {
             if (_thumbnailService.ClearDatabase())
+            {
                 MessageBox.Show(@"Successively cleared the Thumbnail database.", @"Database cleared", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
             else
+            {
                 MessageBox.Show(@"Failed to clear the Thumbnail database because it is in use", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             UpdateInformationLabels();
         }
@@ -84,7 +89,7 @@ public partial class FormThumbnailSettings : Form
 
     private async void btnReduceCacheSize_Click(object sender, EventArgs e)
     {
-        var maxSize = Convert.ToInt32(numericSize.Value);
+        int maxSize = Convert.ToInt32(numericSize.Value);
         long truncatedSize = maxSize * 1048576;
 
         // Verify that the actual thumbnail database file is larger then the target size
@@ -97,7 +102,8 @@ public partial class FormThumbnailSettings : Form
         btnReduceCachSize.Enabled = false;
         bool result = await Task.Run(() => _thumbnailService.TruncateCacheSize(truncatedSize));
 
-        MessageBox.Show(result ? "The thumbnail database was successfully truncated" : "Failed to truncate the database because the db is locked. Please try again in a minute", @"Completed", MessageBoxButtons.OK,
+        MessageBox.Show(result ? "The thumbnail database was successfully truncated" : "Failed to truncate the database because the db is locked. Please try again in a minute",
+            @"Completed", MessageBoxButtons.OK,
             MessageBoxIcon.Information);
 
         UpdateInformationLabels();
@@ -107,8 +113,12 @@ public partial class FormThumbnailSettings : Form
     private void btnUpdateCurrentUsage_Click(object sender, EventArgs e)
     {
         if (_thumbnailService.ServiceState == ThumbnailServiceState.Idle)
+        {
             UpdateInformationLabels();
+        }
         else
+        {
             MessageBox.Show(@"Can not update info values while a scan is running", @"Scan is running", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }

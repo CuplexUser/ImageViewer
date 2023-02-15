@@ -18,8 +18,8 @@ public static class ApplicationIOHelper
                 .ToList();
 
             files.Sort((info, fileInfo) => string.Compare(info.Name, fileInfo.Name, StringComparison.Ordinal));
-            var index = 0;
-            foreach (FileInfo file in files)
+            int index = 0;
+            foreach (var file in files)
             {
                 var imgRef = new ImageRefModel
                 {
@@ -37,12 +37,14 @@ public static class ApplicationIOHelper
             }
 
             if (sourceFolder.SubFolders != null && recursive)
-                foreach (OutputDirectoryModel sourceFolderModel in sourceFolder.SubFolders)
+            {
+                foreach (var sourceFolderModel in sourceFolder.SubFolders)
                 {
-                    OutputDirectoryModel outputDirectoryModel = sourceFolderModel;
+                    var outputDirectoryModel = sourceFolderModel;
                     outputDirectoryModel.ParentDirectory = sourceFolder;
                     EnumerateFiles(ref outputDirectoryModel, searchPattern);
                 }
+            }
         }
         catch (Exception ex)
         {
@@ -55,7 +57,9 @@ public static class ApplicationIOHelper
         try
         {
             if (!File.Exists(fileName))
+            {
                 throw new ArgumentException("File does not exist", nameof(fileName));
+            }
 
             var psi = new ProcessStartInfo(fileName)
             {

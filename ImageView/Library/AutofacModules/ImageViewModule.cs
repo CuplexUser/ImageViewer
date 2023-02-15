@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
-using Autofac;
 using Autofac.Core;
-using AutoMapper;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using GeneralToolkitLib.Storage.Memory;
 using GeneralToolkitLib.Storage.Registry;

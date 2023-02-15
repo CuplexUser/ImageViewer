@@ -109,7 +109,7 @@ public class ImageRefModel
             .ForMember(s => s.SortOrder, o => o.MapFrom((reference, model, arg3) => arg3));
 
         expression.CreateMap<ImageRefModel, ImageReferenceDataModel>()
-            .ForMember(s => s.Size, o => o.MapFrom(d => d.FileSize))
+            .ForMember(s => s.FileSize, o => o.MapFrom(d => d.FileSize))
             .ForMember(s => s.FileName, o => o.MapFrom(d => d.FileName))
             .ForMember(s => s.CompletePath, o => o.MapFrom(d => d.CompletePath))
             .ForMember(s => s.CreationTime, o => o.MapFrom(d => d.CreationTime))
@@ -128,6 +128,5 @@ public class ImageRefModel
             .ForMember(s => s.LastWriteTime, o => o.MapFrom(d => d.LastModified))
             .ReverseMap()
             .ForMember(s => s.ImageType, o => o.MapFrom(d => d.Extension));
-
     }
 }

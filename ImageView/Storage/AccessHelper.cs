@@ -16,14 +16,16 @@ public class AccessHelper
     {
         try
         {
-            DirectorySecurity dSecurity = directoryInfo.GetAccessControl();
-            AuthorizationRuleCollection authorizarionRuleCollecion = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
+            var dSecurity = directoryInfo.GetAccessControl();
+            var authorizarionRuleCollecion = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
             foreach (FileSystemAccessRule fsAccessRules in authorizarionRuleCollecion)
                 if (_winId.UserClaims.Any(c => c.Value == fsAccessRules.IdentityReference.Value) &&
                     fsAccessRules.FileSystemRights.HasFlag(FileSystemRights.ReadData) &&
                     fsAccessRules.AccessControlType == AccessControlType.Allow)
+                {
                     return true;
+                }
 
             return false;
         }

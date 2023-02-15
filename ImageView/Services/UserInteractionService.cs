@@ -33,18 +33,22 @@ public class UserInteractionService : ServiceBase
         IsInitialized = true;
 
         if (UserInformationReceived != null && _informationQueue.Any())
+        {
             while (_informationQueue.Any())
             {
-                UserInteractionInformation infoItem = _informationQueue.Dequeue();
+                var infoItem = _informationQueue.Dequeue();
                 UserInformationReceived.Invoke(this, new UserInformationEventArgs(infoItem));
             }
+        }
 
         if (UserQuestionReceived != null && _questionQueue.Any())
+        {
             while (_questionQueue.Any())
             {
-                UserInteractionQuestion questionItem = _questionQueue.Dequeue();
+                var questionItem = _questionQueue.Dequeue();
                 UserQuestionReceived.Invoke(this, new UserQuestionEventArgs(questionItem));
             }
+        }
     }
 
     public Queue<UserInteractionQuestion>.Enumerator GetInteractionQuestions()

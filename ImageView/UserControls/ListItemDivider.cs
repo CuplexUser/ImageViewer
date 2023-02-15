@@ -42,12 +42,15 @@ public class ListItemDivider
     public void DrawItem(object sender, DrawItemEventArgs e)
     {
         var userControl = sender as ComboBox;
-        if (userControl == null) return;
+        if (userControl == null)
+        {
+            return;
+        }
 
 
         if (DividerPosition == DividerPositions.Top)
         {
-            Color back = e.State == DrawItemState.Focus ? e.ForeColor : e.BackColor;
+            var back = e.State == DrawItemState.Focus ? e.ForeColor : e.BackColor;
 
             var backgrounRectangle = new Rectangle(0, e.Bounds.Top + DividerMargin * 2 + (int)DividerPen.Width,
                 e.Bounds.Width, e.Bounds.Height - DividerMargin * 2);

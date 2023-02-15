@@ -9,69 +9,99 @@ public static class ImageTransform
     public static Bitmap BitwiseBlend(Bitmap sourceBitmap, Bitmap blendBitmap, BitwiseBlendType blendTypeBlue,
         BitwiseBlendType blendTypeGreen, BitwiseBlendType blendTypeRed)
     {
-        BitmapData sourceData = sourceBitmap.LockBits(new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height),
+        var sourceData = sourceBitmap.LockBits(new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height),
             ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-        var pixelBuffer = new byte[sourceData.Stride * sourceData.Height];
+        byte[] pixelBuffer = new byte[sourceData.Stride * sourceData.Height];
         Marshal.Copy(sourceData.Scan0, pixelBuffer, 0, pixelBuffer.Length);
         sourceBitmap.UnlockBits(sourceData);
 
 
-        BitmapData blendData = blendBitmap.LockBits(new Rectangle(0, 0, blendBitmap.Width, blendBitmap.Height),
+        var blendData = blendBitmap.LockBits(new Rectangle(0, 0, blendBitmap.Width, blendBitmap.Height),
             ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-        var blendBuffer = new byte[blendData.Stride * blendData.Height];
+        byte[] blendBuffer = new byte[blendData.Stride * blendData.Height];
         Marshal.Copy(blendData.Scan0, blendBuffer, 0, blendBuffer.Length);
         blendBitmap.UnlockBits(blendData);
 
         int blue = 0, green = 0, red = 0;
 
 
-        for (var k = 0;
+        for (int k = 0;
              k + 4 < pixelBuffer.Length &&
              k + 4 < blendBuffer.Length;
              k += 4)
         {
             if (blendTypeBlue == BitwiseBlendType.And)
+            {
                 blue = pixelBuffer[k] & blendBuffer[k];
+            }
             else if (blendTypeBlue == BitwiseBlendType.Or)
+            {
                 blue = pixelBuffer[k] | blendBuffer[k];
+            }
             else if (blendTypeBlue == BitwiseBlendType.Xor)
+            {
                 blue = pixelBuffer[k] ^ blendBuffer[k];
+            }
 
 
             if (blendTypeGreen == BitwiseBlendType.And)
+            {
                 green = pixelBuffer[k + 1] & blendBuffer[k + 1];
+            }
             else if (blendTypeGreen == BitwiseBlendType.Or)
+            {
                 green = pixelBuffer[k + 1] | blendBuffer[k + 1];
+            }
             else if (blendTypeGreen == BitwiseBlendType.Xor)
+            {
                 green = pixelBuffer[k + 1] ^ blendBuffer[k + 1];
+            }
 
 
             if (blendTypeRed == BitwiseBlendType.And)
+            {
                 red = pixelBuffer[k + 2] & blendBuffer[k + 2];
+            }
             else if (blendTypeRed == BitwiseBlendType.Or)
+            {
                 red = pixelBuffer[k + 2] | blendBuffer[k + 2];
+            }
             else if (blendTypeRed == BitwiseBlendType.Xor)
+            {
                 red = pixelBuffer[k + 2] ^ blendBuffer[k + 2];
+            }
 
 
             if (blue < 0)
+            {
                 blue = 0;
+            }
             else if (blue > 255)
+            {
                 blue = 255;
+            }
 
 
             if (green < 0)
+            {
                 green = 0;
+            }
             else if (green > 255)
+            {
                 green = 255;
+            }
 
 
             if (red < 0)
+            {
                 red = 0;
+            }
             else if (red > 255)
+            {
                 red = 255;
+            }
 
 
             pixelBuffer[k] = (byte)blue;
@@ -83,7 +113,7 @@ public static class ImageTransform
         var resultBitmap = new Bitmap(sourceBitmap.Width, sourceBitmap.Height);
 
 
-        BitmapData resultData = resultBitmap.LockBits(new Rectangle(0, 0,
+        var resultData = resultBitmap.LockBits(new Rectangle(0, 0,
                 resultBitmap.Width, resultBitmap.Height),
             ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
 
@@ -99,9 +129,9 @@ public static class ImageTransform
     {
         // for the matrix the range is 0.0 - 1.0
         float alphaNorm = alpha / 255.0F;
-        using (Bitmap image1 = sourceBitmap)
+        using (var image1 = sourceBitmap)
         {
-            using (Bitmap image2 = blendBitmap)
+            using (var image2 = blendBitmap)
             {
                 // just change the alpha
                 var matrix = new ColorMatrix(new[]
@@ -116,7 +146,7 @@ public static class ImageTransform
                 var imageAttributes = new ImageAttributes();
                 imageAttributes.SetColorMatrix(matrix);
 
-                using (Graphics g = Graphics.FromImage(image1))
+                using (var g = Graphics.FromImage(image1))
                 {
                     g.CompositingMode = CompositingMode.SourceOver;
                     g.CompositingQuality = CompositingQuality.HighQuality;
@@ -142,19 +172,21 @@ public static class ImageTransform
         //var result = new Bitmap(picBoxSize.Width, picBoxSize.Height);
         int x1 = result.Width / 2 - currentImage.Width / 2;
         int x2 = x1 + currentImage.Width;
-        var offset = (int)(result.Width * factor);
+        int offset = (int)(result.Width * factor);
 
         if (!leftToRight)
+        {
             offset = offset * -1;
+        }
 
-        var y1 = 0;
-        var y2 = 0;
+        int y1 = 0;
+        int y2 = 0;
         int x1Offset = Math.Min(0, x1 + offset);
 
         float ratio1 = currentImage.Width / (float)currentImage.Height;
         float ratio2 = nextImage.Width / (float)nextImage.Height;
 
-        Graphics gfx = Graphics.FromImage(result);
+        var gfx = Graphics.FromImage(result);
         gfx.DrawImage(currentImage,
             new Rectangle(Math.Max(0, x1 + offset), y1, currentImage.Width + x1Offset, result.Height));
         gfx.DrawImage(nextImage, new Rectangle(Math.Max(0, x2 + offset), y2, nextImage.Width, result.Height));
@@ -168,10 +200,10 @@ public static class ImageTransform
     {
         var result = new Bitmap(nextImage, imageSize.Width, imageSize.Height);
 
-        var verticalOffset = (int)(imageSize.Height * factor);
-        var verticalOffset2 = (int)(nextImage.Height * (1 - factor));
+        int verticalOffset = (int)(imageSize.Height * factor);
+        int verticalOffset2 = (int)(nextImage.Height * (1 - factor));
 
-        using (Graphics gfx = Graphics.FromImage(result))
+        using (var gfx = Graphics.FromImage(result))
         {
             gfx.DrawImage(currentImage, new Rectangle(0, 0, imageSize.Width, imageSize.Height - verticalOffset));
             gfx.DrawImage(nextImage,
@@ -189,7 +221,7 @@ public static class ImageTransform
             var bmp = new Bitmap(image.Width, image.Height);
 
             //create a graphics object from the image  
-            using (Graphics gfx = Graphics.FromImage(bmp))
+            using (var gfx = Graphics.FromImage(bmp))
             {
                 //create a color matrix object  
                 var matrix = new ColorMatrix();
@@ -230,7 +262,7 @@ public static class ImageTransform
             var bmp = new Bitmap(image.Width, image.Height);
 
             //create a graphics object from the image  
-            using (Graphics gfx = Graphics.FromImage(bmp))
+            using (var gfx = Graphics.FromImage(bmp))
             {
                 //create a color matrix object  
                 var matrix = new ColorMatrix();
@@ -272,7 +304,7 @@ public static class ImageTransform
 
         destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
-        using (Graphics graphics = Graphics.FromImage(destImage))
+        using (var graphics = Graphics.FromImage(destImage))
         {
             graphics.CompositingMode = CompositingMode.SourceCopy;
             graphics.CompositingQuality = CompositingQuality.HighQuality;

@@ -39,22 +39,26 @@ public static class SecurityHelper
     {
         using (var rngCrypto = RandomNumberGenerator.Create())
         {
-            var data = new byte[length];
+            byte[] data = new byte[length];
 
             rngCrypto.GetBytes(data);
 
             var sb = new StringBuilder();
             sb.Append("private static readonly byte[] SALT = new byte[] {");
 
-            var counter = 0;
+            int counter = 0;
 
             foreach (byte b in data)
             {
                 counter++;
                 if (counter % 10 == 0)
+                {
                     sb.AppendLine($"0x{b:X}, ");
+                }
                 else
+                {
                     sb.Append($"0x{b:X}, ");
+                }
             }
 
             sb.Remove(sb.Length - 1, 1);

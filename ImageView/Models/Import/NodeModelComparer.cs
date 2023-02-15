@@ -22,7 +22,10 @@ public class NodeModelComparer : IComparer, IComparer<SourceFolderModel>
         if (x is SourceFolderModel model1 && y is SourceFolderModel model2)
         {
             if (Mode == CompareMode.ByName)
+            {
                 return string.Compare(model1.Name, model2.Name, StringComparison.Ordinal);
+            }
+
             return model1.SortOrder.CompareTo(model2.SortOrder);
         }
 
@@ -31,10 +34,16 @@ public class NodeModelComparer : IComparer, IComparer<SourceFolderModel>
 
     public int Compare(SourceFolderModel x, SourceFolderModel y)
     {
-        if (x == null || y == null) return 0;
+        if (x == null || y == null)
+        {
+            return 0;
+        }
 
         if (Mode == CompareMode.ByName)
+        {
             return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+        }
+
         return x.SortOrder.CompareTo(y.SortOrder);
     }
 }

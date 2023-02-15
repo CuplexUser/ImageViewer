@@ -30,7 +30,9 @@ public partial class CreateBookmarkFolder : UserControl
     private void CreateBookmarkFolder_Load(object sender, EventArgs e)
     {
         if (DesignMode)
+        {
             return;
+        }
 
         txtBookmarkName.Text = DefaultBookmarkName;
         InitTreeView();
@@ -56,7 +58,10 @@ public partial class CreateBookmarkFolder : UserControl
         _treeViewDataContext.BindData();
         bookmarksTree.AfterSelect += BookmarksTree_AfterSelect;
 
-        if (!_bookmarkManager.LoadedFromFile) _bookmarkService.OpenBookmarks();
+        if (!_bookmarkManager.LoadedFromFile)
+        {
+            _bookmarkService.OpenBookmarks();
+        }
 
         InitBookmarksDataSource();
     }
@@ -67,9 +72,13 @@ public partial class CreateBookmarkFolder : UserControl
 
     private bool ReLoadBookmarks()
     {
-        TreeNode selectedNode = bookmarksTree.SelectedNode;
+        var selectedNode = bookmarksTree.SelectedNode;
 
-        if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return false;
+        if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder))
+        {
+            return false;
+        }
+
         _bookmarkManager.VerifyIntegrityOfBookmarkFolder(selectedBookmarkfolder);
 
         return true;
@@ -79,7 +88,9 @@ public partial class CreateBookmarkFolder : UserControl
     private void AddBooknmarkFolder()
     {
         if (bookmarksTree.SelectedNode == null)
+        {
             return;
+        }
 
         var inputFormData = new FormInputRow.InputFormData
         {
@@ -94,11 +105,11 @@ public partial class CreateBookmarkFolder : UserControl
         if (formInputRow.ShowDialog(this) == DialogResult.OK)
         {
             string folderName = formInputRow.UserInputText;
-            TreeNode selectedNode = bookmarksTree.SelectedNode;
+            var selectedNode = bookmarksTree.SelectedNode;
 
             if (selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)
             {
-                BookmarkFolder newFolder = _bookmarkManager.AddBookmarkFolder(selectedBookmarkfolder.Id, folderName);
+                var newFolder = _bookmarkManager.AddBookmarkFolder(selectedBookmarkfolder.Id, folderName);
                 AlterTreeViewState(TreeViewFolderStateChange.FolderAdded, newFolder);
             }
         }
@@ -114,7 +125,7 @@ public partial class CreateBookmarkFolder : UserControl
         {
             var ucRenameFolder = new RenameBookmarkFolder();
             ucRenameFolder.InitControl(bookmarkFolder.Name, bookmarkFolder.Bookmarks.Count);
-            Form renameForm = FormFactory.CreateModalForm(ucRenameFolder);
+            var renameForm = FormFactory.CreateModalForm(ucRenameFolder);
 
             if (renameForm.ShowDialog(this) == DialogResult.OK)
             {
@@ -133,7 +144,9 @@ public partial class CreateBookmarkFolder : UserControl
     private void deleteFolderToolStripMenuItem_Click(object sender, EventArgs e)
     {
         if (!(bookmarksTree.SelectedNode?.Tag is BookmarkFolder treeNode))
+        {
             return;
+        }
 
         if (
             MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_,
@@ -158,7 +171,7 @@ public partial class CreateBookmarkFolder : UserControl
 
         if (ParentForm != null)
         {
-            BookmarkFolder bookmarkFolder = bookmarksTree.SelectedNode.Tag as BookmarkFolder ?? _bookmarkManager.RootFolder;
+            var bookmarkFolder = bookmarksTree.SelectedNode.Tag as BookmarkFolder ?? _bookmarkManager.RootFolder;
             _bookmarkManager.AddBookmark(bookmarkFolder.Id, txtBookmarkName.Text, _imageReference);
             _bookmarkService.SaveBookmarks();
 
@@ -168,7 +181,10 @@ public partial class CreateBookmarkFolder : UserControl
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        if (ParentForm != null) ParentForm.DialogResult = DialogResult.Cancel;
+        if (ParentForm != null)
+        {
+            ParentForm.DialogResult = DialogResult.Cancel;
+        }
     }
 
     private void btnNewFolder_Click(object sender, EventArgs e)

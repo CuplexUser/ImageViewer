@@ -47,7 +47,9 @@ public class ImageLoaderService : ServiceBase, IDisposable
         set
         {
             if (value is >= 10 and <= 2500)
+            {
                 _progressInterval = value;
+            }
         }
     }
 
@@ -56,7 +58,9 @@ public class ImageLoaderService : ServiceBase, IDisposable
         get
         {
             if (IsRunningImport)
+            {
                 return null;
+            }
 
             return _imageReferenceList;
         }
@@ -77,13 +81,16 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
     internal bool PermanentlyRemoveFile(ImageReference imgRefElement)
     {
-        var removedItems = 0;
+        int removedItems = 0;
         try
         {
             bool exists = File.Exists(imgRefElement.CompletePath);
 
             Log.Information("Attempting to delete file: {CompletePath}. File Exists {exists}", imgRefElement.CompletePath, exists);
-            if (exists) File.Delete(imgRefElement.CompletePath);
+            if (exists)
+            {
+                File.Delete(imgRefElement.CompletePath);
+            }
 
             removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
             var imgReference = _mapper.Map<ImageReference>(imgRefElement);
@@ -101,24 +108,21 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
         return removedItems > 0;
     }
-    
+
     protected virtual void ImageWasDeleted(object sender, ImageRemovedEventArgs e)
     {
-
     }
 
     private List<int> GetRandomImagePositionList()
     {
         var randomImagePosList = new List<int>();
-        var randomData = new byte[ImageReferenceList.Count * 4];
+        byte[] randomData = new byte[ImageReferenceList.Count * 4];
         _randomNumberGenerator.GetBytes(randomData);
-        var randomDataPointer = 0;
+        int randomDataPointer = 0;
         var candidates = new List<int>();
 
-        for (var i = 0; i < ImageReferenceList.Count; i++)
-        {
+        for (int i = 0; i < ImageReferenceList.Count; i++)
             candidates.Add(i);
-        }
 
         while (candidates.Count > 0)
         {
@@ -142,10 +146,8 @@ public class ImageLoaderService : ServiceBase, IDisposable
         else
         {
             randomImagePosList = new List<int>();
-            for (var i = 0; i < ImageReferenceList.Count; i++)
-            {
+            for (int i = 0; i < ImageReferenceList.Count; i++)
                 randomImagePosList.Add(i);
-            }
         }
 
         var imageReferenceCollection = new ImageReferenceCollection(randomImagePosList, this);
@@ -190,7 +192,7 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
         lock (_threadLock)
         {
-            var createdNewImgRefList = false;
+            bool createdNewImgRefList = false;
             if (_imageReferenceList == null)
             {
                 _imageReferenceList = new List<ImageReference>();
@@ -199,7 +201,10 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
             _imageReferenceList.Add(imgRefElement);
             _totalNumberOfFiles = _imageReferenceList.Count;
-            if (createdNewImgRefList) imgReferenceCollection = new ImageReferenceCollection(GetRandomImagePositionList(), this);
+            if (createdNewImgRefList)
+            {
+                imgReferenceCollection = new ImageReferenceCollection(GetRandomImagePositionList(), this);
+            }
         }
 
         imgReferenceCollection.SingleImageLoadedSetAsCurrent();
@@ -233,7 +238,10 @@ public class ImageLoaderService : ServiceBase, IDisposable
     {
         try
         {
-            if (!_bookmarkService.OpenBookmarks()) return false;
+            if (!_bookmarkService.OpenBookmarks())
+            {
+                return false;
+            }
 
             IsRunningImport = true;
             List<ImageReference> imgReferenceList = null;
@@ -279,11 +287,14 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
     private int GetNumberOfFilesMatchingRegexp(string basePath)
     {
-        var noFiles = 0;
+        int noFiles = 0;
         try
         {
             if (!_runWorkerThread)
+            {
                 return 0;
+            }
+
             var currentDirectory = new DirectoryInfo(basePath);
             if (UserHasReadAccessToDirectory(currentDirectory))
             {
@@ -301,16 +312,16 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
     private bool UserHasReadAccessToDirectory(DirectoryInfo directoryInfo)
     {
-        DirectorySecurity dSecurity = directoryInfo.GetAccessControl();
-        AuthorizationRuleCollection authorizationRuleCollection = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
+        var dSecurity = directoryInfo.GetAccessControl();
+        var authorizationRuleCollection = dSecurity.GetAccessRules(true, true, typeof(SecurityIdentifier));
 
         foreach (FileSystemAccessRule fsAccessRules in authorizationRuleCollection)
-        {
             if (_winId.UserClaims.Any(c => c.Value == fsAccessRules.IdentityReference.Value) &&
                 fsAccessRules.FileSystemRights.HasFlag(FileSystemRights.ListDirectory) &&
                 fsAccessRules.AccessControlType == AccessControlType.Allow)
+            {
                 return true;
-        }
+            }
 
         return false;
     }
@@ -333,7 +344,6 @@ public class ImageLoaderService : ServiceBase, IDisposable
 
         var fileInfoArray = currentDirectory.GetFiles();
         foreach (var fileInfo in fileInfoArray)
-        {
             if (_fileNameRegExp.IsMatch(fileInfo.Name))
             {
                 imageReferenceList.Add(new ImageReference
@@ -347,7 +357,6 @@ public class ImageLoaderService : ServiceBase, IDisposable
                     Size = fileInfo.Length
                 });
             }
-        }
 
         _filesLoaded += imageReferenceList.Count;
         if (OnProgressUpdate != null && Environment.TickCount > _tickCount + _progressInterval)
@@ -357,16 +366,17 @@ public class ImageLoaderService : ServiceBase, IDisposable
         }
 
         foreach (var directory in currentDirectory.GetDirectories())
-        {
             imageReferenceList.AddRange(GetAllImagesRecursive(directory.FullName));
-        }
 
         return imageReferenceList;
     }
 
     public async Task<bool> RunBookmarkImageImport()
     {
-        if (!IsRunningImport) return await DoImageImportFromBookmarkedImages();
+        if (!IsRunningImport)
+        {
+            return await DoImageImportFromBookmarkedImages();
+        }
 
         return false;
     }

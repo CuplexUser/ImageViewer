@@ -45,14 +45,17 @@ public static class FormFactory
 
         // Try to find a main raqpping panel
         Panel mainPanel = null;
-        for (var i = 0; i < userControl.Controls.Count; i++)
+        for (int i = 0; i < userControl.Controls.Count; i++)
             if (userControl.Controls[i] is Panel panel)
             {
                 mainPanel = panel;
                 break;
             }
 
-        if (mainPanel != null) mainPanel.Margin = new Padding(5);
+        if (mainPanel != null)
+        {
+            mainPanel.Margin = new Padding(5);
+        }
 
         frmModal.Width = userControl.Controls[0].Size.Width + 10;
         frmModal.Height = userControl.Controls[0].Size.Height + 10;

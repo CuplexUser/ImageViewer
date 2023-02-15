@@ -67,9 +67,13 @@ public abstract class FileBasedPropertyCollection : IDisposable
         {
             _fileOperationInProgress = value;
             if (_fileOperationInProgress)
+            {
                 _autoResetEvent.Reset();
+            }
             else
+            {
                 _autoResetEvent.Set();
+            }
         }
     }
 
@@ -85,7 +89,10 @@ public abstract class FileBasedPropertyCollection : IDisposable
         private set
         {
             _isDirty = value;
-            if (_isDirty) _updateTimer.Change(0, SaveToFileDelay * 60 * 1000);
+            if (_isDirty)
+            {
+                _updateTimer.Change(0, SaveToFileDelay * 60 * 1000);
+            }
         }
     }
 
@@ -95,7 +102,10 @@ public abstract class FileBasedPropertyCollection : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (!_backgroundWorker.IsBusy) _backgroundWorker.CancelAsync();
+        if (!_backgroundWorker.IsBusy)
+        {
+            _backgroundWorker.CancelAsync();
+        }
 
         _backgroundWorker.Dispose();
         _autoResetEvent.Dispose();
@@ -104,7 +114,10 @@ public abstract class FileBasedPropertyCollection : IDisposable
     private void TimerCallback(object state)
     {
         Thread.CurrentThread.Join();
-        if (!_backgroundWorker.IsBusy) _backgroundWorker.RunWorkerAsync();
+        if (!_backgroundWorker.IsBusy)
+        {
+            _backgroundWorker.RunWorkerAsync();
+        }
     }
 
     /// <summary>
@@ -122,8 +135,11 @@ public abstract class FileBasedPropertyCollection : IDisposable
     /// </summary>
     public bool SecureSaveDatabaseToFile()
     {
-        var result = false;
-        if (FileOperationInProgress) return false;
+        bool result = false;
+        if (FileOperationInProgress)
+        {
+            return false;
+        }
 
         try
         {
@@ -150,8 +166,11 @@ public abstract class FileBasedPropertyCollection : IDisposable
 
     public bool SecureLoadDatabase()
     {
-        var result = false;
-        if (FileOperationInProgress) return false;
+        bool result = false;
+        if (FileOperationInProgress)
+        {
+            return false;
+        }
 
         try
         {
@@ -177,7 +196,10 @@ public abstract class FileBasedPropertyCollection : IDisposable
 
     public virtual bool InterlockedSave()
     {
-        if (!IsDirty) return true;
+        if (!IsDirty)
+        {
+            return true;
+        }
 
         using (var scope = new SingleThreadedScope())
         {
@@ -208,7 +230,10 @@ public abstract class FileBasedPropertyCollection : IDisposable
     public virtual void ModelUpdated()
     {
         IsDirty = true;
-        if (!_backgroundWorker.IsBusy) _backgroundWorker.RunWorkerAsync();
+        if (!_backgroundWorker.IsBusy)
+        {
+            _backgroundWorker.RunWorkerAsync();
+        }
     }
 
     /// <summary>
@@ -220,14 +245,20 @@ public abstract class FileBasedPropertyCollection : IDisposable
     {
         if (IsDirty && _lastDatabaseSave < DateTime.Now.AddMinutes(SaveToFileDelay))
         {
-            if (_fileOperationInProgress) return;
+            if (_fileOperationInProgress)
+            {
+                return;
+            }
 
             try
             {
                 FileOperationInProgress = true;
                 bool result = SaveToFileDatabase();
 
-                if (result) IsDirty = false;
+                if (result)
+                {
+                    IsDirty = false;
+                }
             }
             catch (Exception ex)
             {

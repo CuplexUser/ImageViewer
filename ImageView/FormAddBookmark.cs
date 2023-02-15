@@ -29,7 +29,7 @@ public partial class FormAddBookmark : Form
         get
         {
             const int csDropshadow = 0x20000;
-            CreateParams cp = base.CreateParams;
+            var cp = base.CreateParams;
             cp.ClassStyle |= csDropshadow;
             return cp;
         }
@@ -43,7 +43,10 @@ public partial class FormAddBookmark : Form
 
     private void FormAddBookmark_Load(object sender, EventArgs e)
     {
-        if (!_bookmarkManager.LoadedFromFile && !_applicationSettingsService.Settings.PasswordProtectBookmarks) _bookmarkService.OpenBookmarks();
+        if (!_bookmarkManager.LoadedFromFile && !_applicationSettingsService.Settings.PasswordProtectBookmarks)
+        {
+            _bookmarkService.OpenBookmarks();
+        }
 
         if (_imageReference == null)
         {
@@ -65,12 +68,14 @@ public partial class FormAddBookmark : Form
         bookmarkFolderBindingSource.DataSource = bokmarkFoldersToBind;
 
         if (comboBoxBookmarkFolders.Items.Count > 0)
+        {
             comboBoxBookmarkFolders.SelectedIndex = 0;
+        }
     }
 
     private void btnSave_Click(object sender, EventArgs e)
     {
-        BookmarkFolder bookmarkFolder = comboBoxBookmarkFolders.SelectedItem as BookmarkFolder ?? _bookmarkManager.RootFolder;
+        var bookmarkFolder = comboBoxBookmarkFolders.SelectedItem as BookmarkFolder ?? _bookmarkManager.RootFolder;
 
         _bookmarkManager.AddBookmark(bookmarkFolder.Id, txtBookmarkName.Text, _imageReference);
         _bookmarkService.SaveBookmarks();
@@ -86,7 +91,7 @@ public partial class FormAddBookmark : Form
         if (e.Button == MouseButtons.Left)
         {
             NativeMethods.ReleaseCapture();
-            NativeMethods.SendMessage(Handle, NativeMethods.WM_NCLBUTTONDOWN, NativeMethods.HT_CAPTION, IntPtr.Zero);
+            NativeMethods.SendMessage(Handle, NativeMethods.WM_NCLBUTTONDOWN, NativeMethods.HT_CAPTION, nint.Zero);
         }
     }
 
@@ -119,13 +124,16 @@ public partial class FormAddBookmark : Form
 
     private void comboBoxBookmarkFolders_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (comboBoxBookmarkFolders.SelectedIndex == comboBoxBookmarkFolders.Items.Count - 1) CreateTreeFolder();
+        if (comboBoxBookmarkFolders.SelectedIndex == comboBoxBookmarkFolders.Items.Count - 1)
+        {
+            CreateTreeFolder();
+        }
     }
 
     private void CreateTreeFolder()
     {
         var createFolderUserControl = new CreateBookmarkFolder(_bookmarkService, _bookmarkManager, _imageReference) { DefaultBookmarkName = _imageReference.FileName };
-        Form addFolderForm = FormFactory.CreateModalForm(createFolderUserControl);
+        var addFolderForm = FormFactory.CreateModalForm(createFolderUserControl);
 
         addFolderForm.ShowDialog(this);
         Close();

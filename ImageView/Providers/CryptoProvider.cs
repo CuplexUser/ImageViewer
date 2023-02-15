@@ -11,7 +11,8 @@ public class CryptoProvider : ProviderBase
     private const int MaxBufferSize = 33554432; //32 Mb
     private const int MetadataLength = 112;
 
-    [SecurityCritical] private const string DefaultKey = "KcERym2zjZKy9ps5ftGZDfGbepbeNrRN7QhsxwiTLBGzk2gWG2ULTKbEFqkxBtrFggC5XXUTDti8WbzZH7KkP73h7tAtwevDCi3qLQ3zHvP7Kjwq87wCnbT6Cd3dCQKV";
+    [SecurityCritical]
+    private const string DefaultKey = "KcERym2zjZKy9ps5ftGZDfGbepbeNrRN7QhsxwiTLBGzk2gWG2ULTKbEFqkxBtrFggC5XXUTDti8WbzZH7KkP73h7tAtwevDCi3qLQ3zHvP7Kjwq87wCnbT6Cd3dCQKV";
 
     [SecurityCritical] private static readonly byte[] SaltBytes =
     {
@@ -70,7 +71,9 @@ public class CryptoProvider : ProviderBase
         using (var aesAlg = Aes.Create())
         {
             if (useExternalKey)
+            {
                 ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
+            }
 
 
             var hashAlg = SHA512.Create();
@@ -86,15 +89,17 @@ public class CryptoProvider : ProviderBase
             byte[] key = derivedBytes.CryptDeriveKey("AES-GCM", "SHA256", 256, aesAlg.IV);
 
             // Create AES Crypto Transform to be used in the CryptoStream transform function 
-            ICryptoTransform cryptoTransform = aesAlg.CreateEncryptor(key, aesAlg.IV);
+            var cryptoTransform = aesAlg.CreateEncryptor(key, aesAlg.IV);
 
             // Protect encryption Key Again
             if (useExternalKey)
+            {
                 ProtectedMemory.Protect(encryptedKey, MemoryProtectionScope.SameProcess);
+            }
 
             // Create the streams used for encryption.
-            var bufferSize = (int)Math.Min(MaxBufferSize, ms.Length);
-            var buffer = new byte[bufferSize];
+            int bufferSize = (int)Math.Min(MaxBufferSize, ms.Length);
+            byte[] buffer = new byte[bufferSize];
             ms.Position = 0;
 
             //Write Init Vector - Always 16 bytes
@@ -151,18 +156,20 @@ public class CryptoProvider : ProviderBase
         using (var aesAlg = Aes.Create())
         {
             if (useExternalKey)
+            {
                 ProtectedMemory.Unprotect(encryptedKey, MemoryProtectionScope.SameProcess);
+            }
 
 
             var hashAlg = SHA512.Create();
 
-            var initVector = new byte[16];
+            byte[] initVector = new byte[16];
             msMetadata.Read(initVector, 0, initVector.Length);
 
-            var hashBuffer = new byte[64];
+            byte[] hashBuffer = new byte[64];
             msMetadata.Read(hashBuffer, 0, hashBuffer.Length);
 
-            var entropyBytes = new byte[32];
+            byte[] entropyBytes = new byte[32];
             msMetadata.Read(entropyBytes, 0, entropyBytes.Length);
 
 
@@ -177,16 +184,18 @@ public class CryptoProvider : ProviderBase
             byte[] key = derivedBytes.CryptDeriveKey("AES-GCM", "SHA256", 256, aesAlg.IV);
 
             // Create AES Crypto Transform to be used in the CryptoStream transform function 
-            ICryptoTransform cryptoTransform = aesAlg.CreateDecryptor(key, initVector);
+            var cryptoTransform = aesAlg.CreateDecryptor(key, initVector);
 
             // Create the streams used for encryption.
             int bufferSize = Math.Min(MaxBufferSize, encryptedDataLength);
-            var plainTextBytes = new byte[bufferSize];
+            byte[] plainTextBytes = new byte[bufferSize];
 
 
             // Protect encryption Key Again
             if (useExternalKey)
+            {
                 ProtectedMemory.Protect(encryptedKey, MemoryProtectionScope.SameProcess);
+            }
 
             // Create the streams used for decryption. 
             using (var csDecrypt = new CryptoStream(msEncrypted, cryptoTransform, CryptoStreamMode.Read))
@@ -209,12 +218,20 @@ public class CryptoProvider : ProviderBase
     {
         public bool Equals(byte[] x, byte[] y)
         {
-            if (x == null) return y == null;
+            if (x == null)
+            {
+                return y == null;
+            }
 
-            if (y == null) return false;
+            if (y == null)
+            {
+                return false;
+            }
 
             if (x.Length != y.Length)
+            {
                 return false;
+            }
 
             return !x.Where((t, i) => (t ^ y[i]) != 0).Any();
         }

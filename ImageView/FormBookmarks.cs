@@ -29,7 +29,8 @@ public partial class FormBookmarks : Form
     private TreeViewDataContext _treeViewDataContext;
     private object _valueFromMouseDown;
 
-    public FormBookmarks(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService, ImageCacheService imageCache)
+    public FormBookmarks(BookmarkService bookmarkService, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService,
+        ImageCacheService imageCacheService, ImageCacheService imageCache)
     {
         _bookmarkService = bookmarkService;
         _bookmarkManager = bookmarkManager;
@@ -42,7 +43,9 @@ public partial class FormBookmarks : Form
     private void FormBookmarks_Load(object sender, EventArgs e)
     {
         if (DesignMode)
+        {
             return;
+        }
 
         bookmarksDataGridView.RowPrePaint += bookmarksDataGridView_RowPrePaint;
         _bookmarkManager.OnBookmarksUpdate += Instance_OnBookmarksUpdate;
@@ -53,10 +56,16 @@ public partial class FormBookmarks : Form
         _overlayFormManager.HideImageDelay = 200;
         _overlayFormManager.ShowImageDelay = 500;
 
-        ApplicationSettingsModel settings = _applicationSettingsService.Settings;
-        if (settings.BookmarksShowMaximizedImageArea) Invoke(new EventHandler(maximizePreviewAreaToolStripMenuItem_Click));
+        var settings = _applicationSettingsService.Settings;
+        if (settings.BookmarksShowMaximizedImageArea)
+        {
+            Invoke(new EventHandler(maximizePreviewAreaToolStripMenuItem_Click));
+        }
 
-        if (settings.BookmarksShowOverlayWindow) Invoke(new EventHandler(showOverlayPreviewToolStripMenuItem_Click));
+        if (settings.BookmarksShowOverlayWindow)
+        {
+            Invoke(new EventHandler(showOverlayPreviewToolStripMenuItem_Click));
+        }
 
         // Restore previous form state
         FormStateManager.RestoreFormState(settings, this);
@@ -64,9 +73,9 @@ public partial class FormBookmarks : Form
         if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
         {
             using (var formGetPassword = new FormGetPassword
-            {
-                PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
-            })
+                   {
+                       PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
+                   })
             {
                 if (formGetPassword.ShowDialog() == DialogResult.OK)
                 {
@@ -96,8 +105,12 @@ public partial class FormBookmarks : Form
         else
         {
             if (!_bookmarkManager.LoadedFromFile)
+            {
                 if (!_bookmarkService.OpenBookmarks())
+                {
                     Log.Error("Load Bookmarks failed");
+                }
+            }
 
             InitBookmarksDataSource();
         }
@@ -109,7 +122,7 @@ public partial class FormBookmarks : Form
 
     private void FormBookmarks_FormClosing(object sender, FormClosingEventArgs e)
     {
-        ApplicationSettingsModel appSettings = _applicationSettingsService.Settings;
+        var appSettings = _applicationSettingsService.Settings;
         FormStateManager.SaveFormState(appSettings, this);
         _applicationSettingsService.SaveSettings();
         e.Cancel = false;
@@ -117,9 +130,13 @@ public partial class FormBookmarks : Form
 
     private bool ReLoadBookmarks()
     {
-        TreeNode selectedNode = bookmarksTree.SelectedNode;
+        var selectedNode = bookmarksTree.SelectedNode;
 
-        if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return false;
+        if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder))
+        {
+            return false;
+        }
+
         _bookmarkManager.VerifyIntegrityOfBookmarkFolder(selectedBookmarkfolder);
         bookmarkBindingSource.DataSource = selectedBookmarkfolder.Bookmarks.OrderBy(x => x.SortOrder).ToList();
 
@@ -154,12 +171,21 @@ public partial class FormBookmarks : Form
 
     private void DeleteSelectedBookmark(bool showConfirmDialog = false)
     {
-        if (bookmarksDataGridView.CurrentRow == null) return;
+        if (bookmarksDataGridView.CurrentRow == null)
+        {
+            return;
+        }
 
-        if (showConfirmDialog && MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_bookmark_, Resources.Delete, MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+        if (showConfirmDialog && MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_bookmark_, Resources.Delete, MessageBoxButtons.YesNo) != DialogResult.Yes)
+        {
+            return;
+        }
 
-        DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
-        if (selectedRow.DataBoundItem is not Bookmark bookmark) return;
+        var selectedRow = bookmarksDataGridView.CurrentRow;
+        if (selectedRow.DataBoundItem is not Bookmark bookmark)
+        {
+            return;
+        }
 
         int selectedIndex = bookmarksDataGridView.CurrentRow.Index;
         if (selectedIndex > 0)
@@ -178,24 +204,38 @@ public partial class FormBookmarks : Form
 
     private void LoadImageFromSelectedRow()
     {
-        if (bookmarksDataGridView.SelectedRows.Count != 1) return;
+        if (bookmarksDataGridView.SelectedRows.Count != 1)
+        {
+            return;
+        }
 
-        DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
+        var selectedRow = bookmarksDataGridView.CurrentRow;
 
-        if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+        if (selectedRow?.DataBoundItem is not Bookmark bookmark)
+        {
+            return;
+        }
+
         ApplicationIOHelper.OpenImageInDefaultAplication(bookmark.CompletePath);
     }
 
     private void LoadPreviewImageFromSelectedRow()
     {
-        if (bookmarksDataGridView.SelectedRows.Count != 1) return;
+        if (bookmarksDataGridView.SelectedRows.Count != 1)
+        {
+            return;
+        }
 
-        DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
+        var selectedRow = bookmarksDataGridView.CurrentRow;
 
         if (selectedRow?.DataBoundItem is Bookmark bookmark)
+        {
             pictureBoxPreview.Image = _imageCache.GetImageFromCache(bookmark.CompletePath);
+        }
         else
+        {
             ReLoadBookmarks();
+        }
     }
 
     private void bookmarksTree_DragDrop(object sender, DragEventArgs e)
@@ -204,15 +244,22 @@ public partial class FormBookmarks : Form
         {
             // The mouse locations are relative to the screen, so they must be 
             // converted to client coordinates.
-            Point clientPoint = bookmarksTree.PointToClient(new Point(e.X, e.Y));
+            var clientPoint = bookmarksTree.PointToClient(new Point(e.X, e.Y));
 
             // If the drag operation was a move then add the row to the other control.
             if (e.Effect == DragDropEffects.Move)
             {
-                TreeViewHitTestInfo hittest = bookmarksTree.HitTest(clientPoint.X, clientPoint.Y);
-                if (hittest.Node == null) return;
-                TreeNode dropNode = hittest.Node;
-                if (!(dropNode.Tag is BookmarkFolder dropFolder)) return;
+                var hittest = bookmarksTree.HitTest(clientPoint.X, clientPoint.Y);
+                if (hittest.Node == null)
+                {
+                    return;
+                }
+
+                var dropNode = hittest.Node;
+                if (!(dropNode.Tag is BookmarkFolder dropFolder))
+                {
+                    return;
+                }
 
                 _bookmarkManager.MoveBookmark(bookmark, dropFolder.Id);
                 ReLoadBookmarks();
@@ -228,7 +275,9 @@ public partial class FormBookmarks : Form
     private void bookmarksTree_DragOver(object sender, DragEventArgs e)
     {
         if (e.Data!.GetDataPresent(typeof(Bookmark)))
+        {
             e.Effect = e.AllowedEffect;
+        }
     }
 
     private string SelectBookmarksFile()
@@ -237,7 +286,10 @@ public partial class FormBookmarks : Form
         openFileDialog1.FileName = "bookmarks.dat";
         openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        if (openFileDialog1.ShowDialog(this) == DialogResult.OK) return openFileDialog1.FileName;
+        if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+        {
+            return openFileDialog1.FileName;
+        }
 
         return null;
     }
@@ -245,12 +297,15 @@ public partial class FormBookmarks : Form
     private string SelectBookmarksFilePassword()
     {
         var uc = new GetPassword();
-        Form passwordForm = FormFactory.CreateModalForm(uc);
+        var passwordForm = FormFactory.CreateModalForm(uc);
         passwordForm.StartPosition = FormStartPosition.CenterParent;
         passwordForm.ShowInTaskbar = false;
         passwordForm.FormBorderStyle = FormBorderStyle.FixedSingle;
 
-        if (passwordForm.ShowDialog(this) == DialogResult.OK) return uc.SelectedPassword;
+        if (passwordForm.ShowDialog(this) == DialogResult.OK)
+        {
+            return uc.SelectedPassword;
+        }
 
         return null;
     }
@@ -259,13 +314,19 @@ public partial class FormBookmarks : Form
     {
         if (bookmarksTree.SelectedNode == bookmarksTree.TopNode)
         {
-            ToolStripItem deleteMenuItem = contextMenuStripFolders.Items.Find("deleteFolderToolStripMenuItem", false).FirstOrDefault();
-            if (deleteMenuItem != null) deleteMenuItem.Enabled = false;
+            var deleteMenuItem = contextMenuStripFolders.Items.Find("deleteFolderToolStripMenuItem", false).FirstOrDefault();
+            if (deleteMenuItem != null)
+            {
+                deleteMenuItem.Enabled = false;
+            }
         }
         else
         {
-            ToolStripItem deleteMenuItem = contextMenuStripFolders.Items.Find("deleteFolderToolStripMenuItem", false).FirstOrDefault();
-            if (deleteMenuItem != null) deleteMenuItem.Enabled = true;
+            var deleteMenuItem = contextMenuStripFolders.Items.Find("deleteFolderToolStripMenuItem", false).FirstOrDefault();
+            if (deleteMenuItem != null)
+            {
+                deleteMenuItem.Enabled = true;
+            }
         }
     }
 
@@ -286,9 +347,11 @@ public partial class FormBookmarks : Form
             try
             {
                 _overlayFormManager.ActiveRow = e.RowIndex;
-                DataGridViewRow row = bookmarksDataGridView.Rows[e.RowIndex];
+                var row = bookmarksDataGridView.Rows[e.RowIndex];
                 if (row.DataBoundItem is Bookmark dataItem)
+                {
                     _overlayFormManager.LoadImageAndDisplayForm(dataItem.CompletePath, Cursor.Position);
+                }
             }
             catch (Exception ex)
             {
@@ -316,19 +379,23 @@ public partial class FormBookmarks : Form
     private void bookmarksDataGridView_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
         if (e.Button == MouseButtons.Left && e.RowIndex >= 0)
+        {
             LoadImageFromSelectedRow();
+        }
     }
 
     private void bookmarksDataGridView_MouseUp(object sender, MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Right)
+        {
             contextMenuStripBookmarks.Show(bookmarksDataGridView, new Point(e.X, e.Y));
+        }
     }
 
     private void bookmarksDataGridView_MouseDown(object sender, MouseEventArgs e)
     {
         // Get the index of the item the mouse is below.
-        DataGridView.HitTestInfo hittestInfo = bookmarksDataGridView.HitTest(e.X, e.Y);
+        var hittestInfo = bookmarksDataGridView.HitTest(e.X, e.Y);
 
         if (hittestInfo.RowIndex != -1 && hittestInfo.ColumnIndex != -1)
         {
@@ -338,7 +405,7 @@ public partial class FormBookmarks : Form
                 // Remember the point where the mouse down occurred. 
                 // The DragSize indicates the size that the mouse can move 
                 // before a drag event should be started.                
-                Size dragSize = SystemInformation.DragSize;
+                var dragSize = SystemInformation.DragSize;
 
                 // Create a rectangle using the DragSize, with the mouse position being
                 // at the center of the rectangle.
@@ -346,7 +413,7 @@ public partial class FormBookmarks : Form
             }
         }
         else
-        // Reset the rectangle if the mouse is not over an item in the ListBox.
+            // Reset the rectangle if the mouse is not over an item in the ListBox.
         {
             _dragBoxFromMouseDown = Rectangle.Empty;
         }
@@ -356,14 +423,21 @@ public partial class FormBookmarks : Form
     {
         if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
             // If the mouse moves outside the rectangle, start the drag.
+        {
             if (_dragBoxFromMouseDown != Rectangle.Empty && !_dragBoxFromMouseDown.Contains(e.X, e.Y) && _valueFromMouseDown != null)
                 // Proceed with the drag and drop, passing in the list item.                    
+            {
                 bookmarksDataGridView.DoDragDrop(_valueFromMouseDown, DragDropEffects.Move);
+            }
+        }
     }
 
     private void bookmarksDataGridView_KeyDown(object sender, KeyEventArgs e)
     {
-        if (bookmarksDataGridView.SelectedRows.Count != 1) return;
+        if (bookmarksDataGridView.SelectedRows.Count != 1)
+        {
+            return;
+        }
 
         if (e.KeyData == Keys.Enter)
         {
@@ -371,7 +445,10 @@ public partial class FormBookmarks : Form
             LoadImageFromSelectedRow();
         }
 
-        if (e.KeyData == Keys.Delete) DeleteSelectedBookmark(true);
+        if (e.KeyData == Keys.Delete)
+        {
+            DeleteSelectedBookmark(true);
+        }
     }
 
     #endregion
@@ -455,7 +532,7 @@ public partial class FormBookmarks : Form
     {
         if (e.Button == MouseButtons.Left)
         {
-            DataGridViewColumn column = bookmarksDataGridView.Columns[e.ColumnIndex];
+            var column = bookmarksDataGridView.Columns[e.ColumnIndex];
             if (column.Tag == null)
             {
                 column.Tag = SortOrder.Ascending;
@@ -468,9 +545,12 @@ public partial class FormBookmarks : Form
 
             string sortBy = column.DataPropertyName;
 
-            TreeNode selectedNode = bookmarksTree.SelectedNode;
+            var selectedNode = bookmarksTree.SelectedNode;
 
-            if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)) return;
+            if (!(selectedNode.Tag is BookmarkFolder selectedBookmarkfolder))
+            {
+                return;
+            }
 
 
             BookmarkManager.UpdateSortOrder(selectedBookmarkfolder, sortBy, (SortOrder)column.Tag);
@@ -514,7 +594,8 @@ public partial class FormBookmarks : Form
                     e.RowBounds.Height);
 
                 // Paint the custom selection background.
-                using (Brush backbrush = new LinearGradientBrush(rowBounds, _gridViewGradientBackgroundColorStart, _gridViewGradientBackgroundColorStop, LinearGradientMode.Vertical))
+                using (Brush backbrush =
+                       new LinearGradientBrush(rowBounds, _gridViewGradientBackgroundColorStart, _gridViewGradientBackgroundColorStop, LinearGradientMode.Vertical))
                 {
                     e.Graphics.FillRectangle(backbrush, rowBounds);
                     var p = new Pen(backbrush, 1) { Color = _gridViewSelectionBorderColor };
@@ -538,7 +619,7 @@ public partial class FormBookmarks : Form
         {
             var ucRenameFolder = new RenameBookmarkFolder();
             ucRenameFolder.InitControl(bookmarkFolder.Name, bookmarkFolder.Bookmarks.Count);
-            Form renameForm = FormFactory.CreateModalForm(ucRenameFolder);
+            var renameForm = FormFactory.CreateModalForm(ucRenameFolder);
 
             if (renameForm.ShowDialog(this) == DialogResult.OK)
             {
@@ -566,7 +647,7 @@ public partial class FormBookmarks : Form
         saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         var userControl = new SelectPassword();
-        Form passwordForm = FormFactory.CreateModalForm(userControl);
+        var passwordForm = FormFactory.CreateModalForm(userControl);
 
         passwordForm.Controls.Add(userControl);
         passwordForm.StartPosition = FormStartPosition.CenterParent;
@@ -598,10 +679,16 @@ public partial class FormBookmarks : Form
     {
         string filename = SelectBookmarksFile();
 
-        if (string.IsNullOrEmpty(filename)) return;
+        if (string.IsNullOrEmpty(filename))
+        {
+            return;
+        }
 
         string password = SelectBookmarksFilePassword();
-        if (string.IsNullOrEmpty(password)) return;
+        if (string.IsNullOrEmpty(password))
+        {
+            return;
+        }
 
         if (_bookmarkManager.LoadFromFileAndAppendBookmarks(filename, password))
         {
@@ -620,10 +707,16 @@ public partial class FormBookmarks : Form
     {
         string filename = SelectBookmarksFile();
 
-        if (string.IsNullOrEmpty(filename)) return;
+        if (string.IsNullOrEmpty(filename))
+        {
+            return;
+        }
 
         string password = SelectBookmarksFilePassword();
-        if (string.IsNullOrEmpty(password)) return;
+        if (string.IsNullOrEmpty(password))
+        {
+            return;
+        }
 
         if (_bookmarkManager.LoadFromFile(filename, password))
         {
@@ -641,7 +734,9 @@ public partial class FormBookmarks : Form
     private void deleteFolderToolStripMenuItem_Click(object sender, EventArgs e)
     {
         if (bookmarksTree.SelectedNode?.Tag is not BookmarkFolder treeNode)
+        {
             return;
+        }
 
         if (MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_, MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
@@ -653,7 +748,10 @@ public partial class FormBookmarks : Form
     private void renameToolStripMenuItem_Click(object sender, EventArgs e)
     {
         var selectedRow = bookmarksDataGridView.CurrentRow;
-        if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+        if (selectedRow?.DataBoundItem is not Bookmark bookmark)
+        {
+            return;
+        }
 
         var editBookmark = new FormEditBookmark();
         var model = new BookmarkEditModel { FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName };
@@ -669,8 +767,11 @@ public partial class FormBookmarks : Form
     // Edit both the Name and image path of a selected bookmark
     private void editToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        DataGridViewRow selectedRow = bookmarksDataGridView.CurrentRow;
-        if (selectedRow?.DataBoundItem is not Bookmark bookmark) return;
+        var selectedRow = bookmarksDataGridView.CurrentRow;
+        if (selectedRow?.DataBoundItem is not Bookmark bookmark)
+        {
+            return;
+        }
 
         var editBookmark = new FormEditBookmark();
         var model = new BookmarkEditModel { FileName = bookmark.FileName, CompletePath = bookmark.CompletePath, Name = bookmark.BoookmarkName };
@@ -678,7 +779,7 @@ public partial class FormBookmarks : Form
 
         if (editBookmark.ShowDialog(this) == DialogResult.OK)
         {
-            BookmarkEditModel editModel = editBookmark.GetBookmarkEditModel();
+            var editModel = editBookmark.GetBookmarkEditModel();
             bookmark.BoookmarkName = editModel.Name;
             bookmark.CompletePath = editModel.CompletePath;
             bookmark.FileName = editModel.FileName;
@@ -690,7 +791,9 @@ public partial class FormBookmarks : Form
     private void addFolderToolStripMenuItem_Click(object sender, EventArgs e)
     {
         if (bookmarksTree.SelectedNode == null)
+        {
             return;
+        }
 
         var inputFormData = new FormInputRow.InputFormData
         {
@@ -705,11 +808,11 @@ public partial class FormBookmarks : Form
         if (formInputRow.ShowDialog(this) == DialogResult.OK)
         {
             string folderName = formInputRow.UserInputText;
-            TreeNode selectedNode = bookmarksTree.SelectedNode;
+            var selectedNode = bookmarksTree.SelectedNode;
 
             if (selectedNode.Tag is BookmarkFolder selectedBookmarkfolder)
             {
-                BookmarkFolder newFolder = _bookmarkManager.AddBookmarkFolder(selectedBookmarkfolder.Id, folderName);
+                var newFolder = _bookmarkManager.AddBookmarkFolder(selectedBookmarkfolder.Id, folderName);
                 AlterTreeViewState(TreeViewFolderStateChange.FolderAdded, newFolder);
             }
         }
@@ -718,7 +821,9 @@ public partial class FormBookmarks : Form
     private async void tryToFixBrokenLinksToolStripMenuItem_Click(object sender, EventArgs e)
     {
         if (_bookmarkManager == null)
+        {
             return;
+        }
 
         folderBrowserDialog1.Description = "Select base directory to link from";
         if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
@@ -726,7 +831,10 @@ public partial class FormBookmarks : Form
             string selectedPath = folderBrowserDialog1.SelectedPath;
             int linksFixed = await _bookmarkManager.FixBrokenLinksFromBaseDir(selectedPath);
 
-            if (linksFixed > 0) _bookmarkService.SaveBookmarks();
+            if (linksFixed > 0)
+            {
+                _bookmarkService.SaveBookmarks();
+            }
 
 
             MessageBox.Show($@"Corrected {linksFixed} incorrect file paths", @"Fix broken links", MessageBoxButtons.OK, MessageBoxIcon.Information);

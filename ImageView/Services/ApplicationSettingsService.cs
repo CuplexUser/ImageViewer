@@ -47,7 +47,7 @@ public class ApplicationSettingsService : ServiceBase
 
     public bool LoadSettings()
     {
-        var loadedSuccessively = false;
+        bool loadedSuccessively = false;
 
         try
         {
@@ -72,8 +72,8 @@ public class ApplicationSettingsService : ServiceBase
 
     private void ValidateSettings()
     {
-        ApplicationSettingsModel defSettings = AppSettingsRepository.GetDefaultApplicationSettings();
-        ModelValidator validator = CreateModelValidator(_applicationSettings);
+        var defSettings = AppSettingsRepository.GetDefaultApplicationSettings();
+        var validator = CreateModelValidator(_applicationSettings);
         if (!validator.ValidateModel())
         {
             Log.Warning("Loaded application settings are invalid. {ErrorMessage}", validator.ValidationResults.First().ErrorMessage);
@@ -89,7 +89,10 @@ public class ApplicationSettingsService : ServiceBase
                 Log.Debug("AutoHideCursorDelay was invalid. Value changed to: {AutoHideCursorDelay}", _applicationSettings.AutoHideCursorDelay);
             }
 
-            if (_applicationSettings.SlideshowInterval < 1000) _applicationSettings.SlideshowInterval = defSettings.SlideshowInterval;
+            if (_applicationSettings.SlideshowInterval < 1000)
+            {
+                _applicationSettings.SlideshowInterval = defSettings.SlideshowInterval;
+            }
 
             //SaveSettings();
         }
@@ -97,7 +100,10 @@ public class ApplicationSettingsService : ServiceBase
 
     private void _appSettingsFileRepository_LoadSettingsCompleted(object sender, EventArgs e)
     {
-        if (_applicationSettings != null) _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
+        if (_applicationSettings != null)
+        {
+            _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
+        }
     }
 
     public static ModelValidator CreateModelValidator(ApplicationSettingsModel model)
@@ -110,13 +116,18 @@ public class ApplicationSettingsService : ServiceBase
     {
         bool result;
 
-        if (_applicationSettings == null) throw new InvalidOperationException("Cant save uninitialized Null settings");
+        if (_applicationSettings == null)
+        {
+            throw new InvalidOperationException("Cant save uninitialized Null settings");
+        }
 
         try
         {
             result = _appSettingsRepository.SaveSettings(_applicationSettings);
             if (result)
+            {
                 OnSettingsSaved?.Invoke(this, EventArgs.Empty);
+            }
         }
         catch (Exception ex)
         {
@@ -131,6 +142,9 @@ public class ApplicationSettingsService : ServiceBase
     {
         _applicationSettings = AppSettingsRepository.GetDefaultApplicationSettings();
 
-        if (!SaveSettings() || !LoadSettings()) Log.Error("Unable to restore to default settings");
+        if (!SaveSettings() || !LoadSettings())
+        {
+            Log.Error("Unable to restore to default settings");
+        }
     }
 }

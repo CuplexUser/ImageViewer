@@ -32,10 +32,14 @@ public partial class FormGetPassword : Form
     private void FormGetPassword_KeyUp(object sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.Escape)
+        {
             Close();
+        }
 
         if (e.KeyCode == Keys.Enter)
+        {
             HandleOkClick();
+        }
     }
 
     private void HandleOkClick()

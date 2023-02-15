@@ -27,13 +27,16 @@ public class AppSettingsRepository : RepositoryBase, IAppSettingsRepository
 
     public virtual ApplicationSettingsModel LoadSettings()
     {
-        if (_settingsModel is { IsLoadedFromDisk: true }) return _settingsModel;
+        if (_settingsModel is { IsLoadedFromDisk: true })
+        {
+            return _settingsModel;
+        }
 
         if (File.Exists(_appConfigSettingsFilePath))
         {
             try
             {
-                ApplicationSettingsDataModel applicationConfig = _ioProvider.LoadApplicationSettings(_appConfigSettingsFilePath, MockPwd);
+                var applicationConfig = _ioProvider.LoadApplicationSettings(_appConfigSettingsFilePath, MockPwd);
                 _settingsModel = _mapper.Map<ApplicationSettingsModel>(applicationConfig);
             }
             catch (Exception ex)
@@ -65,7 +68,9 @@ public class AppSettingsRepository : RepositoryBase, IAppSettingsRepository
         }
 
         if (_settingsModel.AppSettingsGuid == Guid.Empty)
+        {
             _settingsModel.AppSettingsGuid = Guid.NewGuid();
+        }
 
         OnLoadSettingsCompleted();
         return _settingsModel;
@@ -73,7 +78,7 @@ public class AppSettingsRepository : RepositoryBase, IAppSettingsRepository
 
     public bool SaveSettings(ApplicationSettingsModel settings)
     {
-        ApplicationSettingsDataModel settingsDataModel = _mapper.Map<ApplicationSettingsModel, ApplicationSettingsDataModel>(settings);
+        var settingsDataModel = _mapper.Map<ApplicationSettingsModel, ApplicationSettingsDataModel>(settings);
         bool result = _ioProvider.SaveApplicationSettings(_appConfigSettingsFilePath, settingsDataModel, MockPwd);
         if (result)
         {

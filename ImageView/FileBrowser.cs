@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using Autofac;
 using ImageViewer.Collections;
 using ImageViewer.Models;
 using ImageViewer.Properties;
@@ -31,7 +30,9 @@ public partial class FileBrowser : Form
         set
         {
             if (value == null || !File.Exists(value))
+            {
                 _selectedPath = value;
+            }
         }
     }
 
@@ -40,12 +41,14 @@ public partial class FileBrowser : Form
     private void FileBrowser_Load(object sender, EventArgs e)
     {
         if (DesignMode)
+        {
             return;
+        }
 
         dataGridViewLoadedImages.DataBindingComplete += dataGridViewLoadedImages_DataBindingComplete;
         var lastUsedSearchPathsList = new List<string>();
         var searchDirsFromSettings = _applicationSettingsService.Settings.LastUsedSearchPaths;
-        var validList = true;
+        bool validList = true;
 
         // Validate every directory and check for duplicates. 
         // If any changes has been made then save settings.
@@ -59,9 +62,13 @@ public partial class FileBrowser : Form
             }
 
             if (Directory.Exists(pathToAdd))
+            {
                 lastUsedSearchPathsList.Add(pathToAdd);
+            }
             else
+            {
                 validList = false;
+            }
         }
 
         if (!validList)
@@ -106,7 +113,9 @@ public partial class FileBrowser : Form
     private void btnBrowse_Click(object sender, EventArgs e)
     {
         if (txtBaseDirectory.Text.Length > 0 && Directory.Exists(txtBaseDirectory.Text))
+        {
             folderBrowserDialog1.SelectedPath = txtBaseDirectory.Text;
+        }
 
         if (folderBrowserDialog1.ShowDialog(this) == DialogResult.OK)
         {
@@ -125,12 +134,17 @@ public partial class FileBrowser : Form
         if (!Directory.Exists(SelectedPath))
         {
             if (showErrors)
+            {
                 MessageBox.Show(Resources.FileBrowser_OpenImporterForm_No_valid_path_selected);
+            }
+
             return;
         }
 
         if (!PathCollection.Contains(SelectedPath))
+        {
             PathCollection.Add(SelectedPath);
+        }
 
         var formLoad = _scope.Resolve<FormLoad>();
         formLoad.SetBasePath(SelectedPath);
@@ -144,7 +158,10 @@ public partial class FileBrowser : Form
         }
 
         if (_imageLoaderService.ImageReferenceList != null)
+        {
             dataGridViewLoadedImages.DataSource = GetSortableBindingSource();
+        }
+
         DelayOperation.DelayAction(delegate { _enableLoadFormOnEnterKey = true; }, 2000);
     }
 
@@ -169,20 +186,28 @@ public partial class FileBrowser : Form
     private void btnRefreshList_Click(object sender, EventArgs e)
     {
         if (_imageLoaderService.ImageReferenceList != null)
+        {
             dataGridViewLoadedImages.DataSource = GetSortableBindingSource();
+        }
     }
 
     private void deleteSelectedFilesToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        if (dataGridViewLoadedImages.SelectedRows.Count == 0) return;
+        if (dataGridViewLoadedImages.SelectedRows.Count == 0)
+        {
+            return;
+        }
+
         if (
             MessageBox.Show(Resources.Are_you_sure_that_you_want_to_delete_the_selected_files_,
                 Resources.Confirm_delete, MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
-            DataGridViewSelectedRowCollection selectedRows = dataGridViewLoadedImages.SelectedRows;
+            var selectedRows = dataGridViewLoadedImages.SelectedRows;
             foreach (DataGridViewRow row in selectedRows)
                 if (row.DataBoundItem is ImageReference imgRefElement)
+                {
                     _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
+                }
 
             dataGridViewLoadedImages.DataSource = GetSortableBindingSource();
         }
@@ -190,7 +215,11 @@ public partial class FileBrowser : Form
 
     private void copyFilepathToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        if (dataGridViewLoadedImages.SelectedRows.Count == 0) return;
+        if (dataGridViewLoadedImages.SelectedRows.Count == 0)
+        {
+            return;
+        }
+
         if (dataGridViewLoadedImages.SelectedRows[0].DataBoundItem is ImageReference imgRefElement)
         {
             Clipboard.Clear();
@@ -201,7 +230,9 @@ public partial class FileBrowser : Form
     private void openWithDefaultApplicationToolStripMenuItem_Click(object sender, EventArgs e)
     {
         if (dataGridViewLoadedImages.SelectedRows[0].DataBoundItem is ImageReference imgRefElement)
+        {
             ApplicationIOHelper.OpenImageInDefaultAplication(imgRefElement.CompletePath);
+        }
     }
 
     private void FileListMenuStrip_Opening(object sender, CancelEventArgs e)

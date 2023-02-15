@@ -14,21 +14,25 @@ namespace ImageViewer.Repositories;
 [UsedImplicitly]
 public class ThumbnailRepository : RepositoryBase, IDisposable
 {
-    private const string DatabaseKeyComponent = "4565A56D-81B5-4FB7-B4D6-BB0A5B2CEB18.51893DE4-0FDB-4F9E-AA19-BBBD0FAE4D88.69537D29-60A2-4629-A2CF-0031826E1E59.5ECCD30C-C305-4742-9C99-AAB06548F311";
+    private const string DatabaseKeyComponent =
+        "4565A56D-81B5-4FB7-B4D6-BB0A5B2CEB18.51893DE4-0FDB-4F9E-AA19-BBBD0FAE4D88.69537D29-60A2-4629-A2CF-0031826E1E59.5ECCD30C-C305-4742-9C99-AAB06548F311";
+
     private const string Salt = "46A973ED2C28A101CFB5E1986881A938E2DA0EA2458C1FBFA2AD2964D4973A9739DB2F90BB7014EE4DBF9F531FE5A7920A6D09B1D2E8DA4CD6AE973B7541ECBE";
     private const string MetadataModelDbFileName = "thumbnail.db";
     private const string BinaryBlobFileName = "thumbnail.bin";
+    private readonly BlobStorageProvider _blobStorageProvider;
 
     private readonly FileManager _fileManager;
     private readonly ImageProvider _imageProvider;
     private readonly IMapper _mapper;
     private readonly StorageManager _storageManager;
+    private readonly Size thumbnailSize = new(512, 512);
+
+    private CancellationTokenSource _cancellationTokenSource;
+
     //private readonly ConcurrentDictionary<string, ThumbnailEntryModel> _thumbnailDictionary;
     private bool _isModified;
     private ThumbnailMetadataDbModel _metadataDb;
-    private readonly BlobStorageProvider _blobStorageProvider;
-    private readonly Size thumbnailSize = new(512, 512);
-    private CancellationTokenSource _cancellationTokenSource;
 
     public ThumbnailRepository(IMapper mapper, FileManager fileManager, ImageProvider imageProvider, BlobStorageProvider blobStorageProvider)
     {
@@ -42,7 +46,6 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     }
 
     public bool Initialized { get; private set; }
-
 
 
     public bool IsModified
@@ -65,10 +68,10 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
             {
                 secureString.Clear();
                 buffer = SHA256.HashData(buffer);
-                var buffer2 = new char[buffer.Length * 2];
+                char[] buffer2 = new char[buffer.Length * 2];
                 int size = Convert.ToBase64CharArray(buffer, 0, buffer.Length, buffer2, 0);
 
-                for (var i = 0; i < size; i += 2)
+                for (int i = 0; i < size; i += 2)
                     secureString.AppendChar(buffer2[i]);
             }
             catch (Exception ex)
@@ -100,30 +103,43 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         try
         {
             if (File.Exists(filePath))
-                _metadataDb = await _storageManager.DeserializeObjectFromFileAsync<ThumbnailMetadataDbModel>(filePath, null);
+            {
+                var dataModel = await _storageManager.DeserializeObjectFromFileAsync<ThumbnailMetadataDbDataModel>(filePath, null);
+                _metadataDb = _mapper.Map<ThumbnailMetadataDbModel>(dataModel);
+            }
             else
             {
                 _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
                 requireSave = true;
             }
-
         }
         catch (Exception ex)
         {
             Log.Error(ex, "InitDatabase() Exception. Message: {message}", ex.Message);
+            _metadataDb = null;
         }
 
         if (_metadataDb == null)
         {
             if (File.Exists(filePath))
+            {
                 File.Delete(filePath);
+            }
+
+            if (!_blobStorageProvider.ClearStorage())
+            {
+                throw new InvalidOperationException("BlobStorageProvider.ClearStorage() Failed!");
+            }
+
 
             _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
             requireSave = true;
         }
 
         if (requireSave)
+        {
             return await SaveThumbnailDatabaseAsync();
+        }
 
         Initialized = true;
         return true;
@@ -158,10 +174,9 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
             if (file.LastWriteTime == item!.OriginalImageModel.LastModified && file.Length == item.OriginalImageModel.FileSize)
             {
                 // return cached thumbnail
-                byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.Length);
+                byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.FileSize);
                 var image = _imageProvider.RestoreImageFromCache(imgBytes);
                 return image;
-
             }
         }
 
@@ -180,7 +195,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         {
             var thumbModel = new ThumbnailEntryModel
             {
-                Length = Convert.ToInt32(fileInfo.Length),
+                FileSize = Convert.ToInt32(fileInfo.Length),
                 CreateDate = DateTime.Now,
                 ThumbnailSize = image.Size
             };
@@ -190,13 +205,12 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
 
             var rawImage = _fileManager.CreateRawImageFromImage(image);
-            thumbModel.FilePosition = _blobStorageProvider.WriteBlobData(rawImage.ImageData);
-            thumbModel.Length = rawImage.ImageData.Length;
-            thumbModel.FullName=fileInfo.FullName;
+            thumbModel.FilePosition =  await _blobStorageProvider.WriteBlobDataAsync(rawImage.ImageData);
+            thumbModel.FileSize = rawImage.ImageData.Length;
+            thumbModel.FullName = fileInfo.FullName;
 
             _metadataDb.ThumbnailEntries.Add(thumbModel);
         }
-
     }
 
     private int AddDataToBlobStorage(RawImage rawImage)
@@ -209,7 +223,6 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     {
         // TODO
         return await Task<bool>.Factory.StartNew(() => false);
-
     }
 
     #region Public Methods
@@ -236,12 +249,12 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     public async Task<Image> GetOrCreateThumbnailImageAsync(string fullPath, Size size, CancellationToken token)
     {
         Image img = null;
-        if (_metadataDb.ThumbnailEntries.Any(x=>x.FullName== fullPath))
+        if (_metadataDb.ThumbnailEntries.Any(x => x.FullName == fullPath))
         {
-            ThumbnailEntryModel entry = _metadataDb.ThumbnailEntries.FirstOrDefault(x => x.FullName == fullPath);
+            var entry = _metadataDb.ThumbnailEntries.FirstOrDefault(x => x.FullName == fullPath);
             if (entry!.ThumbnailSize == size)
             {
-                byte[] data = await _blobStorageProvider.ReadBlobDataAsync(entry.FilePosition, entry.Length);
+                byte[] data = await _blobStorageProvider.ReadBlobDataAsync(entry.FilePosition, entry.FileSize);
                 var ms = new MemoryStream(data);
                 img = Image.FromStream(ms);
                 return img;
@@ -251,12 +264,12 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         {
             try
             {
-                FileInfo fi = new FileInfo(fullPath);
+                var fi = new FileInfo(fullPath);
                 byte[] data = _imageProvider.CreateThumbnailToByteArray(fi, thumbnailSize);
 
-                ImageRefModel imageRef = _mapper.Map<ImageRefModel>(fi);
+                var imageRef = _mapper.Map<ImageRefModel>(fi);
 
-                var model = new ThumbnailEntryModel { Length = Convert.ToInt32(data.Length), CreateDate = DateTime.Now, ThumbnailSize = size, OriginalImageModel = imageRef };
+                var model = new ThumbnailEntryModel { FileSize = Convert.ToInt32(data.Length), CreateDate = DateTime.Now, ThumbnailSize = size, OriginalImageModel = imageRef };
                 int position = _blobStorageProvider.WriteBlobData(data);
                 model.FilePosition = position;
                 model.FullName = fullPath;
@@ -353,9 +366,6 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         return false;
     }
     */
-
-
-
 
     #endregion
 

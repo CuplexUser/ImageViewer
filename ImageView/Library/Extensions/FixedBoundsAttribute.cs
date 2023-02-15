@@ -27,12 +27,17 @@ public class FixedBoundsAttribute : ValidationAttribute
     public override bool IsValid(object value)
     {
         if (value == null)
+        {
             return false;
+        }
         // Assumes int value
 
-        var propertyVal = Convert.ToInt32(value);
+        int propertyVal = Convert.ToInt32(value);
 
-        if (propertyVal < MinValue || propertyVal > MaxValue) return false;
+        if (propertyVal < MinValue || propertyVal > MaxValue)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -45,7 +50,9 @@ public class FixedBoundsAttribute : ValidationAttribute
         bool validStatus = IsValid(value);
 
         if (validStatus)
+        {
             return ValidationResult.Success;
+        }
 
         Log.Warning("Validation failed for settings attrribute: " + validationContext.DisplayName);
         return new ValidationResult(ErrorMessageString);

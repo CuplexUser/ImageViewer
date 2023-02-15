@@ -37,7 +37,7 @@ public class ImageCollectionRepository : RepositoryBase
     {
         try
         {
-            SourceFolderDataModel dataModel = _mapper.Map<SourceFolderDataModel>(outputDirectoryModel);
+            var dataModel = _mapper.Map<SourceFolderDataModel>(outputDirectoryModel);
             return _fileSystem.SerializeObjectToFile(filename, dataModel, InternalPwd);
         }
         catch (Exception ex)

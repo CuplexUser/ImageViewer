@@ -40,12 +40,17 @@ public partial class FormLoad : Form
     private void Instance_OnImportComplete(object sender, ProgressEventArgs e)
     {
         if (IsHandleCreated)
+        {
             Invoke(new UpdateProgressDelegate(UpdateProgressOnLocalThread), e.ProgressStatus.ToString(), e.ImagesLoaded, e.CompletionRate, true);
+        }
     }
 
     private void Instance_OnProgressUpdate(object sender, ProgressEventArgs e)
     {
-        if (IsHandleCreated) Invoke(new UpdateProgressDelegate(UpdateProgressOnLocalThread), e.ProgressStatus.ToString(), e.ImagesLoaded, e.CompletionRate, false);
+        if (IsHandleCreated)
+        {
+            Invoke(new UpdateProgressDelegate(UpdateProgressOnLocalThread), e.ProgressStatus.ToString(), e.ImagesLoaded, e.CompletionRate, false);
+        }
     }
 
     private void UpdateProgressOnLocalThread(string status, int imagesLoaded, double completionRate, bool completed)
@@ -84,7 +89,11 @@ public partial class FormLoad : Form
         progressBar1.Value = 0;
         bool result = await _imageLoaderService.RunImageImport(_baseSearchPath);
 
-        if (!result) _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
+        if (!result)
+        {
+            _interactionService.InformUser(new UserInteractionInformation
+                { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
+        }
 
         btnStart.Enabled = false;
     }

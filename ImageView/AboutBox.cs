@@ -32,7 +32,9 @@ internal partial class AboutBox : Form
             {
                 var titleAttribute = (AssemblyTitleAttribute)attributes[0];
                 if (!string.IsNullOrEmpty(titleAttribute.Title))
+                {
                     return titleAttribute.Title;
+                }
             }
 
             return string.Empty;
@@ -43,8 +45,11 @@ internal partial class AboutBox : Form
     {
         get
         {
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
-            if (version != null) return version.ToString();
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            if (version != null)
+            {
+                return version.ToString();
+            }
 
             return string.Empty;
         }

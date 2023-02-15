@@ -40,7 +40,10 @@ public class ImageCacheRepository : RepositoryBase
         _cachedImages = new Dictionary<string, CachedImage>();
         CacheSize = settings.Settings.ImageCacheSize;
 
-        if (CacheSize is < ImageCacheService.MinCacheSize or > ImageCacheService.MaxCacheSize) CacheSize = ImageCacheService.DefaultCacheSize;
+        if (CacheSize is < ImageCacheService.MinCacheSize or > ImageCacheService.MaxCacheSize)
+        {
+            CacheSize = ImageCacheService.DefaultCacheSize;
+        }
 
         _cacheStats = new FileCacheUsage(_cachedImages.Values.AsQueryable());
         _cacheStats.Invalidate();
@@ -105,22 +108,26 @@ public class ImageCacheRepository : RepositoryBase
     private void TruncateCache(ImageCacheService.CacheTruncatePriority truncatePriority)
     {
         _cacheStats.Invalidate();
-        var truncatedSize = Convert.ToInt64(CacheSize * 0.75d);
+        long truncatedSize = Convert.ToInt64(CacheSize * 0.75d);
 
         if (truncatePriority == ImageCacheService.CacheTruncatePriority.RemoveOldest)
+        {
             while (_cachedImages.Count > 0 && _cacheStats.CacheUsage > truncatedSize)
             {
                 string oldestImageFilename = _cachedImages.Values.OrderByDescending(x => x.AddedToCacheTime).First().Filename;
                 _cachedImages.Remove(oldestImageFilename);
                 _cacheStats.Invalidate();
             }
+        }
         else
+        {
             while (_cachedImages.Count > 0 && _cacheStats.CacheUsage > truncatedSize)
             {
                 string oldestImageFilename = _cachedImages.Values.OrderByDescending(x => x.Size).First().Filename;
                 _cachedImages.Remove(oldestImageFilename);
                 _cacheStats.Invalidate();
             }
+        }
     }
 
 
@@ -201,9 +208,12 @@ public class ImageCacheRepository : RepositoryBase
     /// <returns></returns>
     public CachedImage GetImageFromCache(string fileName)
     {
-        if (_cachedImages.ContainsKey(fileName)) return _cachedImages[fileName];
+        if (_cachedImages.ContainsKey(fileName))
+        {
+            return _cachedImages[fileName];
+        }
 
-        CachedImage imageModel = CreateCachedImageModel(fileName);
+        var imageModel = CreateCachedImageModel(fileName);
         _cacheStats.Invalidate();
 
         // Make sure we dont expand the cache size indefinitely by never removing anything from the image cache.
@@ -222,7 +232,10 @@ public class ImageCacheRepository : RepositoryBase
     /// <param name="fileName">Name of the file.</param>
     public void RemoveImageFromCache(string fileName)
     {
-        if (_cachedImages.ContainsKey(fileName)) _cachedImages.Remove(fileName);
+        if (_cachedImages.ContainsKey(fileName))
+        {
+            _cachedImages.Remove(fileName);
+        }
     }
 
     /// <summary>
@@ -246,11 +259,22 @@ public class ImageCacheRepository : RepositoryBase
     /// </exception>
     public void SetCacheSize(long newCacheSize, ImageCacheService.CacheTruncatePriority truncatePriority)
     {
-        if (newCacheSize < ImageCacheService.MinCacheSize) throw new ArgumentException($"Cache size can not be lower then {GeneralConverters.FileSizeToStringFormatter.ConvertFileSizeToString(ImageCacheService.MinCacheSize, 0)}");
+        if (newCacheSize < ImageCacheService.MinCacheSize)
+        {
+            throw new ArgumentException(
+                $"Cache size can not be lower then {GeneralConverters.FileSizeToStringFormatter.ConvertFileSizeToString(ImageCacheService.MinCacheSize, 0)}");
+        }
 
-        if (newCacheSize > ImageCacheService.MaxCacheSize) throw new ArgumentException($"Cache size can not be higher then {GeneralConverters.FileSizeToStringFormatter.ConvertFileSizeToString(ImageCacheService.MaxCacheSize, 0)}");
+        if (newCacheSize > ImageCacheService.MaxCacheSize)
+        {
+            throw new ArgumentException(
+                $"Cache size can not be higher then {GeneralConverters.FileSizeToStringFormatter.ConvertFileSizeToString(ImageCacheService.MaxCacheSize, 0)}");
+        }
 
-        if (newCacheSize < _cacheStats.CacheUsage) TruncateCache(truncatePriority);
+        if (newCacheSize < _cacheStats.CacheUsage)
+        {
+            TruncateCache(truncatePriority);
+        }
 
         CacheSize = newCacheSize;
     }

@@ -24,15 +24,21 @@ public class ImportSourceDataLoader
             Log.Information("Unable to list the following directory: {FolderPath}", exception, parent.GetFolderPath());
         }
 
-        if (dirInfo == null || subdirs == null) return new List<SourceFolderModel>();
+        if (dirInfo == null || subdirs == null)
+        {
+            return new List<SourceFolderModel>();
+        }
 
         //var 
 
-        var index = 0;
-        foreach (DirectoryInfo subdir in subdirs)
+        int index = 0;
+        foreach (var subdir in subdirs)
         {
             if (((subdir.Attributes & FileAttributes.System) != 0) | ((subdir.Attributes & FileAttributes.Hidden) != 0))
+            {
                 continue;
+            }
+
             folderNodeLIst.Add(new SourceFolderModel(subdir.FullName)
             {
                 Name = subdir.Name,

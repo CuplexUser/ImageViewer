@@ -14,11 +14,11 @@ public class UpdateService : ServiceBase
 
     public async Task<bool> IsLatestVersion()
     {
-        ApplicationVersion latestVersion = await GetLatestVersion();
-        Version version = Assembly.GetExecutingAssembly().GetName().Version;
+        var latestVersion = await GetLatestVersion();
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
         if (version != null)
         {
-            ApplicationVersion currentVersion = ApplicationVersion.Parse(version.ToString());
+            var currentVersion = ApplicationVersion.Parse(version.ToString());
 
             return currentVersion.CompareTo(latestVersion) >= 0;
         }
@@ -45,7 +45,7 @@ public class UpdateService : ServiceBase
         List<ApplicationVersion> versions;
         using (var client = new HttpClient())
         {
-            Stream response = await client.GetStreamAsync(url);
+            var response = await client.GetStreamAsync(url);
             var streamReader = new StreamReader(response);
             versions = ParseFromUpdateTextFile(streamReader);
             versions.Sort();
@@ -56,16 +56,21 @@ public class UpdateService : ServiceBase
 
     private async Task<string> DownloadLatestVersion()
     {
-        ApplicationVersion latestVersion = await GetLatestVersion();
+        var latestVersion = await GetLatestVersion();
         string tempDir = Path.GetTempPath();
         string url = latestVersion.DownloadUrl;
-        if (string.IsNullOrEmpty(url)) throw new ArgumentException("Download Url can not be empty");
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentException("Download Url can not be empty");
+        }
 
         string fileName = url.Split("/".ToCharArray()).Last();
         string downloadFilePath = Path.Combine(tempDir, fileName);
 
         if (File.Exists(downloadFilePath))
+        {
             File.Delete(downloadFilePath);
+        }
 
         using (var client = new HttpClient())
         {
@@ -80,20 +85,26 @@ public class UpdateService : ServiceBase
     private List<ApplicationVersion> ParseFromUpdateTextFile(StreamReader stream)
     {
         var versions = new List<ApplicationVersion>();
-        var downloadUrl = "";
+        string downloadUrl = "";
 
         while (!stream.EndOfStream)
         {
             string line = stream.ReadLine();
             if (line != null && _downloadUrlRegex.IsMatch(line))
             {
-                GroupCollection matches = _downloadUrlRegex.Match(line).Groups;
-                if (matches.Count > 0) downloadUrl = matches[^1].Value;
+                var matches = _downloadUrlRegex.Match(line).Groups;
+                if (matches.Count > 0)
+                {
+                    downloadUrl = matches[^1].Value;
+                }
             }
             else if (line != null && _versionRegex.IsMatch(line))
             {
-                GroupCollection matches = _versionRegex.Match(line).Groups;
-                if (matches.Count > 0) versions.Add(ApplicationVersion.Parse(matches[^1].Value, downloadUrl));
+                var matches = _versionRegex.Match(line).Groups;
+                if (matches.Count > 0)
+                {
+                    versions.Add(ApplicationVersion.Parse(matches[^1].Value, downloadUrl));
+                }
             }
         }
 

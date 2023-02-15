@@ -17,7 +17,10 @@ public partial class FormSettings : Form
     {
         _applicationSettingsService = applicationSettingsService;
         bool settingsLoaded = _applicationSettingsService.LoadSettings();
-        if (!settingsLoaded) Log.Warning("FormSettings constructor failed to load settings");
+        if (!settingsLoaded)
+        {
+            Log.Warning("FormSettings constructor failed to load settings");
+        }
 
         _originalSettings = applicationSettingsService.Settings;
         _imageCacheService = imageCacheService;
@@ -32,7 +35,7 @@ public partial class FormSettings : Form
     private void LoadSettings()
     {
         //_applicationSettingsService.LoadSettings();
-        ApplicationSettingsModel settings = _applicationSettingsService.Settings;
+        var settings = _applicationSettingsService.Settings;
         chkAutoRandomize.Checked = settings.AutoRandomizeCollection;
         chkPasswordProtectBookmarks.Checked = settings.PasswordProtectBookmarks;
         chkShowSwitchImgButtons.Checked = settings.ShowSwitchImageButtons;
@@ -72,12 +75,18 @@ public partial class FormSettings : Form
                 break;
         }
 
-        if (settings.ImageTransitionTime < 10 || settings.ImageTransitionTime > 5000) settings.ImageTransitionTime = 1000;
+        if (settings.ImageTransitionTime < 10 || settings.ImageTransitionTime > 5000)
+        {
+            settings.ImageTransitionTime = 1000;
+        }
 
         numericScreenMinOffset.Value = settings.ScreenMinXOffset;
         numericScreenWidthOffset.Value = settings.ScreenWidthOffset;
 
-        if (settings.AutoHideCursorDelay < numericAutohideCursorDelay.Minimum) settings.AutoHideCursorDelay = 2000;
+        if (settings.AutoHideCursorDelay < numericAutohideCursorDelay.Minimum)
+        {
+            settings.AutoHideCursorDelay = 2000;
+        }
 
         numericAutohideCursorDelay.Value = settings.AutoHideCursorDelay;
 
@@ -92,8 +101,8 @@ public partial class FormSettings : Form
 
         if (backgroundColorDropdownList.Items.Count > 0)
         {
-            Color savedColor = settings.MainWindowBackgroundColor;
-            Color item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
+            var savedColor = settings.MainWindowBackgroundColor;
+            var item = colorList.FirstOrDefault(x => x.ToArgb() == savedColor.ToArgb());
             backgroundColorDropdownList.SelectedItem = item;
         }
 
@@ -104,11 +113,16 @@ public partial class FormSettings : Form
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-        ApplicationSettingsModel settings = _applicationSettingsService.Settings;
-        if (_originalSettings != settings) _applicationSettingsService.SetSettingsStateModified();
+        var settings = _applicationSettingsService.Settings;
+        if (_originalSettings != settings)
+        {
+            _applicationSettingsService.SetSettingsStateModified();
+        }
 
         if (rbImgTransformNone.Checked)
+        {
             settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.None;
+        }
 
         settings.AutoRandomizeCollection = chkAutoRandomize.Checked;
         settings.ShowSwitchImageButtons = chkShowSwitchImgButtons.Checked;
@@ -117,7 +131,10 @@ public partial class FormSettings : Form
         settings.ConfirmApplicationShutdown = chkConfirmExit.Checked;
         settings.AutoHideCursor = chkAutohideCursor.Checked;
 
-        if (rbImgTransformFadeIn.Checked) settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.FadeIn;
+        if (rbImgTransformFadeIn.Checked)
+        {
+            settings.NextImageAnimation = ApplicationSettingsModel.ChangeImageAnimation.FadeIn;
+        }
 
         settings.ToggleSlideshowWithThirdMouseButton = chkToggleSlidshowWithThirdMouseButton.Checked;
         settings.ImageTransitionTime = trackBarFadeTime.Value;
@@ -149,18 +166,24 @@ public partial class FormSettings : Form
     private void chkPasswordProtectBookmarks_MouseUp(object sender, MouseEventArgs e)
     {
         if (chkPasswordProtectBookmarks.Checked)
+        {
             using (var formSetPassword = new FormSetPassword())
             {
                 if (formSetPassword.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (formSetPassword.VerifiedPassword == null) chkPasswordProtectBookmarks.Checked = false;
+                    if (formSetPassword.VerifiedPassword == null)
+                    {
+                        chkPasswordProtectBookmarks.Checked = false;
+                    }
                 }
                 else
                 {
                     chkPasswordProtectBookmarks.Checked = false;
                 }
             }
+        }
         else
+        {
             using (
                 var formGetPassword = new FormGetPassword
                 {
@@ -175,6 +198,7 @@ public partial class FormSettings : Form
                     chkPasswordProtectBookmarks.Checked = true;
                 }
             }
+        }
     }
 
     private void UpdateCacheStats()

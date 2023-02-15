@@ -34,7 +34,10 @@ public class ColorSelectComboBox : ComboBox
         // Draw background
         // e.DrawBackground();
 
-        if (Items.Count == 0) return;
+        if (Items.Count == 0)
+        {
+            return;
+        }
 
         var item = (Color)Items[e.Index];
         var p = new Pen(Color.Black);
@@ -51,7 +54,7 @@ public class ColorSelectComboBox : ComboBox
 
 
         // Draw item text
-        Font font = Parent.Font;
+        var font = Parent.Font;
         brush = new SolidBrush(Color.Black);
         var beginTextDrawPoint = new Point(colorRect.Width + 10, e.Bounds.Top + 2);
         e.Graphics.DrawString(item.Name, font, brush, beginTextDrawPoint);

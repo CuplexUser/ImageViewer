@@ -30,7 +30,7 @@ public class ImageProvider : ProviderBase
     public Image LoadFromByteArray(byte[] readBytes)
     {
         var ms = new MemoryStream(readBytes);
-        Image img = Image.FromStream(ms, true, true);
+        var img = Image.FromStream(ms, true, true);
         return img;
     }
 
@@ -39,12 +39,11 @@ public class ImageProvider : ProviderBase
         var magicImage = _imgConverter.ConvertFromSystemImage(image);
 
         return magicImage.ToByteArray(MagickFormat.Jpeg);
-
     }
 
     public Image CreateThumbnail(FileInfo imgFileInfo, Size size)
     {
-        MagickImage image = LoadImageFile(imgFileInfo);
+        var image = LoadImageFile(imgFileInfo);
         image.Resize(size.Width, size.Height);
         return _imgConverter.ConvertToSystemImage(image);
     }
@@ -86,7 +85,7 @@ public class ImageProvider : ProviderBase
 
     public MagickImage CreateThumbnailFromImage(Image image, Size size)
     {
-        MagickImage img = _imgConverter.ConvertFromSystemImage(image);
+        var img = _imgConverter.ConvertFromSystemImage(image);
         img.Resize(size.Width, size.Height);
 
         return img;
@@ -94,7 +93,7 @@ public class ImageProvider : ProviderBase
 
     public byte[] CreateThumbnailToByteArray(FileInfo fi, Size thumbnailSize)
     {
-        MagickImage image = LoadImageFile(fi.FullName);
+        var image = LoadImageFile(fi.FullName);
         image.Resize(thumbnailSize.Width, thumbnailSize.Height);
         return image.ToByteArray(MagickFormat.Jpeg);
     }

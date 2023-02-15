@@ -8,7 +8,9 @@ public class ProgressEventArgs : EventArgs
         ImagesLoaded = imagesLoaded;
 
         if (totalNumberOfFiles > 0)
+        {
             CompletionRate = imagesLoaded / (double)totalNumberOfFiles;
+        }
     }
 
     public ProgressStatusEnum ProgressStatus { get; }

@@ -24,7 +24,9 @@ public partial class CustomPanel : UserControl
         _defaultSize = new Size(250, 250);
         Size = _defaultSize;
         if (DesignMode)
+        {
             return;
+        }
 
         SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
         UpdateStyles();
@@ -170,7 +172,7 @@ public partial class CustomPanel : UserControl
         var drawRectangle = new Rectangle(-2, -2, Width + 2, Height + 2);
         //if (e.ClipRectangle.Width >= drawRectangle.Width && e.ClipRectangle.Height>= drawRectangle.Height)
 
-        Graphics g = e.Graphics;
+        var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
         _pen.Color = BackColor;
         g.Clear(_pen.Color);
@@ -213,8 +215,8 @@ public partial class CustomPanel : UserControl
         drawRectangle.X = 0;
         drawRectangle.Y = Math.Max(e.ClipRectangle.Y, Height);
 
-        Graphics g = e.Graphics;
-        GraphicsContainer container = g.BeginContainer();
+        var g = e.Graphics;
+        var container = g.BeginContainer();
 
         //g.SetClip(drawRectangle);
 

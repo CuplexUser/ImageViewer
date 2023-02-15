@@ -13,7 +13,10 @@ public class DisposePicBoxEventArgs : EventArgs
     /// <param name="pictureBox">The picture box.</param>
     public DisposePicBoxEventArgs(PictureBox pictureBox)
     {
-        if (pictureBox == null || pictureBox.Disposing || pictureBox.IsDisposed) throw new ArgumentException(Resources.PictureBoxNullOrDisposed);
+        if (pictureBox == null || pictureBox.Disposing || pictureBox.IsDisposed)
+        {
+            throw new ArgumentException(Resources.PictureBoxNullOrDisposed);
+        }
 
         PictureBoxAwaitingDisposal = pictureBox;
     }

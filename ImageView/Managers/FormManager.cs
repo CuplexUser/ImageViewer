@@ -37,19 +37,26 @@ public class FormManager : ManagerBase
     /// <returns></returns>
     public Form GetFormInstance(Type formType)
     {
-        if (!formType.IsAssignableTo<Form>()) return null;
+        if (!formType.IsAssignableTo<Form>())
+        {
+            return null;
+        }
 
         string formName = formType.Name;
 
         if (FormInstances.ContainsKey(formName))
         {
             if (FormInstances[formName] is not Form instance || instance.IsDisposed)
+            {
                 FormInstances.Remove(formName);
+            }
             else
+            {
                 return FormInstances[formName] as Form;
+            }
         }
 
-        var formInstance = _scope.Resolve(formType);
+        object formInstance = _scope.Resolve(formType);
         ((Form)formInstance).Closed += FormManager_Closed;
         FormInstances.Add(formName, formInstance);
 
@@ -65,18 +72,20 @@ public class FormManager : ManagerBase
     {
         var frm = (Form)sender;
         if (frm != null && FormInstances.ContainsKey(frm.Name))
+        {
             FormInstances.Remove(frm.Name);
+        }
     }
 
     public async Task<FormImageView> GetFormImageViewAsync(int id)
     {
-        FormImageView form = await Task<FormImageView>.Factory.StartNew(() => CreateFormInstance(id));
+        var form = await Task<FormImageView>.Factory.StartNew(() => CreateFormInstance(id));
         return form;
     }
 
     private FormImageView CreateFormInstance(int id)
     {
-        FormImageView form = _scope.Resolve<FormImageView>(new NamedParameter("id", id));
+        var form = _scope.Resolve<FormImageView>(new NamedParameter("id", id));
         return form;
     }
 
@@ -88,7 +97,7 @@ public class FormManager : ManagerBase
     {
         try
         {
-            Form form = GetFormInstance(formType);
+            var form = GetFormInstance(formType);
             form.Show();
             form.Focus();
             return true;

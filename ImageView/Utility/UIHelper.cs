@@ -46,7 +46,7 @@ public static class UIHelper
 
     public static List<Color> GetSelectableBackgroundColors()
     {
-        Color darkerGray = Color.FromArgb(255, 30, 30, 30);
+        var darkerGray = Color.FromArgb(255, 30, 30, 30);
 
         var list = new List<Color>
         {

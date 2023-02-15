@@ -331,7 +331,8 @@ public class ApplicationSettingsDataModel
     ///     The automatic hide cursor delay.
     /// </value>
     [DataMember(Name = "AutoHideCursorDelay", Order = 32)]
-    [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "Validation failed because value is out of range.")]
+    [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue,
+        "Validation failed because value is out of range.")]
     public int AutoHideCursorDelay { get; set; }
 
     /// <summary>
@@ -434,7 +435,9 @@ public class ApplicationSettingsDataModel
         var deleteStack = new Stack<string>();
         foreach (string searchPath in LastUsedSearchPaths)
             if (LastUsedSearchPaths.Any(s => s.ToLower() == searchPath))
+            {
                 deleteStack.Push(searchPath);
+            }
 
         while (deleteStack.Count > 0)
             LastUsedSearchPaths.Remove(deleteStack.Pop());

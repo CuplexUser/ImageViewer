@@ -26,7 +26,10 @@ public class ImageFormatExt
         get
         {
             if (_instance == null)
+            {
                 _instance = new ImageFormatExt();
+            }
+
             return _instance;
         }
     }

@@ -14,9 +14,11 @@ public partial class ThumbnailSettings : UserControl
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
+        var parentForm = ParentForm;
         if (parentForm == null)
+        {
             return;
+        }
 
         _applicationSettingsService.Settings.ThumbnailSize = GetSelectedThumbnailSize();
         _applicationSettingsService.Settings.MaxThumbnails = trackBarThumbnailCount.Value;
@@ -26,9 +28,11 @@ public partial class ThumbnailSettings : UserControl
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
+        var parentForm = ParentForm;
         if (parentForm == null)
+        {
             return;
+        }
 
         parentForm.DialogResult = DialogResult.Cancel;
         parentForm.Close();
@@ -37,13 +41,24 @@ public partial class ThumbnailSettings : UserControl
     private int GetSelectedThumbnailSize()
     {
         if (rb64.Checked)
+        {
             return 64;
+        }
+
         if (rb128.Checked)
+        {
             return 128;
+        }
+
         if (rb256.Checked)
+        {
             return 256;
+        }
+
         if (rb512.Checked)
+        {
             return 512;
+        }
 
         return 256;
     }
@@ -54,21 +69,35 @@ public partial class ThumbnailSettings : UserControl
         int maxThumbnails = _applicationSettingsService.Settings.MaxThumbnails;
 
         if (thumbnailsize == 64)
+        {
             rb64.Checked = true;
+        }
         else if (thumbnailsize == 128)
+        {
             rb128.Checked = true;
+        }
         else if (thumbnailsize == 256)
+        {
             rb256.Checked = true;
+        }
         else if (thumbnailsize == 512)
+        {
             rb512.Checked = true;
+        }
         else
+        {
             rb256.Checked = true;
+        }
 
         if (maxThumbnails > 512)
+        {
             maxThumbnails = 512;
+        }
 
         if (maxThumbnails < 32)
+        {
             maxThumbnails = 32;
+        }
 
         trackBarThumbnailCount.Value = maxThumbnails;
         lblThumbnailCount.Text = trackBarThumbnailCount.Value.ToString();

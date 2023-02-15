@@ -8,12 +8,14 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Reflection;
 using System.Resources;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace ImageView.UnitTests.TestHelper
 {
     public class TestDataFactory
     {
+        private readonly TestContext _context;
         private readonly string[] ResourceImageNames =
         {
             "_72_dpi_RGB_G403_Prodigy_Gaming_Mouse",
@@ -27,16 +29,16 @@ namespace ImageView.UnitTests.TestHelper
             "Dys_ovoXcAERzFA1"
         };
 
-        public TestDataFactory()
+        public TestDataFactory(TestContext context)
         {
-
+            _context = context;
         }
 
-        // Read img data from resorces
+        // Read img data from resources
         public List<ImageReference> BuildTestImageList()
         {
             string testDataDir = ContainerFactory.GetTestDirectory();
-            List<ImageReference> imgRefList = new List<ImageReference>();
+            var imgRefList = new List<ImageReference>();
             testDataDir = Path.Combine(testDataDir, "Images");
 
             if (!Directory.Exists(testDataDir))
@@ -44,7 +46,8 @@ namespace ImageView.UnitTests.TestHelper
 
             try
             {
-                var assemlyLocation = Assembly.GetExecutingAssembly().Location;
+                var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                _context.WriteLine($"AssemlyLocation: {assemblyLocation}");
                 ResourceManager mgr = Resources.ResourceManager;
                 //
 
@@ -52,9 +55,12 @@ namespace ImageView.UnitTests.TestHelper
                 {
                     Image resImage = (Image)mgr.GetObject(imageName);
                     string imgFileName = Path.Combine(testDataDir, imageName + ".jpg");
-                    resImage.Save(imgFileName, ImageFormat.Jpeg);
-                    ImageReference imgRef = CreateImageReference(resImage, imgFileName);
-                    imgRefList.Add(imgRef);
+                    if (resImage != null)
+                    {
+                        resImage.Save(imgFileName, ImageFormat.Jpeg);
+                        ImageReference imgRef = CreateImageReference(resImage, imgFileName);
+                        imgRefList.Add(imgRef);
+                    }
                 }
             }
             catch (Exception ex)

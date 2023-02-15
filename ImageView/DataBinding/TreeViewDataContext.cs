@@ -46,7 +46,9 @@ public class TreeViewDataContext
     public void ExpandNode(BookmarkFolder folderToExpand)
     {
         if (folderToExpand == null)
+        {
             return;
+        }
 
         BindData();
         ExpandNode(_treeView.Nodes, folderToExpand);
@@ -64,7 +66,9 @@ public class TreeViewDataContext
             }
 
             if (treeNode.Nodes.Count > 0)
+            {
                 ExpandNode(treeNode.Nodes, rootFolder);
+            }
         }
     }
 
@@ -81,13 +85,15 @@ public class TreeViewDataContext
     {
         var treeNodeList = new List<TreeNode>();
 
-        foreach (BookmarkFolder folder in rootFolder.BookmarkFolders.OrderBy(x => x.SortOrder))
+        foreach (var folder in rootFolder.BookmarkFolders.OrderBy(x => x.SortOrder))
         {
             var treeView = new TreeNode(folder.Name) { Tag = folder };
             treeNodeList.Add(treeView);
 
             if (folder.BookmarkFolders != null && folder.BookmarkFolders.Count > 0)
+            {
                 treeView.Nodes.AddRange(RecursiveAddTreeNodes(folder).ToArray());
+            }
         }
 
 

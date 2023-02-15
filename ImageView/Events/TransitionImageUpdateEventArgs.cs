@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace ImageViewer.Events;
+﻿namespace ImageViewer.Events;
 
 [UsedImplicitly]
 public class TransitionImageUpdateEventArgs : EventArgs

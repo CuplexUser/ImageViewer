@@ -9,7 +9,6 @@ using ImageViewer.Models;
 using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.Utility;
-using Serilog;
 
 namespace ImageViewer;
 
@@ -169,7 +168,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="applicationSettingsService">The application settings service.</param>
     /// <param name="imageCache">The image cache.</param>
     /// <param name="imageLoaderService">The image loader service.</param>
-    public FormImageView(int id, FormAddBookmark formAddBookmark, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCache, ImageLoaderService imageLoaderService)
+    public FormImageView(int id, FormAddBookmark formAddBookmark, BookmarkManager bookmarkManager, ApplicationSettingsService applicationSettingsService,
+        ImageCacheService imageCache, ImageLoaderService imageLoaderService)
     {
         InitializeComponent();
         _imageViewFormInfo = new ImageViewFormImageInfo(this, null, 0);
@@ -264,7 +264,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     private void ImageLoaderService_OnImportComplete(object sender, ProgressEventArgs e)
     {
         SetImageReferenceCollection();
-        if (!ImageSourceDataAvailable) return;
+        if (!ImageSourceDataAvailable)
+        {
+            return;
+        }
 
         _imgRef = _imageReferenceCollection.GetNextImage();
         LoadNewImageFile(_imgRef);
@@ -311,7 +314,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         //pictureBox.BackColor = _applicationSettingsService.Settings.MainWindowBackgroundColor.ToColor();
         ShowInTaskbar = _applicationSettingsService.Settings.ShowImageViewFormsInTaskBar;
         SetImageReferenceCollection();
-        if (!ImageSourceDataAvailable) return;
+        if (!ImageSourceDataAvailable)
+        {
+            return;
+        }
 
         _imgRef = _imageReferenceCollection.GetNextImage();
         LoadNewImageFile(_imgRef);
@@ -356,7 +362,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {CompletePath}, Image Ref is null ({IsNull})", imageReference?.CompletePath, imageReference == null);
+            Log.Error(ex, "FormMain.LoadNewImageFile(string imagePath) Error when trying to load file: {CompletePath}, Image Ref is null ({IsNull})", imageReference?.CompletePath,
+                imageReference == null);
         }
     }
 
@@ -380,10 +387,14 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
     private void pictureBox_MouseDown(object sender, MouseEventArgs e)
     {
-        MouseEventArgs mouse = e;
+        var mouse = e;
         if (mouse.Button == MouseButtons.Left)
         {
-            if (_mousePressed) return;
+            if (_mousePressed)
+            {
+                return;
+            }
+
             _mousePressed = true;
             _mouseDown = mouse.Location;
             _startX = _imgx;
@@ -398,11 +409,11 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
     private void pictureBox_MouseMove(object sender, MouseEventArgs e)
     {
-        MouseEventArgs mouse = e;
+        var mouse = e;
 
         if (mouse.Button == MouseButtons.Left)
         {
-            Point mousePosNow = mouse.Location;
+            var mousePosNow = mouse.Location;
 
             int deltaX = mousePosNow.X - _mouseDown.X;
             // the distance the mouse has been moved since mouse was pressed
@@ -415,7 +426,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             pictureBox.Refresh();
         }
 
-        if (_mouseHoverInfo == null) return;
+        if (_mouseHoverInfo == null)
+        {
+            return;
+        }
 
         var leftPanel = new Rectangle(0, 0, ChangeImagePanelWidth, Height);
         var rightPanel = new Rectangle(ClientSize.Width - ChangeImagePanelWidth, 0, ChangeImagePanelWidth, Height);
@@ -425,8 +439,13 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         _mouseHoverInfo.LeftButtonPressed = mouse.Button == MouseButtons.Left;
 
         if (leftPanel.IntersectsWith(new Rectangle(mouse.Location, new Size(1, 1))))
+        {
             _mouseHoverInfo.OverLeftPanel = true;
-        else if (rightPanel.IntersectsWith(new Rectangle(mouse.Location, new Size(1, 1)))) _mouseHoverInfo.OverRightPanel = true;
+        }
+        else if (rightPanel.IntersectsWith(new Rectangle(mouse.Location, new Size(1, 1))))
+        {
+            _mouseHoverInfo.OverRightPanel = true;
+        }
 
         UpdateSwitchImgPanelState();
 
@@ -482,7 +501,9 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
         if (msg.Msg != WindowEvents.WM_KEYDOWN && msg.Msg != WindowEvents.WM_SYSKEYDOWN)
+        {
             return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         switch (keyData)
         {
@@ -573,28 +594,34 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         double oldzoom = _zoom;
 
         if (e.Delta > 0)
+        {
             _zoom += 0.1F + _zoom * .05f;
+        }
 
         else if (e.Delta < 0)
+        {
             _zoom = Math.Max(_zoom - 0.1F - _zoom * .05f, ZoomMin);
+        }
 
-        MouseEventArgs mouse = e;
-        Point mousePosNow = mouse.Location;
+        var mouse = e;
+        var mousePosNow = mouse.Location;
 
         int x = mousePosNow.X - pictureBox.Location.X; // Where location of the mouse in the pictureframe
         int y = mousePosNow.Y - pictureBox.Location.Y;
 
-        var oldimagex = (int)(x / oldzoom); // Where in the IMAGE is it now
-        var oldimagey = (int)(y / oldzoom);
+        int oldimagex = (int)(x / oldzoom); // Where in the IMAGE is it now
+        int oldimagey = (int)(y / oldzoom);
 
-        var newimagex = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
-        var newimagey = (int)(y / _zoom);
+        int newimagex = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
+        int newimagey = (int)(y / _zoom);
 
         _imgx = newimagex - oldimagex + _imgx; // Where to move image to keep focus on one point
         _imgy = newimagey - oldimagey + _imgy;
 
         if (_zoom < ZoomMin)
+        {
             _zoom = ZoomMin;
+        }
 
         pictureBox.Refresh();
     }
@@ -608,7 +635,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         _imgx = 0;
         _imgy = 0;
 
-        if (_currentImage == null) return;
+        if (_currentImage == null)
+        {
+            return;
+        }
 
         var constraints = new ImageConstraints
         {
@@ -623,9 +653,11 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         // Exception when right bottom corner is clicked and for one ore more windows we get an exception on the int parse call below:
         // (Value was either too large or too small for an Int32.)
         if (WindowState != FormWindowState.Normal || pictureBox.Height < 200 || pictureBox.Width < 200)
+        {
             return;
+        }
 
-        Graphics g = CreateGraphics();
+        var g = CreateGraphics();
 
         double vResAdjustment = _currentImage.VerticalResolution / g.DpiY;
         double hResAdjustment = _currentImage.HorizontalResolution / g.DpiX;
@@ -700,12 +732,15 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="PaintEventArgs" /> instance containing the event data.</param>
     private void pictureBox_Paint(object sender, PaintEventArgs e)
     {
-        if (_currentImage == null || _zoom <= 0) return;
+        if (_currentImage == null || _zoom <= 0)
+        {
+            return;
+        }
 
         try
         {
-            var scaleFactor = (float)_zoom;
-            Graphics g = e.Graphics;
+            float scaleFactor = (float)_zoom;
+            var g = e.Graphics;
             g.InterpolationMode = InterpolationMode.HighQualityBilinear;
             g.ScaleTransform(scaleFactor, scaleFactor);
             g.DrawImage(_currentImage, _imgx / scaleFactor, _imgy / scaleFactor);
@@ -720,19 +755,21 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             if (_showSwitchImgPanel)
             {
                 if (!_showSwitchImgOnMouseOverWindow && !_mouseHoverInfo.OverAnyButton)
+                {
                     return;
+                }
 
                 g.ResetTransform();
                 Brush b = new SolidBrush(Color.FromArgb(64, Color.LightGray));
 
-                for (var i = 0; i < 2; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     g.FillRectangle(b, new Rectangle(0, 0, ChangeImagePanelWidth, ClientSize.Height));
                     g.FillRectangle(b, new Rectangle(ClientSize.Width - ChangeImagePanelWidth, 0, ChangeImagePanelWidth, ClientSize.Height));
                     b = new SolidBrush(Color.FromArgb(128, Color.Black));
                 }
 
-                var imgWidth = Convert.ToInt32(Math.Min(Resources.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
+                int imgWidth = Convert.ToInt32(Math.Min(Resources.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
                 float imgScale = (float)imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
                 int imgMargin = (ChangeImagePanelWidth - imgWidth) / 2;
                 int imgYpos = ClientSize.Height / 2 - imgWidth / 2;
@@ -748,7 +785,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
 
                 if (_mouseHoverInfo.OverAnyButton)
                 {
-                    Rectangle rect = _mouseHoverInfo.OverLeftPanel
+                    var rect = _mouseHoverInfo.OverLeftPanel
                         ? new Rectangle(0, 0, ChangeImagePanelWidth, Height)
                         : new Rectangle(ClientSize.Width - ChangeImagePanelWidth - 1, 0, ChangeImagePanelWidth, Height);
                     Brush selectionBrush = new HatchBrush(HatchStyle.Percent50, Color.DimGray);
@@ -802,7 +839,11 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void openWithDefaultProgramToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        if (_imgRef == null) return;
+        if (_imgRef == null)
+        {
+            return;
+        }
+
         ApplicationIOHelper.OpenImageInDefaultAplication(_imgRef.CompletePath);
     }
 
@@ -844,7 +885,11 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void pictureBox_MouseEnter(object sender, EventArgs e)
     {
-        if (!_switchImgButtonsEnabled) return;
+        if (!_switchImgButtonsEnabled)
+        {
+            return;
+        }
+
         _mouseHover = true;
         UpdateSwitchImgPanelState();
         pictureBox.Refresh();
@@ -857,7 +902,11 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
     private void pictureBox_MouseLeave(object sender, EventArgs e)
     {
-        if (!_switchImgButtonsEnabled) return;
+        if (!_switchImgButtonsEnabled)
+        {
+            return;
+        }
+
         _mouseHover = false;
         UpdateSwitchImgPanelState();
         pictureBox.Refresh();
@@ -873,9 +922,13 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         if (_mouseHoverInfo != null && _mouseHoverInfo.OverAnyButton && _showSwitchImgPanel)
         {
             if (_mouseHoverInfo.OverLeftPanel)
+            {
                 SetPreviousImage();
+            }
             else
+            {
                 SetNextImage();
+            }
         }
     }
 
@@ -892,9 +945,12 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             return;
         }
 
-        if (!ImageSourceDataAvailable || _imageReferenceCollection.CurrentImage == null) return;
+        if (!ImageSourceDataAvailable || _imageReferenceCollection.CurrentImage == null)
+        {
+            return;
+        }
 
-        Point starupPosition = Location;
+        var starupPosition = Location;
         _formAddBookmark.Init(starupPosition, _imageReferenceCollection.CurrentImage);
         _formAddBookmark.ShowDialog(this);
     }
@@ -997,7 +1053,9 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             set
             {
                 if (_overLeftButton != value)
+                {
                     StateChanged = true;
+                }
 
                 _overLeftButton = value;
             }
@@ -1015,7 +1073,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             set
             {
                 if (_overRightButton != value)
+                {
                     StateChanged = true;
+                }
+
                 _overRightButton = value;
             }
         }
@@ -1048,7 +1109,10 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             set
             {
                 if (_leftButtonPressed != value)
+                {
                     StateChanged = true;
+                }
+
                 _leftButtonPressed = value;
             }
         }

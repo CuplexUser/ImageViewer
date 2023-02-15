@@ -10,14 +10,20 @@ public class DataContractComparer<T> : IEqualityComparer<T> where T : class
 
     public DataContractComparer(T compareBase)
     {
-        if (compareBase.GetType().GetAttribute<DataContractAttribute>().TypeId.ToString() != typeof(DataContractAttribute).FullName) throw new InvalidEnumArgumentException("Compare type was missing DataContract attribute");
+        if (compareBase.GetType().GetAttribute<DataContractAttribute>().TypeId.ToString() != typeof(DataContractAttribute).FullName)
+        {
+            throw new InvalidEnumArgumentException("Compare type was missing DataContract attribute");
+        }
 
         _compareBase = compareBase;
         var dataMemberAttributeInfo = compareBase.GetType().GetProperties();
 
         bool dataMemberAttr = dataMemberAttributeInfo.ToList().Any(dm => dm.GetAttribute<DataMemberAttribute>().TypeId.ToString() == typeof(DataMemberAttribute).FullName);
 
-        if (!dataMemberAttr) throw new InvalidEnumArgumentException("Compare type did not have any dataMember property attribute");
+        if (!dataMemberAttr)
+        {
+            throw new InvalidEnumArgumentException("Compare type did not have any dataMember property attribute");
+        }
     }
 
     public DataContractComparer()
@@ -26,26 +32,35 @@ public class DataContractComparer<T> : IEqualityComparer<T> where T : class
 
     public bool Equals(T x, T y)
     {
-        if (x?.GetType() != y?.GetType()) return false;
+        if (x?.GetType() != y?.GetType())
+        {
+            return false;
+        }
 
-        if (x == null) return false;
+        if (x == null)
+        {
+            return false;
+        }
 
         var propArrayX = x.GetType().GetProperties();
         var propArrayY = y.GetType().GetProperties().ToList();
 
-        for (var i = 0; i < propArrayX.Length; i++)
+        for (int i = 0; i < propArrayX.Length; i++)
         {
-            Type propType = GetType(propArrayX, i);
+            var propType = GetType(propArrayX, i);
             if (propType.BaseType != null)
             {
-                Type baseType = propType.BaseType.UnderlyingSystemType.DeclaringType;
+                var baseType = propType.BaseType.UnderlyingSystemType.DeclaringType;
             }
 
             string name = propArrayX[i].GetMethod.Name;
             object propValue = propArrayX[i].GetValue(x);
             object yProperty = propArrayY[i].GetValue(y);
 
-            if (yProperty == null || !yProperty.Equals(propValue)) return false;
+            if (yProperty == null || !yProperty.Equals(propValue))
+            {
+                return false;
+            }
         }
 
         return true;
@@ -64,7 +79,7 @@ public class DataContractComparer<T> : IEqualityComparer<T> where T : class
 
     private static Type GetType(PropertyInfo[] propArrayX, int i)
     {
-        Type propType = propArrayX[i].PropertyType;
+        var propType = propArrayX[i].PropertyType;
         return propType;
     }
 }

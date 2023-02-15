@@ -48,7 +48,9 @@ public sealed class BookmarkService : ServiceBase, IDisposable
     {
         string filename = _directory + BookmarkFileName;
         if (!File.Exists(filename))
+        {
             return false;
+        }
 
         bool loadSuccessful = BookmarkManager.LoadFromFile(filename, password);
         if (loadSuccessful)
@@ -64,14 +66,15 @@ public sealed class BookmarkService : ServiceBase, IDisposable
 
     public bool SaveBookmarks(bool savedAsync = false)
     {
-        var result = true;
+        bool result = true;
         lock (LockObj)
         {
             if (BookmarkManager.IsModified)
             {
                 string password = _passwordStorage.Get(_protectedMemoryStorageKey);
                 result = BookmarkManager.SaveToFile(Path.Combine(_directory, BookmarkFileName), password);
-                Log.Debug("SaveBookmarks called with Result: {result}, SavedAsync: {savedAsync}, ManagedThreadId: {ManagedThreadId}", result, savedAsync, Thread.CurrentThread.ManagedThreadId);
+                Log.Debug("SaveBookmarks called with Result: {result}, SavedAsync: {savedAsync}, ManagedThreadId: {ManagedThreadId}", result, savedAsync,
+                    Thread.CurrentThread.ManagedThreadId);
             }
 
             return result;
@@ -85,7 +88,9 @@ public sealed class BookmarkService : ServiceBase, IDisposable
             string defaultKey = _applicationSettingsService.Settings.DefaultKey;
 
             if (defaultKey != null && defaultKey.Length == 256)
+            {
                 return defaultKey;
+            }
 
             string previousKey = defaultKey;
             defaultKey = new SecureRandomGenerator().GetAlphaNumericString(256);

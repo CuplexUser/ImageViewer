@@ -283,7 +283,8 @@ public class ApplicationSettingsModel
     /// <value>
     ///     The automatic hide cursor delay.
     /// </value>
-    [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue, "AutoHideCursorDelay Validation failed because value is out of range.")]
+    [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue,
+        "AutoHideCursorDelay Validation failed because value is out of range.")]
     public int AutoHideCursorDelay { get; set; }
 
     /// <summary>

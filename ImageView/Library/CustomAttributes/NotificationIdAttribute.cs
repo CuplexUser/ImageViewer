@@ -10,7 +10,10 @@ public class NotificationIdAttribute : Attribute
 
     public NotificationIdAttribute(string name, Guid notificationId)
     {
-        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name must be specified");
+        if (string.IsNullOrEmpty(name))
+        {
+            throw new ArgumentException("Name must be specified");
+        }
 
 
         Name = name;

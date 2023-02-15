@@ -14,7 +14,10 @@ public class BookmarkEditModel
         get
         {
             if (!string.IsNullOrEmpty(CompletePath))
+            {
                 return GeneralConverters.GetDirectoryNameFromPath(CompletePath, false);
+            }
+
             return string.Empty;
         }
     }

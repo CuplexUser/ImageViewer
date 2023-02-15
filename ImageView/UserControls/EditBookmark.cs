@@ -39,7 +39,7 @@ public partial class EditBookmark : UserControl
         {
             var fi = new FileInfo(fileName);
             _editModel.FileSize = fi.Length;
-            var template = $"{SystemIOHelper.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
+            string template = $"{SystemIOHelper.FormatFileSizeToString(fi.Length, 0)}, {fi.Extension}\n,{fi.Name}";
             lblFileInfo.Text = template;
         }
         else
@@ -69,18 +69,30 @@ public partial class EditBookmark : UserControl
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
-        if (parentForm == null) return;
+        var parentForm = ParentForm;
+        if (parentForm == null)
+        {
+            return;
+        }
+
         parentForm.DialogResult = DialogResult.Cancel;
         parentForm?.Close();
     }
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-        if (!ValidateForm()) return;
+        if (!ValidateForm())
+        {
+            return;
+        }
+
         UpdateModelState();
-        Form parentForm = ParentForm;
-        if (parentForm == null) return;
+        var parentForm = ParentForm;
+        if (parentForm == null)
+        {
+            return;
+        }
+
         parentForm.DialogResult = DialogResult.OK;
         parentForm.Close();
     }

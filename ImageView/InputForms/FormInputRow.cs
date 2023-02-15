@@ -34,7 +34,8 @@ public partial class FormInputRow : Form
         }
         else
         {
-            MessageBox.Show($@"The selected name is invalid. Minimum {_inputFormData.MinimumCharacters} characters and maximum {_inputFormData.MaximumCharacters} characters", @"Invalid input", MessageBoxButtons.OK,
+            MessageBox.Show($@"The selected name is invalid. Minimum {_inputFormData.MinimumCharacters} characters and maximum {_inputFormData.MaximumCharacters} characters",
+                @"Invalid input", MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation);
         }
     }

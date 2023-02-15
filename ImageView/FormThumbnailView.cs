@@ -1,12 +1,6 @@
-﻿using System.Collections.Concurrent;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Speech.Synthesis.TtsEngine;
-using System.Threading.Tasks.Dataflow;
-using Autofac;
-using ImageMagick;
+﻿using System.ComponentModel;
+using System.Threading;
 using ImageViewer.Delegates;
-using ImageViewer.Library.Extensions;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Properties;
@@ -23,17 +17,19 @@ public partial class FormThumbnailView : Form, IDisposable
     private readonly ILifetimeScope _scope;
     private readonly ThumbnailFormState _state = new();
     private readonly ThumbnailService _thumbnailService;
-    private string _maximizedImgFilename;
-    private int _maxThumbnails;
-    private CancellationTokenSource _tokenSource;
-    private ThumbnailScanDirectory _thumbnailScan;
-    private int _thumbnailSize;
-    private UpdatePicBoxListEventHandler _updatePicBoxList;
-
+    private readonly ManualResetEvent _manualResetEvent;
+    private EventWaitHandle _eventWaitHandle;
+    private static long threadCount = 0;
 
     // Flag: Has Dispose already been called?
     private bool _disposed;
     private bool _formIsDisposing;
+    private string _maximizedImgFilename;
+    private int _maxThumbnails;
+    private ThumbnailScanDirectory _thumbnailScan;
+    private int _thumbnailSize;
+    private readonly CancellationTokenSource _tokenSource;
+    private UpdatePicBoxListEventHandler _updatePicBoxList;
 
     public FormThumbnailView(ApplicationSettingsService applicationSettings, ThumbnailService thumbnailService, ImageLoaderService imageLoaderService, ILifetimeScope scope)
     {
@@ -44,10 +40,18 @@ public partial class FormThumbnailView : Form, IDisposable
         _updatePicBoxList += UpdatePicBoxList;
         _tokenSource = new CancellationTokenSource();
 
-        if (applicationSettings == null) throw new NullReferenceException(Resources.AppApplicationSettingsServiceNull);
+        if (applicationSettings == null)
+        {
+            throw new NullReferenceException(Resources.AppApplicationSettingsServiceNull);
+        }
 
-        if (_thumbnailService == null) throw new NullReferenceException(Resources.ThumbnailServiceNull);
+        if (_thumbnailService == null)
+        {
+            throw new NullReferenceException(Resources.ThumbnailServiceNull);
+        }
 
+        _eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+        _manualResetEvent = new ManualResetEvent(false);
         _thumbnailSize = ValidateThumbnailSize(applicationSettings.Settings.ThumbnailSize);
         _maxThumbnails = AppSettings.MaxThumbnails;
         _applicationSettings.OnSettingsSaved += ApplicationSettingsOnSettingsSaved;
@@ -62,7 +66,7 @@ public partial class FormThumbnailView : Form, IDisposable
     private void ApplicationSettingsOnSettingsSaved(object sender, EventArgs e)
     {
         _applicationSettings.LoadSettings();
-        ApplicationSettingsModel appSettings = _applicationSettings.Settings;
+        var appSettings = _applicationSettings.Settings;
         flowLayoutPanel1.BackColor = appSettings.MainWindowBackgroundColor;
         picBoxMaximized.BackColor = appSettings.MainWindowBackgroundColor;
     }
@@ -70,7 +74,9 @@ public partial class FormThumbnailView : Form, IDisposable
     private async void FormThumbnailView_Load(object sender, EventArgs e)
     {
         if (DesignMode)
+        {
             return;
+        }
 
         FormStateManager.RestoreFormState(AppSettings, this);
         await _thumbnailService.LoadThumbnailDatabaseAsync();
@@ -91,13 +97,10 @@ public partial class FormThumbnailView : Form, IDisposable
 
         Hide();
 
-        Task.Factory.StartNew(async () =>
-        {
-            await _thumbnailService.SaveThumbnailDatabase();
-        }).Wait();
+        Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
 
         _formIsDisposing = true;
-        ApplicationSettingsModel appSettings = AppSettings;
+        var appSettings = AppSettings;
         FormStateManager.SaveFormState(appSettings, this);
         _applicationSettings.SaveSettings();
     }
@@ -106,8 +109,12 @@ public partial class FormThumbnailView : Form, IDisposable
     {
         var controls = new List<Control> { root };
 
-        if (!root.HasChildren) return controls;
-        for (var i = 0; i < root.Controls.Count; i++)
+        if (!root.HasChildren)
+        {
+            return controls;
+        }
+
+        for (int i = 0; i < root.Controls.Count; i++)
         {
             var controlList = GetControlTree(root.Controls[i]);
             controls.AddRange(controlList);
@@ -118,7 +125,7 @@ public partial class FormThumbnailView : Form, IDisposable
 
 
     // Generate Thumbnail list
-    private async void btnGenerate_Click(object sender, EventArgs e)
+    private void btnGenerate_Click(object sender, EventArgs e)
     {
         if (_imageLoaderService.ImageReferenceList == null)
         {
@@ -128,12 +135,26 @@ public partial class FormThumbnailView : Form, IDisposable
 
         if (btnGenerate.Tag is CancellationTokenSource source)
         {
-            source.Token.WaitHandle.WaitOne(500, true);
+            source.Token.WaitHandle.WaitOne(2000, true);
             btnGenerate.Tag = null;
             btnGenerate.Enabled = false;
+            _manualResetEvent.Set();
+            _eventWaitHandle.Set();
             return;
         }
+
         if (_state.IsGeneratingThumbnails)
+        {
+            return;
+        }
+
+        if (Interlocked.Read(ref threadCount) == 0)
+        {
+            _manualResetEvent.Set();
+            _eventWaitHandle.Set();
+
+        }
+        else
         {
             return;
         }
@@ -141,25 +162,47 @@ public partial class FormThumbnailView : Form, IDisposable
         HideMaximizedView();
         SetUpdateDatabaseEnabledState(false);
         flowLayoutPanel1.Controls.Clear();
-
         _state.StartingThumbnailScan();
+
 
         try
         {
-            await BindAndLoadThumbnailsAsync().ConfigureAwait(true);
+            Interlocked.Increment(ref threadCount);
+            _manualResetEvent.Reset();
+            Task.Factory.StartNew(async () =>
+            {
+                await BindAndLoadThumbnailsAsync();
+                _manualResetEvent.Set();
+            }).ConfigureAwait(true).GetAwaiter().OnCompleted(() => { _manualResetEvent.Set();});
+
+
         }
         catch (Exception ex)
         {
             MessageBox.Show(this, ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             Log.Error(ex, "Error in generate thumbnails");
         }
+        finally
+        {
+            Interlocked.Decrement(ref threadCount);
+        }
 
         btnGenerate.Enabled = true;
         if (_tokenSource.IsCancellationRequested)
+        {
             _tokenSource.TryReset();
+            _manualResetEvent.Set();
+        }
 
-        
-        await _thumbnailService.SaveThumbnailDatabase();
+
+
+        // Dont execute before BindAndLoadThumbnails is completed
+        Task.Factory.StartNew(async () =>
+        {
+            _manualResetEvent.WaitOne(2500, true);
+            await _thumbnailService.SaveThumbnailDatabase().ConfigureAwait(true);
+        }).ConfigureAwait(true);
+
 
         Refresh();
         GC.Collect(0, GCCollectionMode.Optimized);
@@ -170,45 +213,52 @@ public partial class FormThumbnailView : Form, IDisposable
         var modelList = GenerateThumbnailModels().ToList();
         var collection = new SynchronizedCollection<PictureBoxModel>();
         foreach (var model in modelList)
-        {
             collection.Add(model);
-        }
-        
+
 
         // Generate thumbnails while keeping the UI 100% responsive
-        await Task.Factory.StartNew( async() =>
+        await Task.Factory.StartNew(async () =>
         {
             try
             {
-                ParallelOptions options = new ParallelOptions
+                var options = new ParallelOptions
                 {
                     CancellationToken = _tokenSource.Token,
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
-                await Parallel.ForEachAsync(collection, options, async (model, token) =>
+                var parallelOperation = Parallel.ForEachAsync(collection, options, async (model, token) =>
                 {
                     if (!token.IsCancellationRequested)
                     {
-                        PictureBox picBox = CreatePictureBox(model);
+                        var picBox = CreatePictureBox(model);
                         picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(true);
                         Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
                     }
-                });
+                }).ConfigureAwait(true);
+                parallelOperation.GetAwaiter().OnCompleted(() => { _manualResetEvent.Set(); });
 
+                await parallelOperation;
+                _manualResetEvent.WaitOne();
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "BindAndLoadThumbnailsAsync was interrupted");
-
+            }
+            finally
+            {
+                _eventWaitHandle.Set();
             }
 
-            Task.Yield();
-
+            await Task.Yield();
         }, _tokenSource.Token).ConfigureAwait(true);
-        
+
+        _eventWaitHandle.Reset();
+        _eventWaitHandle.WaitOne(TimeSpan.FromMinutes(1));
 
         if (!_formIsDisposing)
+        {
             Invoke(new EventHandler(ThumbnailGenerationCompleted));
+        }
     }
 
     private async Task<Image> LoadAndResizeImage(string imagePath)
@@ -279,15 +329,18 @@ public partial class FormThumbnailView : Form, IDisposable
 
     private IEnumerable<PictureBoxModel> GenerateThumbnailModels()
     {
-        Color backColor = AppSettings.MainWindowBackgroundColor;
+        var backColor = AppSettings.MainWindowBackgroundColor;
         var modelList = new List<PictureBoxModel>();
 
         bool randomizeImageCollection = AppSettings.AutoRandomizeCollection;
         var imgRefList = _imageLoaderService.GenerateThumbnailList(randomizeImageCollection);
 
-        if (imgRefList.Count > _maxThumbnails) imgRefList = imgRefList.Take(_maxThumbnails).ToList();
+        if (imgRefList.Count > _maxThumbnails)
+        {
+            imgRefList = imgRefList.Take(_maxThumbnails).ToList();
+        }
 
-        foreach (ImageReference element in imgRefList)
+        foreach (var element in imgRefList)
         {
             var model = new PictureBoxModel
             {
@@ -321,11 +374,13 @@ public partial class FormThumbnailView : Form, IDisposable
     private void PictureBox_MouseClick(object sender, MouseEventArgs e)
     {
         if (!(sender is PictureBox pictureBox) || e.Button != MouseButtons.Left)
+        {
             return;
+        }
 
         if (pictureBox.Tag is string filename)
         {
-            Image fullScaleImage = _thumbnailService.GetFullScaleImage(filename);
+            var fullScaleImage = _thumbnailService.GetFullScaleImage(filename);
             _maximizedImgFilename = filename;
             picBoxMaximized.Image = fullScaleImage;
         }
@@ -336,7 +391,7 @@ public partial class FormThumbnailView : Form, IDisposable
 
     private void btnSettings_Click(object sender, EventArgs e)
     {
-        Form frmSettings = FormFactory.CreateSettingsForm(new ThumbnailSettings(_applicationSettings));
+        var frmSettings = FormFactory.CreateSettingsForm(new ThumbnailSettings(_applicationSettings));
         if (frmSettings.ShowDialog(this) == DialogResult.OK)
         {
             _maxThumbnails = AppSettings.MaxThumbnails;
@@ -355,14 +410,18 @@ public partial class FormThumbnailView : Form, IDisposable
         const int maxVal = 512;
 
         if (size < minVal || size > maxVal)
+        {
             return defVal;
+        }
 
         int index = minVal;
 
         while (index < maxVal)
         {
             if (size - index == 0)
+            {
                 return size;
+            }
 
             index <<= 1;
         }
@@ -379,9 +438,8 @@ public partial class FormThumbnailView : Form, IDisposable
     private void btnScanDirectory_Click(object sender, EventArgs e)
     {
         _thumbnailScan = new ThumbnailScanDirectory(_thumbnailService);
-        Form frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
+        var frmDirectoryScan = FormFactory.CreateModalForm(_thumbnailScan);
         frmDirectoryScan.FormClosed += FrmDirectoryScan_FormClosed;
-
 
 
         frmDirectoryScan.ShowDialog(this);
@@ -403,7 +461,7 @@ public partial class FormThumbnailView : Form, IDisposable
         }
         else if (e.Button == MouseButtons.Right)
         {
-            Point menuPos = e.Location;
+            var menuPos = e.Location;
             contextMenuFullSizeImg.Show(picBoxMaximized, menuPos);
         }
     }
@@ -411,12 +469,14 @@ public partial class FormThumbnailView : Form, IDisposable
     private void menuItemOpenInDefApp_Click(object sender, EventArgs e)
     {
         if (!ApplicationIOHelper.OpenImageInDefaultAplication(_maximizedImgFilename))
+        {
             MessageBox.Show($"Failed to open file: {_maximizedImgFilename}", Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void menuItemBookmark_Click(object sender, EventArgs e)
     {
-        using (ILifetimeScope scope = _scope.BeginLifetimeScope())
+        using (var scope = _scope.BeginLifetimeScope())
         {
             var fi = new FileInfo(_maximizedImgFilename);
             var imgRef = new ImageReference
@@ -459,7 +519,9 @@ public partial class FormThumbnailView : Form, IDisposable
     protected override void Dispose(bool disposing)
     {
         if (_disposed)
+        {
             return;
+        }
 
         if (disposing)
         {

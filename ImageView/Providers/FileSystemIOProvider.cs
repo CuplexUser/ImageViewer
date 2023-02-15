@@ -10,7 +10,11 @@ namespace ImageViewer.Providers;
 
 public class FileSystemIOProvider : ProviderBase
 {
-    private static readonly byte[] SaltBytes = { 0xCB, 0x19, 0xBB, 0x84, 0xF2, 0xC3, 0x72, 0xD2, 0x72, 0xE1, 0x6E, 0x0B, 0xBF, 0x1E, 0x63, 0xB9, 0xF5, 0x7C, 0x6E, 0x10, 0x50, 0xDC, 0x83, 0x02, 0x45, 0x9F, 0x49, 0x3C, 0x3D, 0x5B, 0x75, 0x28 };
+    private static readonly byte[] SaltBytes =
+    {
+        0xCB, 0x19, 0xBB, 0x84, 0xF2, 0xC3, 0x72, 0xD2, 0x72, 0xE1, 0x6E, 0x0B, 0xBF, 0x1E, 0x63, 0xB9, 0xF5, 0x7C, 0x6E, 0x10, 0x50, 0xDC, 0x83, 0x02, 0x45, 0x9F, 0x49, 0x3C,
+        0x3D, 0x5B, 0x75, 0x28
+    };
 
     public FileSystemIOProvider()
     {
@@ -47,7 +51,7 @@ public class FileSystemIOProvider : ProviderBase
     {
         try
         {
-            StorageManager storageManager = CreateStorageManager(password);
+            var storageManager = CreateStorageManager(password);
             var config = storageManager.DeserializeObjectFromFile<T>(filePath, null);
 
             return config;
@@ -63,7 +67,7 @@ public class FileSystemIOProvider : ProviderBase
     {
         try
         {
-            StorageManager storageManager = CreateStorageManager(password);
+            var storageManager = CreateStorageManager(password);
             return storageManager.SerializeObjectToFile(model, filePath, null);
         }
         catch (Exception exception)
@@ -83,7 +87,7 @@ public class FileSystemIOProvider : ProviderBase
         buffer = derivedBytes.GetBytes(64);
 
         string generatedStr = GeneralConverters.ByteArrayToBase64(buffer);
-        for (var i = 0; i < buffer.Length; i++) buffer[i] = 0;
+        for (int i = 0; i < buffer.Length; i++) buffer[i] = 0;
 
         return generatedStr;
     }

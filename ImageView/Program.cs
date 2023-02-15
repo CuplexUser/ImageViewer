@@ -23,7 +23,9 @@ internal static class Program
         InitializeAutofac();
 
         if (Environment.OSVersion.Version.Major >= 6)
+        {
             SetProcessDPIAware();
+        }
 
         Application.EnableVisualStyles();
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
@@ -36,7 +38,7 @@ internal static class Program
         using (var scope = Container.BeginLifetimeScope())
         {
             // Begin startup async jobs
-            ApplicationSettingsService settingsService = scope.Resolve<ApplicationSettingsService>();
+            var settingsService = scope.Resolve<ApplicationSettingsService>();
             var startupService = scope.Resolve<StartupService>();
 
             bool readSuccessful = settingsService.LoadSettings();
@@ -55,7 +57,7 @@ internal static class Program
             Task.Delay(1000);
             try
             {
-                FormMain frmMain = scope.Resolve<FormMain>();
+                var frmMain = scope.Resolve<FormMain>();
                 Application.Run(frmMain);
             }
             catch (Exception ex)

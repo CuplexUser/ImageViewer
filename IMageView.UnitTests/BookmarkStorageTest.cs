@@ -46,7 +46,7 @@ namespace ImageView.UnitTests
             ApplicationBuildConfig.SetOverrideUserDataPath(TestDataPath);
 
 
-            TestDataFactory factory = new TestDataFactory();
+            TestDataFactory factory = new TestDataFactory(testContext);
             var testData = factory.BuildTestImageList();
             _context.Properties.Add("TestImageRefList", testData);
         }
@@ -64,11 +64,11 @@ namespace ImageView.UnitTests
 
                 DirectoryInfo dirInfo = new DirectoryInfo(TestDataPath);
                 dirInfo.Delete(true);
-                Log.Information("Testdata directory successfully deleted");
+                Log.Information("Test data directory successfully deleted");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Fail testclass cleanup");
+                Log.Error(ex, "Fail test-class cleanup");
             }
         }
 

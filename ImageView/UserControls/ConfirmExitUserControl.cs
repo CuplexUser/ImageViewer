@@ -33,6 +33,9 @@ public partial class ConfirmExitUserControl : UserControl
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        if (ParentForm != null) ParentForm.DialogResult = DialogResult.Cancel;
+        if (ParentForm != null)
+        {
+            ParentForm.DialogResult = DialogResult.Cancel;
+        }
     }
 }

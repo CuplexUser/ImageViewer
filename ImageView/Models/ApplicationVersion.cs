@@ -14,7 +14,9 @@ public class ApplicationVersion : IComparable<ApplicationVersion>, IEquatable<Ap
     {
         string[] versionSegments = version.Split(".".ToCharArray());
         if (versionSegments.Length != 4)
+        {
             throw new ArgumentException();
+        }
 
         Major = int.Parse(versionSegments[0]);
         Minor = int.Parse(versionSegments[1]);
@@ -75,21 +77,49 @@ public class ApplicationVersion : IComparable<ApplicationVersion>, IEquatable<Ap
     /// </returns>
     public int CompareTo(ApplicationVersion other)
     {
-        if (ReferenceEquals(this, other)) return 0;
-        if (ReferenceEquals(null, other)) return 1;
+        if (ReferenceEquals(this, other))
+        {
+            return 0;
+        }
+
+        if (ReferenceEquals(null, other))
+        {
+            return 1;
+        }
+
         int majorComparison = Major.CompareTo(other.Major);
-        if (majorComparison != 0) return majorComparison;
+        if (majorComparison != 0)
+        {
+            return majorComparison;
+        }
+
         int minorComparison = Minor.CompareTo(other.Minor);
-        if (minorComparison != 0) return minorComparison;
+        if (minorComparison != 0)
+        {
+            return minorComparison;
+        }
+
         int buildComparison = Build.CompareTo(other.Build);
-        if (buildComparison != 0) return buildComparison;
+        if (buildComparison != 0)
+        {
+            return buildComparison;
+        }
+
         return Revistion.CompareTo(other.Revistion);
     }
 
     public bool Equals(ApplicationVersion other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
         return Major == other.Major && Minor == other.Minor && Build == other.Build && Revistion == other.Revistion;
     }
 
@@ -111,9 +141,21 @@ public class ApplicationVersion : IComparable<ApplicationVersion>, IEquatable<Ap
 
     public override bool Equals(object obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
+        if (ReferenceEquals(null, obj))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
         return Equals((ApplicationVersion)obj);
     }
 

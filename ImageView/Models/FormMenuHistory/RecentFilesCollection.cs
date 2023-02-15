@@ -30,7 +30,7 @@ public class RecentFilesCollection
         if (settings.RecentFilesCollection != null)
         {
             RecentFiles.Clear();
-            foreach (RecentFileModel file in settings.RecentFilesCollection.RecentFiles) RecentFiles.Add(file.Clone() as RecentFileModel);
+            foreach (var file in settings.RecentFilesCollection.RecentFiles) RecentFiles.Add(file.Clone() as RecentFileModel);
         }
     }
 
@@ -43,7 +43,9 @@ public class RecentFilesCollection
         set
         {
             if (value > _countMinMax.Max || value < _countMinMax.Min)
+            {
                 return;
+            }
 
             _maxNoItems = value;
         }
@@ -62,7 +64,10 @@ public class RecentFilesCollection
 
     public void AddRecentFile(RecentFileModel model)
     {
-        if (RecentFiles.Count >= MaxNoItems) RemoveOldestItem();
+        if (RecentFiles.Count >= MaxNoItems)
+        {
+            RemoveOldestItem();
+        }
 
         RecentFiles.Add(model);
     }
@@ -71,7 +76,7 @@ public class RecentFilesCollection
     {
         if (RecentFiles.Count > 0)
         {
-            RecentFileModel item = RecentFiles.OrderBy(x => x.CreatedDate).Last();
+            var item = RecentFiles.OrderBy(x => x.CreatedDate).Last();
             RecentFiles.Remove(item);
         }
     }

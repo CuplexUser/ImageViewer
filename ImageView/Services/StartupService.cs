@@ -1,5 +1,4 @@
-﻿using ImageViewer.Models;
-using ImageViewer.Models.UserInteraction;
+﻿using ImageViewer.Models.UserInteraction;
 
 namespace ImageViewer.Services;
 
@@ -25,23 +24,26 @@ public class StartupService : ServiceBase
     private async Task RunStartupJobsAsync()
     {
         var taskList = new List<Task>();
-        ApplicationSettingsModel settings = _applicationSettingsService.Settings;
+        var settings = _applicationSettingsService.Settings;
 
         if (settings.AutomaticUpdateCheck)
+        {
             if (settings.LastUpdateCheck.AddDays(1) < DateTime.Now)
             {
                 bool isLatestVersion = await _updateService.IsLatestVersion();
                 settings.LastUpdateCheck = DateTime.Now;
                 _applicationSettingsService.SaveSettings();
 
-                if (!isLatestVersion) taskList.Add(new Task(EnqueueUpdateRequest));
+                if (!isLatestVersion)
+                {
+                    taskList.Add(new Task(EnqueueUpdateRequest));
+                }
             }
+        }
 
         //taskList.Add(TestJob());
-        foreach (Task task in taskList)
-        {
+        foreach (var task in taskList)
             task.Start();
-        }
 
         await Task.WhenAll(taskList).ConfigureAwait(false);
     }
@@ -79,7 +81,8 @@ public class StartupService : ServiceBase
     private async Task<bool> TestJob()
     {
         await Task.Delay(5000);
-        _interactionService.InformUser(new UserInteractionInformation { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test" });
+        _interactionService.InformUser(new UserInteractionInformation
+            { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test" });
         return true;
     }
 }

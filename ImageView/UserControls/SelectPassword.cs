@@ -23,17 +23,26 @@ public partial class SelectPassword : UserControl
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
-        if (parentForm != null) parentForm.DialogResult = DialogResult.Cancel;
+        var parentForm = ParentForm;
+        if (parentForm != null)
+        {
+            parentForm.DialogResult = DialogResult.Cancel;
+        }
     }
 
     private void SetPassword()
     {
-        if (!VerifyPasswords()) return;
+        if (!VerifyPasswords())
+        {
+            return;
+        }
 
         SelectedPassword = txtPassword.Text;
-        Form parentForm = ParentForm;
-        if (parentForm != null) parentForm.DialogResult = DialogResult.OK;
+        var parentForm = ParentForm;
+        if (parentForm != null)
+        {
+            parentForm.DialogResult = DialogResult.OK;
+        }
     }
 
     private bool VerifyPasswords()
@@ -56,6 +65,9 @@ public partial class SelectPassword : UserControl
 
     private void txtPasswordConfirm_KeyUp(object sender, KeyEventArgs e)
     {
-        if (e.KeyCode == Keys.Enter) SetPassword();
+        if (e.KeyCode == Keys.Enter)
+        {
+            SetPassword();
+        }
     }
 }

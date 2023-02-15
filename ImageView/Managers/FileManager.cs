@@ -4,8 +4,6 @@ using GeneralToolkitLib.Converters;
 using ImageMagick;
 using ImageViewer.Models;
 using ImageViewer.Providers;
-using JetBrains.Annotations;
-using Serilog;
 
 namespace ImageViewer.Managers;
 
@@ -131,29 +129,33 @@ public class FileManager : ManagerBase, IDisposable
         try
         {
             if (File.Exists(tempFileName))
+            {
                 File.Delete(tempFileName);
+            }
 
             // Verify
             var deleteQueue = new Queue<ThumbnailEntryModel>();
-            foreach (ThumbnailEntryModel thumbnailEntry in thumbnailEntries)
-                if (thumbnailEntry.Length <= 0 || !File.Exists(thumbnailEntry.OriginalImageModel.CompletePath))
+            foreach (var thumbnailEntry in thumbnailEntries)
+                if (thumbnailEntry.FileSize <= 0 || !File.Exists(thumbnailEntry.OriginalImageModel.CompletePath))
+                {
                     deleteQueue.Enqueue(thumbnailEntry);
+                }
 
             while (deleteQueue.Count > 0)
                 thumbnailEntries.Remove(deleteQueue.Dequeue());
 
             temporaryDatabaseFile = File.OpenWrite(tempFileName);
-            foreach (ThumbnailEntryModel entry in thumbnailEntries)
+            foreach (var entry in thumbnailEntries)
             {
-                var buffer = new byte[entry.Length];
+                byte[] buffer = new byte[entry.FileSize];
                 lock (_fileOperationLock)
                 {
                     _fileStream.Position = entry.FilePosition;
-                    int bytesRead = _fileStream.Read(buffer, 0, entry.Length);
+                    int bytesRead = _fileStream.Read(buffer, 0, entry.FileSize);
                 }
 
                 entry.FilePosition = Convert.ToInt32(temporaryDatabaseFile.Position);
-                temporaryDatabaseFile.Write(buffer, 0, entry.Length);
+                temporaryDatabaseFile.Write(buffer, 0, entry.FileSize);
             }
 
 
@@ -212,12 +214,15 @@ public class FileManager : ManagerBase, IDisposable
     public bool HasAccessToDirectory(string directory)
     {
         if (_directoryAccessDictionary.ContainsKey(directory))
+        {
             return _directoryAccessDictionary[directory];
+        }
 
         string volume = GeneralConverters.GetVolumeLabelFromPath(directory);
         var drives = DriveInfo.GetDrives().ToList();
 
         if (drives.Any(d => d.IsReady && d.Name.Equals(volume, StringComparison.CurrentCultureIgnoreCase)))
+        {
             try
             {
                 var directoryInfo = new DirectoryInfo(directory);
@@ -229,6 +234,7 @@ public class FileManager : ManagerBase, IDisposable
             {
                 // ignored
             }
+        }
 
         _directoryAccessDictionary.Add(directory, false);
         return false;
@@ -243,7 +249,6 @@ public class FileManager : ManagerBase, IDisposable
     {
         return 0;
     }
-
 
 
     // Non direct call removed
@@ -270,7 +275,7 @@ public class FileManager : ManagerBase, IDisposable
 
     public Image LoadFromByteArray(byte[] readBytes)
     {
-        Image image = _imageProvider.LoadFromByteArray(readBytes);
+        var image = _imageProvider.LoadFromByteArray(readBytes);
         return image;
     }
 
@@ -278,12 +283,14 @@ public class FileManager : ManagerBase, IDisposable
     public RawImage CreateRawImageFromImage(Image image)
     {
         if (image == null)
+        {
             return null;
+        }
 
         RawImage rawImage;
         using (var ms = new MemoryStream())
         {
-            Bitmap bitmap = new Bitmap(image);
+            var bitmap = new Bitmap(image);
             bitmap.Save(ms, ImageFormat.Jpeg);
             ms.Flush();
             rawImage = new RawImage(ms.ToArray());

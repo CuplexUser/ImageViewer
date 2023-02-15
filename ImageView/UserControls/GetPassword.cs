@@ -11,17 +11,26 @@ public partial class GetPassword : UserControl
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-        if (!ValidatePassword(txtPassword.Text)) return;
+        if (!ValidatePassword(txtPassword.Text))
+        {
+            return;
+        }
 
         SelectedPassword = txtPassword.Text;
-        Form parentForm = ParentForm;
-        if (parentForm != null) parentForm.DialogResult = DialogResult.OK;
+        var parentForm = ParentForm;
+        if (parentForm != null)
+        {
+            parentForm.DialogResult = DialogResult.OK;
+        }
     }
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
-        if (parentForm != null) parentForm.DialogResult = DialogResult.Cancel;
+        var parentForm = ParentForm;
+        if (parentForm != null)
+        {
+            parentForm.DialogResult = DialogResult.Cancel;
+        }
     }
 
     private void txtPassword_KeyUp(object sender, KeyEventArgs e)
@@ -29,11 +38,17 @@ public partial class GetPassword : UserControl
         if (e.KeyData == Keys.Enter)
         {
             e.SuppressKeyPress = true;
-            if (!ValidatePassword(txtPassword.Text)) return;
+            if (!ValidatePassword(txtPassword.Text))
+            {
+                return;
+            }
 
             SelectedPassword = txtPassword.Text;
-            Form parentForm = ParentForm;
-            if (parentForm != null) parentForm.DialogResult = DialogResult.OK;
+            var parentForm = ParentForm;
+            if (parentForm != null)
+            {
+                parentForm.DialogResult = DialogResult.OK;
+            }
         }
     }
 

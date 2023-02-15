@@ -25,12 +25,14 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
         if (value is ImageViewFormImageInfo frmImageInfo)
         {
             if (!_imageWindowListItems.ContainsKey(frmImageInfo.FormReference))
+            {
                 _imageWindowListItems.Add(frmImageInfo.FormReference,
                     new ImageWindowListItem
                     {
                         Name = frmImageInfo.CurrentImageFileName,
                         Value = frmImageInfo.ImagesViewed.ToString()
                     });
+            }
 
             if (frmImageInfo.FormIsClosing)
             {
@@ -40,7 +42,7 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
                 return;
             }
 
-            ImageWindowListItem imageWindowListItem = _imageWindowListItems[frmImageInfo.FormReference];
+            var imageWindowListItem = _imageWindowListItems[frmImageInfo.FormReference];
             imageWindowListItem.Name = frmImageInfo.CurrentImageFileName ?? "Empty Window";
             imageWindowListItem.Value = _winCnt++.ToString();
             imageWindowListItem.WindowRef = frmImageInfo.FormReference;
@@ -50,11 +52,19 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
         }
         else
         {
-            if (!(value is ImageViewFormInfo frmStateInfo) || frmStateInfo.FormReference != _lastActiveImageViewForm) return;
+            if (!(value is ImageViewFormInfo frmStateInfo) || frmStateInfo.FormReference != _lastActiveImageViewForm)
+            {
+                return;
+            }
+
             if (frmStateInfo.FormHasFocus)
+            {
                 _lastActiveImageViewForm = null;
+            }
             else if (frmStateInfo.FormHasFocus)
+            {
                 _lastActiveImageViewForm = frmStateInfo.FormReference;
+            }
         }
     }
 
@@ -74,7 +84,7 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
 
     public void SubscribeToList(List<FormImageView> providers)
     {
-        foreach (FormImageView provider in providers)
+        foreach (var provider in providers)
             _formDisposables.Add(provider.Subscribe(this));
     }
 
@@ -85,7 +95,7 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
 
     private void Unsubscribe()
     {
-        foreach (IDisposable observableForm in _formDisposables)
+        foreach (var observableForm in _formDisposables)
             observableForm.Dispose();
     }
 
@@ -114,7 +124,7 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
     private void RenderWindowList()
     {
         listBoxActiveWindows.Items.Clear();
-        foreach (ImageWindowListItem listItem in _imageWindowListItems.Values)
+        foreach (var listItem in _imageWindowListItems.Values)
             listBoxActiveWindows.Items.Add(listItem);
     }
 
@@ -125,8 +135,8 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
 
     private void btnCascade_Click(object sender, EventArgs e)
     {
-        var x = 10;
-        var y = 8;
+        int x = 10;
+        int y = 8;
         foreach (object form in listBoxActiveWindows.SelectedItems)
             if (form is ImageWindowListItem imageWindowListItem)
             {
@@ -144,7 +154,7 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
     private void btnSideBySide_Click(object sender, EventArgs e)
     {
         var screenList = new List<Screen>(Screen.AllScreens).OrderBy(left => left.Bounds.Left).ToList();
-        Screen myScreen = screenList.First();
+        var myScreen = screenList.First();
 
         const int maxWindowsHorizontal = 3;
         const int maxWindowsVertical = 2;
@@ -176,7 +186,9 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
                     screenList.Remove(myScreen);
                     myScreen = screenList.FirstOrDefault();
                     if (myScreen == null)
+                    {
                         break;
+                    }
 
                     windowPosition = new Point(myScreen.WorkingArea.Left - 5, myScreen.WorkingArea.Top);
                 }
@@ -217,7 +229,9 @@ public partial class FormWindows : Form, IObserver<ImageViewFormInfoBase>
         _applicationSettingsService.Settings.ShowImageViewFormsInTaskBar = showInTaskbar;
         foreach (object form in listBoxActiveWindows.Items)
             if (form is ImageWindowListItem imageWindowListItem)
+            {
                 imageWindowListItem.WindowRef.ShowInTaskbar = showInTaskbar;
+            }
     }
 
     public void RestoreFocusOnPreviouslyActiveImageForm()

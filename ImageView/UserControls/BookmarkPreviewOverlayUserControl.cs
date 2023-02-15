@@ -38,6 +38,9 @@ public partial class BookmarkPreviewOverlayUserControl : UserControl
 
     private void BookmarkPreviewOverlayUserControl_Load(object sender, EventArgs e)
     {
-        if (!DesignMode) BookmarkPreviewContentPanel.Dock = DockStyle.Fill;
+        if (!DesignMode)
+        {
+            BookmarkPreviewContentPanel.Dock = DockStyle.Fill;
+        }
     }
 }

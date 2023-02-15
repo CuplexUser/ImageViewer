@@ -38,12 +38,18 @@ public partial class FormSetPassword : Form
     {
         errorMessage = null;
         if (txtPassword1.Text != txtPassword2.Text)
+        {
             errorMessage = "Passwords did not match!";
+        }
         else if (txtPassword1.Text.Length < 8)
+        {
             errorMessage = "Password needs to bee atleast 8 characters long";
+        }
         else if (!passwordPattern.IsMatch(txtPassword1.Text))
+        {
             errorMessage =
                 "Password did not mach the required complexity or did contain illegal characters like whitespaces.";
+        }
 
         return errorMessage == null;
     }

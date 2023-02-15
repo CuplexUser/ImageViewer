@@ -34,8 +34,6 @@ public sealed class ThumbnailService : ServiceBase
     /// </summary>
     private readonly ThumbnailRepository _thumbnailRepository;
 
-    private CancellationTokenSource _tokenSource;
-
     private readonly Size _thumbnailSize;
 
 
@@ -43,6 +41,8 @@ public sealed class ThumbnailService : ServiceBase
     ///     The abort scan
     /// </summary>
     private bool _abortScan;
+
+    private CancellationTokenSource _tokenSource;
 
 
     public ThumbnailService(FileManager fileManager, ThumbnailRepository thumbnailRepository, ImageCacheService cacheService, ImageProvider imageProvider)
@@ -98,7 +98,7 @@ public sealed class ThumbnailService : ServiceBase
                 _tokenSource = new CancellationTokenSource();
                 _tokenSource.Token.Register(CancelScanCallback);
             }
-            
+
 
             //int scannedFiles = dirList.TakeWhile(directory => !_abortScan).Sum(directory => PerformThumbnailScan(directory, progress));
             int totalFileCount = GetFileCount(dirList);
@@ -121,9 +121,10 @@ public sealed class ThumbnailService : ServiceBase
         int scannedFiles = 0;
 
         if (_abortScan)
+        {
             return Task.FromResult(scannedFiles);
+        }
 
-        
 
         foreach (string dir in dirList)
         {
@@ -138,12 +139,15 @@ public sealed class ThumbnailService : ServiceBase
                     img = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
 
                     if (progress != null && scannedFiles % 20 == 0)
+                    {
                         progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
+                    }
 
 
                     if (img == null)
+                    {
                         throw new InvalidDataException("GetOrCreateThumbnailImage() Returned image was null");
-
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -153,12 +157,13 @@ public sealed class ThumbnailService : ServiceBase
                 Interlocked.Increment(ref scannedFiles);
             }
 
-            ParallelLoopResult result = Parallel.ForEach(files, Body);
-
+            var result = Parallel.ForEach(files, Body);
         }
 
         if (progress != null)
+        {
             progress.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = totalFileCount, TotalAmountOfFiles = totalFileCount });
+        }
 
 
         return Task.FromResult(scannedFiles);
@@ -175,14 +180,12 @@ public sealed class ThumbnailService : ServiceBase
         var dirList = new List<string>();
         var dirInfo = new DirectoryInfo(path);
 
-        foreach (DirectoryInfo directory in dirInfo.EnumerateDirectories())
-        {
+        foreach (var directory in dirInfo.EnumerateDirectories())
             if ((directory.Attributes & FileAttributes.Hidden) == 0)
             {
                 dirList.Add(directory.Name);
                 dirList.AddRange(GetSubDirList(directory.FullName));
             }
-        }
 
         return dirList;
     }
@@ -216,7 +219,7 @@ public sealed class ThumbnailService : ServiceBase
 
     public async Task<bool> SaveThumbnailDatabase()
     {
-        var result = false;
+        bool result = false;
 
         if (ServiceState == ThumbnailServiceState.Idle)
         {
@@ -266,7 +269,10 @@ public sealed class ThumbnailService : ServiceBase
             {
                 ServiceState |= ThumbnailServiceState.SavingDatabase;
                 result = await SaveThumbnailDatabase();
-                if (!result) Log.Error("DoMaintenanceTask failed to save database");
+                if (!result)
+                {
+                    Log.Error("DoMaintenanceTask failed to save database");
+                }
 
                 ServiceState ^= ThumbnailServiceState.SavingDatabase;
             }

@@ -10,7 +10,9 @@ internal static class DelayOperation
     private static void CallBack(object state)
     {
         if (state is DelayedAction action)
+        {
             action.Execute();
+        }
     }
 
     private class DelayedAction

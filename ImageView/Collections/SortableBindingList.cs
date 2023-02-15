@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace ImageViewer.Collections;
 
@@ -59,7 +58,9 @@ public class SortableBindingList<T> : BindingList<T>
         string cacheKey = typeof(T).GUID + prop.Name + orderByMethodName;
 
         if (!cachedOrderByExpressions.ContainsKey(cacheKey))
+        {
             CreateOrderByMethod(prop, orderByMethodName, cacheKey);
+        }
 
         ResetItems(cachedOrderByExpressions[cacheKey](originalList).ToList());
         ResetBindings();
@@ -75,15 +76,15 @@ public class SortableBindingList<T> : BindingList<T>
          Cache it.
         */
 
-        ParameterExpression sourceParameter = Expression.Parameter(typeof(List<T>), "source");
-        ParameterExpression lambdaParameter = Expression.Parameter(typeof(T), "lambdaParameter");
-        PropertyInfo accesedMember = typeof(T).GetProperty(prop.Name);
+        var sourceParameter = Expression.Parameter(typeof(List<T>), "source");
+        var lambdaParameter = Expression.Parameter(typeof(T), "lambdaParameter");
+        var accesedMember = typeof(T).GetProperty(prop.Name);
         if (accesedMember != null)
         {
-            LambdaExpression propertySelectorLambda =
+            var propertySelectorLambda =
                 Expression.Lambda(Expression.MakeMemberAccess(lambdaParameter,
                     accesedMember), lambdaParameter);
-            MethodInfo orderByMethod = typeof(Enumerable)
+            var orderByMethod = typeof(Enumerable)
                 .GetMethods()
                 .Single(a => a.Name == orderByMethodName && a.GetParameters().Length == 2)
                 .MakeGenericMethod(typeof(T), prop.PropertyType);
@@ -110,7 +111,7 @@ public class SortableBindingList<T> : BindingList<T>
     {
         ClearItems();
 
-        for (var i = 0; i < items.Count; i++) InsertItem(i, items[i]);
+        for (int i = 0; i < items.Count; i++) InsertItem(i, items[i]);
     }
 
     protected override void OnListChanged(ListChangedEventArgs e)

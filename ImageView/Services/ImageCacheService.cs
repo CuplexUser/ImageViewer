@@ -23,7 +23,8 @@ public class ImageCacheService : ServiceBase
     private readonly ImageCacheRepository _imageCacheRepository;
     private readonly ImageProvider _imageProvider;
 
-    public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService, ImageProvider imageProvider)
+    public ImageCacheService(ApplicationSettingsService applicationSettingsService, ImageCacheRepository imageCacheRepository, ImageLoaderService imageLoaderService,
+        ImageProvider imageProvider)
     {
         _imageCacheRepository = imageCacheRepository;
         _imageProvider = imageProvider;
@@ -64,12 +65,18 @@ public class ImageCacheService : ServiceBase
 
     private void ApplicationSettingsService_OnSettingsLoaded(object sender, EventArgs e)
     {
-        if (sender is ApplicationSettingsService appSettingsService) CacheSize = appSettingsService.Settings.ImageCacheSize;
+        if (sender is ApplicationSettingsService appSettingsService)
+        {
+            CacheSize = appSettingsService.Settings.ImageCacheSize;
+        }
     }
 
     private void _applicationSettingsService_OnSettingsChanged(object sender, EventArgs e)
     {
-        if (sender is ApplicationSettingsService appSettingsService) CacheSize = appSettingsService.Settings.ImageCacheSize;
+        if (sender is ApplicationSettingsService appSettingsService)
+        {
+            CacheSize = appSettingsService.Settings.ImageCacheSize;
+        }
     }
 
     public CachedImage GetCachedImage(string fileName)
@@ -84,13 +91,14 @@ public class ImageCacheService : ServiceBase
     {
         lock (CacheLock)
         {
-            Image image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(_imageProvider.RestoreImageFromCache);
+            var image = _imageCacheRepository.GetImageFromCache(fileName).GetImage(_imageProvider.RestoreImageFromCache);
 
             // Exception was thrown and handled
             if (image == null)
             {
                 _imageCacheRepository.RemoveImageFromCache(fileName);
                 if (File.Exists(fileName))
+                {
                     try
                     {
                         image = Image.FromFile(fileName);
@@ -100,10 +108,11 @@ public class ImageCacheService : ServiceBase
                         Log.Error(ex, $"Fail loading the current image file {fileName}");
 
                         // To avoid program failure
-                        Bitmap bitmap = Resources.No_Camera_Image;
+                        var bitmap = Resources.No_Camera_Image;
                         var imageFootprint = new RectangleF(Point.Empty, new SizeF(bitmap.Width, bitmap.Height));
                         image = Resources.No_Camera_Image.Clone(imageFootprint, bitmap.PixelFormat);
                     }
+                }
             }
 
             return image;

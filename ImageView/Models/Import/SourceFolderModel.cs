@@ -18,7 +18,10 @@ public class SourceFolderModel : SourceCollectionBase
         Id = Guid.NewGuid().ToString();
         FullPath = fullPath;
 
-        if (string.IsNullOrEmpty(FullPath)) throw new ArgumentException("fullPath canot be Null");
+        if (string.IsNullOrEmpty(FullPath))
+        {
+            throw new ArgumentException("fullPath canot be Null");
+        }
     }
 
     [UsedImplicitly]

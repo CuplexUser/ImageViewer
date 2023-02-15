@@ -8,9 +8,10 @@ public class FormStateManager
     public static bool RestoreFormState(ApplicationSettingsModel settings, Form form)
     {
         if (settings.FormStateModels.ContainsKey(form.Name))
+        {
             try
             {
-                FormStateModel model = settings.FormStateModels[form.Name];
+                var model = settings.FormStateModels[form.Name];
 
                 //Validate FormStateModel
                 if (!ValidateFormStateModel(model))
@@ -27,7 +28,10 @@ public class FormStateManager
                         FormPosition = new Point()
                     };
 
-                    if (model.FormSize.IsEmpty) model.FormSize = form.MinimumSize;
+                    if (model.FormSize.IsEmpty)
+                    {
+                        model.FormSize = form.MinimumSize;
+                    }
 
                     //model.FormPosition = GetOffsetCenterPointInRect(Screen.PrimaryScreen.Bounds, form.Size);
                     settings.FormStateModels.Add(form.Name, model);
@@ -42,13 +46,17 @@ public class FormStateManager
             {
                 Log.Error(exception, "RestoreFormState Exception");
             }
+        }
 
         return false;
     }
 
     public static Dictionary<string, string> GetAdditionalParameters(ApplicationSettingsModel settings, Form form)
     {
-        if (settings.FormStateModels.ContainsKey(form.Name)) return settings.FormStateModels[form.Name].AdditionalParameters;
+        if (settings.FormStateModels.ContainsKey(form.Name))
+        {
+            return settings.FormStateModels[form.Name].AdditionalParameters;
+        }
 
         return null;
     }
@@ -66,13 +74,21 @@ public class FormStateManager
             else
             {
                 if (parameters == null)
+                {
                     parameters = additionalParameters;
+                }
                 else
+                {
                     foreach (string key in additionalParameters.Keys)
                         if (parameters.ContainsKey(key))
+                        {
                             parameters[key] = additionalParameters[key];
+                        }
                         else
+                        {
                             parameters.Add(key, additionalParameters[key]);
+                        }
+                }
             }
 
             settings.FormStateModels[form.Name].AdditionalParameters = parameters;

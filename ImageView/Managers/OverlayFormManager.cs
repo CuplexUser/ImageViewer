@@ -33,7 +33,10 @@ public class OverlayFormManager : IDisposable
         get => _showImageDelay;
         set
         {
-            if (value >= 0) _showImageDelay = value;
+            if (value >= 0)
+            {
+                _showImageDelay = value;
+            }
         }
     }
 
@@ -42,7 +45,10 @@ public class OverlayFormManager : IDisposable
         get => _hideImageDelay;
         set
         {
-            if (value >= 0) _hideImageDelay = value;
+            if (value >= 0)
+            {
+                _hideImageDelay = value;
+            }
         }
     }
 
@@ -57,13 +63,16 @@ public class OverlayFormManager : IDisposable
     {
         lock (LockObject)
         {
-            if (_imageSourceState.IsAwaitingDelay) return;
+            if (_imageSourceState.IsAwaitingDelay)
+            {
+                return;
+            }
         }
 
         Task.Factory.StartNew(async () =>
         {
             _imageSourceState.IsAwaitingDelay = true;
-            var isMoving = true;
+            bool isMoving = true;
 
             while (isMoving)
             {
@@ -72,7 +81,10 @@ public class OverlayFormManager : IDisposable
             }
 
             _imageSourceState.IsAwaitingDelay = false;
-            if (_imageSourceState.LastShownImagePath != _imageSourceState.ImagePath) LoadImageAndDisplayForm(_imageSourceState.ImagePath, _imageSourceState.MousePoint, true);
+            if (_imageSourceState.LastShownImagePath != _imageSourceState.ImagePath)
+            {
+                LoadImageAndDisplayForm(_imageSourceState.ImagePath, _imageSourceState.MousePoint, true);
+            }
         });
     }
 
@@ -91,22 +103,29 @@ public class OverlayFormManager : IDisposable
         //Maximize display area
         if (Screen.PrimaryScreen != null)
         {
-            Rectangle screenBounds = Screen.PrimaryScreen.Bounds;
-            if (!_overlayUserControl.LoadImage(imagePath)) return;
+            var screenBounds = Screen.PrimaryScreen.Bounds;
+            if (!_overlayUserControl.LoadImage(imagePath))
+            {
+                return;
+            }
 
 
             _imageSourceState.LastShownImagePath = imagePath;
-            Size imageSize = _overlayUserControl.GetImageSize();
+            var imageSize = _overlayUserControl.GetImageSize();
 
-            var maxWidth = Convert.ToInt32(screenBounds.Width / 1.3d);
-            var maxHeight = Convert.ToInt32(screenBounds.Height / 1.2d);
+            int maxWidth = Convert.ToInt32(screenBounds.Width / 1.3d);
+            int maxHeight = Convert.ToInt32(screenBounds.Height / 1.2d);
 
             double ratio = imageSize.Width / (double)imageSize.Height;
 
             if (ratio < 1)
+            {
                 maxWidth = imageSize.Height > maxHeight ? imageSize.Width : Convert.ToInt32(maxHeight * ratio);
+            }
             else
+            {
                 maxWidth = imageSize.Height > maxHeight ? Convert.ToInt32(maxWidth / ratio) : Convert.ToInt32(maxHeight * ratio);
+            }
 
             var formRectangle = new Rectangle(0, 0, maxWidth, maxHeight);
 

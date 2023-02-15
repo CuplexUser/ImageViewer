@@ -43,7 +43,9 @@ public class TreeViewGenericDataContext<T> where T : class, IExpandableNode
     public void ExpandNode(T folderToExpand)
     {
         if (folderToExpand == null)
+        {
             return;
+        }
 
         BindData();
         ExpandNode(_treeView.Nodes, folderToExpand);
@@ -61,7 +63,9 @@ public class TreeViewGenericDataContext<T> where T : class, IExpandableNode
             }
 
             if (treeNode.Nodes.Count > 0)
+            {
                 ExpandNode(treeNode.Nodes, rootFolder);
+            }
         }
     }
 
@@ -77,14 +81,16 @@ public class TreeViewGenericDataContext<T> where T : class, IExpandableNode
     {
         var treeNodeList = new List<TreeNode>();
 
-        foreach (IExpandableNode folderNode in rootFolder.GetChildNodes().OrderBy(x => x.SortOrder))
+        foreach (var folderNode in rootFolder.GetChildNodes().OrderBy(x => x.SortOrder))
         {
             var folder = (T)folderNode;
             var treeView = new TreeNode(folder.Name) { Tag = folder };
             treeNodeList.Add(treeView);
 
             if (folder.GetChildNodes() != null && folder.GetChildNodes().Any())
+            {
                 treeView.Nodes.AddRange(RecursiveAddTreeNodes(folder).ToArray());
+            }
         }
 
 

@@ -7,16 +7,19 @@ public static class AutofacConfig
     public static IContainer CreateContainer()
     {
         var builder = new ContainerBuilder();
-        Assembly thisAssembly = GetMainAssembly();
+        var thisAssembly = GetMainAssembly();
 
 
         var coreAssemblies = new Assembly[2];
-        Assembly generalToolKitAssembly = AssemblyHelper.GetAssembly();
+        var generalToolKitAssembly = AssemblyHelper.GetAssembly();
 
         coreAssemblies[0] = thisAssembly;
         coreAssemblies[1] = generalToolKitAssembly;
 
-        if (generalToolKitAssembly != null) builder.RegisterAssemblyModules(generalToolKitAssembly);
+        if (generalToolKitAssembly != null)
+        {
+            builder.RegisterAssemblyModules(generalToolKitAssembly);
+        }
 
         builder.RegisterAssemblyModules(thisAssembly);
         var container = builder.Build();

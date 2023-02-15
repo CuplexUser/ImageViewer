@@ -30,8 +30,8 @@ namespace ImageViewer
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
         private readonly PictureBox _pictureBoxAnimation = new();
-        private readonly ThumbnailService _thumbnailService;
         private readonly ILifetimeScope _scope;
+        private readonly ThumbnailService _thumbnailService;
         private readonly WindowStateModel _windowState;
         private readonly string _windowTitle;
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
@@ -46,7 +46,8 @@ namespace ImageViewer
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
 
-        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService, ImageCacheService imageCacheService,
+        public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService,
+            ImageCacheService imageCacheService,
             ImageLoaderService imageLoaderService,
             ILifetimeScope scope, UserInteractionService interactionService, FormManager formManager, ThumbnailService thumbnailService)
         {
@@ -73,7 +74,9 @@ namespace ImageViewer
 
         private void DisplaySlideshowStatus()
         {
-            string tooltipText = timerSlideShow.Enabled ? $"Slideshow started with a delay of {_applicationSettingsService.Settings.SlideshowInterval / 1000} seconds per image." : "Slideshow stopped";
+            string tooltipText = timerSlideShow.Enabled
+                ? $"Slideshow started with a delay of {_applicationSettingsService.Settings.SlideshowInterval / 1000} seconds per image."
+                : "Slideshow stopped";
 
             toolTipSlideshowState.Active = true;
             toolTipSlideshowState.InitialDelay = 150;
@@ -436,10 +439,7 @@ namespace ImageViewer
 
         private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Task.Factory.StartNew(async () =>
-            {
-                await _thumbnailService.SaveThumbnailDatabase();
-            }).Wait();
+            Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
@@ -762,7 +762,8 @@ namespace ImageViewer
 
             string currentFilePath = _imageReferenceCollection.CurrentImage.CompletePath;
 
-            var result = MessageBox.Show($@"Are you sure you want to delete the current image? Image path: {currentFilePath} ", @"Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show($@"Are you sure you want to delete the current image? Image path: {currentFilePath} ", @"Confirm delete", MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
@@ -926,7 +927,8 @@ namespace ImageViewer
                 {
                     MessageBox.Show(@"This is the latest version available", @"Update check", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                else if (MessageBox.Show(@"There is a newer version available, do you want to update?", @"Update", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                else if (MessageBox.Show(@"There is a newer version available, do you want to update?", @"Update", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) ==
+                         DialogResult.OK)
                 {
                     await updateService.DownloadAndRunLatestVersionInstaller();
                 }

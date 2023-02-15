@@ -27,17 +27,29 @@ public partial class RenameBookmarkFolder : UserControl
 
     private void btnOk_Click(object sender, EventArgs e)
     {
-        if (!ValidateName()) return;
-        Form parentForm = ParentForm;
-        if (parentForm == null) return;
+        if (!ValidateName())
+        {
+            return;
+        }
+
+        var parentForm = ParentForm;
+        if (parentForm == null)
+        {
+            return;
+        }
+
         parentForm.DialogResult = DialogResult.OK;
         parentForm.Close();
     }
 
     private void btnCancel_Click(object sender, EventArgs e)
     {
-        Form parentForm = ParentForm;
-        if (parentForm == null) return;
+        var parentForm = ParentForm;
+        if (parentForm == null)
+        {
+            return;
+        }
+
         parentForm.DialogResult = DialogResult.Cancel;
         parentForm?.Close();
     }

@@ -17,9 +17,14 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
         ProductName = productName.Replace(" ", "");
 
         if (string.IsNullOrWhiteSpace(companyName))
+        {
             throw new ArgumentException(@"Invalid argument. CompanyName cant be null or whitespace.", nameof(companyName));
+        }
+
         if (string.IsNullOrWhiteSpace(productName))
+        {
             throw new ArgumentException(@"Invalid argument. productName cant be null or whitespace.", nameof(productName));
+        }
 
         SubKey = "SOFTWARE\\" + CompanyName.Trim() + "\\" + ProductName.Trim();
         _localStorageFilePath = Path.Combine(ApplicationBuildConfig.UserDataPath, "localRegStorage.dat");
@@ -71,9 +76,13 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
         string key = objToSave.GetType().Name;
 
         if (_storageDictionary.ContainsKey(key))
+        {
             _storageDictionary[key] = objToSave;
+        }
         else
+        {
             _storageDictionary.Add(key, objToSave);
+        }
 
         ModelUpdated();
     }
@@ -131,6 +140,7 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
     private bool LoadLocalDatabase()
     {
         if (File.Exists(_localStorageFilePath))
+        {
             try
             {
                 var settings = new StorageManagerSettings(false, Environment.ProcessorCount, true, LocalStoragePassword);
@@ -142,8 +152,11 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
             {
                 Log.Error(ex, "Exception when trying to deserialize LocalStorageRegistryAccess.dbfile");
             }
+        }
         else
+        {
             _storageDictionary = new Dictionary<string, object>();
+        }
 
 
         return false;
@@ -151,9 +164,15 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
 
     private bool SaveLocalDatabase()
     {
-        if (_storageDictionary == null || !IsDirty) return false;
+        if (_storageDictionary == null || !IsDirty)
+        {
+            return false;
+        }
 
-        if (File.Exists(_localStorageFilePath)) File.Delete(_localStorageFilePath);
+        if (File.Exists(_localStorageFilePath))
+        {
+            File.Delete(_localStorageFilePath);
+        }
 
         try
         {
@@ -161,7 +180,10 @@ public class LocalStorageRegistryAccess : FileBasedPropertyCollection, IRegistry
             var storageManager = new StorageManager(settings);
             bool res = storageManager.SerializeObjectToFile(_storageDictionary, _localStorageFilePath, null);
 
-            if (!res) Log.Warning("Failed to serialize and save local reg dbfile");
+            if (!res)
+            {
+                Log.Warning("Failed to serialize and save local reg dbfile");
+            }
 
             return res;
         }
