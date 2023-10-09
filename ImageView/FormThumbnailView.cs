@@ -3,7 +3,6 @@ using System.Threading;
 using ImageViewer.Delegates;
 using ImageViewer.Managers;
 using ImageViewer.Models;
-using ImageViewer.Properties;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
@@ -42,12 +41,12 @@ public partial class FormThumbnailView : Form, IDisposable
 
         if (applicationSettings == null)
         {
-            throw new NullReferenceException(Resources.AppApplicationSettingsServiceNull);
+            throw new NullReferenceException(Resources.Language.AppApplicationSettingsServiceNull);
         }
 
         if (_thumbnailService == null)
         {
-            throw new NullReferenceException(Resources.ThumbnailServiceNull);
+            throw new NullReferenceException(Resources.Language.ThumbnailServiceNull);
         }
 
         _eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
@@ -179,7 +178,7 @@ public partial class FormThumbnailView : Form, IDisposable
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.Message, Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, ex.Message, Resources.Language.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             Log.Error(ex, "Error in generate thumbnails");
         }
         finally
@@ -470,7 +469,7 @@ public partial class FormThumbnailView : Form, IDisposable
     {
         if (!ApplicationIOHelper.OpenImageInDefaultAplication(_maximizedImgFilename))
         {
-            MessageBox.Show($"Failed to open file: {_maximizedImgFilename}", Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Failed to open file: {_maximizedImgFilename}", Resources.Language.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

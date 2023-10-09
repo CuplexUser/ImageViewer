@@ -6,332 +6,340 @@ using ImageViewer.Models.FormMenuHistory;
 namespace ImageViewer.Models;
 
 /// <summary>
-///     ApplicationSettingsModel
+/// ApplicationSettingsModel
 /// </summary>
 public class ApplicationSettingsModel
 {
     /// <summary>
-    ///     ChangeImageAnimation
+    /// ChangeImageAnimation
     /// </summary>
     public enum ChangeImageAnimation
     {
         /// <summary>
-        ///     The none
+        /// The none
         /// </summary>
         None = 0,
 
         /// <summary>
-        ///     The slide left
+        /// The slide left
         /// </summary>
         SlideLeft = 1,
 
         /// <summary>
-        ///     The slide right
+        /// The slide right
         /// </summary>
         SlideRight = 2,
 
         /// <summary>
-        ///     The slide down
+        /// The slide down
         /// </summary>
         SlideDown = 3,
 
         /// <summary>
-        ///     The slide up
+        /// The slide up
         /// </summary>
         SlideUp = 4,
 
         /// <summary>
-        ///     The fade in
+        /// The fade in
         /// </summary>
         FadeIn = 5
     }
 
     /// <summary>
-    ///     WindowDockProximity
+    /// WindowDockProximity
     /// </summary>
     public enum WindowDockProximity
     {
         /// <summary>
-        ///     The near
+        /// The near
         /// </summary>
         Near = 1,
 
         /// <summary>
-        ///     The normal
+        /// The normal
         /// </summary>
         Normal = 2,
 
         /// <summary>
-        ///     The far
+        /// The far
         /// </summary>
         Far = 3
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show image view forms in task bar].
+    /// Gets or sets a value indicating whether [show image view forms in task bar].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show image view forms in task bar]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show image view forms in task bar]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowImageViewFormsInTaskBar { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [always ontop].
+    /// Gets or sets a value indicating whether [always ontop].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [always ontop]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [always ontop]; otherwise, <c>false</c>.
     /// </value>
     public bool AlwaysOntop { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic randomize collection].
+    /// Gets or sets a value indicating whether [automatic randomize collection].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic randomize collection]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic randomize collection]; otherwise, <c>false</c>.
     /// </value>
     public bool AutoRandomizeCollection { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last used search paths.
+    /// Gets or sets the last used search paths.
     /// </summary>
     /// <value>
-    ///     The last used search paths.
+    /// The last used search paths.
     /// </value>
     public List<string> LastUsedSearchPaths { get; set; }
 
     /// <summary>
-    ///     Gets or sets the next image animation.
+    /// Gets or sets the next image animation.
     /// </summary>
     /// <value>
-    ///     The next image animation.
+    /// The next image animation.
     /// </value>
     public ChangeImageAnimation NextImageAnimation { get; set; }
 
     /// <summary>
-    ///     Gets or sets the slideshow interval.
+    /// Gets or sets the slideshow interval.
     /// </summary>
     /// <value>
-    ///     The slideshow interval.
+    /// The slideshow interval.
     /// </value>
     public int SlideshowInterval { get; set; }
 
     /// <summary>
-    ///     Gets or sets the image transition time.
+    /// Gets or sets the image transition time.
     /// </summary>
     /// <value>
-    ///     The image transition time.
+    /// The image transition time.
     /// </value>
     public int ImageTransitionTime { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [enable automatic load function from menu].
+    /// Gets or sets a value indicating whether [enable automatic load function from menu].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [enable automatic load function from menu]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [enable automatic load function from menu]; otherwise, <c>false</c>.
     /// </value>
     public bool EnableAutoLoadFunctionFromMenu { get; set; }
 
     /// <summary>
-    ///     Gets or sets the primary image size mode.
+    /// Gets or sets the primary image size mode.
     /// </summary>
     /// <value>
-    ///     The primary image size mode.
+    /// The primary image size mode.
     /// </value>
     public int PrimaryImageSizeMode { get; set; }
 
     /// <summary>
-    ///     Gets or sets the screen minimum x offset.
+    /// Gets or sets the screen minimum x offset.
     /// </summary>
     /// <value>
-    ///     The screen minimum x offset.
+    /// The screen minimum x offset.
     /// </value>
     public int ScreenMinXOffset { get; set; }
 
     /// <summary>
-    ///     Gets or sets the screen width offset.
+    /// Gets or sets the screen width offset.
     /// </summary>
     /// <value>
-    ///     The screen width offset.
+    /// The screen width offset.
     /// </value>
     public int ScreenWidthOffset { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [password protect bookmarks].
+    /// Gets or sets a value indicating whether [password protect bookmarks].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [password protect bookmarks]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [password protect bookmarks]; otherwise, <c>false</c>.
     /// </value>
     public bool PasswordProtectBookmarks { get; set; }
 
     /// <summary>
-    ///     Gets or sets the password derived string.
+    /// Gets or sets the password derived string.
     /// </summary>
     /// <value>
-    ///     The password derived string.
+    /// The password derived string.
     /// </value>
     public string PasswordDerivedString { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show switch image buttons].
+    /// Gets or sets a value indicating whether [show switch image buttons].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowSwitchImageButtons { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last folder location.
+    /// Gets or sets the last folder location.
     /// </summary>
     /// <value>
-    ///     The last folder location.
+    /// The last folder location.
     /// </value>
     public string LastFolderLocation { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show next previous controls on enter window].
+    /// Gets or sets a value indicating whether [show next previous controls on enter window].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
     /// </value>
     public bool ShowNextPrevControlsOnEnterWindow { get; set; }
 
     /// <summary>
-    ///     Gets or sets the size of the image cache.
+    /// Gets or sets the size of the image cache.
     /// </summary>
     /// <value>
-    ///     The size of the image cache.
+    /// The size of the image cache.
     /// </value>
     [Range(typeof(long), "16777216", "268435456", ErrorMessage = "Value for {0} must be between {1} and {2}")]
     public long ImageCacheSize { get; set; }
 
     /// <summary>
-    ///     Gets or sets the default key.
+    /// Gets or sets the default key.
     /// </summary>
     /// <value>
-    ///     The default key.
+    /// The default key.
     /// </value>
     public string DefaultKey { get; set; }
 
     /// <summary>
-    ///     Gets or sets the size of the thumbnail.
+    /// Gets or sets the size of the thumbnail.
     /// </summary>
     /// <value>
-    ///     The size of the thumbnail.
+    /// The size of the thumbnail.
     /// </value>
     public int ThumbnailSize { get; set; }
 
     /// <summary>
-    ///     Gets or sets the maximum thumbnails.
+    /// Gets or sets the maximum thumbnails.
     /// </summary>
     /// <value>
-    ///     The maximum thumbnails.
+    /// The maximum thumbnails.
     /// </value>
     public int MaxThumbnails { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [confirm application shutdown].
+    /// Gets or sets a value indicating whether [confirm application shutdown].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
     /// </value>
     public bool ConfirmApplicationShutdown { get; set; }
 
     /// <summary>
-    ///     Gets or sets the color of the main window background.
+    /// Gets or sets the color of the main window background.
     /// </summary>
     /// <value>
-    ///     The color of the main window background.
+    /// The color of the main window background.
     /// </value>
     public Color MainWindowBackgroundColor { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic update check].
+    /// Gets or sets a value indicating whether [automatic update check].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
     /// </value>
     public bool AutomaticUpdateCheck { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last update check.
+    /// Gets or sets the last update check.
     /// </summary>
     /// <value>
-    ///     The last update check.
+    /// The last update check.
     /// </value>
     public DateTime LastUpdateCheck { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [toggle slideshow with third mouse button].
+    /// Gets or sets a value indicating whether [toggle slideshow with third mouse button].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
     /// </value>
     public bool ToggleSlideshowWithThirdMouseButton { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic hide cursor].
+    /// Gets or sets a value indicating whether [automatic hide cursor].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
     /// </value>
     public bool AutoHideCursor { get; set; }
 
 
     /// <summary>
-    ///     Gets or sets the automatic hide cursor delay.
+    /// Gets or sets the automatic hide cursor delay.
     /// </summary>
     /// <value>
-    ///     The automatic hide cursor delay.
+    /// The automatic hide cursor delay.
     /// </value>
     [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue,
         "AutoHideCursorDelay Validation failed because value is out of range.")]
     public int AutoHideCursorDelay { get; set; }
 
     /// <summary>
-    ///     Gets or sets the form state models.
+    /// Gets or sets the form state models.
     /// </summary>
     /// <value>
-    ///     The form state models.
+    /// The form state models.
     /// </value>
     public IDictionary<string, FormStateModel> FormStateModels { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [bookmarks show overlay window].
+    /// Gets or sets a value indicating whether [bookmarks show overlay window].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
     /// </value>
     public bool BookmarksShowOverlayWindow { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [bookmarks show maximized image area].
+    /// Gets or sets a value indicating whether [bookmarks show maximized image area].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
     /// </value>
     public bool BookmarksShowMaximizedImageArea { get; set; }
 
     /// <summary>
-    ///     Gets or sets the application settings UUID.
+    /// Gets or sets the application settings UUID.
     /// </summary>
     /// <value>
-    ///     The application settings UUID.
+    /// The application settings UUID.
     /// </value>
     public Guid AppSettingsGuid { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether this instance is loaded from disk.
+    /// Gets or sets a value indicating whether this instance is loaded from disk.
     /// </summary>
     /// <value>
-    ///     <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
+    ///   <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
     /// </value>
     public bool IsLoadedFromDisk { get; set; }
 
     /// <summary>
-    ///     Gets or sets the recent files.
+    /// Gets or sets a value indicating whether [use recycle bin].
     /// </summary>
     /// <value>
-    ///     The recent files.
+    ///   <c>true</c> if [use recycle bin]; otherwise, <c>false</c>.
+    /// </value>
+    public bool UseRecycleBin { get; set; }
+
+    /// <summary>
+    /// Gets or sets the recent files.
+    /// </summary>
+    /// <value>
+    /// The recent files.
     /// </value>
     public RecentFilesCollection RecentFilesCollection { get; set; }
 }

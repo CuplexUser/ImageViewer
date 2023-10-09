@@ -5,330 +5,330 @@ using ImageViewer.Library.Extensions;
 namespace ImageViewer.DataContracts;
 
 /// <summary>
-///     All Application settings
+/// All Application settings
 /// </summary>
 [Serializable]
 [DataContract(Name = "ApplicationSettingsDataModel")]
 public class ApplicationSettingsDataModel
 {
     /// <summary>
-    ///     ChangeImageAnimation
+    /// ChangeImageAnimation
     /// </summary>
     public enum ChangeImageAnimation
     {
         /// <summary>
-        ///     The none
+        /// The none
         /// </summary>
         None = 0,
 
         /// <summary>
-        ///     The slide left
+        /// The slide left
         /// </summary>
         SlideLeft = 1,
 
         /// <summary>
-        ///     The slide right
+        /// The slide right
         /// </summary>
         SlideRight = 2,
 
         /// <summary>
-        ///     The slide down
+        /// The slide down
         /// </summary>
         SlideDown = 3,
 
         /// <summary>
-        ///     The slide up
+        /// The slide up
         /// </summary>
         SlideUp = 4,
 
         /// <summary>
-        ///     The fade in
+        /// The fade in
         /// </summary>
         FadeIn = 5
     }
 
     /// <summary>
-    ///     WindowDockProximity
+    /// WindowDockProximity
     /// </summary>
     public enum WindowDockProximity
     {
         /// <summary>
-        ///     The near
+        /// The near
         /// </summary>
         Near = 1,
 
         /// <summary>
-        ///     The normal
+        /// The normal
         /// </summary>
         Normal = 2,
 
         /// <summary>
-        ///     The far
+        /// The far
         /// </summary>
         Far = 3
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show image view forms in task bar].
+    /// Gets or sets a value indicating whether [show image view forms in task bar].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show image view forms in task bar]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show image view forms in task bar]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "ShowImageViewFormsInTaskBar", Order = 1)]
     public bool ShowImageViewFormsInTaskBar { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [always ontop].
+    /// Gets or sets a value indicating whether [always ontop].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [always ontop]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [always ontop]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "AlwaysOntop", Order = 2)]
     public bool AlwaysOntop { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic randomize collection].
+    /// Gets or sets a value indicating whether [automatic randomize collection].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic randomize collection]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic randomize collection]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "AutoRandomizeCollection", Order = 3)]
     public bool AutoRandomizeCollection { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last used search paths.
+    /// Gets or sets the last used search paths.
     /// </summary>
     /// <value>
-    ///     The last used search paths.
+    /// The last used search paths.
     /// </value>
     [DataMember(Name = "LastUsedSearchPaths", Order = 4)]
     public List<string> LastUsedSearchPaths { get; set; }
 
     /// <summary>
-    ///     Gets or sets the next image animation.
+    /// Gets or sets the next image animation.
     /// </summary>
     /// <value>
-    ///     The next image animation.
+    /// The next image animation.
     /// </value>
     [DataMember(Name = "NextImageAnimation", Order = 5)]
     public ChangeImageAnimation NextImageAnimation { get; set; }
 
     /// <summary>
-    ///     Gets or sets the slideshow interval.
+    /// Gets or sets the slideshow interval.
     /// </summary>
     /// <value>
-    ///     The slideshow interval.
+    /// The slideshow interval.
     /// </value>
     [DataMember(Name = "SlideshowInterval", Order = 6)]
     public int SlideshowInterval { get; set; }
 
     /// <summary>
-    ///     Gets or sets the image transition time.
+    /// Gets or sets the image transition time.
     /// </summary>
     /// <value>
-    ///     The image transition time.
+    /// The image transition time.
     /// </value>
     [DataMember(Name = "ImageTransitionTime", Order = 7)]
     public int ImageTransitionTime { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [enable automatic load function from menu].
+    /// Gets or sets a value indicating whether [enable automatic load function from menu].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [enable automatic load function from menu]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [enable automatic load function from menu]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "EnableAutoLoadFunctionFromMenu", Order = 8)]
     public bool EnableAutoLoadFunctionFromMenu { get; set; }
 
     /// <summary>
-    ///     Gets or sets the window docking proximity.
+    /// Gets or sets the window docking proximity.
     /// </summary>
     /// <value>
-    ///     The window docking proximity.
+    /// The window docking proximity.
     /// </value>
     [DataMember(Name = "WindowDockingProximity", Order = 10)]
     public WindowDockProximity WindowDockingProximity { get; set; }
 
     /// <summary>
-    ///     Gets or sets the primary image size mode.
+    /// Gets or sets the primary image size mode.
     /// </summary>
     /// <value>
-    ///     The primary image size mode.
+    /// The primary image size mode.
     /// </value>
     [DataMember(Name = "PrimaryImageSizeMode", Order = 11)]
     public int PrimaryImageSizeMode { get; set; }
 
     /// <summary>
-    ///     Gets or sets the screen minimum x offset.
+    /// Gets or sets the screen minimum x offset.
     /// </summary>
     /// <value>
-    ///     The screen minimum x offset.
+    /// The screen minimum x offset.
     /// </value>
     [DataMember(Name = "ScreenMinXOffset", Order = 12)]
     public int ScreenMinXOffset { get; set; }
 
     /// <summary>
-    ///     Gets or sets the screen width offset.
+    /// Gets or sets the screen width offset.
     /// </summary>
     /// <value>
-    ///     The screen width offset.
+    /// The screen width offset.
     /// </value>
     [DataMember(Name = "ScreenWidthOffset", Order = 13)]
     public int ScreenWidthOffset { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [password protect bookmarks].
+    /// Gets or sets a value indicating whether [password protect bookmarks].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [password protect bookmarks]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [password protect bookmarks]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "PasswordProtectBookmarks", Order = 14)]
     public bool PasswordProtectBookmarks { get; protected set; }
 
     /// <summary>
-    ///     Gets or sets the password derived string.
+    /// Gets or sets the password derived string.
     /// </summary>
     /// <value>
-    ///     The password derived string.
+    /// The password derived string.
     /// </value>
     [DataMember(Name = "PasswordDerivedString", Order = 15)]
     public string PasswordDerivedString { get; protected set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [use saved main form position].
+    /// Gets or sets a value indicating whether [use saved main form position].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [use saved main form position]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [use saved main form position]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "UseSavedMainFormPosition", Order = 18)]
     public bool UseSavedMainFormPosition { get; protected set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show switch image buttons].
+    /// Gets or sets a value indicating whether [show switch image buttons].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show switch image buttons]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "ShowSwitchImageButtons", Order = 19)]
     public bool ShowSwitchImageButtons { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last folder location.
+    /// Gets or sets the last folder location.
     /// </summary>
     /// <value>
-    ///     The last folder location.
+    /// The last folder location.
     /// </value>
     [DataMember(Name = "LastFolderLocation", Order = 20)]
     public string LastFolderLocation { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [show next previous controls on enter window].
+    /// Gets or sets a value indicating whether [show next previous controls on enter window].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [show next previous controls on enter window]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "ShowNextPrevControlsOnEnterWindow", Order = 21)]
     public bool ShowNextPrevControlsOnEnterWindow { get; set; }
 
     /// <summary>
-    ///     Gets or sets the size of the image cache.
+    /// Gets or sets the size of the image cache.
     /// </summary>
     /// <value>
-    ///     The size of the image cache.
+    /// The size of the image cache.
     /// </value>
     [DataMember(Name = "ImageCacheSize", Order = 22)]
     public long ImageCacheSize { get; set; }
 
     /// <summary>
-    ///     Gets or sets the default key.
+    /// Gets or sets the default key.
     /// </summary>
     /// <value>
-    ///     The default key.
+    /// The default key.
     /// </value>
     [DataMember(Name = "DefaultKey", Order = 23)]
     public string DefaultKey { get; set; }
 
     /// <summary>
-    ///     Gets or sets the size of the thumbnail.
+    /// Gets or sets the size of the thumbnail.
     /// </summary>
     /// <value>
-    ///     The size of the thumbnail.
+    /// The size of the thumbnail.
     /// </value>
     [DataMember(Name = "ThumbnailSize", Order = 24)]
     public int ThumbnailSize { get; set; }
 
     /// <summary>
-    ///     Gets or sets the maximum thumbnails.
+    /// Gets or sets the maximum thumbnails.
     /// </summary>
     /// <value>
-    ///     The maximum thumbnails.
+    /// The maximum thumbnails.
     /// </value>
     [DataMember(Name = "MaxThumbnails", Order = 25)]
     public int MaxThumbnails { get; set; }
 
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [confirm application shutdown].
+    /// Gets or sets a value indicating whether [confirm application shutdown].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [confirm application shutdown]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "ConfirmApplicationShutdown", Order = 26)]
     public bool ConfirmApplicationShutdown { get; set; }
 
     /// <summary>
-    ///     Gets or sets the color of the main window background.
+    /// Gets or sets the color of the main window background.
     /// </summary>
     /// <value>
-    ///     The color of the main window background.
+    /// The color of the main window background.
     /// </value>
     [DataMember(Name = "MainWindowBackgroundColor", Order = 27)]
     public ColorDataModel MainWindowBackgroundColor { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic update check].
+    /// Gets or sets a value indicating whether [automatic update check].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic update check]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "AutomaticUpdateCheck", Order = 28)]
     public bool AutomaticUpdateCheck { get; set; }
 
     /// <summary>
-    ///     Gets or sets the last update check.
+    /// Gets or sets the last update check.
     /// </summary>
     /// <value>
-    ///     The last update check.
+    /// The last update check.
     /// </value>
     [DataMember(Name = "LastUpdateCheck", Order = 29)]
     public DateTime LastUpdateCheck { get; set; }
 
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [toggle slideshow with third mouse button].
+    /// Gets or sets a value indicating whether [toggle slideshow with third mouse button].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [toggle slideshow with third mouse button]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "ToggleSlideshowWithThirdMouseButton", Order = 30)]
     public bool ToggleSlideshowWithThirdMouseButton { get; set; }
 
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [automatic hide cursor].
+    /// Gets or sets a value indicating whether [automatic hide cursor].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [automatic hide cursor]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "AutoHideCursor", Order = 31)]
     public bool AutoHideCursor { get; set; }
 
 
     /// <summary>
-    ///     Gets or sets the automatic hide cursor delay.
+    /// Gets or sets the automatic hide cursor delay.
     /// </summary>
     /// <value>
-    ///     The automatic hide cursor delay.
+    /// The automatic hide cursor delay.
     /// </value>
     [DataMember(Name = "AutoHideCursorDelay", Order = 32)]
     [FixedBounds(GenericConstants.MinCursorDelayValue, GenericConstants.MaxCursorDelayValue, GenericConstants.DefaultCursorDelayValue,
@@ -336,62 +336,70 @@ public class ApplicationSettingsDataModel
     public int AutoHideCursorDelay { get; set; }
 
     /// <summary>
-    ///     Gets or sets the form state data models.
+    /// Gets or sets the form state data models.
     /// </summary>
     /// <value>
-    ///     The form state data models.
+    /// The form state data models.
     /// </value>
     [DataMember(Name = "FormStateDataModels", Order = 33)]
     public IList<FormStateDataModel> FormStateDataModels { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [bookmarks show overlay window].
+    /// Gets or sets a value indicating whether [bookmarks show overlay window].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [bookmarks show overlay window]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "BookmarksShowOverlayWindow", Order = 34)]
     public bool BookmarksShowOverlayWindow { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether [bookmarks show maximized image area].
+    /// Gets or sets a value indicating whether [bookmarks show maximized image area].
     /// </summary>
     /// <value>
-    ///     <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
+    ///   <c>true</c> if [bookmarks show maximized image area]; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 35)]
     public bool BookmarksShowMaximizedImageArea { get; set; }
 
     /// <summary>
-    ///     Gets or sets the application settings unique identifier.
+    /// Gets or sets the application settings unique identifier.
     /// </summary>
     /// <value>
-    ///     The application settings unique identifier.
+    /// The application settings unique identifier.
     /// </value>
     [DataMember(Name = "BookmarksShowMaximizedImageArea", Order = 36)]
     public Guid AppSettingsGuid { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether this instance is loaded from disk.
+    /// Gets or sets a value indicating whether this instance is loaded from disk.
     /// </summary>
     /// <value>
-    ///     <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
+    ///   <c>true</c> if this instance is loaded from disk; otherwise, <c>false</c>.
     /// </value>
     [DataMember(Name = "IsLoadedFromDisk", Order = 37, EmitDefaultValue = false, IsRequired = false)]
     public bool IsLoadedFromDisk { get; set; }
 
     /// <summary>
-    ///     Gets or sets the recent files collection.
+    /// Gets or sets the recent files collection.
     /// </summary>
     /// <value>
-    ///     The recent files collection.
+    /// The recent files collection.
     /// </value>
     [DataMember(Name = "RecentFilesCollection", Order = 38)]
     public RecentFilesCollectionDataModel RecentFilesCollection { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether [use recycle bin].
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if [use recycle bin]; otherwise, <c>false</c>.
+    /// </value>
+    [DataMember(Name = "UseRecycleBin", Order = 39)]
+    public bool UseRecycleBin { get; set; }
 
     /// <summary>
-    ///     Creates the default settings.
+    /// Creates the default settings.
     /// </summary>
     /// <returns></returns>
     public static ApplicationSettingsDataModel CreateDefaultSettings()
@@ -421,6 +429,7 @@ public class ApplicationSettingsDataModel
             AutoHideCursorDelay = 2000,
             AppSettingsGuid = Guid.NewGuid(),
             IsLoadedFromDisk = false,
+            UseRecycleBin = true,
             RecentFilesCollection = new RecentFilesCollectionDataModel()
         };
 
@@ -428,7 +437,7 @@ public class ApplicationSettingsDataModel
     }
 
     /// <summary>
-    ///     Removes the duplicate entries with ignore case.
+    /// Removes the duplicate entries with ignore case.
     /// </summary>
     public void RemoveDuplicateEntriesWithIgnoreCase()
     {
@@ -444,7 +453,7 @@ public class ApplicationSettingsDataModel
     }
 
     /// <summary>
-    ///     Disables the password protect bookmarks.
+    /// Disables the password protect bookmarks.
     /// </summary>
     public void DisablePasswordProtectBookmarks()
     {
@@ -453,7 +462,7 @@ public class ApplicationSettingsDataModel
     }
 
     /// <summary>
-    ///     Enables the password protect bookmarks.
+    /// Enables the password protect bookmarks.
     /// </summary>
     /// <param name="verifiedPassword">The verified password.</param>
     public void EnablePasswordProtectBookmarks(string verifiedPassword)

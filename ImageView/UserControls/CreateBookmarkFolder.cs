@@ -4,7 +4,7 @@ using ImageViewer.InputForms;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.Enums;
-using ImageViewer.Properties;
+using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 
@@ -149,7 +149,7 @@ public partial class CreateBookmarkFolder : UserControl
         }
 
         if (
-            MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_,
+            MessageBox.Show(this, Language.Are_you_sure_you_want_to_delete_this_folder_, Language.Remove_folder_,
                 MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
             _bookmarkManager.DeleteBookmarkFolder(treeNode);

@@ -40,6 +40,7 @@ public class AppConfigProfile : Profile
             .ForMember(s => s.AppSettingsGuid, o => o.MapFrom(d => d.AppSettingsGuid))
             .ForMember(s => s.FormStateDataModels, o => o.MapFrom(d => d.FormStateModels.Values.ToList()))
             .ForMember(s => s.RecentFilesCollection, o => o.MapFrom(d => d.RecentFilesCollection))
+            .ForMember(s => s.UseRecycleBin, o => o.MapFrom(d => d.UseRecycleBin))
             .ReverseMap()
             .ForMember(s => s.FormStateModels, o => o.MapFrom(d => d.FormStateDataModels.ToDictionary(x => x.FormName)));
 

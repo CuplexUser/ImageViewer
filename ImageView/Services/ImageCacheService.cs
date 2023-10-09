@@ -1,8 +1,8 @@
 ﻿using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
-using ImageViewer.Properties;
 using ImageViewer.Providers;
 using ImageViewer.Repositories;
+using ImageViewer.Resources;
 
 namespace ImageViewer.Services;
 
@@ -108,9 +108,9 @@ public class ImageCacheService : ServiceBase
                         Log.Error(ex, $"Fail loading the current image file {fileName}");
 
                         // To avoid program failure
-                        var bitmap = Resources.No_Camera_Image;
+                        var bitmap = Icons.No_Camera_Image;
                         var imageFootprint = new RectangleF(Point.Empty, new SizeF(bitmap.Width, bitmap.Height));
-                        image = Resources.No_Camera_Image.Clone(imageFootprint, bitmap.PixelFormat);
+                        image = Icons.No_Camera_Image.Clone(imageFootprint, bitmap.PixelFormat);
                     }
                 }
             }

@@ -44,6 +44,7 @@ public partial class FormSettings : Form
         ChkAutomaticallyCheckForUpdates.Checked = settings.AutomaticUpdateCheck;
         chkToggleSlidshowWithThirdMouseButton.Checked = settings.ToggleSlideshowWithThirdMouseButton;
         chkAutohideCursor.Checked = settings.AutoHideCursor;
+        chkBoxUseRecycleBin.Checked = settings.UseRecycleBin;
 
         //Important
         _imageCacheService.ReloadSettings();
@@ -130,6 +131,7 @@ public partial class FormSettings : Form
         settings.ShowNextPrevControlsOnEnterWindow = rbOverWindow.Checked;
         settings.ConfirmApplicationShutdown = chkConfirmExit.Checked;
         settings.AutoHideCursor = chkAutohideCursor.Checked;
+        settings.UseRecycleBin = chkBoxUseRecycleBin.Checked;
 
         if (rbImgTransformFadeIn.Checked)
         {

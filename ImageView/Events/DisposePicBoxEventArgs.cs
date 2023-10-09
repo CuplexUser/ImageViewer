@@ -1,4 +1,4 @@
-﻿using ImageViewer.Properties;
+﻿using ImageViewer.Resources;
 
 namespace ImageViewer.Events;
 
@@ -15,7 +15,7 @@ public class DisposePicBoxEventArgs : EventArgs
     {
         if (pictureBox == null || pictureBox.Disposing || pictureBox.IsDisposed)
         {
-            throw new ArgumentException(Resources.PictureBoxNullOrDisposed);
+            throw new ArgumentException(Language.PictureBoxNullOrDisposed);
         }
 
         PictureBoxAwaitingDisposal = pictureBox;

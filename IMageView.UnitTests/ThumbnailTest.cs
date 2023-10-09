@@ -122,7 +122,7 @@ namespace ImageView.UnitTests
                 CancellationTokenSource tokenSource = new CancellationTokenSource();
                 //tokenSource.CancelAfter(2500);
 
-                var scanTask= thumbnailService.ThumbnailDirectoryScan(TestDataPath, new Progress<ThumbnailScanProgress>(),true, tokenSource.Token);
+                var scanTask = thumbnailService.ThumbnailDirectoryScan(TestDataPath, new Progress<ThumbnailScanProgress>(), true, tokenSource.Token);
                 Task[] tasks = new Task[1];
                 tasks[0] = scanTask;
                 Task.WaitAll(tasks);
@@ -153,6 +153,11 @@ namespace ImageView.UnitTests
             var saveResult = thumbnailService.SaveThumbnailDatabase();
             saveResult.Wait(CancellationToken.None);
 
+            string dbFilePath = thumbnailService.GetThumbnailDbFilePath();
+
+            // Verify that the Save Path is equal to the Load Path for the Database DB file.
+            Assert.IsTrue(fileName.Equals(dbFilePath, StringComparison.CurrentCultureIgnoreCase), "Thumbnail Database save Path is incorrect");
+
             // Verify return value
             Assert.IsTrue(saveResult.Result, "SaveThumbnailDatabase was not successful");
 
@@ -166,30 +171,29 @@ namespace ImageView.UnitTests
         [TestMethod]
         public void ThumbnailOptimizeDatabaseAfterFileRemoval()
         {
-            using (var scope = _lifetimeScope.BeginLifetimeScope())
+            var scope = _lifetimeScope.BeginLifetimeScope();
+            var thumbnailService = scope.Resolve<ThumbnailService>();
+
+            // Create thumbnails from TestImages
+            foreach (string testImage in TestImages)
             {
-                var thumbnailService = scope.Resolve<ThumbnailService>();
-                // Create thumbnails from TestImages
-                foreach (string testImage in TestImages)
-                {
-                    string filePath = Path.Join(TestDataPath, testImage);
+                string filePath = Path.Join(TestDataPath, testImage);
 
-                    // Also includes thumbnail caching
-                    var thumbnail = thumbnailService.GetThumbnailAsync(filePath).Result;
-                }
-
-                // Verify that there are testImages.Length thumbnails created
-                Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length, "The thumbnail cache did not contain the right amount of images");
-
-                //Remove the first file
-                File.Delete(TestDataPath + TestImages[0]);
-
-                // Optimize DB
-                Task.WaitAll(thumbnailService.OptimizeDatabaseAsync());
-
-                // Verify that one thumbnail was removed
-                Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length - 1, "The thumbnail service did not remove a cached item");
+                // Also includes thumbnail caching
+                var thumbnail = thumbnailService.GetThumbnailAsync(filePath).Result;
             }
+
+            // Verify that there are testImages.Length thumbnails created
+            Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length, "The thumbnail cache did not contain the right amount of images");
+
+            //Remove the first file
+            File.Delete(TestDataPath + TestImages[0]);
+
+            // Optimize DB
+            Task.WaitAll(thumbnailService.OptimizeDatabaseAsync());
+
+            // Verify that one thumbnail was removed
+            Assert.IsTrue(thumbnailService.GetNumberOfCachedThumbnails() == TestImages.Length - 1, "The thumbnail service did not remove a cached item");
         }
 
         [TestMethod]

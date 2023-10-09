@@ -116,6 +116,7 @@ public class AppSettingsRepository : RepositoryBase, IAppSettingsRepository
             AppSettingsGuid = Guid.NewGuid(),
             IsLoadedFromDisk = false,
             FormStateModels = new Dictionary<string, FormStateModel>(),
+            UseRecycleBin = true,
             RecentFilesCollection = new RecentFilesCollection(null)
         };
 

@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileCollectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItemOpenImage = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItemLoadBookmarkedImages = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,7 +95,6 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolTipSlideshowState = new System.Windows.Forms.ToolTip(this.components);
             this.timerCursorVisible = new System.Windows.Forms.Timer(this.components);
-            this.openFileCollectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -133,6 +133,13 @@
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
+            // 
+            // openFileCollectionToolStripMenuItem
+            // 
+            this.openFileCollectionToolStripMenuItem.Name = "openFileCollectionToolStripMenuItem";
+            this.openFileCollectionToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.openFileCollectionToolStripMenuItem.Text = "&Open File Browser";
+            this.openFileCollectionToolStripMenuItem.Click += new System.EventHandler(this.openFileCollectionToolStripMenuItem_Click);
             // 
             // openBrowserToolStripMenuItem
             // 
@@ -199,7 +206,7 @@
             // 
             this.copyFilepathToolStripMenuItem.Name = "copyFilepathToolStripMenuItem";
             this.copyFilepathToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.copyFilepathToolStripMenuItem.Text = "Copy Filepath";
             this.copyFilepathToolStripMenuItem.Click += new System.EventHandler(this.copyFilepathToolStripMenuItem_Click);
             // 
@@ -208,28 +215,27 @@
             this.copyFileToolStripMenuItem.Name = "copyFileToolStripMenuItem";
             this.copyFileToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
             | System.Windows.Forms.Keys.C)));
-            this.copyFileToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.copyFileToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.copyFileToolStripMenuItem.Text = "Copy File";
             this.copyFileToolStripMenuItem.Click += new System.EventHandler(this.copyFileToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(223, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(218, 6);
             // 
             // openInDefaultApplicationToolStripMenuItem1
             // 
             this.openInDefaultApplicationToolStripMenuItem1.Name = "openInDefaultApplicationToolStripMenuItem1";
-            this.openInDefaultApplicationToolStripMenuItem1.Size = new System.Drawing.Size(226, 22);
+            this.openInDefaultApplicationToolStripMenuItem1.Size = new System.Drawing.Size(221, 22);
             this.openInDefaultApplicationToolStripMenuItem1.Text = "Open In Default Application";
             this.openInDefaultApplicationToolStripMenuItem1.Click += new System.EventHandler(this.openInDefaultApplicationToolStripMenuItem1_Click);
             // 
             // deleteImageToolStripMenuItem
             // 
             this.deleteImageToolStripMenuItem.Name = "deleteImageToolStripMenuItem";
-            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.Delete)));
-            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(226, 22);
+            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Delete)));
+            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.deleteImageToolStripMenuItem.Text = "Delete Image";
             this.deleteImageToolStripMenuItem.Click += new System.EventHandler(this.DeleteImageToolStripMenuItem_Click);
             // 
@@ -606,13 +612,6 @@
             this.timerCursorVisible.Enabled = true;
             this.timerCursorVisible.Interval = 2000;
             this.timerCursorVisible.Tick += new System.EventHandler(this.timerCursorVisible_Tick);
-            // 
-            // openFileCollectionToolStripMenuItem
-            // 
-            this.openFileCollectionToolStripMenuItem.Name = "openFileCollectionToolStripMenuItem";
-            this.openFileCollectionToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.openFileCollectionToolStripMenuItem.Text = "&Open File Browser";
-            this.openFileCollectionToolStripMenuItem.Click += new System.EventHandler(this.openFileCollectionToolStripMenuItem_Click);
             // 
             // FormMain
             // 

@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
+using GeneralToolkitLib.Storage;
 using ImageViewer.Collections;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
@@ -79,7 +80,7 @@ public class ImageLoaderService : ServiceBase, IDisposable
     public event ProgressUpdateEventHandler OnImportComplete;
     public event ImageRemovedEventHandler OnImageWasDeleted;
 
-    internal bool PermanentlyRemoveFile(ImageReference imgRefElement)
+    internal bool PermanentlyDeleteFile(ImageReference imgRefElement)
     {
         int removedItems = 0;
         try
@@ -93,24 +94,59 @@ public class ImageLoaderService : ServiceBase, IDisposable
             }
 
             removedItems = _imageReferenceList.RemoveAll(i => i == imgRefElement);
-            var imgReference = _mapper.Map<ImageReference>(imgRefElement);
-            imgRefElement = null;
 
             // Delete from cache
-            var args = new ImageRemovedEventArgs(imgReference, _imageReferenceList.Count - 1);
+            var args = new ImageRemovedEventArgs(imgRefElement, _imageReferenceList.Count - 1);
             OnImageWasDeleted?.Invoke(this, args);
             ImageWasDeleted(this, args);
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "ImageLoaderService.PermanentlyRemoveFile {imgRefElement}", imgRefElement);
+            Log.Error(ex, "ImageLoaderService.PermanentlyDeleteFile {imgRefElement}", imgRefElement);
         }
 
         return removedItems > 0;
     }
 
+    internal bool MoveToRecycleBin(ImageReference imageReference)
+    {
+        int removedItems = 0;
+
+        try
+        {
+            bool exists = File.Exists(imageReference.CompletePath);
+            if (exists && !FileOperationAPIWrapper.MoveToRecycleBin(imageReference.CompletePath))
+            {
+                throw new InvalidOperationException($"Failed to move file, {imageReference.CompletePath} to Recycle Bin");
+            }
+
+            removedItems = _imageReferenceList.RemoveAll(i => i == imageReference);
+
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "MoveToRecycleBin exception, path: {fileName}", imageReference.CompletePath);
+            removedItems = 0;
+        }
+        finally
+        {
+            // Delete from cache
+            var args = new ImageRemovedEventArgs(imageReference, _imageReferenceList.Count - 1);
+            OnImageWasDeleted?.Invoke(this, args);
+            ImageWasDeleted(this, args);
+        }
+
+        return removedItems > 0;
+
+    }
+
     protected virtual void ImageWasDeleted(object sender, ImageRemovedEventArgs e)
     {
+        if (sender != this)
+        {
+            int removedItems = _imageReferenceList.RemoveAll(i => i == e.ImageReference);
+            Log.Debug("removed {count} files", removedItems);
+        }
     }
 
     private List<int> GetRandomImagePositionList()
@@ -250,17 +286,17 @@ public class ImageLoaderService : ServiceBase, IDisposable
                 var bookmarks = _bookmarkService.BookmarkManager.GetAllBookmarksRecursive(_bookmarkService.BookmarkManager.RootFolder);
 
                 var query = from b in bookmarks
-                    orderby b.LastWriteTime
-                    select new ImageReference
-                    {
-                        FileName = b.FileName,
-                        Directory = b.Directory,
-                        CompletePath = b.CompletePath,
-                        Size = b.Size,
-                        CreationTime = b.CreationTime,
-                        LastWriteTime = b.LastWriteTime,
-                        LastAccessTime = b.LastAccessTime
-                    };
+                            orderby b.LastWriteTime
+                            select new ImageReference
+                            {
+                                FileName = b.FileName,
+                                Directory = b.Directory,
+                                CompletePath = b.CompletePath,
+                                Size = b.Size,
+                                CreationTime = b.CreationTime,
+                                LastWriteTime = b.LastWriteTime,
+                                LastAccessTime = b.LastAccessTime
+                            };
 
                 imgReferenceList = query.ToList();
             });

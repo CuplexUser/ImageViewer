@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows7.0</TargetFramework>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>\\WIN10-SERVER\Public\</PublishUrl>
     <Install>false</Install>
@@ -40,7 +40,7 @@
     <CodeAnalysisRuleSet>
     </CodeAnalysisRuleSet>
     <LangVersion>10</LangVersion>
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
   </PropertyGroup>  
 	<PropertyGroup>
     <ManifestCertificateThumbprint>EB689F59BC091065757DB92A85FCD68F213AADFB</ManifestCertificateThumbprint>
@@ -60,7 +60,7 @@
     <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-	  <DebugType>none</DebugType>
+	  <DebugType>full</DebugType>
 	  <NoWarn>1701;1702;SYSLIB0045</NoWarn>
 	  <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
 	</PropertyGroup>
@@ -71,7 +71,7 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <NoWarn>1701;1702;SYSLIB0045</NoWarn>
     <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
@@ -84,10 +84,15 @@
     <AdditionalFiles Remove="D:\Data\Packages\microsoft.dotnet.upgradeassistant.extensions.default.analyzers\0.4.355802\build\\WebTypeReplacements.typemap" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    <Compile Update="Resources\Icons.Designer.cs">
+      <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
+      <DependentUpon>Icons.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\Language.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Language.resx</DependentUpon>
     </Compile>
     <Compile Update="UserControls\BookmarkPreviewOverlayUserControl.cs" />
     <Compile Update="UserControls\ColorSelectComboBox.cs" />
@@ -103,12 +108,12 @@
       <Link>DependencyValidation1.layerdiagram</Link>
       <Visible>False</Visible>
     </AdditionalFiles>
+    <None Update="FormMain.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>FormMain.resx</DependentUpon>
+    </None>
     <None Update="Properties\app.manifest">
       <SubType>Designer</SubType>
-    </None>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -118,14 +123,13 @@
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="GeneralToolkitLib" Version="3.4.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.3.0" />
+    <PackageReference Include="Magick.NET.Core" Version="12.3.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
-      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -163,20 +167,33 @@
     <Using Include="JetBrains.Annotations" />
     <Using Include="Serilog" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Icons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Icons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Language.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Language.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="FormMain.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 
     <PropertyGroup>
     <PostBuildEvent Condition="'$(Configuration)' == 'Release'">
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
     <SignAssembly>False</SignAssembly>
     <Copyright>Martin Dahl 2023</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>3.4.1.5</AssemblyVersion>
-    <FileVersion>3.4.1.5</FileVersion>
+    <AssemblyVersion>3.4.1.6</AssemblyVersion>
+    <FileVersion>3.4.1.6</FileVersion>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
     <UserSecretsId>e6e05188-b9c5-4534-8987-4b493e5b7544</UserSecretsId>
@@ -199,10 +216,11 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <OutputType>WinExe</OutputType>
     <StartupObject>ImageViewer.Program</StartupObject>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <DebugType>none</DebugType>
+      <DebugType>full</DebugType>
       <NoWarn>1701;1702;SYSLIB0045</NoWarn>
       <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
     </PropertyGroup>

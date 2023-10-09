@@ -30,7 +30,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
     {
         _blobStorageFilename = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), BlobStorageFileName);
         InstanceId = SHA256.GetSHA256HashAsHexString(_blobStorageFilename);
-        _readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        _readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
     }
 
     // Use a custom file name
@@ -128,8 +128,9 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         byte[] buffer = new byte[length];
         int bytesRead;
 
+        _readerWriterLock.TryEnterReadLock(2000);
         filePosition = position;
-        //_readerWriterLock.TryEnterReadLock(2000);
+
 
         try
         {
@@ -161,7 +162,8 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         }
         finally
         {
-            await Task.Yield();
+            //await Task.Yield();
+            _readerWriterLock.ExitReadLock();
         }
 
         return bytesRead != buffer.Length ? null : buffer;
@@ -212,24 +214,20 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         int currentFilePosition = -1;
         try
         {
-            _readerWriterLock.EnterWriteLock();
-            await new Task(() =>
-            {
-                Interlocked.Increment(ref WriteCount);
-                currentFilePosition = Convert.ToInt32(_blobDataFileStream.Length);
-                _blobDataFileStream.Position = currentFilePosition;
+            //_readerWriterLock.EnterWriteLock();
+            Interlocked.Increment(ref WriteCount);
+            currentFilePosition = Convert.ToInt32(_blobDataFileStream.Length);
+            _blobDataFileStream.Position = currentFilePosition;
 
-                // Offset refers to offset in the array
-                _blobDataFileStream.Write(imageData, 0, imageData.Length);
-                return;
-            });
+            // Offset refers to offset in the array
+            await _blobDataFileStream.WriteAsync(imageData, 0, imageData.Length);
 
 
         }
         finally
         {
             Interlocked.Decrement(ref WriteCount);
-            _readerWriterLock.ExitWriteLock();
+            //_readerWriterLock.ExitWriteLock();
         }
 
 

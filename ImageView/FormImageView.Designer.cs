@@ -36,6 +36,8 @@
             this.openWithDefaultProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.bookmarkImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -64,35 +66,50 @@
             this.copyFilepathToolStripMenuItem,
             this.openWithDefaultProgramToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.deleteImageToolStripMenuItem,
+            this.toolStripMenuItem2,
             this.bookmarkImageToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(183, 76);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(195, 126);
             // 
             // copyFilepathToolStripMenuItem
             // 
             this.copyFilepathToolStripMenuItem.Name = "copyFilepathToolStripMenuItem";
-            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.copyFilepathToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.copyFilepathToolStripMenuItem.Text = "Copy Filepath";
             this.copyFilepathToolStripMenuItem.Click += new System.EventHandler(this.copyFilepathToolStripMenuItem_Click);
             // 
             // openWithDefaultProgramToolStripMenuItem
             // 
             this.openWithDefaultProgramToolStripMenuItem.Name = "openWithDefaultProgramToolStripMenuItem";
-            this.openWithDefaultProgramToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.openWithDefaultProgramToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.openWithDefaultProgramToolStripMenuItem.Text = "Open In Default App";
             this.openWithDefaultProgramToolStripMenuItem.Click += new System.EventHandler(this.openWithDefaultProgramToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(179, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(191, 6);
             // 
             // bookmarkImageToolStripMenuItem
             // 
             this.bookmarkImageToolStripMenuItem.Name = "bookmarkImageToolStripMenuItem";
-            this.bookmarkImageToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
+            this.bookmarkImageToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.bookmarkImageToolStripMenuItem.Text = "Bookmark Image";
             this.bookmarkImageToolStripMenuItem.Click += new System.EventHandler(this.bookmarkImageToolStripMenuItem_Click);
+            // 
+            // deleteImageToolStripMenuItem
+            // 
+            this.deleteImageToolStripMenuItem.Name = "deleteImageToolStripMenuItem";
+            this.deleteImageToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Delete)));
+            this.deleteImageToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.deleteImageToolStripMenuItem.Text = "Delete Image";
+            this.deleteImageToolStripMenuItem.Click += new System.EventHandler(this.deleteImageToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(191, 6);
             // 
             // FormImageView
             // 
@@ -126,5 +143,7 @@
         private System.Windows.Forms.ToolStripMenuItem openWithDefaultProgramToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem bookmarkImageToolStripMenuItem;
+        private ToolStripMenuItem deleteImageToolStripMenuItem;
+        private ToolStripSeparator toolStripMenuItem2;
     }
 }

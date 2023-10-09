@@ -6,7 +6,7 @@ using ImageViewer.Interfaces;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
-using ImageViewer.Properties;
+using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 
@@ -15,7 +15,7 @@ namespace ImageViewer;
 /// <summary>
 /// </summary>
 /// <seealso cref="System.Windows.Forms.Form" />
-/// <seealso cref="System.IObservable&lt;ImageViewer.Events.ImageViewFormInfoBase&gt;" />
+/// <seealso cref="ImageViewFormInfoBase" />
 /// <seealso cref="ImageViewer.Interfaces.IMageViewFormWindow" />
 public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, IMageViewFormWindow
 {
@@ -90,14 +90,14 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     private ImageReference _imgRef;
 
     /// <summary>
-    ///     The imgx
+    ///     The imgX
     /// </summary>
-    private int _imgx; // current offset of image
+    private int _imgX; // current offset of image
 
     /// <summary>
-    ///     The imgy
+    ///     The imgY
     /// </summary>
-    private int _imgy;
+    private int _imgY;
 
     /// <summary>
     ///     The last form state
@@ -211,8 +211,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     public void ResetZoomAndRepaint()
     {
         //Center Image and resize
-        _imgx = 0;
-        _imgy = 0;
+        _imgX = 0;
+        _imgY = 0;
         ResetZoom(true);
         pictureBox.Refresh();
     }
@@ -252,7 +252,6 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
 
 
         return (observer as FormWindows)!;
-        //return new Unsubscriber<ImageViewFormInfoBase>(_observers, observer);
     }
 
 
@@ -346,8 +345,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         {
             _currentImage = _imageCache.GetImageFromCache(imageReference.CompletePath);
 
-            //_imgx = 0;
-            //_imgy = 0;
+            //_imgX = 0;
+            //_imgY = 0;
             ResetZoom(true);
 
             pictureBox.Refresh();
@@ -397,8 +396,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
 
             _mousePressed = true;
             _mouseDown = mouse.Location;
-            _startX = _imgx;
-            _startY = _imgy;
+            _startX = _imgX;
+            _startY = _imgY;
         }
     }
 
@@ -419,9 +418,9 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             // the distance the mouse has been moved since mouse was pressed
             int deltaY = mousePosNow.Y - _mouseDown.Y;
 
-            _imgx = (int)(_startX + deltaX / _zoom);
+            _imgX = (int)(_startX + deltaX / _zoom);
             // calculate new offset of image based on the current zoom factor
-            _imgy = (int)(_startY + deltaY / _zoom);
+            _imgY = (int)(_startY + deltaY / _zoom);
 
             pictureBox.Refresh();
         }
@@ -508,32 +507,32 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         switch (keyData)
         {
             case Keys.Right:
-                _imgx -= (int)(pictureBox.Width * 0.1F / _zoom);
+                _imgX -= (int)(pictureBox.Width * 0.1F / _zoom);
                 pictureBox.Refresh();
                 break;
 
             case Keys.Left:
-                _imgx += (int)(pictureBox.Width * 0.1F / _zoom);
+                _imgX += (int)(pictureBox.Width * 0.1F / _zoom);
                 pictureBox.Refresh();
                 break;
 
             case Keys.Down:
-                _imgy -= (int)(pictureBox.Height * 0.1F / _zoom);
+                _imgY -= (int)(pictureBox.Height * 0.1F / _zoom);
                 pictureBox.Refresh();
                 break;
 
             case Keys.Up:
-                _imgy += (int)(pictureBox.Height * 0.1F / _zoom);
+                _imgY += (int)(pictureBox.Height * 0.1F / _zoom);
                 pictureBox.Refresh();
                 break;
 
             case Keys.PageDown:
-                _imgy -= (int)(pictureBox.Height * 0.90F / _zoom);
+                _imgY -= (int)(pictureBox.Height * 0.90F / _zoom);
                 pictureBox.Refresh();
                 break;
 
             case Keys.PageUp:
-                _imgy += (int)(pictureBox.Height * 0.90F / _zoom);
+                _imgY += (int)(pictureBox.Height * 0.90F / _zoom);
                 pictureBox.Refresh();
                 break;
 
@@ -591,16 +590,16 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="e">A <see cref="T:System.Windows.Forms.MouseEventArgs" /> that contains the event data.</param>
     protected override void OnMouseWheel(MouseEventArgs e)
     {
-        double oldzoom = _zoom;
+        double oldZoom = _zoom;
 
         if (e.Delta > 0)
         {
-            _zoom += 0.1F + _zoom * .05f;
+            _zoom += 0.05F + _zoom * .02f;
         }
 
         else if (e.Delta < 0)
         {
-            _zoom = Math.Max(_zoom - 0.1F - _zoom * .05f, ZoomMin);
+            _zoom = Math.Max(_zoom - 0.05F - _zoom * .02f, ZoomMin);
         }
 
         var mouse = e;
@@ -609,14 +608,14 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         int x = mousePosNow.X - pictureBox.Location.X; // Where location of the mouse in the pictureframe
         int y = mousePosNow.Y - pictureBox.Location.Y;
 
-        int oldimagex = (int)(x / oldzoom); // Where in the IMAGE is it now
-        int oldimagey = (int)(y / oldzoom);
+        int oldImageX = (int)(x / oldZoom); // Where in the IMAGE is it now
+        int oldImageY = (int)(y / oldZoom);
 
-        int newimagex = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
-        int newimagey = (int)(y / _zoom);
+        int newImageX = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
+        int newImageY= (int)(y / _zoom);
 
-        _imgx = newimagex - oldimagex + _imgx; // Where to move image to keep focus on one point
-        _imgy = newimagey - oldimagey + _imgy;
+        _imgX = newImageX - oldImageX + _imgX; // Where to move image to keep focus on one point
+        _imgY = newImageY - oldImageY + _imgY;
 
         if (_zoom < ZoomMin)
         {
@@ -632,8 +631,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     /// <param name="fitEntireImage">if set to <c>true</c> [fit entire image].</param>
     private void ResetZoom(bool fitEntireImage)
     {
-        _imgx = 0;
-        _imgy = 0;
+        _imgX = 0;
+        _imgY = 0;
 
         if (_currentImage == null)
         {
@@ -674,14 +673,14 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
                 if (constraints.ImageConstraint == Constraint.Height)
                 {
                     _zoom = constraints.WindowSize.Height / (double)constraints.ImageSize.Height;
-                    _imgx = Convert.ToInt32(constraints.WindowSize.Width - constraints.ImageSize.Width / 2d * _zoom);
+                    _imgX = Convert.ToInt32(constraints.WindowSize.Width - constraints.ImageSize.Width / 2d * _zoom);
                 }
                 else
                 {
                     //Narrow image - Wide window
                     int height = constraints.WindowSize.Height;
                     _zoom = height / (double)constraints.ImageSize.Height;
-                    _imgx = Convert.ToInt32((constraints.WindowSize.Width - constraints.ImageSize.Width * _zoom) / 2d);
+                    _imgX = Convert.ToInt32((constraints.WindowSize.Width - constraints.ImageSize.Width * _zoom) / 2d);
                 }
 
                 _zoom *= vResAdjustment;
@@ -694,7 +693,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
                 {
                     int width = constraints.WindowSize.Width;
                     _zoom = width / (double)constraints.ImageSize.Width;
-                    _imgy = Convert.ToInt32((constraints.WindowSize.Height - constraints.ImageSize.Height * _zoom) / 2d);
+                    _imgY = Convert.ToInt32((constraints.WindowSize.Height - constraints.ImageSize.Height * _zoom) / 2d);
                 }
                 else
                 {
@@ -704,13 +703,13 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
                     {
                         int height = constraints.WindowSize.Height;
                         _zoom = height / (double)constraints.ImageSize.Height;
-                        _imgx = Convert.ToInt32((constraints.WindowSize.Width - constraints.ImageSize.Width * _zoom) / 2d);
+                        _imgX = Convert.ToInt32((constraints.WindowSize.Width - constraints.ImageSize.Width * _zoom) / 2d);
                     }
                     else
                     {
                         int width = constraints.WindowSize.Width;
                         _zoom = width / (double)constraints.ImageSize.Width;
-                        _imgy = Convert.ToInt32((constraints.WindowSize.Height - constraints.ImageSize.Height * _zoom) / 2d);
+                        _imgY = Convert.ToInt32((constraints.WindowSize.Height - constraints.ImageSize.Height * _zoom) / 2d);
                     }
                 }
 
@@ -743,7 +742,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             var g = e.Graphics;
             g.InterpolationMode = InterpolationMode.HighQualityBilinear;
             g.ScaleTransform(scaleFactor, scaleFactor);
-            g.DrawImage(_currentImage, _imgx / scaleFactor, _imgy / scaleFactor);
+            g.DrawImage(_currentImage, _imgX / scaleFactor, _imgY / scaleFactor);
 
             //var drawRect = pictureBox.ClientRectangle;
             //drawRect.Size= pictureBox.Size with {Height = 40};
@@ -769,8 +768,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
                     b = new SolidBrush(Color.FromArgb(128, Color.Black));
                 }
 
-                int imgWidth = Convert.ToInt32(Math.Min(Resources.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
-                float imgScale = (float)imgWidth / Resources.Arrow_Back_icon.Width * 0.7f;
+                int imgWidth = Convert.ToInt32(Math.Min(Icons.Arrow_Back_icon.Width, ChangeImagePanelWidth) * 0.8);
+                float imgScale = (float)imgWidth / Icons.Arrow_Back_icon.Width * 0.7f;
                 int imgMargin = (ChangeImagePanelWidth - imgWidth) / 2;
                 int imgYpos = ClientSize.Height / 2 - imgWidth / 2;
 
@@ -779,8 +778,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
                 var leftArrowPos = new Point(0, imgYpos);
                 var rightArrowPos = new Point(ClientSize.Width - ChangeImagePanelWidth, imgYpos);
 
-                g.DrawImage(Resources.Arrow_Back_icon, TranslatePoint(leftArrowPos, imgScale));
-                g.DrawImage(Resources.Arrow_Next_icon, TranslatePoint(rightArrowPos, imgScale));
+                g.DrawImage(Icons.Arrow_Back_icon, TranslatePoint(leftArrowPos, imgScale));
+                g.DrawImage(Icons.Arrow_Next_icon, TranslatePoint(rightArrowPos, imgScale));
                 g.ResetTransform();
 
                 if (_mouseHoverInfo.OverAnyButton)
@@ -941,7 +940,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     {
         if (_bookmarkManager == null)
         {
-            MessageBox.Show(Resources.Please_unlock_bookmarks_first);
+            MessageBox.Show(Language.Please_unlock_bookmarks_first);
             return;
         }
 
@@ -950,8 +949,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
             return;
         }
 
-        var starupPosition = Location;
-        _formAddBookmark.Init(starupPosition, _imageReferenceCollection.CurrentImage);
+        var startupPosition = Location;
+        _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
         _formAddBookmark.ShowDialog(this);
     }
 
@@ -964,8 +963,8 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
     {
         if (WindowState == FormWindowState.Normal && _currentImage != null)
         {
-            _imgx = 0;
-            _imgy = 0;
+            _imgX = 0;
+            _imgY = 0;
             ResetZoom(true);
         }
     }
@@ -981,7 +980,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
 
 
     /// <summary>
-    ///     Constraint - The Smalest component of a rectangle, determening how to scale an image
+    ///     Constraint - The Smallest component of a rectangle, determining how to scale an image
     /// </summary>
     private enum Constraint
     {
@@ -1123,6 +1122,27 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         public void ResetState()
         {
             StateChanged = false;
+        }
+    }
+
+    private void deleteImageToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        bool UseRecycleBin = _applicationSettingsService.Settings.UseRecycleBin;
+        string message = UseRecycleBin ? Resources.Language.ConfirmImgRecycleMsg : Resources.Language.ConfirmMesageDeleteImg;
+        string caption = UseRecycleBin ? Resources.Language.MoveToTrashCaption : Resources.Language.DeleteImageCaption;
+
+        if (MessageBox.Show(message, caption, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+        {
+            if (UseRecycleBin)
+            {
+                _imageLoaderService.MoveToRecycleBin(_imgRef);
+            }
+            else
+            {
+                _imageLoaderService.PermanentlyDeleteFile(_imgRef);
+            }
+
+            SetNextImage();
         }
     }
 }

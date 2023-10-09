@@ -40,7 +40,6 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         _fileManager = fileManager;
         _imageProvider = imageProvider;
         _blobStorageProvider = blobStorageProvider;
-        // _thumbnailDictionary = new ConcurrentDictionary<string, ThumbnailEntryModel>();
         _storageManager = CreateStorageManager();
         _cancellationTokenSource = new CancellationTokenSource();
     }
@@ -174,9 +173,17 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
             if (file.LastWriteTime == item!.OriginalImageModel.LastModified && file.Length == item.OriginalImageModel.FileSize)
             {
                 // return cached thumbnail
-                byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.FileSize);
+                byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.FileSize).ConfigureAwait(true);
                 var image = _imageProvider.RestoreImageFromCache(imgBytes);
-                return image;
+
+                if (image == null)
+                {
+                    _metadataDb.ThumbnailEntries.Remove(item);
+                }
+                else
+                {
+                    return image;
+                }
             }
         }
 
@@ -270,7 +277,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
                 var imageRef = _mapper.Map<ImageRefModel>(fi);
 
                 var model = new ThumbnailEntryModel { FileSize = Convert.ToInt32(data.Length), CreateDate = DateTime.Now, ThumbnailSize = size, OriginalImageModel = imageRef };
-                int position = _blobStorageProvider.WriteBlobData(data);
+                int position = await _blobStorageProvider.WriteBlobDataAsync(data);
                 model.FilePosition = position;
                 model.FullName = fullPath;
 
@@ -284,6 +291,11 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         }
 
         return img;
+    }
+
+    public string GetThumbnailDbFilePath()
+    {
+        return Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
     }
 
 

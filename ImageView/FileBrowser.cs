@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using ImageViewer.Collections;
 using ImageViewer.Models;
-using ImageViewer.Properties;
+using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.Utility;
 
@@ -135,7 +135,7 @@ public partial class FileBrowser : Form
         {
             if (showErrors)
             {
-                MessageBox.Show(Resources.FileBrowser_OpenImporterForm_No_valid_path_selected);
+                MessageBox.Show(Language.FileBrowser_OpenImporterForm_No_valid_path_selected);
             }
 
             return;
@@ -199,14 +199,14 @@ public partial class FileBrowser : Form
         }
 
         if (
-            MessageBox.Show(Resources.Are_you_sure_that_you_want_to_delete_the_selected_files_,
-                Resources.Confirm_delete, MessageBoxButtons.YesNo) == DialogResult.Yes)
+            MessageBox.Show(Language.Are_you_sure_that_you_want_to_delete_the_selected_files_,
+                Language.Confirm_delete, MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
             var selectedRows = dataGridViewLoadedImages.SelectedRows;
             foreach (DataGridViewRow row in selectedRows)
                 if (row.DataBoundItem is ImageReference imgRefElement)
                 {
-                    _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
+                    _imageLoaderService.PermanentlyDeleteFile(imgRefElement);
                 }
 
             dataGridViewLoadedImages.DataSource = GetSortableBindingSource();

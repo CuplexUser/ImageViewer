@@ -202,6 +202,7 @@ public sealed class ThumbnailService : ServiceBase
         {
             _abortScan = true;
             _tokenSource.CancelAfter(250);
+            _tokenSource.TryReset();
             Log.Information("Stopping thumbnail scan when ServiceState is: {ServiceState}", ServiceState);
         }
         else
@@ -257,6 +258,10 @@ public sealed class ThumbnailService : ServiceBase
         return await _thumbnailRepository.GetOrCreateThumbnailImage(new FileInfo(filename), _thumbnailSize);
     }
 
+    public string GetThumbnailDbFilePath()
+    {
+        return _thumbnailRepository.GetThumbnailDbFilePath();
+    }
 
     private async Task<bool> DoMaintenanceTask(Func<WorkParameters, bool> maintenanceMethod, WorkParameters parameters)
     {

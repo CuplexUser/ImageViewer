@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ImageViewer.Properties {
+namespace ImageViewer.Resources {
     using System;
     
     
@@ -19,17 +19,17 @@ namespace ImageViewer.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Language {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Language() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace ImageViewer.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ImageViewer.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ImageViewer.Resources.Language", typeof(Language).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -66,16 +66,6 @@ namespace ImageViewer.Properties {
         internal static string AppApplicationSettingsServiceNull {
             get {
                 return ResourceManager.GetString("AppApplicationSettingsServiceNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap application_exit {
-            get {
-                object obj = ResourceManager.GetObject("application-exit", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -116,26 +106,6 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Arrow_Back_icon {
-            get {
-                object obj = ResourceManager.GetObject("Arrow_Back_icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Arrow_Next_icon {
-            get {
-                object obj = ResourceManager.GetObject("Arrow_Next_icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Close all windows?.
         /// </summary>
         internal static string Close_all_windows_ {
@@ -154,11 +124,38 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Move image to recycle bin?.
+        /// </summary>
+        internal static string ConfirmImgRecycleMsg {
+            get {
+                return ResourceManager.GetString("ConfirmImgRecycleMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permanently delete the selected image?.
+        /// </summary>
+        internal static string ConfirmMesageDeleteImg {
+            get {
+                return ResourceManager.GetString("ConfirmMesageDeleteImg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Delete.
         /// </summary>
         internal static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete Image?.
+        /// </summary>
+        internal static string DeleteImageCaption {
+            get {
+                return ResourceManager.GetString("DeleteImageCaption", resourceCulture);
             }
         }
         
@@ -253,22 +250,11 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized string similar to Move to trash?.
         /// </summary>
-        internal static System.Drawing.Bitmap No_Camera_icon {
+        internal static string MoveToTrashCaption {
             get {
-                object obj = ResourceManager.GetObject("No_Camera_icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap No_Camera_Image {
-            get {
-                object obj = ResourceManager.GetObject("No_Camera_Image", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ResourceManager.GetString("MoveToTrashCaption", resourceCulture);
             }
         }
         
@@ -318,31 +304,11 @@ namespace ImageViewer.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap transparent {
-            get {
-                object obj = ResourceManager.GetObject("transparent", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable To Access application settings in registry.
         /// </summary>
         internal static string Unable_To_Access_application_settings_in_registry {
             get {
                 return ResourceManager.GetString("Unable_To_Access_application_settings_in_registry", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap WindowsIcon {
-            get {
-                object obj = ResourceManager.GetObject("WindowsIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

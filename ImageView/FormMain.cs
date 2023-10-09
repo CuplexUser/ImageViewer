@@ -9,7 +9,7 @@ using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.UserInteraction;
-using ImageViewer.Properties;
+using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
@@ -247,7 +247,7 @@ namespace ImageViewer
         {
             const int sleepTime = 1;
             _imageTransitionRunning = true;
-            await Task.Run(() =>
+            await Task.Run((Action)(() =>
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
@@ -301,9 +301,9 @@ namespace ImageViewer
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, Resources.Failed_to_set_transition_image_over_current_image_);
-                        MessageBox.Show(Resources.Failed_to_set_transition_image_over_current_image_,
-                            Resources.Error_loading_new_image, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Log.Error(ex, (string)Language.Failed_to_set_transition_image_over_current_image_);
+                        MessageBox.Show((string)Language.Failed_to_set_transition_image_over_current_image_,
+                            (string)Language.Error_loading_new_image, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                         _imageTransitionRunning = false;
                         return;
@@ -324,7 +324,7 @@ namespace ImageViewer
                 stopwatch.Stop();
                 Log.Verbose("Image transition finished after " + stopwatch.ElapsedMilliseconds + " ms");
                 Invoke(new EventHandler(ImageLoadComplete), this, EventArgs.Empty);
-            });
+            }));
 
             pictureBox1.Image = nextImage.Clone() as Image;
             _imageTransitionRunning = false;
@@ -762,13 +762,13 @@ namespace ImageViewer
 
             string currentFilePath = _imageReferenceCollection.CurrentImage.CompletePath;
 
-            var result = MessageBox.Show($@"Are you sure you want to delete the current image? Image path: {currentFilePath} ", @"Confirm delete", MessageBoxButtons.YesNo,
+            var result = MessageBox.Show($"Are you sure you want to delete the current image? Image path: {currentFilePath} ", "Confirm delete", MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
                 var imgRefElement = _imageReferenceCollection.CurrentImage;
-                bool imgRemoved = _imageLoaderService.PermanentlyRemoveFile(imgRefElement);
+                bool imgRemoved = _imageLoaderService.PermanentlyDeleteFile(imgRefElement);
                 if (!imgRemoved)
                 {
                     MessageBox.Show($@"Unable to delete file {imgRefElement.CompletePath}", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -782,7 +782,7 @@ namespace ImageViewer
                 // Same with FormImageView instances.
 
                 _pictureBoxAnimation.SizeMode = PictureBoxSizeMode.CenterImage;
-                _pictureBoxAnimation.Image = Resources.No_Camera_icon;
+                _pictureBoxAnimation.Image = Icons.No_Camera_Image;
 
                 if (slideshowEnabled)
                 {
@@ -1022,7 +1022,7 @@ namespace ImageViewer
         {
             if (_bookmarkService.BookmarkManager == null)
             {
-                MessageBox.Show(Resources.Please_unlock_bookmarks_first);
+                MessageBox.Show(Language.Please_unlock_bookmarks_first);
                 return;
             }
 
@@ -1154,8 +1154,8 @@ namespace ImageViewer
                 return;
             }
 
-            if (MessageBox.Show(this, Resources.Are_you_sure_you_want_to_close_all_windows_,
-                    Resources.Close_all_windows_, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) ==
+            if (MessageBox.Show(this, Language.Are_you_sure_you_want_to_close_all_windows_,
+                    Language.Close_all_windows_, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) ==
                 DialogResult.OK)
             {
                 var imageWindowQueue = new Queue<FormImageView>(_imageViewFormList);
@@ -1186,7 +1186,7 @@ namespace ImageViewer
         private void menuItemOpenImage_Click(object sender, EventArgs e)
         {
             // TODO fix bad code when opening a single image
-            openFileDialog1.Filter = Resources.ImageFormatFilter;
+            openFileDialog1.Filter = Language.ImageFormatFilter;
             openFileDialog1.FileName = "";
             if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {

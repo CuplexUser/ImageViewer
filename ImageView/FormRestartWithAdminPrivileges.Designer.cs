@@ -216,7 +216,7 @@ namespace ImageViewer
             // 
             // pnlMainImage
             // 
-            this.pnlMainImage.BackgroundImage = global::ImageViewer.Properties.Resources.WindowsIcon;
+            this.pnlMainImage.BackgroundImage = global::ImageViewer.Resources.Icons.WindowsIcon;
             this.pnlMainImage.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pnlMainImage.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.pnlMainImage.InnerBorderColor = System.Drawing.Color.LightSkyBlue;

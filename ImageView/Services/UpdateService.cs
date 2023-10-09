@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using ImageViewer.Models;
-using ImageViewer.Properties;
 
 namespace ImageViewer.Services;
 
@@ -41,7 +40,7 @@ public class UpdateService : ServiceBase
 
     private async Task<ApplicationVersion> GetLatestVersion()
     {
-        string url = Settings.Default.UpdateHistoryUrl;
+        string url = "";
         List<ApplicationVersion> versions;
         using (var client = new HttpClient())
         {

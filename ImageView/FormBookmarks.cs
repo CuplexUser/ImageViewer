@@ -7,7 +7,7 @@ using ImageViewer.InputForms;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.Enums;
-using ImageViewer.Properties;
+using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
@@ -81,7 +81,7 @@ public partial class FormBookmarks : Form
                 {
                     if (!formGetPassword.PasswordVerified)
                     {
-                        MessageBox.Show(this, Resources.Invalid_password_);
+                        MessageBox.Show(this, Language.Invalid_password_);
                         Close();
                         return;
                     }
@@ -92,7 +92,7 @@ public partial class FormBookmarks : Form
                     }
                     else
                     {
-                        MessageBox.Show(Resources.failed_to_decode_file_);
+                        MessageBox.Show(Language.failed_to_decode_file_);
                         Close();
                     }
                 }
@@ -176,7 +176,7 @@ public partial class FormBookmarks : Form
             return;
         }
 
-        if (showConfirmDialog && MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_bookmark_, Resources.Delete, MessageBoxButtons.YesNo) != DialogResult.Yes)
+        if (showConfirmDialog && MessageBox.Show(this, Language.Are_you_sure_you_want_to_delete_this_bookmark_, Language.Delete, MessageBoxButtons.YesNo) != DialogResult.Yes)
         {
             return;
         }
@@ -738,7 +738,7 @@ public partial class FormBookmarks : Form
             return;
         }
 
-        if (MessageBox.Show(this, Resources.Are_you_sure_you_want_to_delete_this_folder_, Resources.Remove_folder_, MessageBoxButtons.YesNo) == DialogResult.Yes)
+        if (MessageBox.Show(this, Language.Are_you_sure_you_want_to_delete_this_folder_, Language.Remove_folder_, MessageBoxButtons.YesNo) == DialogResult.Yes)
         {
             _bookmarkManager.DeleteBookmarkFolder(treeNode);
             AlterTreeViewState(TreeViewFolderStateChange.FolderRemoved, treeNode);
