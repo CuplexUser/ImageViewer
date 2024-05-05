@@ -36,7 +36,7 @@ public partial class FormThumbnailView : Form, IDisposable
         _thumbnailService = thumbnailService;
         _imageLoaderService = imageLoaderService;
         _scope = scope;
-        _updatePicBoxList += UpdatePicBoxList;
+        _updatePicBoxList += UpdatePictureBoxList;
         _tokenSource = new CancellationTokenSource();
 
         if (applicationSettings == null)
@@ -207,56 +207,72 @@ public partial class FormThumbnailView : Form, IDisposable
         GC.Collect(0, GCCollectionMode.Optimized);
     }
 
+    /// <summary>
+    /// Asynchronously binds and loads thumbnails in a responsive manner.
+    /// </summary>
+    /// <remarks>
+    /// This method generates thumbnails for each image in parallel, keeping the UI responsive.
+    /// It uses the <see cref="Parallel.ForEachAsync"/> method to generate the thumbnails in parallel.
+    /// </remarks>
+    /// <returns>A Task representing the asynchronous operation.</returns>
     private async Task BindAndLoadThumbnailsAsync()
     {
-        var modelList = GenerateThumbnailModels().ToList();
-        var collection = new SynchronizedCollection<PictureBoxModel>();
-        foreach (var model in modelList)
-            collection.Add(model);
-
+        // Generate thumbnail models
+        var thumbnailModels = GenerateThumbnailModels().ToList();
 
         // Generate thumbnails while keeping the UI 100% responsive
-        await Task.Factory.StartNew(async () =>
+        await Task.Run(async () =>
         {
             try
             {
+                // Set parallel options
                 var options = new ParallelOptions
                 {
                     CancellationToken = _tokenSource.Token,
                     MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
-                var parallelOperation = Parallel.ForEachAsync(collection, options, async (model, token) =>
+
+                // Generate thumbnails in parallel
+                await Parallel.ForEachAsync(thumbnailModels, options, async (model, token) =>
                 {
                     if (!token.IsCancellationRequested)
                     {
+                        // Create a picture box for the model
                         var picBox = CreatePictureBox(model);
-                        picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(true);
-                        Invoke(new UpdatePicBoxListEventHandler(UpdatePicBoxList), this, new UpdatePicBoxEventArgs(picBox));
-                    }
-                }).ConfigureAwait(true);
-                parallelOperation.GetAwaiter().OnCompleted(() => { _manualResetEvent.Set(); });
 
-                await parallelOperation;
-                _manualResetEvent.WaitOne();
+                        // Load and resize the image for the picture box
+                        picBox.Image = await LoadAndResizeImage(model.SourceImagePath).ConfigureAwait(false);
+
+                        // Update the picture box list                        
+                        _updatePicBoxList(this, new UpdatePicBoxEventArgs(picBox));
+                    }
+                });
+
+                // Set the manual reset event
+                _manualResetEvent.Set();
             }
             catch (Exception ex)
             {
+                // Log the exception if the operation is interrupted
                 Log.Error(ex, "BindAndLoadThumbnailsAsync was interrupted");
             }
             finally
             {
+                // Set the event wait handle
                 _eventWaitHandle.Set();
             }
+        }, _tokenSource.Token).ConfigureAwait(false);
 
-            await Task.Yield();
-        }, _tokenSource.Token).ConfigureAwait(true);
+        // Wait for the manual reset event for a maximum of 1 minute
+        _manualResetEvent.WaitOne(TimeSpan.FromMinutes(1));
 
-        _eventWaitHandle.Reset();
-        _eventWaitHandle.WaitOne(TimeSpan.FromMinutes(1));
-
+        // Check if the form is not being disposed
         if (!_formIsDisposing)
         {
+            // Trigger the thumbnail generation completed event
             Invoke(new EventHandler(ThumbnailGenerationCompleted));
+
+            //ThumbnailGenerationCompleted(this, EventArgs.Empty);
         }
     }
 
@@ -291,16 +307,27 @@ public partial class FormThumbnailView : Form, IDisposable
     }
 
 
-    private void UpdatePicBoxList(object sender, UpdatePicBoxEventArgs e)
+private void UpdatePictureBoxList(object sender, UpdatePicBoxEventArgs args)
+{
+    if (args?.PictureBoxModel != null)
     {
-        if (e?.PictureBoxModel != null)
+        if (flowLayoutPanel1.InvokeRequired)
+        {
+            flowLayoutPanel1.Invoke(new Action(() =>
+            {
+                flowLayoutPanel1.SuspendLayout();
+                flowLayoutPanel1.Controls.Add(args.PictureBoxModel);
+                flowLayoutPanel1.ResumeLayout(true);
+            }));
+        }
+        else
         {
             flowLayoutPanel1.SuspendLayout();
-            flowLayoutPanel1.Controls.Add(e.PictureBoxModel);
-
+            flowLayoutPanel1.Controls.Add(args.PictureBoxModel);
             flowLayoutPanel1.ResumeLayout(true);
         }
     }
+}
 
     private void SetUpdateDatabaseEnabledState(bool enabled)
     {

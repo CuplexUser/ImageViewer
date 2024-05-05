@@ -13,6 +13,11 @@ public class ThumbnailEntryModel
         }
     }
 
+    public ThumbnailEntryModel(Guid entryId)
+    {
+        EntryId = entryId;
+    }
+
     public Guid EntryId { get; protected set; }
 
     public string FullName { get; set; }

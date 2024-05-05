@@ -1,0 +1,53 @@
+{
+  "settings": {
+    "components": {
+      "code": true,
+      "binaries": false
+    },
+    "targetId": "",
+    "targetDisplayName": ".NET 8.0"
+  },
+  "analysisStartTime": "2024-04-09T15:48:05.2627719Z",
+  "analysisEndTime": "2024-04-09T15:48:06.1815304Z",
+  "stats": {
+    "summary": {
+      "projects": 3,
+      "issues": 0,
+      "incidents": 0,
+      "effort": 0
+    },
+    "charts": {
+      "severity": {
+        "Mandatory": 0,
+        "Optional": 0,
+        "Potential": 0,
+        "Information": 0
+      },
+      "category": {}
+    }
+  },
+  "projects": [
+    {
+      "path": "D:\\Projects\\ImageViewer\\GenerateRandomData\\GenerateRandomData.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "ruleInstances": []
+    },
+    {
+      "path": "D:\\Projects\\ImageViewer\\ImageView.UnitTests\\ImageView.UnitTests.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "ruleInstances": []
+    },
+    {
+      "path": "D:\\Projects\\ImageViewer\\ImageView\\ImageViewer.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "ruleInstances": []
+    }
+  ],
+  "rules": {}
+}

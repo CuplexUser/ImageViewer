@@ -153,7 +153,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
             // Save Data model
             var dataModel = _mapper.Map<ThumbnailMetadataDbDataModel>(_metadataDb);
             bool result = await _storageManager.SerializeObjectToFileAsync(dataModel, filePath, null);
-            await _blobStorageProvider.SaveFileToDiskAsync();
+            result = result & (await _blobStorageProvider.SaveFileToDiskAsync());
 
             return result;
         }
@@ -167,22 +167,30 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
     public async Task<Image> GetOrCreateThumbnailImage(FileInfo file, Size size)
     {
-        if (_metadataDb.ThumbnailEntries.Any(x => x.FullName == file.FullName))
+        if (_metadataDb.ThumbnailEntries.ContainsKey(file.FullName))
         {
-            var item = _metadataDb.ThumbnailEntries.FirstOrDefault(x => x.FullName == file.FullName);
+            var item = _metadataDb.ThumbnailEntries[file.FullName];
             if (file.LastWriteTime == item!.OriginalImageModel.LastModified && file.Length == item.OriginalImageModel.FileSize)
             {
-                // return cached thumbnail
-                byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.FileSize).ConfigureAwait(true);
-                var image = _imageProvider.RestoreImageFromCache(imgBytes);
+                try
+                {
+                    // return cached thumbnail
+                    byte[] imgBytes = await _blobStorageProvider.ReadBlobDataAsync(item.FilePosition, item.FileSize).ConfigureAwait(true);
+                    var image = _imageProvider.RestoreImageFromCache(imgBytes);
 
-                if (image == null)
-                {
-                    _metadataDb.ThumbnailEntries.Remove(item);
+                    if (image == null)
+                    {
+                        // TODO deal with faiulure
+                        bool result = _metadataDb.ThumbnailEntries.TryRemove(file.FullName, out _);
+                    }
+                    else
+                    {
+                        return image;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return image;
+                    Log.Error(ex, "GetOrCreateThumbnailImage exception. Message: {message}", ex.Message);
                 }
             }
         }
@@ -198,7 +206,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
     private async Task AddThumbnailImgToCacheAsync(Image image, FileInfo fileInfo)
     {
-        if (_metadataDb.ThumbnailEntries.All(x => x.FullName != fileInfo.FullName))
+        if (_metadataDb.ThumbnailEntries.ContainsKey(fileInfo.FullName))
         {
             var thumbModel = new ThumbnailEntryModel
             {
@@ -216,7 +224,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
             thumbModel.FileSize = rawImage.ImageData.Length;
             thumbModel.FullName = fileInfo.FullName;
 
-            _metadataDb.ThumbnailEntries.Add(thumbModel);
+            _metadataDb.ThumbnailEntries.TryAdd(thumbModel.FullName, thumbModel);
         }
     }
 
@@ -256,9 +264,9 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     public async Task<Image> GetOrCreateThumbnailImageAsync(string fullPath, Size size, CancellationToken token)
     {
         Image img = null;
-        if (_metadataDb.ThumbnailEntries.Any(x => x.FullName == fullPath))
+        if (_metadataDb.ThumbnailEntries.ContainsKey(fullPath))
         {
-            var entry = _metadataDb.ThumbnailEntries.FirstOrDefault(x => x.FullName == fullPath);
+            var entry = _metadataDb.ThumbnailEntries[fullPath];
             if (entry!.ThumbnailSize == size)
             {
                 byte[] data = await _blobStorageProvider.ReadBlobDataAsync(entry.FilePosition, entry.FileSize);
@@ -279,9 +287,13 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
                 var model = new ThumbnailEntryModel { FileSize = Convert.ToInt32(data.Length), CreateDate = DateTime.Now, ThumbnailSize = size, OriginalImageModel = imageRef };
                 int position = await _blobStorageProvider.WriteBlobDataAsync(data);
                 model.FilePosition = position;
-                model.FullName = fullPath;
+                model.FullName = fullPath;        
 
-                _metadataDb.ThumbnailEntries.Add(model);
+                if(!_metadataDb.ThumbnailEntries.TryAdd(model.FullName, model))
+                {
+                    Log.Warning("Failed to add ThumbnailEntryModel to _metadataDb.ThumbnailEntries in GetOrCreateThumbnailImageAsync()");
+                }
+
                 img = _imageProvider.LoadFromByteArray(data);
             }
             catch (Exception ex)

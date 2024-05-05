@@ -123,7 +123,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         }
     }
 
-    public async Task<byte[]> ReadBlobDataAsync(long position, int length)
+    public Task<byte[]> ReadBlobDataAsync(long position, int length)
     {
         byte[] buffer = new byte[length];
         int bytesRead;
@@ -138,7 +138,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
             {
                 if (!OpenStorageFile())
                 {
-                    return null;
+                    return Task.FromResult<byte[]>(null);
                 }
             }
 
@@ -158,7 +158,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         catch (Exception ex)
         {
             Log.Error(ex, "ReadBlobDataAsync failed");
-            return null;
+            return Task.FromResult<byte[]>(null);
         }
         finally
         {
@@ -166,7 +166,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
             _readerWriterLock.ExitReadLock();
         }
 
-        return bytesRead != buffer.Length ? null : buffer;
+        return Task.FromResult(bytesRead != buffer.Length ? null : buffer);
     }
 
     public int WriteBlobData(byte[] data)
@@ -201,7 +201,7 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
         return currentFilePosition;
     }
 
-    public async Task<int> WriteBlobDataAsync(byte[] imageData)
+    public Task<int> WriteBlobDataAsync(byte[] imageData)
     {
         if (!StorageFileIsOpen)
         {
@@ -211,27 +211,23 @@ public class BlobStorageProvider : ProviderBase, IDisposable, IEqualityComparer<
             }
         }
 
-        int currentFilePosition = -1;
+        int position = -1;
         try
         {
-            //_readerWriterLock.EnterWriteLock();
             Interlocked.Increment(ref WriteCount);
-            currentFilePosition = Convert.ToInt32(_blobDataFileStream.Length);
-            _blobDataFileStream.Position = currentFilePosition;
+            position = Convert.ToInt32(_blobDataFileStream.Length);
+            _blobDataFileStream.Position = position;
 
-            // Offset refers to offset in the array
-            await _blobDataFileStream.WriteAsync(imageData, 0, imageData.Length);
-
+            // Write imageData to the stream at the current position
+            _blobDataFileStream.Write(imageData, 0, imageData.Length);
 
         }
         finally
         {
             Interlocked.Decrement(ref WriteCount);
-            //_readerWriterLock.ExitWriteLock();
         }
 
-
-        return currentFilePosition;
+        return Task.FromResult(position);
     }
 
 

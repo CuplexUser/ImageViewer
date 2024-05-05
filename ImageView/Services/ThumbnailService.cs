@@ -102,7 +102,7 @@ public sealed class ThumbnailService : ServiceBase
 
             //int scannedFiles = dirList.TakeWhile(directory => !_abortScan).Sum(directory => PerformThumbnailScan(directory, progress));
             int totalFileCount = GetFileCount(dirList);
-            int scannedFiles = await StartThumbnailDirectoryScan(dirList, totalFileCount, progress, token);
+            int scannedFiles = await StartThumbnailDirectoryScanAsync(dirList, totalFileCount, progress, token);
 
             saveResult = await _thumbnailRepository.SaveThumbnailDatabaseAsync();
 
@@ -116,57 +116,52 @@ public sealed class ThumbnailService : ServiceBase
         return saveResult;
     }
 
-    private Task<int> StartThumbnailDirectoryScan(List<string> dirList, int totalFileCount, IProgress<ThumbnailScanProgress> progress, CancellationToken token)
+    private async Task<int> StartThumbnailDirectoryScanAsync(List<string> directories, int totalFileCount, IProgress<ThumbnailScanProgress> progress, CancellationToken token)
     {
         int scannedFiles = 0;
 
         if (_abortScan)
         {
-            return Task.FromResult(scannedFiles);
+            return scannedFiles;
         }
 
-
-        foreach (string dir in dirList)
+        foreach (string directory in directories)
         {
-            var files = new DirectoryInfo(dir).GetFiles().Where(x => _fileNameRegExp.IsMatch(x.Name)).ToList();
+            var filesToScan = new DirectoryInfo(directory).GetFiles().Where(file => _fileNameRegExp.IsMatch(file.Name)).ToList();
 
-            async void Body(FileInfo fileInfo, ParallelLoopState state, long index)
+            async Task ProcessFileAsync(FileInfo fileInfo)
             {
                 try
                 {
-                    //var tasks = new Task[taskCount];
-                    Image img = null;
-                    img = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
+                    Image thumbnailImage = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
 
                     if (progress != null && scannedFiles % 20 == 0)
                     {
                         progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
                     }
 
-
-                    if (img == null)
+                    if (thumbnailImage == null)
                     {
-                        throw new InvalidDataException("GetOrCreateThumbnailImage() Returned image was null");
+                        throw new InvalidDataException("GetOrCreateThumbnailImage() returned a null image");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, " Parallel.ForEach exception in dir: {path}, for file {file}", dir, fileInfo.Name);
+                    Log.Error(ex, "Exception during processing file: {file} in directory: {directory}", fileInfo.Name, directory);
                 }
 
                 Interlocked.Increment(ref scannedFiles);
             }
 
-            var result = Parallel.ForEach(files, Body);
+            await Task.WhenAll(filesToScan.Select(file => ProcessFileAsync(file)));
         }
 
         if (progress != null)
         {
-            progress.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = totalFileCount, TotalAmountOfFiles = totalFileCount });
+            progress.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
         }
 
-
-        return Task.FromResult(scannedFiles);
+        return scannedFiles;
     }
 
     private void CancelScanCallback()
