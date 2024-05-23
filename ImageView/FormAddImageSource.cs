@@ -225,7 +225,7 @@ public partial class FormAddImageSource : Form
     {
         var appSettings = _applicationSettingsService.Settings;
         FormStateManager.SaveFormState(appSettings, this);
-        FormStateManager.UpdateAdditionallParameters(appSettings, this, _controlStateDictionary);
+        FormStateManager.UpdateAdditionalParameters(appSettings, this, _controlStateDictionary);
         _applicationSettingsService.SaveSettings();
         e.Cancel = false;
     }

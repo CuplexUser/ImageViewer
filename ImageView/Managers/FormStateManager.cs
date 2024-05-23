@@ -3,7 +3,7 @@ using ImageViewer.Models;
 
 namespace ImageViewer.Managers;
 
-public class FormStateManager
+public static class FormStateManager
 {
     public static bool RestoreFormState(ApplicationSettingsModel settings, Form form)
     {
@@ -53,46 +53,44 @@ public class FormStateManager
 
     public static Dictionary<string, string> GetAdditionalParameters(ApplicationSettingsModel settings, Form form)
     {
-        if (settings.FormStateModels.ContainsKey(form.Name))
+        if (settings.FormStateModels.TryGetValue(form.Name, out var model))
         {
-            return settings.FormStateModels[form.Name].AdditionalParameters;
+            return model.AdditionalParameters;
         }
 
         return null;
     }
 
-    public static void UpdateAdditionallParameters(ApplicationSettingsModel settings, Form form, Dictionary<string, string> additionalParameters, bool replace = false)
+    public static void UpdateAdditionalParameters(ApplicationSettingsModel settings, Form form, Dictionary<string, string> additionalParameters, bool replace = false)
     {
-        if (settings.FormStateModels.ContainsKey(form.Name))
-        {
-            var parameters = settings.FormStateModels[form.Name].AdditionalParameters;
+        if (!settings.FormStateModels.TryGetValue(form.Name, out var model)) return;
+        var parameters = model.AdditionalParameters;
 
-            if (replace)
+        if (replace)
+        {
+            parameters = additionalParameters;
+        }
+        else
+        {
+            if (parameters == null)
             {
                 parameters = additionalParameters;
             }
             else
             {
-                if (parameters == null)
-                {
-                    parameters = additionalParameters;
-                }
-                else
-                {
-                    foreach (string key in additionalParameters.Keys)
-                        if (parameters.ContainsKey(key))
-                        {
-                            parameters[key] = additionalParameters[key];
-                        }
-                        else
-                        {
-                            parameters.Add(key, additionalParameters[key]);
-                        }
-                }
+                foreach (var key in additionalParameters.Keys)
+                    if (parameters.ContainsKey(key))
+                    {
+                        parameters[key] = additionalParameters[key];
+                    }
+                    else
+                    {
+                        parameters.Add(key, additionalParameters[key]);
+                    }
             }
-
-            settings.FormStateModels[form.Name].AdditionalParameters = parameters;
         }
+
+        settings.FormStateModels[form.Name].AdditionalParameters = parameters;
     }
 
     private static Point GetOffsetCenterPointInRect(Rectangle boundingRect, Size winSize)
@@ -118,9 +116,9 @@ public class FormStateManager
         FormStateModel model;
         appSettings.FormStateModels ??= new ConcurrentDictionary<string, FormStateModel>();
 
-        if (appSettings.FormStateModels.ContainsKey(form.Name))
+        if (appSettings.FormStateModels.TryGetValue(form.Name, out var stateModel))
         {
-            model = appSettings.FormStateModels[form.Name];
+            model = stateModel;
         }
         else
         {
@@ -142,17 +140,9 @@ public class FormStateManager
         }
     }
 
-    public static void ToggleFullscreen(WindowStateModel windowState, Form form)
+    public static void ToggleFullscreen( Form form, WindowStateModel windowState, bool fullscreen)
     {
-        if (windowState.IsFullscreen)
-        {
-            // Restore normal window state
-            form.FormBorderStyle = windowState.BorderStyle;
-            form.WindowState = windowState.WindowState;
-            form.BackColor = windowState.BackgroundColor;
-            windowState.IsFullscreen = false;
-        }
-        else
+        if (fullscreen)
         {
             // Set initial values to be restored when leaving fullscreen mode
             windowState.BorderStyle = form.FormBorderStyle;
@@ -164,8 +154,14 @@ public class FormStateManager
             form.WindowState = FormWindowState.Maximized;
             form.BackColor = Color.Black;
             windowState.IsFullscreen = true;
-            windowState.CursorVisible = false;
-            windowState.WindowState = FormWindowState.Normal;
+        }
+        else
+        {
+            // Restore normal window state
+            form.FormBorderStyle = windowState.BorderStyle;
+            form.WindowState = windowState.WindowState;
+            form.BackColor = windowState.BackgroundColor;
+            windowState.IsFullscreen = false;
         }
     }
 }

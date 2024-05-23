@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows7.0</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>\\WIN10-SERVER\Public\</PublishUrl>
     <Install>false</Install>
@@ -57,12 +57,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;SYSLIB0045</NoWarn>
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 	  <DebugType>full</DebugType>
 	  <NoWarn>1701;1702;SYSLIB0045</NoWarn>
-	  <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -73,7 +71,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
     <NoWarn>1701;1702;SYSLIB0045</NoWarn>
-    <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Library\Converters\**" />
@@ -120,18 +117,22 @@
     <PackageReference Include="Autofac" Version="8.0.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="AutofacSerilogIntegration" Version="5.0.0" />
-    <PackageReference Include="AutoMapper" Version="12.0.1" />
-    <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper.Contrib.Autofac.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="GeneralToolkitLib" Version="3.4.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.6.0" />
-    <PackageReference Include="Magick.NET.Core" Version="13.6.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.8.0" />
+    <PackageReference Include="Magick.NET.Core" Version="13.8.0" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog" Version="2.12.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="8.0.5" />
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Library\ModuleWeaver.cs" />
@@ -184,15 +185,13 @@
     <PostBuildEvent Condition="'$(Configuration)' == 'Release'">
 	    call $(SolutionDir)SignAssembly.bat
     </PostBuildEvent>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>full</DebugType>
     <Nullable>disable</Nullable>
     <SignAssembly>False</SignAssembly>
     <Copyright>Martin Dahl 2024</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>3.4.2.0</AssemblyVersion>
-    <FileVersion>3.4.2.0</FileVersion>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <NeutralLanguage>en-001</NeutralLanguage>
     <UserSecretsId>e6e05188-b9c5-4534-8987-4b493e5b7544</UserSecretsId>
@@ -200,13 +199,9 @@
     <AnalysisLevel>latest-minimum</AnalysisLevel>
     <EnableNETAnalyzers>False</EnableNETAnalyzers>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>3.4.2.0</Version>
     <Company>Cuplex Org</Company>
     <PackageProjectUrl>https://apps.cuplex.se</PackageProjectUrl>
     <ImplicitUsings>enable</ImplicitUsings>
-    <PostBuildEvent>
-	rem    call $(SolutionDir)SignAssembly.bat
-    </PostBuildEvent>
     <ApplicationIcon>Claire-MonitorComputer-Matrix.ico</ApplicationIcon>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <Title>Image Viewer</Title>
@@ -215,12 +210,12 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <OutputType>WinExe</OutputType>
     <StartupObject>ImageViewer.Program</StartupObject>
+    <PostBuildEvent>rem echo 1  </PostBuildEvent>
     <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       <DebugType>full</DebugType>
       <NoWarn>1701;1702;SYSLIB0045</NoWarn>
-      <DefineConstants>$(DefineConstants)TRACE</DefineConstants>
     </PropertyGroup>
 </Project>

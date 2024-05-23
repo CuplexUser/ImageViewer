@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Timers;
 using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
@@ -8,11 +9,14 @@ using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Managers;
 using ImageViewer.Models;
+using ImageViewer.Models.State;
 using ImageViewer.Models.UserInteraction;
 using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
+using Timer = System.Timers.Timer;
+
 
 // ReSharper disable All
 
@@ -37,7 +41,6 @@ namespace ImageViewer
         private ApplicationSettingsModel.ChangeImageAnimation _changeImageAnimation;
         private bool _dataReady;
         private FormWindows _formWindows;
-        private int _hideCursorDelay;
         private ImageReferenceCollection _imageReferenceCollection;
         private bool _imageTransitionRunning;
         private int _imageViewFormIdCnt = 1;
@@ -45,6 +48,11 @@ namespace ImageViewer
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
         private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
+        private Object lockObj = new object();
+
+        private Timer mouseTimer = new Timer(100);
+        private readonly MouseState _mouseState = new MouseState();
+
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService,
             ImageCacheService imageCacheService,
@@ -141,9 +149,8 @@ namespace ImageViewer
                 TopMost = settings.AlwaysOntop;
             }
 
-            _hideCursorDelay = settings.AutoHideCursorDelay;
+            _mouseState.UpdateStateFromSettings(settings);
             topMostToolStripMenuItem.Checked = settings.AlwaysOntop;
-            timerCursorVisible.Interval = settings.AutoHideCursorDelay;
 
             _changeImageAnimation = settings.NextImageAnimation;
             autoLoadPreviousFolderToolStripMenuItem.Enabled = settings.EnableAutoLoadFunctionFromMenu &&
@@ -330,23 +337,20 @@ namespace ImageViewer
             _imageTransitionRunning = false;
         }
 
-        private void ToggleFullscreen()
+        private void ToggleFullscreen(bool fullscreen)
         {
-            if (_windowState.IsFullscreen)
+            FormStateManager.ToggleFullscreen(this, _windowState, fullscreen);
+
+            // Additional changes
+            if (fullscreen)
             {
-                FormStateManager.ToggleFullscreen(_windowState, this);
-                menuStrip1.Visible = true;
-                ScreenSaver.Enable();
-                Cursor.Show();
-                _windowState.CursorVisible = true;
+                ScreenSaver.Disable();
+                menuStrip1.Visible = false;
             }
             else
             {
-                FormStateManager.ToggleFullscreen(_windowState, this);
-                menuStrip1.Visible = false;
-                Cursor.Hide();
-                _windowState.CursorVisible = false;
-                ScreenSaver.Disable();
+                menuStrip1.Visible = true;
+                ScreenSaver.Enable();
             }
         }
 
@@ -442,81 +446,10 @@ namespace ImageViewer
             Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
         }
 
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {
-            cursorMovedTime = DateTime.Now;
-
-            if (_windowState.CursorVisible)
-            {
-                return;
-            }
 
 
-            if (cursorPosition.X != e.X || cursorPosition.Y != e.Y)
-            {
-                cursorPosition.X = e.X;
-                cursorPosition.Y = e.Y;
 
-                pointerBox.X = cursorPosition.X - pointerBox.Width / 2;
-                pointerBox.Y = cursorPosition.Y + pointerBox.Height / 2;
 
-                Rectangle interspersionRectangle = new Rectangle(cursorPosition, new Size(1, 1));
-                if (!pointerBox.IntersectsWith(interspersionRectangle))
-                {
-                    //Console.WriteLine($"pictureBox1_MouseMoved, locations is: X: {e.X}, Y: {e.Y}");
-                    _windowState.CursorVisible = true;
-                    UpdateCursorState();
-                }
-            }
-        }
-
-        private void UpdateCursorState()
-        {
-            if (!ImageSourceDataAvailable)
-                return;
-
-            if (_windowState.CursorVisible)
-            {
-                Cursor.Show();
-            }
-            else
-            {
-                if (Focused)
-                    Cursor.Hide();
-            }
-        }
-
-        private void pictureBox1_MouseHover(object sender, EventArgs e)
-        {
-            if (!timerCursorVisible.Enabled)
-            {
-                //timerCursorVisible.Enabled = true;
-            }
-        }
-
-        private void timerCursorVisible_Tick(object sender, EventArgs e)
-        {
-            if (!_windowState.CursorVisible)
-            {
-                return;
-            }
-
-            if (cursorMovedTime.AddMilliseconds(_hideCursorDelay) < DateTime.Now)
-            {
-                _windowState.CursorVisible = false;
-                UpdateCursorState();
-            }
-        }
-
-        private void pictureBox1_MouseEnter(object sender, EventArgs e)
-        {
-            timerCursorVisible.Enabled = true;
-        }
-
-        private void pictureBox1_MouseLeave(object sender, EventArgs e)
-        {
-            timerCursorVisible.Enabled = false;
-        }
 
         private delegate void NativeThreadFunction();
 
@@ -567,7 +500,42 @@ namespace ImageViewer
             _interactionService.Initialize(this);
             _interactionService.UserInformationReceived += InteractionServiceUserInformationReceived;
             _interactionService.UserQuestionReceived += InteractionServiceUserQuestionReceived;
+
+            // Mouse Cursor Manager
+            mouseTimer.AutoReset = false;
+            mouseTimer.Interval = 250;
+            mouseTimer.SynchronizingObject = this;
+            mouseTimer.Elapsed += MouseTimerCallback;
+
         }
+
+        private void MouseTimerCallback(object sender, ElapsedEventArgs e)
+        {
+            if (pictureBox1.Image == null || !_applicationSettingsService.Settings.AutoHideCursor)
+                return;
+
+            int delay = _applicationSettingsService.Settings.AutoHideCursorDelay;
+
+            if (_mouseState.CursorVisible)
+            {
+                if (DateTime.Now.Ticks > _mouseState.LastUpdated.AddMilliseconds(delay).Ticks)
+                {
+                    Cursor.Hide();
+                    _mouseState.CursorVisible = false;
+                }
+            }
+            else
+            {
+                if (DateTime.Now.Ticks < _mouseState.LastUpdated.AddMilliseconds(delay).Ticks)
+                {
+                    Cursor.Show();
+                    _mouseState.CursorVisible = true;
+                }
+            }
+
+            mouseTimer.Start();
+        }
+
 
 
         private void Instance_OnImportComplete(object sender, ProgressEventArgs e)
@@ -648,16 +616,17 @@ namespace ImageViewer
         {
             if (e.KeyCode == Keys.Escape && _windowState.IsFullscreen)
             {
-                ToggleFullscreen();
+                ToggleFullscreen(false);
             }
             else if (e.Alt && e.KeyCode == Keys.Enter)
             {
-                ToggleFullscreen();
+                ToggleFullscreen(!_windowState.IsFullscreen);
             }
 
-            //if (e.KeyCode == Keys.F11)
+            // Must be defined here because the menu strip is not visible in fullscreen
+            //if (e.KeyCode == Keys.F11 && _windowState.IsFullscreen)
             //{
-            //    ToggleFullscreen();
+            //    ToggleFullscreen(!_windowState.IsFullscreen);
             //    e.Handled = true;
             //    return;
             //}
@@ -721,6 +690,28 @@ namespace ImageViewer
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void pictureBox1_MouseHover(object sender, EventArgs e)
+        {
+            _mouseState.UpdateHover();
+        }
+
+        private void pictureBox1_MouseEnter(object sender, EventArgs e)
+        {
+            mouseTimer.Start();
+        }
+
+        private void pictureBox1_MouseLeave(object sender, EventArgs e)
+        {
+            mouseTimer.Stop();
+        }
+
+        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        {
+            _mouseState.UpdateLocation(e.X, e.Y);
+            if (!mouseTimer.Enabled)
+                mouseTimer.Start();
         }
 
         private void ToolTipSlideshowState_Popup(object sender, PopupEventArgs e)
@@ -904,7 +895,7 @@ namespace ImageViewer
 
         private void showFullscreenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToggleFullscreen();
+            ToggleFullscreen(!_windowState.IsFullscreen);
         }
 
         private void setImageScalingModeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1028,10 +1019,8 @@ namespace ImageViewer
 
             if (ImageSourceDataAvailable)
             {
-                if (_windowState.IsFullscreen)
-                {
-                    Cursor.Show();
-                }
+
+                //Cursor.Show();
 
                 var startupPosition = new Point(Location.X, Location.Y);
                 startupPosition.X += addBookmarkToolStripMenuItem.Width;
@@ -1041,10 +1030,6 @@ namespace ImageViewer
                 {
                     _formAddBookmark.Init(startupPosition, _imageReferenceCollection.CurrentImage);
                     _formAddBookmark.ShowDialog(this);
-                    if (_windowState.IsFullscreen)
-                    {
-                        Cursor.Hide();
-                    }
                 }
             }
         }
@@ -1221,5 +1206,7 @@ namespace ImageViewer
         }
 
         #endregion Main Menu Functions
+
+
     }
 }

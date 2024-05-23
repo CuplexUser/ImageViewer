@@ -649,7 +649,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
 
 
         // Bugfix for:
-        // Exception when right bottom corner is clicked and for one ore more windows we get an exception on the int parse call below:
+        // Exception when right bottom corner is clicked and for one or more windows we get an exception on the int parse call below:
         // (Value was either too large or too small for an Int32.)
         if (WindowState != FormWindowState.Normal || pictureBox.Height < 200 || pictureBox.Width < 200)
         {
