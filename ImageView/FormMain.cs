@@ -33,6 +33,7 @@ namespace ImageViewer
         private readonly ImageLoaderService _imageLoaderService;
         private readonly List<FormImageView> _imageViewFormList;
         private readonly UserInteractionService _interactionService;
+        private readonly MouseState _mouseState = new MouseState();
         private readonly PictureBox _pictureBoxAnimation = new();
         private readonly ILifetimeScope _scope;
         private readonly ThumbnailService _thumbnailService;
@@ -47,12 +48,9 @@ namespace ImageViewer
         private bool _winKeyDown;
         private DateTime cursorMovedTime = DateTime.Now;
         private Point cursorPosition = Point.Empty;
-        private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
-        private Object lockObj = new object();
-
         private Timer mouseTimer = new Timer(100);
-        private readonly MouseState _mouseState = new MouseState();
-
+        private Rectangle pointerBox = new(Point.Empty, new Size(25, 25));
+        private bool FullscreenMode { get; set; }
 
         public FormMain(FormAddBookmark formAddBookmark, BookmarkService bookmarkService, ApplicationSettingsService applicationSettingsService,
             ImageCacheService imageCacheService,
@@ -341,6 +339,9 @@ namespace ImageViewer
         {
             FormStateManager.ToggleFullscreen(this, _windowState, fullscreen);
 
+            // Form Global variable
+            FullscreenMode = fullscreen;
+
             // Additional changes
             if (fullscreen)
             {
@@ -447,10 +448,6 @@ namespace ImageViewer
         }
 
 
-
-
-
-
         private delegate void NativeThreadFunction();
 
         private delegate void NativeThreadFunctionUserInfo(object sender, UserInformationEventArgs e);
@@ -506,7 +503,6 @@ namespace ImageViewer
             mouseTimer.Interval = 250;
             mouseTimer.SynchronizingObject = this;
             mouseTimer.Elapsed += MouseTimerCallback;
-
         }
 
         private void MouseTimerCallback(object sender, ElapsedEventArgs e)
@@ -535,7 +531,6 @@ namespace ImageViewer
 
             mouseTimer.Start();
         }
-
 
 
         private void Instance_OnImportComplete(object sender, ProgressEventArgs e)
@@ -623,13 +618,6 @@ namespace ImageViewer
                 ToggleFullscreen(!_windowState.IsFullscreen);
             }
 
-            // Must be defined here because the menu strip is not visible in fullscreen
-            //if (e.KeyCode == Keys.F11 && _windowState.IsFullscreen)
-            //{
-            //    ToggleFullscreen(!_windowState.IsFullscreen);
-            //    e.Handled = true;
-            //    return;
-            //}
 
             if (_imageTransitionRunning)
             {
@@ -667,12 +655,17 @@ namespace ImageViewer
             switch (e.Button)
             {
                 case MouseButtons.XButton1:
+                case MouseButtons.XButton2:
+                    if (FullscreenMode)
+                    {
+                        fullscreenMenuStrip.Show(e.Location, ToolStripDropDownDirection.Default);
+                    }
+                    break;
                 case MouseButtons.Left:
                     ChangeImage(true);
                     break;
 
                 case MouseButtons.Right:
-                case MouseButtons.XButton2:
                     ChangeImage(false);
                     break;
 
@@ -1019,7 +1012,6 @@ namespace ImageViewer
 
             if (ImageSourceDataAvailable)
             {
-
                 //Cursor.Show();
 
                 var startupPosition = new Point(Location.X, Location.Y);
@@ -1207,6 +1199,12 @@ namespace ImageViewer
 
         #endregion Main Menu Functions
 
-
+        private void MenuItemExitFullscreen_Click(object sender, EventArgs e)
+        {
+            if (FullscreenMode)
+            {
+                ToggleFullscreen(false);
+            }
+        }
     }
 }

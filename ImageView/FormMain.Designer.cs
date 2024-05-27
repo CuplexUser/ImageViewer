@@ -94,8 +94,16 @@
             openFileDialog1 = new OpenFileDialog();
             pictureBox1 = new PictureBox();
             toolTipSlideshowState = new ToolTip(components);
+            fullscreenMenuStrip = new ContextMenuStrip(components);
+            MenuItemDelete = new ToolStripMenuItem();
+            toolStripSeparator14 = new ToolStripSeparator();
+            MenuItemStartSlideshow = new ToolStripMenuItem();
+            MenuItemStopSlideshow = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            MenuItemExitFullscreen = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            fullscreenMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -119,6 +127,7 @@
             // openFileCollectionToolStripMenuItem
             // 
             openFileCollectionToolStripMenuItem.Name = "openFileCollectionToolStripMenuItem";
+            openFileCollectionToolStripMenuItem.ShortcutKeys = Keys.F3;
             openFileCollectionToolStripMenuItem.Size = new Size(211, 22);
             openFileCollectionToolStripMenuItem.Text = "&Open File Browser";
             openFileCollectionToolStripMenuItem.Click += openFileCollectionToolStripMenuItem_Click;
@@ -544,6 +553,47 @@
             toolTipSlideshowState.InitialDelay = 100;
             toolTipSlideshowState.ReshowDelay = 500;
             // 
+            // fullscreenMenuStrip
+            // 
+            fullscreenMenuStrip.Items.AddRange(new ToolStripItem[] { MenuItemDelete, toolStripSeparator14, MenuItemStartSlideshow, MenuItemStopSlideshow, toolStripSeparator1, MenuItemExitFullscreen });
+            fullscreenMenuStrip.Name = "fullscreenMenuStrip";
+            fullscreenMenuStrip.Size = new Size(187, 126);
+            // 
+            // MenuItemDelete
+            // 
+            MenuItemDelete.Name = "MenuItemDelete";
+            MenuItemDelete.Size = new Size(186, 22);
+            MenuItemDelete.Text = "Delete Current Image";
+            // 
+            // toolStripSeparator14
+            // 
+            toolStripSeparator14.Name = "toolStripSeparator14";
+            toolStripSeparator14.Size = new Size(183, 6);
+            // 
+            // MenuItemStartSlideshow
+            // 
+            MenuItemStartSlideshow.Name = "MenuItemStartSlideshow";
+            MenuItemStartSlideshow.Size = new Size(186, 22);
+            MenuItemStartSlideshow.Text = "Start Slideshow";
+            // 
+            // MenuItemStopSlideshow
+            // 
+            MenuItemStopSlideshow.Name = "MenuItemStopSlideshow";
+            MenuItemStopSlideshow.Size = new Size(186, 22);
+            MenuItemStopSlideshow.Text = "Stop Slideshow";
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(183, 6);
+            // 
+            // MenuItemExitFullscreen
+            // 
+            MenuItemExitFullscreen.Name = "MenuItemExitFullscreen";
+            MenuItemExitFullscreen.Size = new Size(186, 22);
+            MenuItemExitFullscreen.Text = "&Exit Fullscreen Mode";
+            MenuItemExitFullscreen.Click += MenuItemExitFullscreen_Click;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -567,6 +617,7 @@
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            fullscreenMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -637,6 +688,13 @@
         private System.Windows.Forms.ToolTip toolTipSlideshowState;
         private System.Windows.Forms.ToolStripMenuItem deleteImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFileCollectionToolStripMenuItem;
+        private ContextMenuStrip fullscreenMenuStrip;
+        private ToolStripMenuItem MenuItemDelete;
+        private ToolStripSeparator toolStripSeparator14;
+        private ToolStripMenuItem MenuItemStartSlideshow;
+        private ToolStripMenuItem MenuItemStopSlideshow;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem MenuItemExitFullscreen;
     }
 }
 

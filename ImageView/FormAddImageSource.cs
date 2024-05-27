@@ -450,8 +450,8 @@ public partial class FormAddImageSource : Form
                 }
                 else
                 {
-                    // Imposible state during normal operation, because the selected treeNode doesnt actually exist.
-                    Log.Warning("Tried to update content of the directory '{path}'. But could not locate the dirctory in the output list!", model.FullName);
+                    // Impossible state during normal operation, because the selected treeNode doesnt actually exist.
+                    Log.Warning("Tried to update content of the directory '{path}'. But could not locate the directory in the output list!", model.FullName);
                 }
             }
             else
@@ -463,7 +463,7 @@ public partial class FormAddImageSource : Form
                 treeViewImgCollection.EndUpdate();
                 LoadOutputFileListFromNode(treeViewImgCollection.SelectedNode);
 
-                Log.Debug("Removed {removed} directories from outputcollection during source update", removedItems);
+                Log.Debug("Removed {removed} directories from output collection during source update", removedItems);
             }
         }
     }
@@ -602,7 +602,7 @@ public partial class FormAddImageSource : Form
         }
     }
 
-    private void UnpdateResultInTargetDirMenuItem_Click(object sender, EventArgs e)
+    private void UpdateResultInTargetDirMenuItem_Click(object sender, EventArgs e)
     {
         UpdateSelectedOutputDirectoryContent();
     }
@@ -645,9 +645,8 @@ public partial class FormAddImageSource : Form
 
         //Additional Settings
         var additionalParameters = FormStateManager.GetAdditionalParameters(settings, this);
-        if (additionalParameters != null && additionalParameters.ContainsKey("cbDrives.SelectedIndex"))
+        if (additionalParameters != null && additionalParameters.TryGetValue("cbDrives.SelectedIndex", out string selectedIndex))
         {
-            string selectedIndex = additionalParameters["cbDrives.SelectedIndex"];
             _controlStateDictionary.Add("cbDrives.SelectedIndex", selectedIndex);
 
             if (int.TryParse(selectedIndex, out int index))
@@ -673,6 +672,8 @@ public partial class FormAddImageSource : Form
         {
             SynchronizeRecentFileMenuList();
         }
+
+        txtFullNameOfNode.Text = "";
 
         var selectedDrive = cbDrives.SelectedItem as DriveModel;
         RootNode = RootObjectModel.CreateRootObject(selectedDrive);
@@ -729,7 +730,7 @@ public partial class FormAddImageSource : Form
         }
     }
 
-    private void toolStripMenuItemAddFlderRecursive_Click(object sender, EventArgs e)
+    private void toolStripMenuItemAddFolderRecursive_Click(object sender, EventArgs e)
     {
         folderBrowserDialog1.InitialDirectory = RootNode.RootDirectory;
         folderBrowserDialog1.RootFolder = Environment.SpecialFolder.MyComputer;
@@ -753,11 +754,10 @@ public partial class FormAddImageSource : Form
         openFileDialog1.FileName = "";
 
         if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
-            // TODO Create ListViewSourceModel, append selected files and add to collection
+        // TODO Create ListViewSourceModel, append selected files and add to collection
         {
-            for (int i = 0; i < openFileDialog1.FileNames.Length; i++)
+            foreach (string fileName in openFileDialog1.FileNames)
             {
-                string fileName = openFileDialog1.FileNames[i];
                 Debug.WriteLine($"Selected file: {fileName}");
             }
         }
@@ -1053,19 +1053,19 @@ public partial class FormAddImageSource : Form
                 ExpandNode(ref node, ref sourceFolder);
                 break;
             case RootObjectModel rootObject when node.Nodes.Count == 0:
-            {
-                treeViewFileSystem.BeginUpdate();
-                foreach (var folder in rootObject.Folders)
                 {
-                    var tn = CreateTreeNode(folder);
-                    node.Nodes.Add(tn);
+                    treeViewFileSystem.BeginUpdate();
+                    foreach (var folder in rootObject.Folders)
+                    {
+                        var tn = CreateTreeNode(folder);
+                        node.Nodes.Add(tn);
+                    }
+
+
+                    treeViewFileSystem.Sort();
+                    treeViewFileSystem.EndUpdate();
+                    break;
                 }
-
-
-                treeViewFileSystem.Sort();
-                treeViewFileSystem.EndUpdate();
-                break;
-            }
         }
     }
 
@@ -1112,7 +1112,7 @@ public partial class FormAddImageSource : Form
         if (!result)
         {
             _interactionService.InformUser(new UserInteractionInformation
-                { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
+            { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
         }
         else
         {
@@ -1188,12 +1188,41 @@ public partial class FormAddImageSource : Form
 
     private void treeViewFileSystem_MouseDoubleClick(object sender, MouseEventArgs e)
     {
-        if (e.Button == MouseButtons.Left)
-        {
-            var hittest = treeViewFileSystem.HitTest(e.Location);
-            //hittest.Node?.Toggle();
-        }
+
     }
 
     #endregion
+
+    private void treeViewImgCollection_MouseMove(object sender, MouseEventArgs e)
+    {
+
+        var treeNodeHitTest = treeViewImgCollection.HitTest(e.X, e.Y);
+        if (treeNodeHitTest.Node != null)
+        {
+            if (treeNodeHitTest.Node.Tag is OutputDirectoryModel OutputDirModel)
+            {
+                txtFullNameOfNode.Text = OutputDirModel.FullName;
+            }
+        }
+        else
+        {
+            txtFullNameOfNode.Text = "";
+        }
+
+    }
+
+    private void panel5_Resize(object sender, EventArgs e)
+    {
+        txtFullNameOfNode.Location = new Point(lblAsyncStateInfo.Right + 8, panel5.Height - txtFullNameOfNode.Height - 8);
+        int width = panel5.Width - txtFullNameOfNode.Left - 2;
+
+        if (width > 0)
+        {
+            txtFullNameOfNode.Width = width;
+        }
+
+
+
+        txtFullNameOfNode.BorderStyle = BorderStyle.Fixed3D;
+    }
 }
