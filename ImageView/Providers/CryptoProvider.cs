@@ -1,7 +1,7 @@
-﻿using System.Security;
+﻿using GeneralToolkitLib.Storage.Memory;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
-using GeneralToolkitLib.Storage.Memory;
 
 namespace ImageViewer.Providers;
 
@@ -14,7 +14,8 @@ public class CryptoProvider : ProviderBase
     [SecurityCritical]
     private const string DefaultKey = "KcERym2zjZKy9ps5ftGZDfGbepbeNrRN7QhsxwiTLBGzk2gWG2ULTKbEFqkxBtrFggC5XXUTDti8WbzZH7KkP73h7tAtwevDCi3qLQ3zHvP7Kjwq87wCnbT6Cd3dCQKV";
 
-    [SecurityCritical] private static readonly byte[] SaltBytes =
+    [SecurityCritical]
+    private static readonly byte[] SaltBytes =
     {
         0x0C, 0xF2, 0xC4, 0x59, 0x9E, 0x8A, 0x0D, 0x92, 0x17, 0x9A, 0xC4, 0x3D, 0xC8, 0xB1, 0x90, 0xF1,
         0x01, 0xB0, 0xDD, 0x4F, 0xB5, 0x4D, 0xED, 0xDC, 0xA7, 0x4D, 0x14, 0x77, 0x23, 0x20, 0x0C, 0x2C,

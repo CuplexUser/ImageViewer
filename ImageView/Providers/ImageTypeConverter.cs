@@ -1,5 +1,5 @@
-﻿using System.Drawing.Imaging;
-using ImageMagick;
+﻿using ImageMagick;
+using System.Drawing.Imaging;
 
 namespace ImageViewer.Providers;
 

@@ -1,11 +1,7 @@
 ﻿using ImageView.UnitTests.Properties;
 using ImageViewer.Models;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Reflection;
 using System.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,7 +13,7 @@ namespace ImageView.UnitTests.TestHelper
     {
         private readonly TestContext _context;
         private readonly string[] ResourceImageNames =
-        {
+        [
             "_72_dpi_RGB_G403_Prodigy_Gaming_Mouse",
             "8_bit_City",
             "anonymus1",
@@ -27,7 +23,12 @@ namespace ImageView.UnitTests.TestHelper
             "Logitechg403_81N4u3_86kL__SL1500_",
             "NAOS_7000_5_Transparent",
             "Dys_ovoXcAERzFA1"
-        };
+        ];
+
+        protected TestDataFactory()
+        {
+
+        }
 
         public TestDataFactory(TestContext context)
         {

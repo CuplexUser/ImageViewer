@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Drawing.Drawing2D;
-using ImageViewer.DataBinding;
+﻿using ImageViewer.DataBinding;
 using ImageViewer.DataContracts;
 using ImageViewer.Events;
 using ImageViewer.InputForms;
@@ -11,6 +9,8 @@ using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
+using System.ComponentModel;
+using System.Drawing.Drawing2D;
 
 namespace ImageViewer;
 
@@ -73,9 +73,9 @@ public partial class FormBookmarks : Form
         if (_applicationSettingsService.Settings.PasswordProtectBookmarks)
         {
             using (var formGetPassword = new FormGetPassword
-                   {
-                       PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
-                   })
+            {
+                PasswordDerivedString = _applicationSettingsService.Settings.PasswordDerivedString
+            })
             {
                 if (formGetPassword.ShowDialog() == DialogResult.OK)
                 {
@@ -413,7 +413,7 @@ public partial class FormBookmarks : Form
             }
         }
         else
-            // Reset the rectangle if the mouse is not over an item in the ListBox.
+        // Reset the rectangle if the mouse is not over an item in the ListBox.
         {
             _dragBoxFromMouseDown = Rectangle.Empty;
         }
@@ -422,10 +422,10 @@ public partial class FormBookmarks : Form
     private void bookmarksDataGridView_MouseMove(object sender, MouseEventArgs e)
     {
         if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
-            // If the mouse moves outside the rectangle, start the drag.
+        // If the mouse moves outside the rectangle, start the drag.
         {
             if (_dragBoxFromMouseDown != Rectangle.Empty && !_dragBoxFromMouseDown.Contains(e.X, e.Y) && _valueFromMouseDown != null)
-                // Proceed with the drag and drop, passing in the list item.                    
+            // Proceed with the drag and drop, passing in the list item.                    
             {
                 bookmarksDataGridView.DoDragDrop(_valueFromMouseDown, DragDropEffects.Move);
             }

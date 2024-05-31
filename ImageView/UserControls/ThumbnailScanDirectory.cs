@@ -49,7 +49,7 @@ public partial class ThumbnailScanDirectory : UserControl
 
         Task.Factory.StartNew(async () =>
         {
-           await _thumbnailService.ThumbnailDirectoryScan(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked, _cancelTokenSource.Token);
+            await _thumbnailService.ThumbnailDirectoryScan(txtFolderPath.Text, progress, chbIncludeSubdirs.Checked, _cancelTokenSource.Token);
         }).ConfigureAwait(true);
     }
 
@@ -108,7 +108,7 @@ public partial class ThumbnailScanDirectory : UserControl
 
     public void OnFormClosed()
     {
-        Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
+        _thumbnailService.SaveThumbnailDatabase();
 
         if (_scanningDirectory)
         {

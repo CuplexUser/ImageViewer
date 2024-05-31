@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using ImageViewer.Collections;
+﻿using ImageViewer.Collections;
 using ImageViewer.Models;
 using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.Utility;
+using System.ComponentModel;
 
 namespace ImageViewer;
 
@@ -247,11 +247,11 @@ public partial class FileBrowser : Form
                 openWithDefaultApplicationToolStripMenuItem.Visible = false;
                 break;
             default:
-            {
-                foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
-                    menuItem.Visible = true;
-                break;
-            }
+                {
+                    foreach (ToolStripItem menuItem in FileListMenuStrip.Items)
+                        menuItem.Visible = true;
+                    break;
+                }
         }
     }
 

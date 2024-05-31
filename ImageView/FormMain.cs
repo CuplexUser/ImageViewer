@@ -1,9 +1,7 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Timers;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
+using ImageViewer.Configuration;
 using ImageViewer.Events;
 using ImageViewer.Library.CustomAttributes;
 using ImageViewer.Library.EventHandlers;
@@ -15,6 +13,9 @@ using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Timers;
 using Timer = System.Timers.Timer;
 
 
@@ -444,9 +445,8 @@ namespace ImageViewer
 
         private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
+            _thumbnailService.SaveThumbnailDatabase();
         }
-
 
         private delegate void NativeThreadFunction();
 

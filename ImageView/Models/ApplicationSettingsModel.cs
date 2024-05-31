@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ImageViewer.Configuration;
+﻿using ImageViewer.Configuration;
 using ImageViewer.Library.Extensions;
 using ImageViewer.Models.FormMenuHistory;
+using System.ComponentModel.DataAnnotations;
 
 namespace ImageViewer.Models;
 

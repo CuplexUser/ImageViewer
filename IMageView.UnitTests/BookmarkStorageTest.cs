@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿
+using Autofac;
 using AutoMapper;
 using GeneralToolkitLib.ConfigHelper;
 using GeneralToolkitLib.Configuration;
@@ -11,10 +12,6 @@ using ImageViewer.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace ImageView.UnitTests
 {

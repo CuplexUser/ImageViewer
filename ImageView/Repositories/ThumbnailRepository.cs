@@ -1,6 +1,4 @@
-﻿using System.Security;
-using System.Security.Cryptography;
-using GeneralToolkitLib.Converters;
+﻿using GeneralToolkitLib.Converters;
 using GeneralToolkitLib.Storage;
 using GeneralToolkitLib.Storage.Models;
 using ImageViewer.DataContracts;
@@ -8,6 +6,9 @@ using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Models.Import;
 using ImageViewer.Providers;
+using Microsoft.VisualBasic.Devices;
+using System.Security;
+using System.Security.Cryptography;
 
 namespace ImageViewer.Repositories;
 
@@ -27,11 +28,9 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     private readonly IMapper _mapper;
     private readonly StorageManager _storageManager;
     private readonly Size thumbnailSize = new(512, 512);
-
-    private CancellationTokenSource _cancellationTokenSource;
+    private readonly ReaderWriterLock _lock = new ReaderWriterLock();
 
     //private readonly ConcurrentDictionary<string, ThumbnailEntryModel> _thumbnailDictionary;
-    private bool _isModified;
     private ThumbnailMetadataDbModel _metadataDb;
 
     public ThumbnailRepository(IMapper mapper, FileManager fileManager, ImageProvider imageProvider, BlobStorageProvider blobStorageProvider)
@@ -41,42 +40,39 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         _imageProvider = imageProvider;
         _blobStorageProvider = blobStorageProvider;
         _storageManager = CreateStorageManager();
-        _cancellationTokenSource = new CancellationTokenSource();
     }
 
     public bool Initialized { get; private set; }
-
-
+    
     public bool IsModified
     {
-        set => _isModified = value;
+        get;
+        private set;
     }
 
 
     [SecuritySafeCritical]
-    private void GetDatabaseKey(ref SecureString secureString)
+    private static void GetDatabaseKey(ref SecureString secureString)
     {
         byte[] saltBytes = GeneralConverters.HexStringToByteArray(Salt);
 
 
-        using (var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 5207, HashAlgorithmName.SHA512))
+        using var deriveBytes = new Rfc2898DeriveBytes(DatabaseKeyComponent, saltBytes, 5207, HashAlgorithmName.SHA512);
+        byte[] buffer = deriveBytes.GetBytes(512);
+
+        try
         {
-            byte[] buffer = deriveBytes.GetBytes(512);
+            secureString.Clear();
+            buffer = SHA256.HashData(buffer);
+            var buffer2 = new char[buffer.Length * 2];
+            int size = Convert.ToBase64CharArray(buffer, 0, buffer.Length, buffer2, 0);
 
-            try
-            {
-                secureString.Clear();
-                buffer = SHA256.HashData(buffer);
-                char[] buffer2 = new char[buffer.Length * 2];
-                int size = Convert.ToBase64CharArray(buffer, 0, buffer.Length, buffer2, 0);
-
-                for (int i = 0; i < size; i += 2)
-                    secureString.AppendChar(buffer2[i]);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "GetDatabaseKey exception, message: {Message}", ex.Message);
-            }
+            for (var i = 0; i < size; i += 2)
+                secureString.AppendChar(buffer2[i]);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "GetDatabaseKey exception, message: {Message}", ex.Message);
         }
     }
 
@@ -96,7 +92,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     {
         string blobDbPath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), BinaryBlobFileName);
         string filePath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
-        bool requireSave = false;
+        var requireSave = false;
         _blobStorageProvider.OpenStorageFile();
 
         try
@@ -120,27 +116,19 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
         if (_metadataDb == null)
         {
-            if (File.Exists(filePath))
-            {
-                File.Delete(filePath);
-            }
+            if (File.Exists(filePath)) File.Delete(filePath);
 
-            if (!_blobStorageProvider.ClearStorage())
-            {
-                throw new InvalidOperationException("BlobStorageProvider.ClearStorage() Failed!");
-            }
+            if (!_blobStorageProvider.ClearStorage()) throw new InvalidOperationException("BlobStorageProvider.ClearStorage() Failed!");
 
 
             _metadataDb = ThumbnailMetadataDbModel.CreateModel(blobDbPath);
             requireSave = true;
         }
 
-        if (requireSave)
-        {
-            return await SaveThumbnailDatabaseAsync();
-        }
+        if (requireSave) return await SaveThumbnailDatabaseAsync();
 
         Initialized = true;
+        IsModified= true;
         return true;
     }
 
@@ -148,30 +136,30 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     {
         try
         {
-            string filePath = Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
+            string userDataDirectory = GlobalSettings.Instance.GetUserDataDirectoryPath();
+            string metadataFilePath = Path.Join(userDataDirectory, MetadataModelDbFileName);
 
-            // Save Data model
-            var dataModel = _mapper.Map<ThumbnailMetadataDbDataModel>(_metadataDb);
-            bool result = await _storageManager.SerializeObjectToFileAsync(dataModel, filePath, null);
-            result = result & (await _blobStorageProvider.SaveFileToDiskAsync());
+            var metadataDataModel = _mapper.Map<ThumbnailMetadataDbDataModel>(_metadataDb);
 
-            return result;
+            bool saveResult = await _storageManager.SerializeObjectToFileAsync(metadataDataModel, metadataFilePath, null);
+            bool blobSaveResult = await _blobStorageProvider.SaveFileToDiskAsync();
+
+            if (saveResult && blobSaveResult)
+                IsModified = false;
+
+            return saveResult && blobSaveResult;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "SaveThumbnailDatabaseAsync exception. Message: {message}", ex.Message);
+            Log.Error(ex, "Failed to save thumbnail database. Message: {message}", ex.Message);
+            return false;
         }
-
-        return false;
     }
 
     public async Task<Image> GetOrCreateThumbnailImage(FileInfo file, Size size)
     {
-        if (_metadataDb.ThumbnailEntries.ContainsKey(file.FullName))
-        {
-            var item = _metadataDb.ThumbnailEntries[file.FullName];
+        if (_metadataDb.ThumbnailEntries.TryGetValue(file.FullName, out var item))
             if (file.LastWriteTime == item!.OriginalImageModel.LastModified && file.Length == item.OriginalImageModel.FileSize)
-            {
                 try
                 {
                     // return cached thumbnail
@@ -180,7 +168,7 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
                     if (image == null)
                     {
-                        // TODO deal with faiulure
+                        // TODO deal with failure
                         bool result = _metadataDb.ThumbnailEntries.TryRemove(file.FullName, out _);
                     }
                     else
@@ -192,8 +180,6 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
                 {
                     Log.Error(ex, "GetOrCreateThumbnailImage exception. Message: {message}", ex.Message);
                 }
-            }
-        }
 
         var createdImage = _imageProvider.CreateThumbnail(file, size);
 
@@ -220,27 +206,45 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
 
 
             var rawImage = _fileManager.CreateRawImageFromImage(image);
-            thumbModel.FilePosition =  await _blobStorageProvider.WriteBlobDataAsync(rawImage.ImageData);
+            thumbModel.FilePosition = await _blobStorageProvider.WriteBlobDataAsync(rawImage.ImageData);
             thumbModel.FileSize = rawImage.ImageData.Length;
             thumbModel.FullName = fileInfo.FullName;
 
-            _metadataDb.ThumbnailEntries.TryAdd(thumbModel.FullName, thumbModel);
+            if (_metadataDb.ThumbnailEntries.TryAdd(thumbModel.FullName, thumbModel))
+                IsModified = true;
         }
     }
 
-    private int AddDataToBlobStorage(RawImage rawImage)
+    private void AddDataToBlobStorage(RawImage rawImage)
     {
-        var token = new CancellationToken(false);
-        return _blobStorageProvider.WriteBlobData(rawImage.ImageData);
-    }
-
-    public async Task<bool> OptimizeDatabaseAsync()
-    {
-        // TODO
-        return await Task<bool>.Factory.StartNew(() => false);
+        _blobStorageProvider.WriteBlobData(rawImage.ImageData);
     }
 
     #region Public Methods
+
+    // Just reorder the database items according to Size Ascending. Which will also defrag the database
+    // since unused data blocks in the blob data storage will be removed automatically.
+    public bool OptimizeDatabase()
+    {
+        _lock.AcquireWriterLock(-1);
+        if (!_lock.IsWriterLockHeld)
+            return false;
+
+        try
+        {
+            var thumbnailList = _metadataDb.ThumbnailEntries.Values.ToList().OrderBy(x => x.FileSize);
+            _blobStorageProvider.SaveFileToDiskAsync().GetAwaiter().GetResult();
+
+            IsModified = true;
+            return true;
+        }
+        finally
+        {
+            _lock.ReleaseWriterLock();
+        }   
+        
+       
+    }
 
     public long GetDatabaseSize()
     {
@@ -252,6 +256,12 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
         return _metadataDb.ThumbnailEntries.Count;
     }
 
+    public bool ClearDatabase()
+    {
+        bool result = _blobStorageProvider.ClearStorage();
+        _metadataDb.ThumbnailEntries.Clear();
+        return result;
+    }
 
     private long GetThumbnailDiskSize()
     {
@@ -264,9 +274,8 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     public async Task<Image> GetOrCreateThumbnailImageAsync(string fullPath, Size size, CancellationToken token)
     {
         Image img = null;
-        if (_metadataDb.ThumbnailEntries.ContainsKey(fullPath))
+        if (_metadataDb.ThumbnailEntries.TryGetValue(fullPath, out var entry))
         {
-            var entry = _metadataDb.ThumbnailEntries[fullPath];
             if (entry!.ThumbnailSize == size)
             {
                 byte[] data = await _blobStorageProvider.ReadBlobDataAsync(entry.FilePosition, entry.FileSize);
@@ -287,12 +296,9 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
                 var model = new ThumbnailEntryModel { FileSize = Convert.ToInt32(data.Length), CreateDate = DateTime.Now, ThumbnailSize = size, OriginalImageModel = imageRef };
                 int position = await _blobStorageProvider.WriteBlobDataAsync(data);
                 model.FilePosition = position;
-                model.FullName = fullPath;        
+                model.FullName = fullPath;
 
-                if(!_metadataDb.ThumbnailEntries.TryAdd(model.FullName, model))
-                {
-                    Log.Warning("Failed to add ThumbnailEntryModel to _metadataDb.ThumbnailEntries in GetOrCreateThumbnailImageAsync()");
-                }
+                if (!_metadataDb.ThumbnailEntries.TryAdd(model.FullName, model)) Log.Warning("Failed to add ThumbnailEntryModel to _metadataDb.ThumbnailEntries in GetOrCreateThumbnailImageAsync()");
 
                 img = _imageProvider.LoadFromByteArray(data);
             }
@@ -308,6 +314,11 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     public string GetThumbnailDbFilePath()
     {
         return Path.Join(GlobalSettings.Instance.GetUserDataDirectoryPath(), MetadataModelDbFileName);
+    }
+
+    public bool CheckIfCached(string imagePath)
+    {
+        return _metadataDb.ThumbnailEntries.ContainsKey(imagePath);
     }
 
 
@@ -415,4 +426,10 @@ public class ThumbnailRepository : RepositoryBase, IDisposable
     }
 
     #endregion
+
+
+    public bool DecreaseDatabaseSize(int maxThumbnailCount)
+    {
+        throw new NotImplementedException();
+    }
 }

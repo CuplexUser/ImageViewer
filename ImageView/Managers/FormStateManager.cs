@@ -1,5 +1,5 @@
-﻿using System.Collections.Concurrent;
-using ImageViewer.Models;
+﻿using ImageViewer.Models;
+using System.Collections.Concurrent;
 
 namespace ImageViewer.Managers;
 
@@ -140,7 +140,7 @@ public static class FormStateManager
         }
     }
 
-    public static void ToggleFullscreen( Form form, WindowStateModel windowState, bool fullscreen)
+    public static void ToggleFullscreen(Form form, WindowStateModel windowState, bool fullscreen)
     {
         if (fullscreen)
         {

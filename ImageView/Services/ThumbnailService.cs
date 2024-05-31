@@ -1,11 +1,11 @@
-﻿using System.Text.RegularExpressions;
-using GeneralToolkitLib.Configuration;
+﻿using GeneralToolkitLib.Configuration;
 using ImageMagick;
 using ImageViewer.Events;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Providers;
 using ImageViewer.Repositories;
+using System.Text.RegularExpressions;
 
 namespace ImageViewer.Services;
 
@@ -22,7 +22,7 @@ public sealed class ThumbnailService : ServiceBase
     private readonly FileManager _fileManager;
 
     /// <summary>
-    ///     The file name reg exp
+    ///     The file name regexp
     /// </summary>
     private readonly Regex _fileNameRegExp = new(ImageSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
@@ -118,12 +118,9 @@ public sealed class ThumbnailService : ServiceBase
 
     private async Task<int> StartThumbnailDirectoryScanAsync(List<string> directories, int totalFileCount, IProgress<ThumbnailScanProgress> progress, CancellationToken token)
     {
-        int scannedFiles = 0;
+        var scannedFiles = 0;
 
-        if (_abortScan)
-        {
-            return scannedFiles;
-        }
+        if (_abortScan) return scannedFiles;
 
         foreach (string directory in directories)
         {
@@ -133,17 +130,11 @@ public sealed class ThumbnailService : ServiceBase
             {
                 try
                 {
-                    Image thumbnailImage = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
+                    var thumbnailImage = await _thumbnailRepository.GetOrCreateThumbnailImageAsync(fileInfo.FullName, _thumbnailSize, _tokenSource.Token);
 
-                    if (progress != null && scannedFiles % 20 == 0)
-                    {
-                        progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
-                    }
+                    if (progress != null && scannedFiles % 20 == 0) progress.Report(new ThumbnailScanProgress { IsComplete = false, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
 
-                    if (thumbnailImage == null)
-                    {
-                        throw new InvalidDataException("GetOrCreateThumbnailImage() returned a null image");
-                    }
+                    if (thumbnailImage == null) throw new InvalidDataException("GetOrCreateThumbnailImage() returned a null image");
                 }
                 catch (Exception ex)
                 {
@@ -153,13 +144,10 @@ public sealed class ThumbnailService : ServiceBase
                 Interlocked.Increment(ref scannedFiles);
             }
 
-            await Task.WhenAll(filesToScan.Select(file => ProcessFileAsync(file)));
+            await Task.WhenAll(filesToScan.Select(ProcessFileAsync));
         }
 
-        if (progress != null)
-        {
-            progress.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
-        }
+        progress?.Report(new ThumbnailScanProgress { IsComplete = true, ScannedFiles = scannedFiles, TotalAmountOfFiles = totalFileCount });
 
         return scannedFiles;
     }
@@ -207,13 +195,18 @@ public sealed class ThumbnailService : ServiceBase
     }
 
 
+    public bool OptimizeDatabase()
+    {
+        return _thumbnailRepository.OptimizeDatabase();
+    }
+
     public async Task<bool> OptimizeDatabaseAsync()
     {
-        return await _thumbnailRepository.OptimizeDatabaseAsync();
+        return await Task.Factory.StartNew(() => _thumbnailRepository.OptimizeDatabase());
     }
 
 
-    public async Task<bool> SaveThumbnailDatabase()
+    public async Task<bool> SaveThumbnailDatabaseAsync()
     {
         bool result = false;
 
@@ -227,10 +220,14 @@ public sealed class ThumbnailService : ServiceBase
         return result;
     }
 
-    public async Task<bool> SaveThumbnailDatabaseAsync()
+    public bool SaveThumbnailDatabase()
     {
-        await Task.Delay(10);
-        return true;
+        return SaveThumbnailDatabaseAsync().GetAwaiter().GetResult();;
+    }
+
+    public bool LoadThumbnailDatabase()
+    {
+        return LoadThumbnailDatabaseAsync().GetAwaiter().GetResult();
     }
 
     public async Task<bool> LoadThumbnailDatabaseAsync()
@@ -258,24 +255,14 @@ public sealed class ThumbnailService : ServiceBase
         return _thumbnailRepository.GetThumbnailDbFilePath();
     }
 
-    private async Task<bool> DoMaintenanceTask(Func<WorkParameters, bool> maintenanceMethod, WorkParameters parameters)
+    private async Task<bool> DecreaseDatabaseSize(int maxThumbnailCount)
     {
         bool result;
         try
         {
             ServiceState = ThumbnailServiceState.DatabaseMaintenance;
-            result = maintenanceMethod(parameters);
-            if (result)
-            {
-                ServiceState |= ThumbnailServiceState.SavingDatabase;
-                result = await SaveThumbnailDatabase();
-                if (!result)
-                {
-                    Log.Error("DoMaintenanceTask failed to save database");
-                }
-
-                ServiceState ^= ThumbnailServiceState.SavingDatabase;
-            }
+            int currentCount = _thumbnailRepository.GetFileCacheCount();
+            result = currentCount < maxThumbnailCount ? false : _thumbnailRepository.DecreaseDatabaseSize(maxThumbnailCount);
         }
         catch (Exception ex)
         {
@@ -318,13 +305,15 @@ public sealed class ThumbnailService : ServiceBase
 
     public bool ClearDatabase()
     {
-        if (ServiceState != ThumbnailServiceState.Idle)
+        //Enqueue job to clear database
+        if (ServiceState == ThumbnailServiceState.Idle)
         {
-            Log.Warning("ThumbnailService Clear Database was called when Service State was: {ServiceState}", ServiceState);
-            return false;
+            return _thumbnailRepository.ClearDatabase();
         }
 
-        return false; // DoMaintenanceTask(_dbManager.ClearDatabase, WorkParameters.Empty);
+        //TODO Add second attempt
+
+        return true; 
     }
 
     public long GetDatabaseSize()
@@ -344,5 +333,10 @@ public sealed class ThumbnailService : ServiceBase
         var result = _imageProvider.CreateThumbnailFromImage(img, size);
 
         return result;
+    }
+
+    public bool CheckIfCached(string imageFilepath)
+    {
+        return _thumbnailRepository.CheckIfCached(imageFilepath);
     }
 }

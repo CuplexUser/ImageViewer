@@ -3,8 +3,14 @@ using ImageViewer.Models.Import;
 
 namespace ImageViewer.Models;
 
+/// <summary>
+/// ThumbnailEntryModel
+/// </summary>
 public class ThumbnailEntryModel
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ThumbnailEntryModel"/> class.
+    /// </summary>
     public ThumbnailEntryModel()
     {
         if (EntryId == Guid.Empty)
@@ -13,25 +19,74 @@ public class ThumbnailEntryModel
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ThumbnailEntryModel"/> class.
+    /// </summary>
+    /// <param name="entryId">The entry identifier.</param>
     public ThumbnailEntryModel(Guid entryId)
     {
         EntryId = entryId;
     }
 
+    /// <summary>
+    /// Gets or sets the entry identifier.
+    /// </summary>
+    /// <value>
+    /// The entry identifier.
+    /// </value>
     public Guid EntryId { get; protected set; }
 
+    /// <summary>
+    /// Gets or sets the full name.
+    /// </summary>
+    /// <value>
+    /// The full name.
+    /// </value>
     public string FullName { get; set; }
 
+    /// <summary>
+    /// Gets or sets the file position.
+    /// </summary>
+    /// <value>
+    /// The file position.
+    /// </value>
     public long FilePosition { get; set; }
 
+    /// <summary>
+    /// Gets or sets the size of the file.
+    /// </summary>
+    /// <value>
+    /// The size of the file.
+    /// </value>
     public int FileSize { get; set; }
 
+    /// <summary>
+    /// Gets or sets the creation date.
+    /// </summary>
+    /// <value>
+    /// The creation date.
+    /// </value>
     public DateTime CreateDate { get; set; }
 
+    /// <summary>
+    /// Gets or sets the original image model.
+    /// </summary>
+    /// <value>
+    /// The original image model.
+    /// </value>
     public ImageRefModel OriginalImageModel { get; set; }
 
+    /// <summary>
+    /// Gets or sets the size of the thumbnail.
+    /// </summary>
+    /// <value>
+    /// The size of the thumbnail.
+    /// </value>
     public Size ThumbnailSize { get; set; }
 
+    /// <summary>
+    /// Initializes the new.
+    /// </summary>
     private void InitNew()
     {
         EntryId = Guid.NewGuid();
@@ -39,7 +94,7 @@ public class ThumbnailEntryModel
 
 
     /// <summary>
-    ///     Creates the mapping.
+    /// Creates the mapping.
     /// </summary>
     /// <param name="expression">The expression.</param>
     public static void CreateMapping(IProfileExpression expression)

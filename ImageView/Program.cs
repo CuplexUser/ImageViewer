@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using GeneralToolkitLib.Configuration;
+﻿using GeneralToolkitLib.Configuration;
 using ImageViewer.Configuration;
 using ImageViewer.Services;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace ImageViewer;
 

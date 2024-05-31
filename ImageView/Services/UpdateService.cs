@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+﻿using ImageViewer.Models;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using ImageViewer.Models;
 
 namespace ImageViewer.Services;
 

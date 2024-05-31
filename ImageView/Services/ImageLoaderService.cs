@@ -1,12 +1,12 @@
-﻿using System.Security.AccessControl;
-using System.Security.Cryptography;
-using System.Security.Principal;
-using System.Text.RegularExpressions;
-using GeneralToolkitLib.Storage;
+﻿using GeneralToolkitLib.Storage;
 using ImageViewer.Collections;
 using ImageViewer.Library.EventHandlers;
 using ImageViewer.Models;
 using ImageViewer.Models.Import;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
+using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 namespace ImageViewer.Services;
 
@@ -29,7 +29,7 @@ public class ImageLoaderService : ServiceBase, IDisposable
     private int _tickCount;
     private int _totalNumberOfFiles;
 
-
+    [UsedImplicitly]
     public ImageLoaderService(BookmarkService bookmarkService, IMapper mapper)
     {
         _bookmarkService = bookmarkService;

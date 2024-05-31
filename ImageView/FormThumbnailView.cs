@@ -1,11 +1,10 @@
-﻿using System.ComponentModel;
-using System.Threading;
-using ImageViewer.Delegates;
+﻿using ImageViewer.Delegates;
 using ImageViewer.Managers;
 using ImageViewer.Models;
 using ImageViewer.Services;
 using ImageViewer.UserControls;
 using ImageViewer.Utility;
+using System.ComponentModel;
 
 namespace ImageViewer;
 
@@ -95,8 +94,7 @@ public partial class FormThumbnailView : Form, IDisposable
         }
 
         Hide();
-
-        Task.Factory.StartNew(async () => { await _thumbnailService.SaveThumbnailDatabase(); }).Wait();
+        _thumbnailService.SaveThumbnailDatabase();
 
         _formIsDisposing = true;
         var appSettings = AppSettings;
@@ -172,7 +170,7 @@ public partial class FormThumbnailView : Form, IDisposable
             {
                 await BindAndLoadThumbnailsAsync();
                 _manualResetEvent.Set();
-            }).ConfigureAwait(true).GetAwaiter().OnCompleted(() => { _manualResetEvent.Set();});
+            }).ConfigureAwait(true).GetAwaiter().OnCompleted(() => { _manualResetEvent.Set(); });
 
 
         }
@@ -192,16 +190,8 @@ public partial class FormThumbnailView : Form, IDisposable
             _tokenSource.TryReset();
             _manualResetEvent.Set();
         }
-
-
-
-        // Dont execute before BindAndLoadThumbnails is completed
-        Task.Factory.StartNew(async () =>
-        {
-            _manualResetEvent.WaitOne(2500, true);
-            await _thumbnailService.SaveThumbnailDatabase().ConfigureAwait(true);
-        }).ConfigureAwait(true);
-
+        
+        _thumbnailService.SaveThumbnailDatabase();
 
         Refresh();
         GC.Collect(0, GCCollectionMode.Optimized);
@@ -307,27 +297,27 @@ public partial class FormThumbnailView : Form, IDisposable
     }
 
 
-private void UpdatePictureBoxList(object sender, UpdatePicBoxEventArgs args)
-{
-    if (args?.PictureBoxModel != null)
+    private void UpdatePictureBoxList(object sender, UpdatePicBoxEventArgs args)
     {
-        if (flowLayoutPanel1.InvokeRequired)
+        if (args?.PictureBoxModel != null)
         {
-            flowLayoutPanel1.Invoke(new Action(() =>
+            if (flowLayoutPanel1.InvokeRequired)
+            {
+                flowLayoutPanel1.Invoke(new Action(() =>
+                {
+                    flowLayoutPanel1.SuspendLayout();
+                    flowLayoutPanel1.Controls.Add(args.PictureBoxModel);
+                    flowLayoutPanel1.ResumeLayout(true);
+                }));
+            }
+            else
             {
                 flowLayoutPanel1.SuspendLayout();
                 flowLayoutPanel1.Controls.Add(args.PictureBoxModel);
                 flowLayoutPanel1.ResumeLayout(true);
-            }));
-        }
-        else
-        {
-            flowLayoutPanel1.SuspendLayout();
-            flowLayoutPanel1.Controls.Add(args.PictureBoxModel);
-            flowLayoutPanel1.ResumeLayout(true);
+            }
         }
     }
-}
 
     private void SetUpdateDatabaseEnabledState(bool enabled)
     {

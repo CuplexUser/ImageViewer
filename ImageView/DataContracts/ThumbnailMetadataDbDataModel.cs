@@ -1,7 +1,4 @@
-﻿using ImageViewer.Models;
-using System.Collections.Concurrent;
-
-namespace ImageViewer.DataContracts;
+﻿namespace ImageViewer.DataContracts;
 
 [Serializable]
 [DataContract(Name = "ThumbnailMetadataDbDataModel")]

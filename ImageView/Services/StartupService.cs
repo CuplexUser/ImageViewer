@@ -82,7 +82,7 @@ public class StartupService : ServiceBase
     {
         await Task.Delay(5000);
         _interactionService.InformUser(new UserInteractionInformation
-            { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test" });
+        { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Asterisk, Message = "Hello this is  a test", Label = "Test" });
         return true;
     }
 }

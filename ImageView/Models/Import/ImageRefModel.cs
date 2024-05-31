@@ -81,7 +81,7 @@ public class ImageRefModel
     public int SortOrder { get; set; }
 
     /// <summary>
-    ///     Gets or sets a future delete flag usuallyt in a asynchronumous execution state in which the item
+    ///     Gets or sets a future delete flag usually in an asynchronumous execution state in which the item
     ///     can be removed later in a single threaded recursive context.
     /// </summary>
     /// <value>

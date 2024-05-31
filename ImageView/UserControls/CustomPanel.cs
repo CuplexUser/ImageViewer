@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
+﻿using GeneralToolkitLib.Events;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
-using GeneralToolkitLib.Events;
 
 namespace ImageViewer.UserControls;
 

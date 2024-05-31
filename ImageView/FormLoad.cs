@@ -92,7 +92,7 @@ public partial class FormLoad : Form
         if (!result)
         {
             _interactionService.InformUser(new UserInteractionInformation
-                { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
+            { Buttons = MessageBoxButtons.OK, Icon = MessageBoxIcon.Error, Message = "Image import failed", Label = "Error" });
         }
 
         btnStart.Enabled = false;

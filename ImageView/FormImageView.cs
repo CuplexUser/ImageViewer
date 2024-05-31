@@ -1,5 +1,4 @@
-﻿using System.Drawing.Drawing2D;
-using GeneralToolkitLib.WindowsApi;
+﻿using GeneralToolkitLib.WindowsApi;
 using ImageViewer.Collections;
 using ImageViewer.Events;
 using ImageViewer.Interfaces;
@@ -9,6 +8,7 @@ using ImageViewer.Models;
 using ImageViewer.Resources;
 using ImageViewer.Services;
 using ImageViewer.Utility;
+using System.Drawing.Drawing2D;
 
 namespace ImageViewer;
 
@@ -612,7 +612,7 @@ public partial class FormImageView : Form, IObservable<ImageViewFormInfoBase>, I
         int oldImageY = (int)(y / oldZoom);
 
         int newImageX = (int)(x / _zoom); // Where in the IMAGE will it be when the new zoom i made
-        int newImageY= (int)(y / _zoom);
+        int newImageY = (int)(y / _zoom);
 
         _imgX = newImageX - oldImageX + _imgX; // Where to move image to keep focus on one point
         _imgY = newImageY - oldImageY + _imgY;

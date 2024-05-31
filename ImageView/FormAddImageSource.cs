@@ -1,6 +1,5 @@
 ﻿#region Includes
 
-using System.Diagnostics;
 using ImageViewer.DataContracts.Import;
 using ImageViewer.Managers;
 using ImageViewer.Models.FormMenuHistory;
@@ -9,6 +8,7 @@ using ImageViewer.Models.UserInteraction;
 using ImageViewer.Repositories;
 using ImageViewer.Services;
 using ImageViewer.Utility;
+using System.Diagnostics;
 
 #endregion
 

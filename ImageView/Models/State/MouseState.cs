@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace ImageViewer.Models.State
+﻿namespace ImageViewer.Models.State
 {
     /// <summary>
     /// MouseState class

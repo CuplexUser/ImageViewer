@@ -1,6 +1,5 @@
 ﻿using ImageViewer.DataContracts;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 
 namespace ImageViewer.Models;
 
@@ -75,50 +74,22 @@ public class ThumbnailMetadataDbModel
         return model;
     }
 
-    public static List<ThumbnailEntryModel> CreateNewList(ConcurrentDictionary<string, ThumbnailEntryModel> sourceDict)
-    {
-        var list = new List<ThumbnailEntryModel>();
-
-        foreach (var entry in sourceDict.Values)
-        {
-            list.Add(entry);
-        }
-
-        return list;
-
-    }
-
-    public static ConcurrentDictionary<string, ThumbnailEntryModel> CreateNewDictionaty(List<ThumbnailEntryDataModel> sourceList)
-    {
-        var dict = new ConcurrentDictionary<string, ThumbnailEntryModel>();
-
-        foreach (var entry in sourceList)
-        {
-         
-
-
-        }
-
-        return dict;
-    }
-
-
     /// <summary>
     ///     Creates the mapping.
     /// </summary>
     /// <param name="expression">The expression.</param>
-    public static void CreateMapping(IProfileExpression profileExpression)
+    public static void CreateMapping(IProfileExpression expression)
     {
-        profileExpression.CreateMap<ThumbnailMetadataDbModel, ThumbnailMetadataDbDataModel>()
+        expression.CreateMap<ThumbnailMetadataDbModel, ThumbnailMetadataDbDataModel>()
             .ForMember(dest => dest.DatabaseId, opt => opt.MapFrom(src => src.DatabaseId))
             .ForMember(dest => dest.LastUpdated, opt => opt.MapFrom(src => src.LastUpdated))
             .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
             .ForMember(dest => dest.BinaryBlobFilename, opt => opt.MapFrom(src => src.BinaryBlobFilename))
-            .ForMember(dest => dest.ThumbnailEntries, opt => opt.MapFrom(src => src.ThumbnailEntries.Values.ToImmutableList()))
+            .ForMember(dest => dest.ThumbnailEntries, opt => opt.MapFrom(src => src.ThumbnailEntries.Values.ToList()))
             .ReverseMap();
 
 
-        profileExpression.CreateMap<ThumbnailEntryModel, ThumbnailEntryDataModel>()
+        expression.CreateMap<ThumbnailEntryModel, ThumbnailEntryDataModel>()
             .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
             .ForMember(dest => dest.FilePosition, opt => opt.MapFrom(src => src.FilePosition))
             .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))

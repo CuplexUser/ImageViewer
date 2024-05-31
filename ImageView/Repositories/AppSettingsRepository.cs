@@ -1,9 +1,9 @@
-﻿using System.Collections.Concurrent;
-using ImageViewer.DataContracts;
+﻿using ImageViewer.DataContracts;
 using ImageViewer.Models;
 using ImageViewer.Models.FormMenuHistory;
 using ImageViewer.Models.Interface;
 using ImageViewer.Providers;
+using System.Collections.Concurrent;
 
 namespace ImageViewer.Repositories;
 

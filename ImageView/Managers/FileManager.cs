@@ -1,9 +1,9 @@
-﻿using System.Drawing.Imaging;
-using GeneralToolkitLib.Configuration;
+﻿using GeneralToolkitLib.Configuration;
 using GeneralToolkitLib.Converters;
 using ImageMagick;
 using ImageViewer.Models;
 using ImageViewer.Providers;
+using System.Drawing.Imaging;
 
 namespace ImageViewer.Managers;
 
